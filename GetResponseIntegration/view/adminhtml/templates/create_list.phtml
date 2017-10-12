@@ -1,0 +1,229 @@
+<?php
+$from_fields = $block->getAccountFromFields();
+$lang = substr($block->getStoreLanguage(), 0, 2);
+$confirmation_subjects = $block->getSubscriptionConfirmationsSubject($lang);
+$confirmation_bodies = $block->getSubscriptionConfirmationsBody($lang);
+?>
+
+<form id="createNewListForm" action="<?php echo $block->getUrl('getresponseintegration/lists/create'); ?>" method="POST">
+    <?php echo $block->getBlockHtml('formkey'); ?>
+    <input type="hidden" name="back_url" value="<?php echo $block->getBackUrl()?>" />
+
+    <div class="page-main-actions">
+        <div class="page-main-hint"></div>
+        <div class="page-actions">
+            <div class="page-actions-inner">
+                <div class="page-actions-buttons">
+                    <button id="back" title="Back" class="action-default scalable back" role="button" type="button" aria-disabled="false" onclick="location.href='<?php echo $block->getUrl($block->getBackUrl())?>'">
+                        <span class="ui-button-text">
+                            <span>Back</span>
+                        </span>
+                    </button>
+                    <button id="export" title="Save New List" type="submit" class="action-default scalable save primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
+                        <span class="ui-button-text">
+                            <span>Save New List</span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="page:main-container" class="page-columns">
+        <div class="admin__old">
+            <div id="container" class="main-col">
+
+                <fieldset class="fieldset admin__fieldset no-display" id="campaign_name_fieldset" style="display: block;">
+                    <div class="admin__field field field-basic_campaign_name required _required with-note">
+                        <label class="label admin__field-label" for="getresponse_api_key">
+                            <span>List name</span>
+                        </label>
+                        <div class="admin__field-control control">
+                            <input name="campaign_name" id="campaign_name" value="<?php echo $block->getLastPostedApiKey(); ?>" title="API Key" class="basic_behavior input-text input-text admin__control-text required-entry _required" type="text" aria-required="true">
+                            <div class="validation-message"></div>
+                        </div>
+                    </div>
+
+                    <div class="admin__field field field-basic_from_field required _required with-note">
+                        <label class="label admin__field-label" for="from_field">
+                            <span>From field</span>
+                        </label>
+                        <div class="admin__field-control control">
+                            <select name="from_field" id="from_field" class="select admin__control-select" aria-required="true">
+                                <option value="">Select from field</option>
+                                <?php
+                                if (isset($from_fields)) {
+                                    foreach ($from_fields as $from_field) {
+                                        echo '<option value="' . $from_field->fromFieldId . '">' . $from_field->name . ' (' . $from_field->email . ')</option>';
+                                    }
+                                }
+                                ?>
+                            </select>
+                            <div class="validation-message"></div>
+                        </div>
+                    </div>
+
+                    <div class="admin__field field field-basic_reply_to_field required _required with-note">
+                        <label class="label admin__field-label" for="reply_to_field">
+                            <span>Reply-to</span>
+                        </label>
+                        <div class="admin__field-control control">
+                            <select name="reply_to_field" id="reply_to_field" class="select admin__control-select" aria-required="true">
+                                <option value="">Select reply-to address</option>
+                                <?php
+                                if (isset($from_fields)) {
+                                    foreach ($from_fields as $from_field) {
+                                        echo '<option value="' . $from_field->fromFieldId . '">' . $from_field->name . ' (' . $from_field->email . ')</option>';
+                                    }
+                                }
+                                ?>
+                            </select>
+                            <div class="validation-message"></div>
+                        </div>
+                    </div>
+
+                    <div class="admin__field field field-basic_confirmation_subject required _required with-note">
+                        <label class="label admin__field-label" for="confirmation_subject">
+                            <span>Confirmation subject</span>
+                        </label>
+                        <div class="admin__field-control control">
+                            <select name="confirmation_subject" id="confirmation_subject" class="select admin__control-select" aria-required="true">
+                                <option value="">Select confirmation message subject</option>
+                                <?php
+                                if (isset($confirmation_subjects)) {
+                                    foreach ($confirmation_subjects as $subject) {
+                                        echo '<option value="' . $subject->subscriptionConfirmationSubjectId . '">' . $subject->subject . '</option>';
+                                    }
+                                }
+                                ?>
+                            </select>
+                            <div class="validation-message"></div>
+                        </div>
+                    </div>
+
+                    <div class="admin__field field field-basic_confirmation_body required _required with-note">
+                        <label class="label admin__field-label" for="confirmation_body">
+                            <span>Confirmation body</span>
+                        </label>
+                        <div class="admin__field-control control">
+                            <select name="confirmation_body" id="confirmation_body" class="select admin__control-select" aria-required="true">
+                                <option value="">Select confirmation message body template</option>
+                                <?php
+                                    if (isset($confirmation_bodies)) {
+                                        foreach ($confirmation_bodies as $body) {
+                                            echo '<option value="' . $body->subscriptionConfirmationBodyId . '">(' . $body->name . ') ' . $body->contentPlain . '</option>';
+                                        }
+                                    }
+                                ?>
+                            </select>
+                            <div class="validation-message"></div>
+                            <div class="note admin__field-note" id="gr_sync_order_data-note">
+                                The confirmation message body and subject depend on System >> Configuration >> General >> Locale Options.
+                            </div>
+                            <div class="note admin__field-note" id="gr_sync_order_data-note">
+                                By default all lists you create in Magento have double opt-in enabled. You can change this later in your <a href="https://support.getresponse.com/faq/how-i-disable-confirmation-message" target="_blank">list settings</a>.
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    require(['jquery'],function($) {
+        var LIST_NAME_LENGTH = 3;
+
+        var createNewListForm = $('#createNewListForm');
+        var listName = createNewListForm.find('#campaign_name');
+        var from_field = createNewListForm.find('#from_field');
+        var reply_to_field = createNewListForm.find('#reply_to_field');
+        var confirmation_subject = createNewListForm.find('#confirmation_subject');
+        var confirmation_body = createNewListForm.find('#confirmation_body');
+
+        createNewListForm.submit(function () {
+            return isFormValid();
+        });
+
+        function isFormValid() {
+            validateIfEmptyField(listName);
+            validateIfAtLeastLongField(listName, LIST_NAME_LENGTH);
+            validateIfEmptyField(from_field);
+            validateIfEmptyField(reply_to_field);
+            validateIfEmptyField(confirmation_subject);
+            validateIfEmptyField(confirmation_body);
+
+            return !!validateIfEmptyField(listName) &&
+                !!validateIfAtLeastLongField(listName, LIST_NAME_LENGTH) &&
+                !!validateIfEmptyField(from_field) &&
+                !!validateIfEmptyField(reply_to_field) &&
+                !!validateIfEmptyField(confirmation_subject) &&
+                !!validateIfEmptyField(confirmation_body);
+        }
+
+        function validateIfEmptyField(field) {
+            if (field.val() === '') {
+                showEmptyErrorMessage(field);
+                return false;
+            } else {
+                clearErrorMessage(field);
+                return true;
+            }
+        }
+
+        function validateIfAtLeastLongField(field, length) {
+            if (validateIfEmptyField(field)) {
+                if (field.val().length < length) {
+                    showAtLeastLongErrorMessage(field, length);
+                    return false;
+                } else {
+                    clearErrorMessage(field);
+                    return true;
+                }
+            }
+        }
+
+        function showAtLeastLongErrorMessage(field, length) {
+            var errorMessage = null;
+
+            if (field.attr('id') === 'campaign_name') {
+                errorMessage = 'You need to enter a name that\'s at least ' + length + ' characters long';
+            }
+
+            appendError(field, errorMessage);
+        }
+
+        function showEmptyErrorMessage(field) {
+            var errorMessage = null;
+
+            switch (field.attr('id')) {
+                case 'campaign_name':
+                    errorMessage = 'You need to enter a name that\'s at least 3 characters long';
+                    break;
+                case 'from_field':
+                    errorMessage = 'You need to select a sender email address';
+                    break;
+                case 'reply_to_field':
+                    errorMessage = 'This is a required field';
+                    break;
+                case 'confirmation_subject':
+                    errorMessage = 'You need to select a subject line for the subscription confirmation message';
+                    break;
+                case 'confirmation_body':
+                    errorMessage = 'You need to select confirmation message body template';
+            }
+
+            appendError(field, errorMessage);
+        }
+
+        function appendError(field, errorMessage) {
+            field.next().html('<label class="admin__field-error">' + errorMessage + '</label>');
+            field.parent().parent().addClass('_error');
+        }
+
+        function clearErrorMessage(field) {
+            field.next().html('');
+            field.parent().parent().removeClass('_error');
+        }
+    });
+</script>

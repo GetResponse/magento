@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../../../../Magento/Config/etc/system_file.xsd">
+    <system>
+        <tab id="getresponse" translate="label" sortOrder="10">
+            <label>GetResponse</label>
+        </tab>
+        <section id="getresponse_getresponseintegration" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1"
+                 showInStore="1">
+            <label>GetResponse account</label>
+            <tab>getresponse</tab>
+            <resource>GetResponse_GetResponseIntegrationaa::getresponse_getresponseintegrationaa</resource>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0"
+                   showInStore="0">
+                <label>General</label>
+                <field id="enable" translate="label comment" type="select" sortOrder="10" showInDefault="1">
+
+                    <label>Enable GetResponse Integration</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>
+                        Turn GetResponse Integration on or off.
+                    </comment>
+                </field>
+                <field id="api_key" translate="label" type="text" sortOrder="20" showInDefault="1">
+                    <label>API key</label>
+                    <comment>
+                        If you already are a GetResponse customer, please enter your API key to enable the module and click "Save Config" to continue.
+                    </comment>
+                </field>
+            </group>
+        </section>
+        <section id="getresponse_getresponseintegrationexport" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1"
+                 showInStore="1">
+            <label>Export customers</label>
+            <tab>getresponse</tab>
+            <resource>Getresponse_GetResponseIntegration::getresponse_getresponseintegration</resource>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0"
+                   showInStore="0">
+                <label>Export customers</label>
+                <field id="enable" translate="label comment" type="select" sortOrder="10" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Enable GetResponse Integration</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>
+                        Turn GetResponse Integration on or off.
+                    </comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

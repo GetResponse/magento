@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="page.bottom">
+            <block name="getresponse.webform.page.bottom" class="GetResponse\GetResponseIntegration\Block\Webform" template="page.bottom.phtml" />
+        </referenceContainer>
+
+        <referenceContainer name="div.sidebar.additional">
+            <block name="getresponse.webform.sidebar.additional" class="GetResponse\GetResponseIntegration\Block\Webform" template="div.sidebar.additional.phtml" />
+        </referenceContainer>
+
+        <referenceContainer name="sidebar.main">
+            <block name="getresponse.webform.sidebar.main" class="GetResponse\GetResponseIntegration\Block\Webform" template="sidebar.main.phtml" />
+        </referenceContainer>
+
+        <referenceContainer name="content">
+            <block name="getresponse.webform.content" class="GetResponse\GetResponseIntegration\Block\Webform" template="content.phtml" />
+        </referenceContainer>
+
+        <referenceContainer name="footer-container">
+            <block name="getresponse.webform.footer" class="GetResponse\GetResponseIntegration\Block\Webform" template="footer.phtml" />
+        </referenceContainer>
+
+        <referenceBlock name="head.additional">
+            <block class="GetResponse\GetResponseIntegration\Block\Header" name="getresponse.footer" template="header.phtml" />
+        </referenceBlock>
+    </body>
+</page>

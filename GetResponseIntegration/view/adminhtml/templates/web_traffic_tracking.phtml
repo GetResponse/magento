@@ -1,0 +1,56 @@
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Settings */
+
+if (!$block->checkApiKey()) {
+    return;
+}
+
+$settings = $block->getSettings();
+
+if (isset($settings['feature_tracking']) && 'enabled' === $settings['feature_tracking']): ?>
+
+<style>
+    .page-main-hint {
+        float: left;
+    }
+
+    .page-main-hint span {
+        display: inline-block;
+        margin-top: .3rem;
+    }
+</style>
+
+<form method="post" action="<?php echo $block->getUrl('getresponseintegration/settings/webtraffictracking'); ?>">
+    <?php echo $block->getBlockHtml('formkey'); ?>
+    <div class="page-main-actions">
+        <div class="page-main-hint">
+            <span>Enable event tracking in GetResponse to uncover who is visiting your stores, how often, and why.<br/>Analyze and react to customer buying habits.</span>
+        </div>
+        <div class="page-actions">
+            <div class="page-actions-inner">
+                <div class="page-actions-buttons">
+                    <button title="Export" type="submit" class="action-primary" role="button" aria-disabled="false">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <main id="page:main-container" class="page-content">
+        <input type="checkbox"
+               name="web_traffic"
+               id="web_traffic"
+               value="1"
+            <?php
+            if (isset($settings['web_traffic']) && 'enabled' === $settings['web_traffic']) {
+                echo ' checked="checked"';
+            }
+            ?>
+        />
+        <label for="web_traffic">Send web event data to GetResponse</label>
+    </main>
+    <input type="hidden" name="updateWebTraffic" value="1" />
+</form>
+
+<?php  else: ?>
+
+    <p>Web event traffic tracking is a marketing automation feature available in Max and Pro accounts.<br/>Plan a customer journey based on their visits to your store and purchases they make.</p>
+
+<?php endif ?>

@@ -1,0 +1,14 @@
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Settings */?>
+<style>
+    .grwf2-wrapper {
+        text-align:center;
+        margin:auto;
+    }
+</style>
+<?php
+$webform = $block->getWebformSettings();
+
+if (isset($webform['active_subscription']) && $webform['active_subscription'] == 1 && $webform['sidebar'] == 'content') {
+    echo '<script type="text/javascript" src="' . $webform['url'] .'"></script>';
+}
+?>

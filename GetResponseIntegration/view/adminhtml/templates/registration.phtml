@@ -1,0 +1,253 @@
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */?>
+
+<?php
+if (!$block->checkApiKey()) {
+    return;
+}
+$campaigns = $block->getCampaigns();
+$settings = $block->getSettings();
+$autoresponders = $block->getAutoresponders();
+$jsAutoresponders = $block->getAutorespondersForFrontend();
+
+?>
+
+<style>
+    .label {
+        font-weight: bold;
+    }
+
+    .label label {
+        display: inline-block;
+    }
+
+    td.label {
+        vertical-align: top;
+    }
+
+    .value input {
+        margin-top: 4px;
+        width: 100%;
+    }
+
+    .note {
+        color: #303030;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .admin__scope-old input[type="checkbox"] {
+        -moz-appearance: checkbox;
+    }
+
+    tr {
+        margin-bottom: 5px;
+    }
+
+    .button-margin {
+        margin-top: 10px;
+    }
+
+    .page-main-hint {
+        float: left;
+    }
+
+    .page-main-hint span {
+        display: inline-block;
+        margin-top: 1rem;
+    }
+
+    .hidden {
+        display: none
+    }
+
+</style>
+
+<form method="post" action="<?php echo $block->getUrl('getresponseintegration/settings/registrationpost'); ?>">
+    <?php echo $block->getBlockHtml('formkey'); ?>
+
+    <div class="page-main-actions">
+        <div class="page-main-hint">
+            <span>Get new contacts in GetResponse when people register as customers</span>
+        </div>
+        <div class="page-actions">
+            <div class="page-actions-inner">
+                <div class="page-actions-buttons">
+                    <button id="getresponse_add_new_campaign" title="Create Contact List" type="button" onclick="location.href='<?php echo $block->getUrl('getresponseintegration/lists/create/back/registration'); ?>'" class="action- scalable action-secondary"  >
+                        <span>Create Contact List</span>
+                    </button>
+                    <button id="save" title="Save" type="submit" class="action-default scalable save primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
+                        <span class="ui-button-text">
+                            <span>Save</span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="page:main-container" class="page-columns">
+        <div class="admin__old">
+            <div id="container" class="main-col">
+                <fieldset class="fieldset admin__fieldset" id="gr_enabled_fieldset" style="display: block;">
+                    <div class="admin__field field field-basic_gr_enabled required _required">
+                        <label class="label admin__field-label" for="gr_enabled"></label>
+                        <div class="admin__field-control control">
+                            <div class="admin__field admin__field-option gr_enabled__field">
+                                <input id="gr_enabled" name="gr_enabled" class="admin__control-checkbox" type="checkbox" value="1"
+                                    <?php
+                                        if (isset($settings['active_subscription']) && $settings['active_subscription'] == true) {
+                                            echo ' checked="checked"';
+                                        }
+                                    ?>
+                                >
+                                <label class="admin__field-label" for="publish">Add contacts to GetResponse during registration</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="admin__field field field-basic_campaign required _required forms
+                        <?php if (!isset($settings['active_subscription']) || $settings['active_subscription'] != 1):?>
+                            hidden
+                        <?php endif ?>"
+                    >
+                        <label class="label admin__field-label" for="campaign_id">
+                            <span>Contact list</span>
+                        </label>
+                        <div class="admin__field-control control">
+                            <div class="admin__field">
+                                <select name="campaign_id" id="campaign_id" class="select admin__control-select" aria-required="true">
+                                    <option value="">Select a list</option>
+                                    <?php
+                                    if (count($campaigns) > 0) {
+                                        foreach ($campaigns as $campaign) {
+                                            echo '<option value="' . $campaign->campaignId . '"';
+                                            if (!empty($settings['campaign_id']) && $settings['campaign_id'] == $campaign->campaignId) {
+                                                echo ' selected="selected"';
+                                            }
+                                            echo '>' . $campaign->name . '</option>';
+                                        }
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="admin__field field field-basic_autoresponder forms
+                        <?php if (!isset($settings['active_subscription']) || $settings['active_subscription'] != 1): ?> hidden<?php endif ?>">
+                        <label class="label admin__field-label" for="gr_enabled"></label>
+                        <div class="admin__field-control control">
+                            <div class="admin__field admin__field-option gr_enabled__field">
+                                <input class="admin__control-checkbox"
+                                       type="checkbox"
+                                       name="gr_autoresponder"
+                                       id="gr_autoresponder"
+                                       value="1"
+                                    <?php
+                                    if (isset($settings['cycle_day']) && $settings['cycle_day'] != '0') {
+                                        echo ' checked="checked"';
+                                    }
+                                    ?>
+                                />
+                                <label class="admin__field-label" for="gr_autoresponder">Add to autoresponder cycle</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="admin__field field field-basic_autoresponder forms
+                        <?php if (!isset($settings['active_subscription']) || $settings['active_subscription'] != 1): ?> hidden<?php endif ?>">
+                        <label class="label admin__field-label" for="cycle_day">
+                            <span>Autoresponder day</span>
+                        </label>
+                        <div class="admin__field-control control">
+                            <div class="admin__field cycle_day">
+                                <select name="cycle_day" id="cycle_day" class="select admin__control-select" aria-required="true" disabled="disabled"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin__field field field-basic_subscription with-note forms
+                        <?php if (!isset($settings['active_subscription']) || $settings['active_subscription'] != 1):?>hidden<?php endif ?>">
+                        <label class="label admin__field-label" for="subscription">Contacts info</label>
+                        <div class="admin__field-control control">
+                            <div class="admin__field admin__field-option gr_enabled__field">
+                                <input
+                                    class="admin__control-checkbox"
+                                    type="checkbox"
+                                    name="gr_sync_order_data"
+                                    id="gr_sync_order_data"
+                                    value="1"
+                                    <?php
+                                    if (isset($settings['update']) && $settings['update'] == 1) {
+                                        echo ' checked="checked"';
+                                    }
+                                    ?>
+                                />
+                                <label class="admin__field-label" for="gr_sync_order_data">Update contact info</label>
+                                <div class="note admin__field-note" id="gr_sync_order_data-note">
+                                    Select this option if you want to overwrite contact details that already exist in your GetResponse database.<br/>Clear this option to keep existing data.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="config admin__scope-old updateforms <?php if (!isset($settings['update']) || (int) $settings['update'] === 0):?>hidden<?php endif ?>">
+                            <?php include 'customs_grid.phtml'; ?>
+                            <div class="note admin__field-note">You can use lowercase English alphabet characters, numbers, and underscore ("_"). Maximum 32 characters</div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    require(['jquery'],function($) {
+        var grsod = $('#gr_sync_order_data'), sod = $('#gr_enabled'), forms = $('.forms'),
+            updateforms = $('.updateforms');
+        var campaign_id = $('#campaign_id'), cycle_day = $('#cycle_day'),
+            gr_autoresponder = $('#gr_autoresponder');
+        if (sod.prop('checked') === true) {
+            forms.removeClass('hidden');
+        }
+        sod.change(function () {
+            forms.toggleClass('hidden');
+
+            if (grsod.prop('checked') === true) {
+                updateforms.toggleClass('hidden');
+            }
+
+        });
+        if (grsod.prop('checked') === true) {
+            updateforms.removeClass('hidden');
+        }
+        grsod.change(function () {
+            updateforms.toggleClass('hidden');
+        });
+        var autoresponders = <?php echo json_encode($jsAutoresponders); ?>;
+
+        function populateSelectWithAutoresponders() {
+            cycle_day.empty();
+            var options = '';
+            var campaign_autoresponders = autoresponders[campaign_id.val()];
+            if (typeof campaign_autoresponders == 'object' && campaign_autoresponders.length > 0) {
+                for (var i = 0; i < campaign_autoresponders.length; i++) {
+                    options += '<option value="' + campaign_autoresponders[i]['dayOfCycle']
+                        + '">(Day: ' + campaign_autoresponders[i]['dayOfCycle'] + ') '
+                        + campaign_autoresponders[i]['name']
+                        + ' (Subject: ' + campaign_autoresponders[i]['subject'] + ')</option>';
+                }
+                cycle_day.prop('disabled', false);
+                gr_autoresponder.prop('disabled', false);
+            } else {
+                options = '<option value="">no autoresponders</option>';
+                cycle_day.prop('disabled', true);
+                gr_autoresponder.prop('disabled', true).prop('checked', false);
+            }
+            cycle_day.append(options);
+        }
+
+        populateSelectWithAutoresponders();
+
+        campaign_id.change(function () {
+            populateSelectWithAutoresponders();
+        });
+    });
+</script>

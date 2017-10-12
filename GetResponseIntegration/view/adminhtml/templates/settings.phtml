@@ -1,0 +1,278 @@
+<?php
+/** @var $block \GetResponse\GetResponseIntegration\Block\Settings */
+$isApiActive = $block->checkApiKey();
+?>
+<style>
+    .label {
+        font-weight: bold;
+    }
+
+    .label label {
+        margin-top: 7px;
+        display: inline-block;
+    }
+
+    .value input {
+        width: 100%;
+    }
+
+    .note {
+        color: #303030;
+        font-size: 12px;
+        margin: 5px 0;
+    }
+
+    .accordion table {
+        width: auto !important;
+    }
+
+    .accordion table tr td {
+        width: auto !important;
+    }
+
+    .page-main-hint {
+        float: left;
+    }
+
+    .page-main-hint span {
+        display: inline-block;
+        margin-top: 1rem;
+    }
+
+    .getresponse_360_account__field {
+        padding-top: 2.4rem;
+    }
+
+    .title {
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ccc;
+        margin-bottom: 20px;
+    }
+
+    .title span {
+        font-size: 11pt;
+        color: #41362f;
+    }
+
+    .account_data {
+        width: 100%;
+    }
+
+    .account_data tr:nth-child(even) {
+        background: #fff;
+    }
+
+    .account_data td {
+        padding: .75rem 1.5rem;
+    }
+
+    .account_data td:nth-child(1) {
+        width: 127px;
+    }
+
+    .account_data td:nth-child(2) {
+        width: auto;
+    }
+
+    .account_data tr:nth-child(odd) {
+        background: #f8f8f8;
+    }
+
+    .account_data .status-connected {
+        color: #00CC66
+    }
+
+    .hidden {
+        display: none;
+    }
+
+</style>
+
+<form method="post" action="<?php echo $block->getUrl('getresponseintegration/settings/save'); ?>">
+    <?php echo $block->getBlockHtml('formkey'); ?>
+
+    <div class="page-main-actions">
+        <div class="page-main-hint">
+            <span>Use API key to connect your site and GetResponse.</span>
+        </div>
+        <div class="page-actions">
+            <div class="page-actions-inner">
+                <div class="page-actions-buttons">
+                    <?php if (!$isApiActive) : ?>
+                        <button id="save" title="Connect" type="submit" class="action-default scalable connect primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
+                            <span class="ui-button-text">
+                                <span>Connect</span>
+                            </span>
+                        </button>
+                        <?php else : ?>
+                        <button id="save" data-bind="click: confirmationOpened" title="disconnect" class="action-default scalable disconnect primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
+                            <span class="ui-button-text">
+                                <span>Disconnect</span>
+                            </span>
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="page:main-container" class="page-columns">
+        <div class="admin__old">
+            <div id="container" class="main-col">
+                <?php if (!$isApiActive) : ?>
+                    <fieldset class="fieldset admin__fieldset no-display" id="api_key_fieldset" style="display: block;">
+                        <div class="admin__field field field-basic_getresponse_api_key required _required with-note">
+                            <label class="label admin__field-label" for="getresponse_api_key">
+                                <span>API key</span>
+                            </label>
+                            <div class="admin__field-control control">
+                                <input id="getresponse_api_key" name="getresponse_api_key" value="<?php echo $block->getLastPostedApiKey(); ?>" title="API Key" class="basic_behavior input-text input-text admin__control-text required-entry _required" type="text" aria-required="true">
+                                <div class="note admin__field-note" id="basic_behavior_allowed_error_count-note">
+                                    Your API key is part of the settings of your GetResponse account. Log in to GetResponse and go to <a href="https://app.getresponse.com/manage_api.html" target="_blank">My account > API & OAuth</a> to find the key.
+                                </div>
+                                <div class="admin__field admin__field-option getresponse_360_account__field">
+                                    <input id="getresponse_360_account" name="getresponse_360_account" class="admin__control-checkbox" type="checkbox" value="1" <?php if ($block->getLastPostedApiAccount()) { ?>checked="checked"<?php } ?>>
+                                    <label class="admin__field-label" for="getresponse_360_account"><span>I have the Enterprise package</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset id="getresponse_360_account_options" class="fieldset admin__fieldset getresponse_360_account_options <?php if (1 != $block->getLastPostedApiAccount()) { ?>hidden<?php } ?>">
+                        <div class="admin__field field field-basic_getresponse_360_account">
+                            <label class="label admin__field-label" for="getresponse_api_url">
+                                <span>Account type</span>
+                            </label>
+                            <div class="admin__field-control control">
+                                <div class="admin__field">
+                                    <select id="getresponse_account_type" name="getresponse_account_type" title="Account Type" class="select admin__control-select" aria-required="true">
+                                        <option value="https://api3.getresponse360.pl/v3" <?php if('https://api3.getresponse360.pl/v3' == $block->getLastPostedApiUrl()) { ?> selected="selected"<?php } ?>>GetResponse 360 PL</option>
+                                        <option value="https://api3.getresponse360.com/v3" <?php if('https://api3.getresponse360.com/v3' == $block->getLastPostedApiUrl()) { ?> selected="selected"<?php } ?>>GetResponse 360 COM</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="admin__field field field-basic_getresponse_api_domain required _required with-note">
+                            <label class="label admin__field-label" for="getresponse_api_domain">
+                                Your domain
+                            </label>
+                            <div class="admin__field-control control">
+                                <div class="admin__field">
+                                    <input type="text" name="getresponse_api_domain" id="getresponse_api_domain"
+                                           value="<?php echo $block->getLastPostedApiDomain();?>"
+                                           class="input-text admin__control-text">
+                                </div>
+                                <div class="note admin__field-note">
+                                    Enter your domain without protocol (https://) eg: "example.com"
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <?php else : ?>
+                    <legend class="admin__legend legend title">
+                        <span>GetResponse account data</span>
+                    </legend>
+                    <table class="account_data">
+                        <tr>
+                            <td>
+                                <label for="getresponse_getresponseintegration_general_api_key">Status:</label>
+                            </td>
+                            <td>
+                                <div><span class="status-connected">CONNECTED</span></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                API Key:
+                            </td>
+                            <td>
+                                <span name="getresponse_api_key" id="getresponse_api_key"><?php echo $block->getHiddenApiKey(); ?></span>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
+                            <?php
+                            if ($isApiActive) :
+                                $account = $block->getAccountInfo();
+                            ?>
+                        <tr>
+                            <td>Name:</td>
+                            <td><?php echo $account->getFirstName() . ' ' . $account->getLastName(); ?></td>
+                        </tr>
+                        <tr>
+                            <td>Email:</td>
+                            <td><?php echo $account->getEmail(); ?></td>
+                        </tr>
+                        <?php if (!empty($account->getCompanyName())) : ?>
+                            <tr>
+                                <td>Company:</td>
+                                <td><?php echo $account->getCompanyName(); ?></td>
+                            </tr>
+                        <?php endif; ?>
+                        <tr>
+                            <td>Phone:</td>
+                            <td><?php echo $account->getPhone(); ?></td>
+                        </tr>
+                        <tr>
+                            <td>Address:</td>
+                            <td><?php echo $account->getStreet() . ' ' . $account->getZipCode() . ' ' . $account->getCity() . ' ' . $account->getState() . ' ' . $account->getCountryCode(); ?></td>
+                        </tr>
+                    </table>
+                <?php
+                endif;
+                ?>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div id="popup-modal" style="display: none;">
+    <div>When you disconnect you won't be able to get new contacts via forms, comments, or during account registration.</div>
+</div>
+
+<script>
+    require(['jquery'],function($) {
+        var mx_account = $('#getresponse_360_account'), mx_options = $('#getresponse_360_account_options');
+        if (mx_account.prop('checked') === true) {
+            mx_options.toggleClass('hidden');
+        }
+        mx_account.change(function () {
+            mx_options.toggleClass('hidden');
+        });
+    });
+
+    function confirmationOpened() {
+        require(
+            [
+                'jquery',
+                'Magento_Ui/js/modal/modal'
+            ],
+            function ($, modal) {
+                var url = '<?php echo $block->getUrl('getresponseintegration/settings/delete'); ?>';
+                var options = {
+                    type: 'popup',
+                    responsive: true,
+                    innerScroll: true,
+                    title: 'Disconnect from GetResponse?',
+                    buttons: [
+                        {
+                            text: $.mage.__('Stay connected'),
+                            class: 'action-secondary action-dismiss',
+                            click: function () {
+                                this.closeModal();
+                            }
+                        }, {
+                            text: $.mage.__('Disconnect'),
+                            class: 'action-primary action-accept',
+                            click: function () {
+                                window.location.href = url;
+                                return false;
+                            }
+                        },
+                    ]
+                };
+
+                var popup = modal(options, $('#popup-modal'));
+                $('#popup-modal').modal('openModal');
+            }
+        );
+    }
+</script>
