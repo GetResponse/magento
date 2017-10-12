@@ -1,0 +1,12 @@
+app/code/community/GetresponseIntegration                          app/code/community/GetresponseIntegration
+app/design/adminhtml/default/default/layout/getresponse_integration.xml    app/design/adminhtml/default/default/layout/getresponse_integration.xml
+app/design/adminhtml/default/default/template/getresponse                  app/design/adminhtml/default/default/template/getresponse
+app/design/frontend/base/default/layout/getresponse.xml            app/design/frontend/base/default/layout/getresponse.xml
+app/design/frontend/base/default/template/getresponse              app/design/frontend/base/default/template/getresponse
+app/design/frontend/default/default/template/getresponse           app/design/frontend/default/default/template/getresponse
+
+app/etc/modules/GetresponseIntegration.xml                             app/etc/modules/GetresponseIntegration.xml
+
+js/getresponse                                                          js/getresponse
+skin/adminhtml/default/default/images/getresponse                       skin/adminhtml/default/default/images/getresponse
+skin/adminhtml/default/default/css                                      skin/adminhtml/default/default/css

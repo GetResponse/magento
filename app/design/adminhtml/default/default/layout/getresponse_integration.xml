@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<layout>
+    <adminhtml_getresponse_index>
+        <reference name="content">
+            <block type="getresponse/index/index" name="getresponse" />
+        </reference>
+    </adminhtml_getresponse_index>
+</layout>

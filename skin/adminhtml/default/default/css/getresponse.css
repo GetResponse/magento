@@ -1,0 +1,109 @@
+.GR_label { display: inline-block !important; width: 325px !important; font-weight: 600;}
+.GR_label_short { display: inline-block !important; width: 210px !important; font-weight: 600;}
+.GR_input { width: 250px !important; }
+.GR_api { width: 320px !important; }
+.GR_checkbox { width: inherit; vertical-align: text-top; }
+.GR_hint { display: block; margin-left: 273px; }
+.GR_small_hint { padding-top: 7px; display: block; font-size: 0.8em; }
+.GR_checkbox_handler { margin-left: 273px !important; }
+.GR-submit-button { width: 100px; }
+.GR-title { font-family:"Helvetica Neue", Helvetica, Arial, sans-serif; font-size:12px; padding: 1px 2px 2px 6px; width: 237px !important;}
+
+.gr-tooltip { background: url("../images/getresponse/getresponse_icons.png") no-repeat; background-position: -8px -500px; height: 15px; width: 15px; display: inline-block; position: relative; left: 0; top: 4px; }
+.gr-tooltip .gr-tip { display: none; pointer-events: none; z-index: 99999; position: absolute; }
+.gr-tooltip:hover .gr-tip { display: block; }
+
+.gr-tip { background: #fff url("../images/getresponse/getresponse_icons.png") no-repeat; background-position: -4px -1469px; border: 1px solid #bebebe; left: -6px; top: -8px; padding: 7px 10px 4px 25px; z-index: 10001; width: 200px; -webkit-border-radius: 2px; -moz-border-radius: 2px; border-radius: 2px; box-shadow: 1px 1px 0px 0px rgba(190, 190, 190, 0.3); }
+.gr-tip span { font-size: 1em; color: #555; }
+.gr-tip.content-img { padding: 7px 10px 7px 25px; width: 442px; }
+.gr-tip.content-img img { margin-left: -15px; }
+
+.gr-active {font-weight: 800;}
+.gr-loader {background: url("../images/getresponse/loader.big.white.gif") no-repeat; background-size: 20px 20px; padding: 3px 24px 0px 0px;}
+
+.gr-tr { background: #f6f6f6; }
+.gr-td { padding: 3px 4px 3px 4px; }
+.gr-strong {font-weight: 600;}
+
+form.getresponse .form-list td.value p.note {
+    width: auto!important;
+}
+
+form.getresponse .form-list td.value p.note span.link {
+    color: #0099FF;
+}
+
+form.getresponse .fieldset .form-list td.value input.input-text, form.getresponse .fieldset .form-list td.value textarea, form.getresponse .fieldset .form-list td.value select {
+    width: 421px !important;
+}
+
+form.getresponse-account td.enterprise_account {
+    margin: 25px 0;
+    display: block;
+}
+
+form.getresponse .form-list p.no-image {
+    background: none;
+    padding-left: 0;
+}
+
+.account-connected-status {
+    color: #00CC66;
+}
+
+form.getresponse .inactive {
+    color: rgb(201, 201, 201);
+}
+
+form.getresponse .fieldset .grid td select, form.getresponse-export .fieldset .grid td input {
+    width: 354px;
+}
+
+form.getresponse-export .fieldset input.disabled {
+    color: rgb(198, 198, 198);
+}
+
+form.getresponse-export .fieldset a.delete {
+    color: #336699;
+    text-decoration: none;
+}
+
+form.getresponse-export .autoresponder {
+    margin-bottom: 10px;
+}
+
+form.getresponse tr.empty-space td {
+    height: 20px;
+}
+
+form.getresponse-export .fieldset-wide-no-padding {
+    padding: 0;
+    border-width: 1px 0 0 1px;
+}
+
+form.getresponse-export .fieldset-wide-no-padding .grid {
+    padding-bottom: 0;
+}
+
+form.getresponse-export p.customs-note {
+    font-size: 11px;
+}
+
+form.getresponse-export .fieldset-wide-no-padding .customs-table {
+    border: 0;
+}
+
+form.getresponse-create-list .entry-edit .fieldset .form-list td.value {
+    width: 600px;
+}
+
+form.getresponse .fieldset .grid .hor-scroll p.not-found {
+    width: 100%;
+    text-align: center;
+    margin: 25px 0;
+}
+
+.messages span.important {
+    color:#EA7603;
+    /*text-decoration:underline;*/
+}

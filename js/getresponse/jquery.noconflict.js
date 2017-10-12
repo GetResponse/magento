@@ -1,0 +1,1 @@
+var jQblvg  = jQuery.noConflict();

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<layout version="0.1.0">
+    <checkout_onepage_index>
+        <reference name="form.additional.info">
+
+            <block type="core/text_list" name="checkout.onepage.billing.extra" as="checkout.onepage.billing.extra">
+                <block type="page/html" name="getresponse.newsletter"  template="getresponse/checkout/billing.extra.phtml">
+
+                </block>
+            </block>
+        </reference>
+    </checkout_onepage_index>
+</layout>

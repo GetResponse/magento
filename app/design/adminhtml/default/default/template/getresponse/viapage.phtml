@@ -1,0 +1,273 @@
+<div>
+
+    <div id="messages">
+        <ul class="messages">
+            <li class="notice-msg">
+                <ul>
+                    <li><span>Get new contacts in GetResponse each time somebody registers in your online store.</span></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="content-header">
+        <table cellspacing="0">
+            <tbody><tr>
+                <td style="width:50%;"><h3>Add Contacts During Registrations</h3></td>
+                <td class="form-buttons">
+                    <button onclick="setLocation('<?php echo Mage::helper("adminhtml")->getUrl("getresponse/index/create_list")."?back_url=".base64_encode('getresponse/index/viapage'); ?>')" type="button" name="Submit" class="scalable add"><span>Add New Contact List</span></button>
+                    <button title="Save" onclick="getresponseviapage.submit();" type="button" class="scalable save" style=""><span><span><span>Save</span></span></span></button>
+                </td>
+            </tr></tbody>
+        </table>
+    </div>
+
+    <div class="entry-edit">
+        <form id="getresponseviapage" class="getresponse" method="post" action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/index/subpage'); ?>">
+
+            <div class="entry-edit-head">
+                <h4 class="icon-head head-edit-form fieldset-legend">Subscribe After Customer Register</h4>
+                <div class="form-buttons"></div>
+            </div>
+
+            <div class="fieldset">
+
+                <div class="hor-scroll">
+
+                    <table cellspacing="0" class="form-list">
+                        <tbody>
+
+                            <tr>
+                                <td colspan="2">
+                                    <input type="checkbox" id="active_subscription" name="active_subscription" value="1"
+                                        <?php if (isset($settings->api['active_subscription']) and $settings->api['active_subscription'] == 1) : ?>
+                                            checked="checked"
+                                        <?php endif; ?>
+                                    />
+                                    <label for="active_subscription">Add contacts to GetResponse during registration</label>
+                                </td>
+                            </tr>
+
+                            <tr class="empty-space details">
+                                <td colspan="2"></td>
+                            </tr>
+
+                            <tr class="details">
+                                <td class="label">
+                                    <label for="campaign_id">Contact list <span class="required">*</span></label>
+                                </td>
+                                <td class="value">
+                                    <select id="campaign_id" name="campaign_id" class=" select">
+                                        <option value="">Select a list</option>
+                                        <?php
+                                        foreach ($settings->campaigns as $id => $name) {
+                                            echo '<option value="' . $id . '"', ($id == $settings->api['campaign_id']) ? ' selected="selected"' : '', '>' . $name . '</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                </td>
+                            </tr>
+
+                            <tr class="empty-space details">
+                                <td colspan="2"></td>
+                            </tr>
+
+                            <tr class="details">
+                                <td class="label"></td>
+                                <td class="value">
+                                    <input type="checkbox" name="gr_autoresponder" id="gr_autoresponder" value="1" />
+                                    <label for="gr_autoresponder" class="inactive">Add to autoresponder sequence</label>
+                                </td>
+                            </tr>
+
+                            <tr class="details">
+                                <td class="label"><label>Autoresponder day</label></td>
+                                <td class="value">
+                                    <select class="inactive" title="Autoresponder" name="cycle_day" id="cycle_day">
+                                        <option value="">no autresponders</option>
+                                    </select>
+                                </td>
+                            </tr>
+
+                            <tr class="empty-space details">
+                                <td colspan="2"></td>
+                            </tr>
+
+                            <tr class="details">
+                                <td class="label"><label>Sing-up option</label></td>
+                                <td class="value">
+                                    <input type="checkbox" id="subscription_on_checkout" name="subscription_on_checkout" value="1"
+                                        <?php if (isset($settings->api['subscription_on_checkout']) and $settings->api['subscription_on_checkout'] == 1) : ?>
+                                            checked="checked"
+                                        <?php endif; ?>
+                                    />
+
+                                    <label for="subscription_on_checkout">Add "Sign up to receive newsletter" checkbox to checkout page</label>
+                                </td>
+                            </tr>
+
+                            <tr class="empty-space details">
+                                <td colspan="2"></td>
+                            </tr>
+
+                            <tr class="details">
+                                <td class="label"><label>Contact info</label></td>
+                                <td class="value">
+                                    <input type="checkbox" id="gr_sync_order_data" name="gr_sync_order_data" value="1"
+                                        <?php if (isset($settings->api['update_address']) and $settings->api['update_address'] == 1) : ?>
+                                            checked="checked"
+                                        <?php endif; ?>
+                                    />
+                                    <label for="gr_sync_order_data">Update contact info</label>
+                                    <p class="note">Select this option if you want to overwrite contact details that already exist in your GetResponse database.<br />
+                                        Clear this option to keep existing data intact.</p>
+
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+
+                </div>
+
+                <input name="form_key" type="hidden" value="<?php echo Mage::getSingleton('core/session')->getFormKey() ?>"/>
+
+            </div>
+
+
+            <div id="customNameFields" style="display: none;">
+
+                <div class="entry-edit">
+
+                    <div class="entry-edit-head">
+                        <h4 style="margin-top: 3px" class="icon-head head-edit-form fieldset-legend">Update contact info</h4>
+                        <p class="form-buttons">
+                            <button type="button" class="add-new-mapping add" name="Submit"><span>Add New Mapping</span></button>
+                        </p>
+                    </div>
+
+                    <div class="fieldset fieldset-wide fieldset-wide-no-padding">
+                        <div class="grid">
+                            <div class="hor-scroll">
+
+                                <table cellspacing="0" class="data customs-table">
+                                    <colgroup>
+                                        <col width="600">
+                                        <col width="800">
+                                    </colgroup>
+                                    <thead>
+                                    <tr class="headings">
+                                        <th class="no-link"><span class="nobr">Customer details</span></th>
+                                        <th class="no-link"><span class="nobr">Custom fields in GetResponse</span></th>
+                                        <th class="no-link last"><span class="nobr">Action</span></th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    <tr class="even">
+                                        <td>
+                                            <select disabled name="firstname">
+                                                <option value="firstname">firstname</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input class="input-text disabled" type="text" name="firstname" value="firstname" disabled />
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <select disabled name="lastname">
+                                                <option value="lastname">lastname</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input class="input-text disabled" type="text" name="lastname" value="lastname" disabled />
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr class="even">
+                                        <td>
+                                            <select disabled name="email">
+                                                <option value="email">email</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input class="input-text disabled" type="text" name="email" value="email" disabled />
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="note customs-note">
+                        You can use lowercase English alphabet characters, numbers, and underscore ("_"). Maximum 32 characters.
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    (function($) {
+
+        var available_cycles = $.parseJSON('<?php echo isset($settings->campaign_days) ? addslashes(json_encode($settings->campaign_days)) : "{}"; ?>');
+
+        $('#active_subscription').click(function() {
+            $('.details').toggle('slow');
+
+            if ($('#active_subscription').is(':checked')) {
+                if ($('#gr_sync_order_data').is(':checked')) {
+                    $('#customNameFields').show();
+                }
+            } else {
+                $('#customNameFields').hide();
+            }
+
+        });
+
+        if (!$('#active_subscription').is(':checked')) {
+            $('.details').hide();
+        }
+
+        $('#gr-save-button').on('click', function(){
+            $('#getresponse-viapage').submit();
+        });
+
+        // Custom Map
+
+        var customs = <?php echo $settings->customs_json ?>;
+        var custom_values = <?php echo $settings->custom_values_json ?>;
+
+        $.each(customs, function (key, val) {
+            if(1 === parseInt(val.active_custom)) {
+                GetresponseMapping(customs, custom_values, val);
+            }
+        });
+
+        if ($('#gr_sync_order_data').is(':checked')) {
+            $('#customNameFields').show();
+        }
+
+        $('#gr_sync_order_data').click(function(){
+            $('#customNameFields').toggle('slow');
+        });
+
+        $('.add-new-mapping').on('click', function() {
+            GetresponseMapping(customs, custom_values);
+        });
+
+        var cycles1 = cycles.init(
+            available_cycles,
+            $('#campaign_id'),
+            $('#cycle_day'),
+            $('#gr_autoresponder'),
+            $('label[for="gr_autoresponder"]'),
+            <?php echo isset($settings->api['cycle_day']) ? $settings->api['cycle_day'] : ''; ?>
+        );
+
+    })(jQuery);
+</script>

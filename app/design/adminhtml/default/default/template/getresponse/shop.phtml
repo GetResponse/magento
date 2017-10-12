@@ -1,0 +1,294 @@
+<div>
+
+    <div id="messages">
+        <ul class="messages">
+            <li class="notice-msg">
+                <ul>
+                    <li><span>GetResponse helps you track and collect ecommerce data. You can stay informed about customers’ behaviour and spending habits.<br/>
+Use this data to create marketing automation workflows that react to purchases, abandoned carts, or the amounts of money spent.<br />
+Make sure to <a href="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/index/viapage'); ?>">enable adding contacts during registration</a> to start sending ecommerce data to GetResponse.
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="content-header">
+        <table cellspacing="0">
+            <tbody><tr>
+                <td style="width:50%;"><h3>GetResponse Ecommerce</h3></td>
+                <td class="form-buttons">
+                    <button title="Save" onclick="getresponseecommerce.submit();" type="button" class="scalable save" style=""><span><span><span>Save</span></span></span></button>
+                </td>
+            </tr></tbody>
+        </table>
+    </div>
+
+    <div class="entry-edit">
+        <form id="getresponseecommerce" class="getresponse" method="post" action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/shop/update'); ?>">
+
+            <input name="form_key" type="hidden" value="<?php echo Mage::getSingleton('core/session')->getFormKey() ?>"/>
+
+            <div class="entry-edit-head">
+                <h4 class="icon-head head-edit-form fieldset-legend">Enable GetResponse Ecommerce</h4>
+                <div class="form-buttons"></div>
+            </div>
+
+            <div class="fieldset">
+
+                <div class="hor-scroll">
+
+                    <table cellspacing="0" class="form-list">
+                        <tbody>
+
+                        <tr>
+                            <td colspan="2">
+                                <input type="checkbox" id="shop_enabled" name="shop_enabled" value="1"
+                                    <?php if (1 == $shop_enabled) : ?>
+                                        checked="checked"
+                                    <?php endif; ?>
+                                />
+                                <label for="shop_enabled">Send ecommerce data to GetResponse</label>
+                            </td>
+                        </tr>
+
+                        <tr class="empty-space details">
+                            <td colspan="2"></td>
+                        </tr>
+
+                        <tr class="details">
+                            <td class="label">
+                                <label for="campaign_id">Store <span class="required">*</span></label>
+                            </td>
+                            <td class="value">
+                                <select id="shop_id" name="shop_id" class=" select">
+                                    <?php
+                                    foreach ($gr_shops as $shop):?>
+                                        <option
+                                            <?php if($current_shop_id == $shop->shopId): ?>selected="selected"<?php endif ?>
+                                            value="<?php echo $shop->shopId ?>">
+                                            <?php echo $shop->name ?>
+                                        </option>';
+                                    <?php endforeach ?>
+                                </select>
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="details">
+
+                <div class="entry-edit">
+
+                    <div class="entry-edit-head">
+                        <h4 style="margin-top: 3px" class="icon-head head-edit-form fieldset-legend">Stores</h4>
+                        <p class="form-buttons">
+                            <button type="button" class="add" id="add-new-store" name="Submit"><span>Add New Store</span></button>
+                        </p>
+                    </div>
+                    <div class="fieldset fieldset-wide fieldset-wide-no-padding">
+                        <div class="grid">
+                            <div class="hor-scroll">
+
+                                <table cellspacing="0" class="data customs-table">
+                                    <thead>
+                                    <tr class="headings">
+                                        <th class="no-link" width="5%"><span class="nobr" style="text-align: center">#</span></th>
+                                        <th class="no-link" ><span class="nobr">Store</span></th>
+                                        <th class="no-link last" width="10%"><span class="nobr" style="text-align: center">Action</span></th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                    <?php foreach ($gr_shops as $key => $shop):?>
+                                        <tr data-shop-id="<?=$shop->shopId?>" <?php if(0 == $key%2) : ?> class="even" <?php endif; ?>>
+                                            <td style="text-align: center">
+                                                <?=$key+1?>
+                                            </td>
+                                            <td>
+                                                <?=$shop->name?>
+                                            </td>
+                                            <td style="text-align: center">
+                                                <a href="javascript:void(0)" class="delete_shop" data-shop-id="<?=$shop->shopId?>">Delete</a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach ?>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+<script>
+    (function($) {
+
+        $('#shop_enabled').click(function() {
+            $('.details').toggle('slow');
+        });
+
+        if (!$('#shop_enabled').is(':checked')) {
+            $('.details').hide();
+        }
+
+        storaManagemen = {
+
+            can_add_new_store:true,
+            add_new_store_request_pending:false,
+            add_store_button:null,
+            form_key:null,
+            delete_url:'',
+            add_url:'',
+
+            init:function(add_store_button, delete_url, add_url, form_key) {
+
+                this.add_store_button = add_store_button;
+                this.delete_url = delete_url;
+                this.form_key = form_key;
+                this.add_url = add_url;
+
+                this.add_store_button.click(function() {
+
+                    if (false === this.can_add_new_store) {
+                        return;
+                    }
+
+                    this.can_add_new_store = false;
+
+                    tr = $('<tr id="row-new-shop">');
+                    tr.append('<td style="text-align: center">');
+                    tr.append('<td><input type="text" style="width:80%" id="new_store_name" placeholder="Store name"/></td>');
+                    td = $('<td style="text-align: center">');
+                    link = $('<a href="javascript:void(0);" >Confirm</a>');
+                    link.bind('click', this.add_store.bind(this));
+                    td.append(link);
+                    tr.append(td);
+
+                    $('.customs-table tbody').append(tr);
+                    this.recalculate_grid();
+
+                }.bind(this));
+
+                $.each($('.delete_shop'), function(key, val) {
+                    $(val).click(function() {
+                        this.delete_store($(event.target).attr('data-shop-id'));
+                    }.bind(this));
+                }.bind(this));
+            },
+
+            delete_store:function(id) {
+
+                decision = confirm('Are you sure you want to do this?');
+                if (false === decision) {
+                    return;
+                }
+
+                $('#loading-mask').css('display', 'block');
+
+                $.ajax({
+                    url: this.delete_url + 'id/' + id.toString() + '?isAjax=1',
+                    type: 'POST',
+                    data: {form_key:this.form_key},
+                    success: function(response) {
+                        resp_obj = $.parseJSON(response);
+                        $('#loading-mask').css('display', 'none');
+                        if ('success' === resp_obj.result) {
+
+                            $('.customs-table tr[data-shop-id=' + id + ']').remove();
+
+                            this.recalculate_grid();
+
+                            // Remove from Store list
+                            $('#shop_id option[value=' + id + ']').remove();
+
+                        }
+
+                    }.bind(this)
+                });
+            },
+
+            add_store:function() {
+
+                if(true === this.add_new_store_request_pending) {
+                    console.log('request pending');
+                    return;
+                }
+                this.add_new_store_request_pending = true;
+                $('#loading-mask').css('display', 'block');
+
+                store_name = $('#new_store_name').val();
+
+                $.ajax({
+                    url: this.add_url + '?isAjax=1',
+                    type: 'POST',
+                    data: {form_key:this.form_key, name: store_name},
+                    success: function(response) {
+                        $('#loading-mask').css('display', 'none');
+                        this.add_new_store_request_pending = false;
+                        resp_obj = $.parseJSON(response);
+                        if ('success' === resp_obj.result) {
+                            this.can_add_new_store = true;
+                            $('#row-new-shop').remove();
+                            this.add_new_store_to_view(resp_obj.shop_name, resp_obj.shop_id);
+                        }
+                    }.bind(this)
+                });
+            },
+
+            add_new_store_to_view:function(name, id) {
+
+                tr = $('<tr data-shop-id="' + id + '">');
+                tr.append('<td style="text-align: center"></td>');
+                tr.append('<td>' + name + '</td>');
+                td = $('<td style="text-align: center">');
+                link = $('<a href="javascript:void(0)" class="delete_shop" data-shop-id="' + id + '">Delete</a>');
+                link.bind('click', function(){
+                    this.delete_store(id);
+                }.bind(this));
+                td.append(link);
+                tr.append(td);
+
+                $('.customs-table').append(tr);
+
+                this.recalculate_grid();
+
+                $('#shop_id').append($('<option>', {
+                    value: id,
+                    text: name
+                }));
+
+            },
+
+            recalculate_grid:function() {
+                $.each($('.customs-table tr'), function(key, tr) {
+                    $(tr).removeClass('even');
+                    if (0 !== key % 2) {
+                        $(tr).addClass('even');
+                    }
+
+                    $(tr).find('td:first').html(key);
+
+                });
+            }
+
+        };
+
+        storaManagemen.init(
+            $('#add-new-store'),
+            '<?php echo Mage::helper("adminhtml")->getUrl('getresponse/shop/delete'); ?>',
+            '<?php echo Mage::helper("adminhtml")->getUrl('getresponse/shop/add'); ?>',
+            '<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>'
+        );
+
+    })(jQuery);
+</script>

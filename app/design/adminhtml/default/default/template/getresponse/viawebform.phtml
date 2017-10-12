@@ -1,0 +1,204 @@
+<form class="getresponse getresponse-viawebform" id="getresponseform" method="post"
+      action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/index/subform'); ?>">
+
+    <ul class="messages">
+        <li class="notice-msg">
+            <ul>
+                <li>
+                    <span>Add forms (or exit popups) to your store. Get new contacts in your GetResponse lists when your customers fill the forms.</span>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+    <div class="content-header">
+        <h3>Add Contacts via GetResponse Forms</h3>
+        <p class="form-buttons">
+            <button type="submit" name="Submit" class="scalable save" onclick="getresponseform.submit();"><span>Save Subscription Settings</span></button>
+        </p>
+    </div>
+
+    <div class="entry-edit">
+
+        <div class="entry-edit-head">
+            <h4 class="icon-head head-edit-form fieldset-legend">Add GetResponse form</h4>
+        </div>
+        <div class="fieldset fieldset-wide">
+            <div class="hor-scroll">
+
+                <span>
+                    <input
+                        type="checkbox"
+                        name="active_subscription"
+                        id="active_subscription"
+                        value="1"
+                    <?php if (isset($settings->webforms_settings['active_subscription']) and $settings->webforms_settings['active_subscription'] == 1) : ?>
+                        checked="checked"
+                        <?php endif; ?>
+                    />
+                    <label for="active_subscription">Add contacts to GetResponse via forms (or exit popups)</label>
+			</span>
+
+                <div id="details"
+                     style="<?php if (!isset($settings->api['active_subscription']) || $settings->api['active_subscription'] !== 1) {
+                         echo "display: none;";
+                     } ?>">
+                    <table cellspacing="0" class="form-list">
+                        <tbody>
+
+                        <tr class="empty-space details">
+                            <td colspan="2"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="label"><label for="api_key">Form <span class="required">*</span></label></td>
+                            <td class="value">
+
+                                <?php
+                                if (!empty($settings->forms) || !empty($settings->webforms)) {
+                                    ?>
+                                    <select id="selector_webform_id" name="webform_id"
+                                            onchange="setType(jQuery(this));">
+                                        <option value="">Select a form you want to display</option>
+                                        <?php if (!empty($settings->forms) && !empty($settings->webforms)) { ?>
+                                        <optgroup label="New Forms:">
+                                            <?php } ?>
+                                            <?php
+                                            foreach ($settings->forms as $form) {
+                                                $selected = ($form->formId == $settings->webforms_settings['webform_id']) ? 'selected="selected"' : '';
+                                                echo '<option ' . $selected . ' data-version="new" value="' . $form->formId . '">' . $form->name . ' (' . $form->campaign->name . ')</option>';
+                                            }
+                                            ?>
+                                            <?php if (!empty($settings->forms) && !empty($settings->webforms)) { ?>
+                                        </optgroup>
+                                        <optgroup label="Old Forms:">
+                                            <?php } ?>
+                                            <?php
+                                            foreach ($settings->webforms as $webform) {
+                                                $selected = ($webform->webformId == $settings->webforms_settings['webform_id']) ? 'selected="selected"' : '';
+                                                echo '<option ' . $selected . ' data-version="old" value="' . $webform->webformId . '">' . $webform->name . ' (' . $webform->campaign->name . ')</option>';
+                                            }
+                                            ?>
+                                            <?php if (!empty($settings->forms) && !empty($settings->webforms)) { ?>
+                                        </optgroup>
+                                    <?php } ?>
+                                    </select>
+
+                                <?php } else { ?>
+                                    <span class="error">An error occurred while trying to get web forms.</span>
+                                    <?php
+                                }
+                                ?>
+
+                            </td>
+                        </tr>
+
+                        <tr class="empty-space details">
+                            <td colspan="2"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="label"><label>Placement in layout <span class="required">*</span></label></td>
+                            <td class="value">
+
+                                <?php
+                                if (!empty($settings->layout_positions)) {
+                                    ?>
+                                    <select name="layout_position">
+                                        <option value="">Select where to place the form</option>
+                                        <?php
+                                        foreach ($settings->layout_positions as $id => $name) {
+                                            $selected = ($id == $settings->webforms_settings['layout_position']) ? 'selected="selected"' : '';
+                                            echo '<option ' . $selected . ' value="' . $id . '">' . $name . '</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                <?php } else {
+                                    ?>
+                                    <span class="error">An error occurred while trying to get positions.</span>
+                                    <?php
+                                }
+                                ?>
+                            </td>
+                        </tr>
+
+                        <tr class="empty-space details">
+                            <td colspan="2"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="label"><label>Alignment in block <span class="required">*</span></label></td>
+                            <td class="value">
+
+                                <?php
+                                if (!empty($settings->block_positions)) {
+                                    ?>
+                                    <select name="block_position">
+                                        <option value="">Select where to place the form</option>
+                                        <?php
+                                        foreach ($settings->block_positions as $id => $name) {
+                                            $selected = ($id == $settings->webforms_settings['block_position']) ? 'selected="selected"' : '';
+                                            echo '<option ' . $selected . ' value="' . $id . '">' . $name . '</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                <?php } else {
+                                    ?>
+                                    <span class="error">An error occurred while trying to get positions.</span>
+                                    <?php
+                                }
+                                ?>
+
+                            </td>
+                        </tr>
+
+                        <tr class="empty-space details">
+                            <td colspan="2"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="label"><label>Name <span class="required">*</span></label></td>
+                            <td class="value">
+                                <input class="input-text" type="text" name="webform_title" placeholder="Enter a form name"
+                                       value="<?php if (isset($settings->webforms_settings['webform_title'])) : echo $settings->webforms_settings['webform_title']; endif ?>"/>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input id="gr_webform_type" name="gr_webform_type" type="hidden" value=""/>
+    <input
+        name="form_key"
+        type="hidden"
+        value="<?php echo Mage::getSingleton('core/session')->getFormKey() ?>" />
+
+    <script>
+        var actvie = jQuery('#active_subscription'),
+            details = jQuery('#details');
+
+        if (actvie.prop('checked') === true) {
+            details.show();
+        }
+
+        function switchHandler() {
+            jQuery('input[name="active_subscription"]').on("click", function () {
+                details.toggle('slow');
+            });
+        }
+
+        switchHandler();
+
+        function setType(selector) {
+            var val = selector.find(':selected').attr('data-version');
+            jQuery('#gr_webform_type').val(val);
+        }
+
+        setType(jQuery('#selector_webform_id'));
+    </script>
+
+</form>

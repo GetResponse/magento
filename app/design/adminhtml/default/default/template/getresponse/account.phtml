@@ -1,0 +1,81 @@
+<div>
+
+	<div class="content-header">
+		<h3>GetResponse Account Data</h3>
+        <p class="form-buttons">
+            <button id="disconnect-btn" type="submit" name="Submit"><span>Disconnect</span></button>
+        </p>
+	</div>
+
+    <?php if ( !empty($settings->api['api_key']) && isset($settings->account['firstName']) ) : ?>
+    <div class="grid">
+        <div class="hor-scroll">
+
+            <table cellspacing="0" class="data">
+                <colgroup>
+                    <col width="100">
+                </colgroup>
+                <thead>
+                <tr class="headings">
+                    <th class=" no-link"><span class="nobr">Account Data</span></th>
+                    <th class=" no-link last"><span class="nobr">Value</span></th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr class="even">
+                    <td>Status:</td>
+                    <td>
+                        <span class="account-connected-status">CONNECTED</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>API Key:</td>
+                    <td><?php if ( !empty($settings->api['api_key'])) : echo $settings->api['encrypted_api_key']; endif ?></td>
+                </tr>
+                <tr class="even">
+                    <td>Name:</td>
+                    <td><?php echo !empty($settings->account['firstName']) ? $settings->account['firstName'] : '' ?> <?php echo !empty($settings->account['lastName']) ? $settings->account['lastName'] : '' ?></td>
+                </tr>
+                <tr>
+                    <td>Email:</td>
+                    <td><?php echo !empty($settings->account['email']) ? $settings->account['email'] : '' ?></td>
+                </tr>
+                <tr class="even">
+                    <td>Company:</td>
+                    <td><?php echo !empty($settings->account['companyName']) ? $settings->account['companyName'] : '' ?></td>
+                </tr>
+                <tr>
+                    <td>Phone:</td>
+                    <td><?php echo !empty($settings->account['phone']) ? $settings->account['phone'] : '' ?></td>
+                </tr>
+                <tr class="even">
+                    <td>Address:</td>
+                    <td>
+                        <?php echo !empty($settings->account['street']) ? $settings->account['street'] : '' ?>&nbsp;
+                        <?php echo !empty($settings->account['zipCode']) ? $settings->account['zipCode'] : '' ?>&nbsp;
+                        <?php echo !empty($settings->account['city']) ? $settings->account['city'] : '' ?>&nbsp;
+                        <?php echo !empty($settings->account['state']) ? $settings->account['state'] : '' ?>&nbsp;
+                        <?php echo !empty($settings->account['country']) ? $settings->account['country'] : '' ?>
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+
+
+        </div>
+    </div>
+    <?php endif ?>
+
+	<script>
+        jQuery("#disconnect-btn").on("click", function (event) {
+
+            decision = confirm('Are you sure you want to disconnect from GetResponse?\n\nThis stops new subscribtions via forms, comments, or during account registration.');
+            if (true === decision) {
+                document.location.href = '<?php echo Mage::helper("adminhtml")->getUrl('getresponse/index/disconnect'); ?>';
+            }
+        });
+	</script>
+
+</div>

@@ -1,0 +1,11 @@
+
+<?php
+if ($this->getGetresponseActiveSubscription() == 1) : ?>
+	<div class="block-title">
+		<strong><span><?php echo $this->getGetresponseWebformTitle(); ?></span></strong>
+	</div>
+	<div class="block getresponse_webform">
+		<script type="text/javascript" src="<?php echo $this->getGetresponseWebformUrl(); ?>"></script>
+	</div>
+<?php endif;
+?>

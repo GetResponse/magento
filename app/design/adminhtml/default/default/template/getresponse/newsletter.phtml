@@ -1,0 +1,132 @@
+<div>
+
+    <div id="messages">
+        <ul class="messages">
+            <li class="notice-msg">
+                <ul>
+                    <li><span>Get new contacts in GetResponse each time somebody signed up to your newsletter.</span></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="content-header">
+        <table cellspacing="0">
+            <tbody><tr>
+                <td style="width:50%;"><h3>Add to Contact List after Customer Subscibes</h3></td>
+                <td class="form-buttons">
+                    <button onclick="setLocation('<?php echo Mage::helper("adminhtml")->getUrl("getresponse/index/create_list")."?back_url=".base64_encode('getresponse/index/newsletter'); ?>')" type="button" class="scalable add" name="Submit"><span>Add New Contact List</span></button>
+                    <button title="Save" onclick="getresponsenewsletter.submit();" type="button" class="scalable save" style=""><span><span><span>Save</span></span></span></button>
+                </td>
+            </tr></tbody>
+        </table>
+    </div>
+
+    <div class="entry-edit">
+        <form id="getresponsenewsletter" class="getresponse" method="post" action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/index/activate_newsletter'); ?>">
+
+            <div class="entry-edit-head">
+                <h4 class="icon-head head-edit-form fieldset-legend">Subscribe After Customer Signs Up</h4>
+                <div class="form-buttons"></div>
+            </div>
+
+            <div class="fieldset">
+
+                <div class="hor-scroll">
+
+                    <table cellspacing="0" class="form-list">
+                        <tbody>
+
+                        <tr>
+                            <td colspan="2">
+                                <input type="checkbox" id="newsletter_subscription" name="newsletter_subscription" value="1"
+                                    <?php if (isset($settings->api['newsletter_subscription']) and $settings->api['newsletter_subscription'] == 1) : ?>
+                                        checked="checked"
+                                    <?php endif; ?>
+                                />
+                                <label for="newsletter_subscription">Add customers to GetResponse contact list when they subscribe to newsletter</label>
+                            </td>
+                        </tr>
+
+                        <tr class="empty-space details">
+                            <td colspan="2"></td>
+                        </tr>
+
+                        <tr class="details">
+                            <td class="label">
+                                <label for="campaign_id">Contact list <span class="required">*</span></label>
+                            </td>
+                            <td class="value">
+                                <select id="newsletter_campaign_id" name="newsletter_campaign_id" class=" select">
+                                    <option value="">Select a list</option>
+                                    <?php
+                                    foreach ($settings->campaigns as $id => $name) {
+                                        echo '<option value="' . $id . '"', ($id == $settings->api['newsletter_campaign_id']) ? ' selected="selected"' : '', '>' . $name . '</option>';
+                                    }
+                                    ?>
+                                </select>
+                            </td>
+                        </tr>
+
+                        <tr class="empty-space details">
+                            <td colspan="2"></td>
+                        </tr>
+
+                        <tr class="details">
+                            <td class="label"></td>
+                            <td class="value">
+                                <input type="checkbox" name="newsletter_autoresponder" id="newsletter_autoresponder" value="1" />
+                                <label for="newsletter_autoresponder" class="inactive">Add to autoresponder sequence</label>
+                            </td>
+                        </tr>
+
+                        <tr class="details">
+                            <td class="label"><label>Autoresponder day</label></td>
+                            <td class="value">
+                                <select class="inactive" title="Autoresponder" name="newsletter_cycle_day" id="newsletter_cycle_day">
+                                    <option value="">no autresponders</option>
+                                </select>
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <input name="form_key" type="hidden" value="<?php echo Mage::getSingleton('core/session')->getFormKey() ?>"/>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+    (function($) {
+
+        var available_cycles = $.parseJSON('<?php echo isset($settings->campaign_days) ? addslashes(json_encode($settings->campaign_days)) : "{}"; ?>');
+
+        $('#newsletter_subscription').click(function() {
+            $('.details').toggle('slow');
+        });
+
+        if (!$('#newsletter_subscription').is(':checked')) {
+            $('.details').hide();
+        }
+
+        $('#gr-save-button').on('click', function(){
+            $('#getresponse-newsletter').submit();
+        });
+
+        var cycles1 = cycles.init(
+            available_cycles,
+            $('#newsletter_campaign_id'),
+            $('#newsletter_cycle_day'),
+            $('#newsletter_autoresponder'),
+            $('label[for="newsletter_autoresponder"]'),
+            <?php echo isset($settings->api['newsletter_cycle_day']) ? $settings->api['newsletter_cycle_day'] : ''; ?>
+        );
+
+    })(jQuery);
+</script>

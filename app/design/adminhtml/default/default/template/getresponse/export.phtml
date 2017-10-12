@@ -1,0 +1,203 @@
+<form class="getresponse" method="post" name="getresponseexport"
+      action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/index/exported'); ?>">
+
+    <ul class="messages">
+        <li class="notice-msg">
+            <ul>
+                <li>
+                    <span>Export your customer information from Magento to your GetResponse account.<br />Use this option for one time export of your existing customers.</span>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+	<div class="content-header">
+		<h3>Export Customer Data on Demand</h3>
+        <p class="form-buttons">
+            <button onclick="setLocation('<?php echo Mage::helper("adminhtml")->getUrl("getresponse/index/create_list")."?back_url=".base64_encode('getresponse/index/export'); ?>')" type="button" name="Submit" class="scalable add"><span>Add New Contact List</span></button>
+            <button id="gr_export" type="submit" onclick="getresponseexport.submit();" name="Submit"><span>Export</span></button>
+        </p>
+	</div>
+
+    <div class="entry-edit">
+
+        <div class="entry-edit-head">
+            <h4 class="icon-head head-edit-form fieldset-legend">Export</h4>
+        </div>
+
+        <div class="fieldset fieldset-wide">
+            <div class="hor-scroll">
+
+                <table cellspacing="0" class="form-list">
+                    <tbody>
+                    <tr>
+                        <td class="label"><label for="api_key">Contact list <span class="required">*</span></span></label></td>
+                        <td class="value">
+                            <?php if ( !empty($settings->campaigns)) :?>
+                                <select name="campaign_id" id="campaign_id">
+                                    <option value="">Select a list</option>
+                                    <?php foreach ($settings->campaigns as $id => $name) : ?>
+                                    <?php echo '<option value="' . $id . '">' . $name . '</option>'; ?>
+                                    <?php endforeach; ?>
+                                </select>
+                            <?php else: ?>
+                                <span class="error">An error occurred while trying to get campaigns.</span>
+                                <?php endif ?>
+                        </td>
+                    </tr>
+
+                    <tr class="empty-space details">
+                        <td colspan="2"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="label"></td>
+                        <td class="value">
+                            <input type="checkbox" disabled name="gr_autoresponder" id="gr_autoresponder" value="1" />
+                            <label for="gr_autoresponder" class="inactive">Add to autoresponder cycle</label>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="label">
+                            <label for="autoresponder">Autoresponder day</label>
+                        </td>
+                        <td class="value">
+                            <select id="cycle_day" class="inactive" name="cycle_day">
+                                <option value="">no autresponders</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr class="empty-space details">
+                        <td colspan="2"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="label">Contact info</td>
+                        <td class="value">
+                            <input type="checkbox" name="gr_sync_order_data" id="gr_sync_order_data" value="1"/>
+                            <label for="gr_sync_order_data">Update contact info</label>
+                            <p class="note">Select this option if you want to overwrite contact details that already exist in your GetResponse database.<br />
+Clear this option to keep existing data intact.</p>
+                        </td>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+		<div id="customNameFields" style="display: none;">
+
+            <div class="entry-edit">
+
+                <div class="entry-edit-head">
+                    <h4 style="margin-top: 3px" class="icon-head head-edit-form fieldset-legend">Update contact info</h4>
+                    <p class="form-buttons">
+                        <button type="button" class="add-new-mapping add" name="Submit"><span>Add New Mapping</span></button>
+                    </p>
+                </div>
+
+                <div class="fieldset fieldset-wide fieldset-wide-no-padding">
+                    <div class="grid">
+                        <div class="hor-scroll">
+
+                            <table cellspacing="0" class="data customs-table">
+                                <colgroup>
+                                    <col width="600">
+                                    <col width="800">
+                                </colgroup>
+                                <thead>
+                                <tr class="headings">
+                                    <th class="no-link"><span class="nobr">Customer details</span></th>
+                                    <th class="no-link"><span class="nobr">Custom fields in GetResponse</span></th>
+                                    <th class="no-link last"><span class="nobr">Action</span></th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                <tr class="even">
+                                    <td>
+                                        <select disabled name="firstname">
+                                            <option value="firstname">firstname</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input class="input-text disabled" type="text" name="firstname" value="firstname" disabled />
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select disabled name="lastname">
+                                            <option value="lastname">lastname</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input class="input-text disabled" type="text" name="lastname" value="lastname" disabled />
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr class="even">
+                                    <td>
+                                        <select disabled name="email">
+                                            <option value="email">email</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input class="input-text disabled" type="text" name="email" value="email" disabled />
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="note customs-note">
+                    You can use lowercase English alphabet characters, numbers, and underscore ("_"). Maximum 32 characters.
+                </p>
+            </div>
+        </div>
+		<input name="form_key" type="hidden" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>"/>
+    </div>
+</form>
+
+<script>
+
+    var customs = <?php echo $settings->customs_json ?>;
+    var custom_values = <?php echo $settings->custom_values_json ?>;
+
+    jQuery('.add-new-mapping').on('click', function() {
+        GetresponseMapping(customs, custom_values);
+        return false;
+    });
+
+    var sod = jQuery('#gr_sync_order_data'), cfp = jQuery('#customNameFields');
+    if (sod.prop('checked') === true) {
+        cfp.show();
+    }
+
+    function switchHandler() {
+        jQuery('#gr_sync_order_data').on("click", function () {
+            cfp.toggle('slow');
+        });
+    }
+    switchHandler();
+
+    available_cycles = jQuery.parseJSON('<?php echo isset($settings->campaign_days) ? addslashes(json_encode($settings->campaign_days)) : "{}"; ?>');
+
+    var cycles1 = cycles.init(
+        available_cycles,
+        jQuery('#campaign_id'),
+        jQuery('#cycle_day'),
+        jQuery('#gr_autoresponder'),
+        jQuery('label[for="gr_autoresponder"]'),
+        <?php echo isset($settings->api['cycle_day']) ? $settings->api['cycle_day'] : ''; ?>
+    );
+
+
+</script>

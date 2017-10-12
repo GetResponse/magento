@@ -1,0 +1,61 @@
+<form class="getresponse getresponse-webtraffic" id="getresponsewebtrafic" method="post"
+      action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/index/activate_webtraffic'); ?>">
+
+    <ul class="messages">
+        <li class="notice-msg">
+            <ul>
+                <li>
+                    <span>
+<?php if (1 == $settings->api['has_gr_traffic_feature_enabled']) :?>
+    Plan a customer journey based on their visits to your store and purchases they make.<br />
+    Web event traffic tracking is a marketing automation feature available in Max and Pro accounts.
+<?php else: ?>
+    Plan a customer journey based on their visits to your store and purchases they make.<br />
+    Web event traffic tracking is a marketing automation feature available in Max and Pro accounts.
+<?php endif ?>
+                    </span>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+    <div class="content-header">
+        <h3>Web Event Traffic</h3>
+        <?php if (1 == $settings->api['has_gr_traffic_feature_enabled']) :?>
+        <p class="form-buttons">
+            <button type="submit" name="Submit" class="scalable save" onclick="getresponsewebtrafic.submit();"><span>Save</span></button>
+        </p>
+        <?php endif ?>
+    </div>
+
+    <div class="entry-edit">
+
+        <div class="fieldset fieldset-wide">
+            <div class="hor-scroll">
+
+                <?php if (1 == $settings->api['has_gr_traffic_feature_enabled']) : ?>
+
+                    <span class="switch_active_subscription">
+                    <input type="checkbox" name="has_active_traffic_module" id="has_active_traffic_module" value="1"
+                    <?php if (isset($settings->api['has_active_traffic_module']) and $settings->api['has_active_traffic_module'] == 1) : ?>
+                        checked="checked"
+                    <?php endif; ?>
+                />
+		        	</span>
+                    <label for="has_active_traffic_module">Send web event data to GetResponse</label>
+                <?php else: ?>
+
+                    <p>
+                        We can’t start sending data from Magento to GetResponse yet. Make sure you have a Max or Pro account.<br />
+                        If you have a Max or Pro account, try disconnecting and reconnecting the GetResponse account within the GetResponse module. This should correct the issue.
+                    </p>
+
+                <?php endif ?>
+
+            </div>
+        </div>
+    </div>
+
+    <input name="form_key" type="hidden" value="<?php echo Mage::getSingleton('core/session')->getFormKey() ?>"/>
+</form>
+
