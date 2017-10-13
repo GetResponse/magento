@@ -5,7 +5,7 @@
         xsi:noNamespaceSchemaLocation="../../../../../../../lib/internal/Magento/Framework/View/Layout/etc/page_configuration.xsd"
 >
     <head>
-        <css src="GetResponse_GetResponseIntegration::getresponse-styles.css"/>
+        <css src="GetResponse_GetResponseIntegration::css/getresponse-styles.css"/>
     </head>
     <body/>
 </page>
