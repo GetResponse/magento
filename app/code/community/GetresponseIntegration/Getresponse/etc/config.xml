@@ -2,23 +2,20 @@
 <config>
     <modules>
         <GetresponseIntegration_Getresponse>
-            <version>1.1.0</version>
+            <version>19.1.0</version>
         </GetresponseIntegration_Getresponse>
     </modules>
-
     <global>
         <helpers>
             <getresponse>
                 <class>GetresponseIntegration_Getresponse_Helper</class>
             </getresponse>
         </helpers>
-
         <blocks>
             <getresponse>
                 <class>GetresponseIntegration_Getresponse_Block_Adminhtml_Adminblock</class>
             </getresponse>
         </blocks>
-
         <events>
             <controller_front_init_before>
                 <observers>
@@ -29,7 +26,6 @@
                     </getresponse_init_before>
                 </observers>
             </controller_front_init_before>
-
             <checkout_submit_all_after>
                 <observers>
                     <getresponse_checkout_all_after_form_submitted>
@@ -48,7 +44,6 @@
                     </getresponse_sales_quote_address_save_after>
                 </observers>
             </sales_quote_address_save_after>
-
             <customer_register_success>
                 <observers>
                     <getresponse_create_account>
@@ -58,25 +53,20 @@
                     </getresponse_create_account>
                 </observers>
             </customer_register_success>
-
             <sales_order_place_after>
                 <observers>
-
                     <getresponse_order_create_account>
                         <class>GetresponseIntegration_Getresponse_Model_Observer</class>
                         <method>createAccountOrder</method>
                         <type>singleton</type>
                     </getresponse_order_create_account>
-
                     <getresponse_order_create_handler>
                         <class>GetresponseIntegration_Getresponse_Model_ECommerceObserver</class>
                         <method>createOrderHandler</method>
                         <type>singleton</type>
                     </getresponse_order_create_handler>
-
                 </observers>
             </sales_order_place_after>
-
             <sales_order_save_after>
                 <observers>
                     <getresponse_order_details_changed>
@@ -86,9 +76,7 @@
                     </getresponse_order_details_changed>
                 </observers>
             </sales_order_save_after>
-
         </events>
-
         <models>
             <getresponse>
                 <class>GetresponseIntegration_Getresponse_Model</class>
@@ -121,7 +109,6 @@
                 </entities>
             </getresponse_resource>
         </models>
-
         <resources>
             <getresponse_setup>
                 <setup>
@@ -130,9 +117,7 @@
                 </setup>
             </getresponse_setup>
         </resources>
-
     </global>
-
     <frontend>
         <layout>
             <updates>
@@ -159,22 +144,16 @@
                     </getresponse_block_observer>
                 </observers>
             </controller_action_layout_generate_blocks_before>
-
             <core_block_abstract_prepare_layout_before>
                 <observers>
-
                     <getresponse_tracking_code_observer>
                         <type>singleton</type>
                         <class>GetresponseIntegration_Getresponse_Model_Observer</class>
                         <method>addTrackingCodeToHeader</method>
                     </getresponse_tracking_code_observer>
-
-
                 </observers>
             </core_block_abstract_prepare_layout_before>
-
             <!-- E-commerce -->
-
             <checkout_cart_save_after>
                 <observers>
                     <getresponse2_add_to_cart_shop_webhook>
@@ -184,92 +163,86 @@
                     </getresponse2_add_to_cart_shop_webhook>
                 </observers>
             </checkout_cart_save_after>
-
         </events>
         <blocks>
             <getresponse>
                 <class>GetresponseIntegration_Getresponse_Block</class>
             </getresponse>
         </blocks>
-
         <checkout_onepage_index>
             <reference name="checkout.onepage.billing">
                 <block type="core/text_list" name="checkout.onepage.billing.extra" as="checkout.onepage.billing.extra">
-                    <block type="core/template" name="my.billing.bit" template="my/extension/checkout/onepage/billing.extra.phtml" />
-                </block>
-            </reference>
-        </checkout_onepage_index>
-    </frontend>
-
-    <admin>
-        <routers>
-            <getresponse>
-                <use>admin</use>
-                <args>
-                    <module>GetresponseIntegration_Getresponse</module>
-                    <frontName>getresponse</frontName>
-                </args>
-            </getresponse>
-        </routers>
-    </admin>
-
-    <adminhtml>
-        <menu>
-            <getresponse_menu translate="title" module="getresponse">
-                <title>GetResponse</title>
-                <sort_order>9999</sort_order>
-                <children>
-                    <settings_page module="getresponse">
-                        <title>GetResponse Account</title>
-                        <action>getresponse/index/index</action>
-                    </settings_page>
-                    <export_page module="getresponse">
-                        <title>Export Customer Data on Demand</title>
-                        <action>getresponse/index/export</action>
-                    </export_page>
-                    <viapage_page module="getresponse">
-                        <title>Add Contacts During Registrations</title>
-                        <action>getresponse/index/viapage</action>
-                    </viapage_page>
-                    <viawebform_page module="getresponse">
-                        <title>Add Contacts via GetResponse Forms</title>
-                        <action>getresponse/index/viawebform</action>
-                    </viawebform_page>
-                    <automation_page module="getresponse">
-                        <title>Contact List Rules</title>
-                        <action>getresponse/index/automation</action>
-                    </automation_page>
-                    <newsletter_page module="getresponse">
-                        <title>Add to Contact List after Customer Subscribes</title>
-                        <action>getresponse/index/newsletter</action>
-                    </newsletter_page>
-                    <web_traffic_page module="getresponse">
-                        <title>Web Event Tracking</title>
-                        <action>getresponse/index/webtraffic</action>
-                    </web_traffic_page>
-                    <shop_page module="getresponse">
-                        <title>GetResponse Ecommerce</title>
-                        <action>getresponse/shop/index</action>
-                    </shop_page>
-                </children>
-            </getresponse_menu>
-        </menu>
-
-        <events>
-            <core_block_abstract_prepare_layout_before>
-                <observers>
-                    <getresponse_jquery_prepare_layout_before>
-                        <class>GetresponseIntegration_Getresponse_Model_Observer</class>
-                        <method>addJQueryToHeader</method>
-                    </getresponse_jquery_prepare_layout_before>
-                    <getresponse_css_prepare_layout_before>
-                        <class>GetresponseIntegration_Getresponse_Model_Observer</class>
-                        <method>addCssToHeader</method>
-                    </getresponse_css_prepare_layout_before>
-                </observers>
-            </core_block_abstract_prepare_layout_before>
-        </events>
-
-    </adminhtml>
-
+                <block type="core/template" name="my.billing.bit" template="my/extension/checkout/onepage/billing.extra.phtml"/>
+            </block>
+        </reference>
+    </checkout_onepage_index>
+</frontend>
+<admin>
+    <routers>
+        <getresponse>
+            <use>admin</use>
+            <args>
+                <module>GetresponseIntegration_Getresponse</module>
+                <frontName>getresponse</frontName>
+            </args>
+        </getresponse>
+    </routers>
+</admin>
+<adminhtml>
+    <menu>
+        <getresponse_menu translate="title" module="getresponse">
+            <title>GetResponse</title>
+            <sort_order>9999</sort_order>
+            <children>
+                <settings_page module="getresponse">
+                    <title>GetResponse Account</title>
+                    <action>getresponse/index/index</action>
+                </settings_page>
+                <export_page module="getresponse">
+                    <title>Export Customer Data on Demand</title>
+                    <action>getresponse/index/export</action>
+                </export_page>
+                <viapage_page module="getresponse">
+                    <title>Add Contacts During Registrations</title>
+                    <action>getresponse/index/viapage</action>
+                </viapage_page>
+                <viawebform_page module="getresponse">
+                    <title>Add Contacts via GetResponse Forms</title>
+                    <action>getresponse/index/viawebform</action>
+                </viawebform_page>
+                <automation_page module="getresponse">
+                    <title>Contact List Rules</title>
+                    <action>getresponse/index/automation</action>
+                </automation_page>
+                <newsletter_page module="getresponse">
+                    <title>Add to Contact List after Customer Subscribes</title>
+                    <action>getresponse/index/newsletter</action>
+                </newsletter_page>
+                <web_traffic_page module="getresponse">
+                    <title>Web Event Tracking</title>
+                    <action>getresponse/index/webtraffic</action>
+                </web_traffic_page>
+                <shop_page module="getresponse">
+                    <title>GetResponse Ecommerce</title>
+                    <action>getresponse/shop/index</action>
+                </shop_page>
+            </children>
+        </getresponse_menu>
+    </menu>
+    <events>
+        <core_block_abstract_prepare_layout_before>
+            <observers>
+                <getresponse_jquery_prepare_layout_before>
+                    <class>GetresponseIntegration_Getresponse_Model_Observer</class>
+                    <method>addJQueryToHeader</method>
+                </getresponse_jquery_prepare_layout_before>
+                <getresponse_css_prepare_layout_before>
+                    <class>GetresponseIntegration_Getresponse_Model_Observer</class>
+                    <method>addCssToHeader</method>
+                </getresponse_css_prepare_layout_before>
+            </observers>
+        </core_block_abstract_prepare_layout_before>
+    </events>
+</adminhtml>
 </config>
+

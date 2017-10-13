@@ -25,8 +25,10 @@ try {
         ALTER TABLE `{$installer->getTable('sales_flat_quote')}` ADD `getresponse_cart_id` VARCHAR(32) DEFAULT NULL;
   ");
 
+    $installer->run(
+        "alter table getresponse_settings add column newsletter_cycle_day int after newsletter_campaign_id"
+    );
 
-    
 } catch (\Exception $e) {
     Mage::helper('getresponse/logger')->logException($e);
 }
