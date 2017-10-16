@@ -2,8 +2,8 @@
 namespace GetResponse\GetResponseIntegration\Block;
 
 use Magento\Framework\ObjectManagerInterface;
-use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
 /**
  * Class Webform
@@ -11,21 +11,18 @@ use Magento\Framework\View\Element\Template\Context;
  */
 class Webform extends GetResponse
 {
-    /**
-     * @var ObjectManagerInterface
-     */
-    protected $_objectManager;
+    /** @var Repository */
+    private $repository;
 
     /**
-     * Webform constructor.
      * @param Context $context
-     * @param array $data
      * @param ObjectManagerInterface $objectManager
+     * @param Repository $repository
      */
-    public function __construct(Context $context, ObjectManagerInterface $objectManager)
+    public function __construct(Context $context, ObjectManagerInterface $objectManager, Repository $repository)
     {
         parent::__construct($context, $objectManager);
-        $this->_objectManager = $objectManager;
+        $this->repository = $repository;
     }
 
     /**

@@ -4,8 +4,7 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\View\Result\Page;
-use Magento\Framework\View\Result\PageFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class Delete
@@ -13,17 +12,19 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Delete extends Action
 {
-    /** @var PageFactory */
-    protected $resultPageFactory;
+    /** @var GrRepository */
+    private $grRepository;
+
+    const BACK_URL = 'getresponseintegration/ecommerce/index';
 
     /**
      * @param Context $context
-     * @param PageFactory $resultPageFactory
+     * @param GrRepository $grRepository
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
+    public function __construct(Context $context, GrRepository $grRepository)
     {
         parent::__construct($context);
-        $this->resultPageFactory = $resultPageFactory;
+        $this->grRepository = $grRepository;
     }
 
     /**
@@ -37,14 +38,11 @@ class Delete extends Action
 
         if (empty($id)) {
             $this->messageManager->addErrorMessage('Incorrect shop');
-            $resultRedirect->setPath('getresponseintegration/ecommerce/index');
+            $resultRedirect->setPath(self::BACK_URL);
             return $resultRedirect;
         }
 
-        $block = $this->_objectManager->create('GetResponse\GetResponseIntegration\Block\Ecommerce');
-
-        $client = $block->getClient();
-        $response = $client->deleteShop($id);
+        $response = $this->grRepository->deleteShop($id);
 
         if (isset($response->httpStatus) && $response->httpStatus > 204) {
             $this->messageManager->addErrorMessage($response->codeDescription . ' - uuid: ' . $response->uuid);
@@ -52,7 +50,7 @@ class Delete extends Action
             $this->messageManager->addSuccessMessage('Store removed');
         }
 
-        $resultRedirect->setPath('getresponseintegration/ecommerce/index');
+        $resultRedirect->setPath(self::BACK_URL);
         return $resultRedirect;
     }
 }

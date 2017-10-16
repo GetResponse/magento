@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Model\Account as ModelAccount;
 use GetResponse\GetResponseIntegration\Model\Automation as ModelAutomation;
 use GetResponse\GetResponseIntegration\Model\Settings as ModelSettings;
@@ -15,47 +16,38 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Delete extends Action
 {
+    /** @var Repository */
+    private $repository;
+
     /**
      * @var PageFactory
      */
     protected $resultPageFactory;
 
     /**
-     * Delete constructor.
      * @param Context $context
      * @param PageFactory $resultPageFactory
+     * @param Repository $repository
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        Repository $repository)
     {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
     }
+
 
     /**
      * @return \Magento\Framework\View\Result\Page
      */
     public function execute()
     {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-
-        /** @var ModelSettings $settings */
-        $settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
-        $settings->load($storeId, 'id_shop')->delete();
-
-        /** @var ModelAccount $account */
-        $account = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Account');
-        $account->load($storeId, 'id_shop')->delete();
-
-        /** @var ModelWebform $webform */
-        $webform = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Webform');
-        $webform->load($storeId, 'id_shop')->delete();
-
-        /** @var ModelAutomation $automation */
-        $automation = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Automation');
-        $automations = $automation->getCollection()->addFieldToFilter('id_shop', $storeId);
-        foreach ($automations as $automation) {
-            $automation->delete();
-        }
+        $this->repository->clearSettings();
+        $this->repository->clearAccount();
+        $this->repository->clearWebforms();
+        $this->repository->clearAutomation();
 
         $this->messageManager->addSuccessMessage('GetResponse account disconnected');
 

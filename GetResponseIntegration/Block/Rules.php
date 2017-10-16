@@ -1,10 +1,9 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
-use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
 /**
  * Class Rules
@@ -12,22 +11,18 @@ use GetResponse\GetResponseIntegration\Helper\Config;
  */
 class Rules extends GetResponse
 {
-    /** @var ObjectManagerInterface */
-    protected $_objectManager;
-
-    /** @var ScopeConfigInterface  */
-    private $scopeConfig;
+    /** @var Repository */
+    private $repository;
 
     /**
      * @param Context $context
      * @param ObjectManagerInterface $objectManager
+     * @param Repository $repository
      */
-    public function __construct(Context $context, ObjectManagerInterface $objectManager)
+    public function __construct(Context $context, ObjectManagerInterface $objectManager, Repository $repository)
     {
         parent::__construct($context, $objectManager);
-
-        $this->_objectManager = $objectManager;
-        $this->scopeConfig = $context->getScopeConfig();
+        $this->repository = $repository;
     }
 
     /**
@@ -35,10 +30,7 @@ class Rules extends GetResponse
      */
     public function getStoreCategories()
     {
-        $_categoryHelper = $this->_objectManager->get('\Magento\Catalog\Helper\Category');
-        $categories = $_categoryHelper->getStoreCategories(true, false, true);
-
-        return $categories;
+        return $this->repository->getStoreCategories();
     }
 
     /**
@@ -46,9 +38,7 @@ class Rules extends GetResponse
      */
     public function getDefaultCustoms()
     {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $customs = $this->_objectManager->get('GetResponse\GetResponseIntegration\Model\Customs');
-        return $customs->getCollection($storeId, 'id_shop');
+        return $this->repository->getDefaultCustoms();
     }
 
     /**
@@ -61,9 +51,9 @@ class Rules extends GetResponse
 
     public function getAutomationByParam($param)
     {
-        $value = $this->getRequest()->getParam($param);
-        $automation = $this->_objectManager->get('GetResponse\GetResponseIntegration\Model\Automation');
-        return $automation->load($value, $param)->getData();
+        return $this->repository->getAutomationByParam(
+            $this->getRequest()->getParam($param), $param
+        );
     }
 
     /**

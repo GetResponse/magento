@@ -1,13 +1,14 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Export;
 
-use GetResponse\GetResponseIntegration\Block\Settings;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use GetResponse\GetResponseIntegration\Helper\ApiHelper;
-use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\App\Request\Http;
 
 /**
  * Class Process
@@ -20,8 +21,8 @@ class Process extends Action
     /** @var ApiHelper */
     private $apiHelper;
 
-    /** @var GetResponseAPI3 */
-    public $grApi;
+    /** @var Repository */
+    private $repository;
 
     public $stats = [
         'count'      => 0,
@@ -30,15 +31,28 @@ class Process extends Action
         'error'      => 0
     ];
 
+    /** @var GrRepository */
+    private $grRepository;
+
     /**
-     * Process constructor.
      * @param Context $context
      * @param PageFactory $resultPageFactory
+     * @param Repository $repository
+     * @param GrRepository $grRepository
+     * @param ApiHelper $apiHelper
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        Repository $repository,
+        GrRepository $grRepository,
+        ApiHelper $apiHelper
+    )
     {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
+        $this->grRepository = $grRepository;
+        $this->apiHelper = $apiHelper;
     }
 
     /**
@@ -46,17 +60,20 @@ class Process extends Action
      */
     public function execute()
     {
-        /** @var Settings $block */
-        $block = $this->_objectManager->create('GetResponse\GetResponseIntegration\Block\Settings');
-        $data = $this->getRequest()->getPostValue();
+        $resultPage = $this->resultPageFactory->create();
+        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::export');
+        $resultPage->getConfig()->getTitle()->prepend('Export Customer Data on Demand');
+
+        /** @var Http $request */
+        $request = $this->getRequest();
+
+        /** @var array $data */
+        $data = $request->getPostValue();
 
         $campaign = $data['campaign_id'];
+
         if (empty($campaign)) {
             $this->messageManager->addErrorMessage('You need to select contact list');
-            $resultPage = $this->resultPageFactory->create();
-            $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::export');
-            $resultPage->getConfig()->getTitle()->prepend('Export Customer Data on Demand');
-
             return $resultPage;
         }
 
@@ -70,26 +87,17 @@ class Process extends Action
             if (false == preg_match('/^[_a-zA-Z0-9]{2,32}$/m', $name)) {
                 $this->messageManager->addErrorMessage('There is a problem with one of your custom field name! Field name
                 must be composed using up to 32 characters, only a-z (lower case), numbers and "_".');
-                $resultPage = $this->resultPageFactory->create();
-                $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::export');
-                $resultPage->getConfig()->getTitle()->prepend('Export Customer Data on Demand');
-
                 return $resultPage;
             }
         }
 
         // only those that are subscribed to newsletters
-        $customers = $block->getCustomers();
-        $this->grApi = $block->getClient();
-
-        if (empty($this->grApi)) {
-            return;
-        }
-
-        $this->apiHelper = new ApiHelper($this->grApi);
+        $customers = $this->repository->getCustomers();
 
         foreach ($customers as $customer) {
-            $customer = $customer->getData();
+
+            // create contact factory
+
             $this->stats['count']++;
             $custom_fields = [];
             foreach ($customs as $field => $name) {
@@ -104,10 +112,6 @@ class Process extends Action
         }
 
         $this->messageManager->addSuccessMessage('Customer data exported');
-
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::export');
-        $resultPage->getConfig()->getTitle()->prepend('Export Customer Data on Demand');
 
         return $resultPage;
     }
@@ -142,24 +146,16 @@ class Process extends Action
             $params['dayOfCycle'] = (int) $cycle_day;
         }
 
-        $results = (array) $this->grApi->getContacts([
-            'query' => [
-                'email'      => $email,
-                'campaignId' => $campaign
-            ]
-        ]);
-
-        $contact = array_pop($results);
+        $contact = $this->grRepository->getContactByEmail($email, $campaign);
 
         // if contact already exists in gr account
         if (!empty($contact) && isset($contact->contactId)) {
-            $results = $this->grApi->getContact($contact->contactId);
-            if (!empty($results->customFieldValues)) {
-                $params['customFieldValues'] = $this->apiHelper->mergeUserCustoms($results->customFieldValues, $user_customs);
+            if (!empty($contact->customFieldValues)) {
+                $params['customFieldValues'] = $this->apiHelper->mergeUserCustoms($contact->customFieldValues, $user_customs);
             } else {
                 $params['customFieldValues'] = $this->apiHelper->setCustoms($user_customs);
             }
-            $response = $this->grApi->updateContact($contact->contactId, $params);
+            $response = $this->grRepository->updateContact($contact->contactId, $params);
             if (isset($response->message)) {
                 $this->stats['error']++;
             } else {
@@ -168,7 +164,9 @@ class Process extends Action
             return $response;
         } else {
             $params['customFieldValues'] = $this->apiHelper->setCustoms($user_customs);
-            $response = $this->grApi->addContact($params);
+
+            $response = $this->grRepository->addContact($params);
+
             if (isset($response->message)) {
                 $this->stats['error']++;
             } else {

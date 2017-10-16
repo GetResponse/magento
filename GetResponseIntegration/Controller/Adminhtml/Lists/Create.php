@@ -1,10 +1,13 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Getresponse\Repository as GrRepository;
 use Magento\Backend\App\Action;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\App\Request\Http;
 
 /**
  * Class Create
@@ -12,16 +15,31 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Create extends Action
 {
+    /** @var PageFactory */
     protected $resultPageFactory;
+
+    /** @var Repository */
+    private $repository;
+
+    /** @var GrRepository */
+    private $grRepository;
 
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
+     * @param Repository $repository
+     * @param GrRepository $grRepository
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        Repository $repository,
+        GrRepository $grRepository)
     {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
+        $this->repository = $repository;
+        $this->grRepository = $grRepository;
     }
 
     /**
@@ -38,12 +56,15 @@ class Create extends Action
         $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::automation');
         $resultPage->getConfig()->getTitle()->prepend('New Contact List');
 
-        $data = $this->getRequest()->getPostValue();
+        /** @var Http $request */
+        $request = $this->getRequest();
+        $data = $request->getPostValue();
 
         if (empty($data)) {
             return $resultPage;
         }
 
+        // validator
         $error = $this->validateNewListParams($data);
 
         $resultRedirect = $this->resultRedirectFactory->create();
@@ -54,9 +75,7 @@ class Create extends Action
             return $resultRedirect;
         }
 
-        $block = $this->_objectManager->create('GetResponse\GetResponseIntegration\Block\Lists');
-
-        $lang = substr($block->getStoreLanguage(), 0, 2);
+        $lang = substr($this->repository->getMagentoCountryCode(), 0, 2);
 
         $params = [];
         $params['name'] = $data['campaign_name'];
@@ -68,9 +87,10 @@ class Create extends Action
             'subscriptionConfirmationSubjectId' => $data['confirmation_subject']
         ];
 
-        $result = $block->getClient()->createCampaign($params);
+        $result = $this->grRepository->createCampaign($params);
 
         if (isset($result->httpStatus) && (int)$result->httpStatus >= 400) {
+            $resultRedirect->setPath($backUrl);
             $this->messageManager->addErrorMessage(isset($result->codeDescription) ? $result->codeDescription . ' - uuid: ' . $result->uuid : 'Something goes wrong');
             $resultRedirect->setPath('getresponseintegration/lists/create/back/' . $backParam);
             return $resultRedirect;

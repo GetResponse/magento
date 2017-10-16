@@ -1,10 +1,9 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
 use Magento\Framework\ObjectManagerInterface;
-use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
 /**
  * Class Settings
@@ -12,14 +11,18 @@ use Magento\Framework\View\Element\Template\Context;
  */
 class Settings extends GetResponse
 {
+    /** @var Repository */
+    private $repository;
+
     /**
-     * Settings constructor.
      * @param Context $context
      * @param ObjectManagerInterface $objectManager
+     * @param Repository $repository
      */
-    public function __construct(Context $context, ObjectManagerInterface $objectManager)
+    public function __construct(Context $context, ObjectManagerInterface $objectManager, Repository $repository)
     {
         parent::__construct($context, $objectManager);
+        $this->repository = $repository;
     }
 
     /**
@@ -27,17 +30,7 @@ class Settings extends GetResponse
      */
     public function getCustomers()
     {
-        $customers = $this->_objectManager->get('Magento\Customer\Model\Customer');
-        $customers = $customers->getCollection()
-                               ->joinAttribute('street', 'customer_address/street', 'default_billing', null, 'left')
-                               ->joinAttribute('postcode', 'customer_address/postcode', 'default_billing', null, 'left')
-                               ->joinAttribute('city', 'customer_address/city', 'default_billing', null, 'left')
-                               ->joinAttribute('telephone', 'customer_address/telephone', 'default_billing', null, 'left')
-                               ->joinAttribute('country', 'customer_address/country_id', 'default_billing', null, 'left')
-                               ->joinAttribute('company', 'customer_address/company', 'default_billing', null, 'left')
-                               ->joinAttribute('birthday', 'customer/dob', 'entity_id', null, 'left')
-                               ->joinTable('newsletter_subscriber', 'customer_id=entity_id', ['subscriber_status'], '{{table}}.subscriber_status=1');
-        return $customers;
+        return $this->repository->getFullCustomersDetails();
     }
 
     /**
@@ -45,9 +38,7 @@ class Settings extends GetResponse
      */
     public function getSettings()
     {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
-        return $settings->load($storeId, 'id_shop')->getData();
+        return $this->repository->getSettings();
     }
 
     /**
@@ -55,9 +46,7 @@ class Settings extends GetResponse
      */
     public function getWebformSettings()
     {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $webform_settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Webform');
-        return $webform_settings->load($storeId, 'id_shop')->getData();
+        return $this->repository->getWebformSettings();
     }
 
     /**
@@ -65,9 +54,7 @@ class Settings extends GetResponse
      */
     public function getAccountInfo()
     {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $account = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Account');
-        return $account->load($storeId, 'id_shop');
+        return $this->repository->getAccountInfo();
     }
 
     /**
@@ -103,8 +90,7 @@ class Settings extends GetResponse
      */
     public function getActiveCustoms()
     {
-        $customs = $this->_objectManager->get('GetResponse\GetResponseIntegration\Model\Customs');
-        return $customs->getCollection()->addFieldToFilter('active_custom', true);
+        return $this->repository->getActiveCustoms();
     }
 
     /**
@@ -171,37 +157,6 @@ class Settings extends GetResponse
      */
     public function getAutomations()
     {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Automation');
-        return $settings->getCollection()
-            ->addFieldToFilter('id_shop', $storeId);
-    }
-
-    /**
-     * @return bool|int
-     */
-    public function checkApiKey()
-    {
-        if (empty($this->getApiKey())) {
-            return 0;
-        }
-
-        $response = $this->getClient()->ping();
-
-        if (isset($response->accountId)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getApiKey()
-    {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $model = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
-        return $model->load($storeId, 'id_shop')->getApiKey();
+        return $this->repository->getAutomations();
     }
 }

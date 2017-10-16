@@ -1,6 +1,10 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\View\Element\Template\Context;
+
 /**
  * Class Export
  * @package GetResponse\GetResponseIntegration\Block
@@ -9,13 +13,23 @@ class Export extends GetResponse
 {
     public $stats;
 
+    /** @var Repository */
+    private $repository;
+
     /**
-     * @return mixed
+     * @param Context $context
+     * @param ObjectManagerInterface $objectManager
+     * @param Repository $repository
      */
+    public function __construct(Context $context, ObjectManagerInterface $objectManager, Repository $repository)
+    {
+        parent::__construct($context, $objectManager);
+        $this->repository = $repository;
+    }
+
     public function getCustomers()
     {
-        $customers = $this->_objectManager->get('Magento\Customer\Model\Customer');
-        return $customers->getCollection();
+        return $this->repository->getCustomers();
     }
 
     /**
@@ -23,8 +37,7 @@ class Export extends GetResponse
      */
     public function getActiveCustoms()
     {
-        $customs = $this->_objectManager->get('GetResponse\GetResponseIntegration\Model\Customs');
-        return $customs->getCollection()->addFieldToFilter('active_custom', true);
+        return $this->repository->getActiveCustoms();
     }
 
     /**
@@ -32,9 +45,7 @@ class Export extends GetResponse
      */
     public function getDefaultCustoms()
     {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $customs = $this->_objectManager->get('GetResponse\GetResponseIntegration\Model\Customs');
-        return $customs->getCollection($storeId, 'id_shop');
+        return $this->repository->getDefaultCustoms();
     }
 
     /**
@@ -85,10 +96,7 @@ class Export extends GetResponse
      */
     public function getAutomations()
     {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Automation');
-        return $settings->getCollection()
-            ->addFieldToFilter('id_shop', $storeId);
+        return $this->repository->getAutomations();
     }
 
     /**
@@ -97,8 +105,7 @@ class Export extends GetResponse
      */
     public function getCategoryName($category_id)
     {
-        $_categoryHelper = $this->_objectManager->get('\Magento\Catalog\Model\Category');
-        return $_categoryHelper->load($category_id)->getName();
+        return $this->repository->getCategoryName($category_id);
     }
 
     /**
@@ -106,10 +113,7 @@ class Export extends GetResponse
      */
     public function getStoreCategories()
     {
-        $_categoryHelper = $this->_objectManager->get('\Magento\Catalog\Helper\Category');
-        $categories = $_categoryHelper->getStoreCategories(true, false, true);
-
-        return $categories;
+        return $this->repository->getStoreCategories();
     }
 
     /**
@@ -153,34 +157,6 @@ class Export extends GetResponse
         }
 
         return $autoresponders;
-    }
-
-    /**
-     * @return bool|int
-     */
-    public function checkApiKey()
-    {
-        if (empty($this->getApiKey())) {
-            return 0;
-        }
-
-        $response = $this->getClient()->ping();
-
-        if (isset($response->accountId)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getApiKey()
-    {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $model = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
-        return $model->load($storeId, 'id_shop')->getApiKey();
     }
 
     /**

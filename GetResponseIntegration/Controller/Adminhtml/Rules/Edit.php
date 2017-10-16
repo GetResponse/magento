@@ -13,12 +13,17 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Edit extends Action
 {
+    const AUTOMATION_URL = 'getresponseintegration/settings/automation';
+    const BACK_URL = 'getresponseintegration/rules/edit';
+
     protected $resultPageFactory;
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory)
     {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
@@ -33,12 +38,12 @@ class Edit extends Action
     public function execute()
     {
         $resultRedirect = $this->resultRedirectFactory->create();
+        $resultRedirect->setPath(self::AUTOMATION_URL);
 
         $id = $this->getRequest()->getParam('id');
 
         if (empty($id)) {
             $this->messageManager->addErrorMessage('Incorrect rule');
-            $resultRedirect->setPath('getresponseintegration/settings/automation');
             return $resultRedirect;
         }
 
@@ -56,7 +61,7 @@ class Edit extends Action
 
         if (!empty($error)) {
             $this->messageManager->addErrorMessage($error);
-            $resultRedirect->setPath('getresponseintegration/rules/create');
+            $resultRedirect->setPath(self::BACK_URL);
             return $resultRedirect;
         }
 
@@ -75,8 +80,6 @@ class Edit extends Action
             ->save();
 
         $this->messageManager->addSuccessMessage('Rule has been updated');
-
-        $resultRedirect->setPath('getresponseintegration/settings/automation');
         return $resultRedirect;
     }
 }

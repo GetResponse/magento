@@ -1,11 +1,12 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Backend\App\Action;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
-use GetResponse\GetResponseIntegration\Model\Customs as ModelCustoms;
+use Magento\Framework\App\Request\Http;
 
 
 /**
@@ -14,12 +15,23 @@ use GetResponse\GetResponseIntegration\Model\Customs as ModelCustoms;
  */
 class Create extends Action
 {
-    protected $resultPageFactory;
+    const BACK_URL = 'getresponseintegration/rules/create';
+    const AUTOMATION_URL = 'getresponseintegration/settings/automation';
+
+    private $resultPageFactory;
+
+    /** @var Repository */
+    private $repository;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
+     * @param Repository $repository
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        Repository $repository)
     {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
@@ -33,42 +45,27 @@ class Create extends Action
      */
     public function execute()
     {
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::rules');
-        $resultPage->getConfig()->getTitle()->prepend('New rule');
+        $resultRedirect = $this->resultRedirectFactory->create();
+        $resultRedirect->setPath(self::BACK_URL);
 
-        $data = $this->getRequest()->getPostValue();
+        /** @var Http $request */
+        $request = $this->getRequest();
+        $data = $request->getPostValue();
 
         if (empty($data)) {
-            return $resultPage;
+            return $resultRedirect;
         }
-
-        $resultRedirect = $this->resultRedirectFactory->create();
 
         $error = RuleValidator::validateForPostedParams($data);
 
         if (!empty($error)) {
             $this->messageManager->addErrorMessage($error);
-            $resultRedirect->setPath('getresponseintegration/rules/create');
             return $resultRedirect;
         }
 
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $automation = $this->_objectManager->get('GetResponse\GetResponseIntegration\Model\Automation');
-
-        $cycle_day = (isset($data['gr_autoresponder']) && $data['gr_autoresponder'] == 1 && isset($data['cycle_day'])) ? $data['cycle_day'] : '';
-
-        $automation->setIdShop($storeId)
-            ->setCategoryId($data['category'])
-            ->setCampaignId($data['campaign_id'])
-            ->setActive(1)
-            ->setCycleDay($cycle_day)
-            ->setAction($data['action'])
-            ->save();
-
+        $this->repository->createAutomation($data);
         $this->messageManager->addSuccessMessage('Rule added');
-
-        $resultRedirect->setPath('getresponseintegration/settings/automation');
+        $resultRedirect->setPath(self::AUTOMATION_URL);
         return $resultRedirect;
     }
 }

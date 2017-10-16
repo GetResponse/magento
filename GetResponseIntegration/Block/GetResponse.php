@@ -57,4 +57,32 @@ class GetResponse extends Template
         $settings = $this->getSettings();
         return new GetResponseAPI3($settings['api_key'], $settings['api_url'], $settings['api_domain'], $version);
     }
+
+    /**
+     * @return bool|int
+     */
+    public function checkApiKey()
+    {
+        if (empty($this->getApiKey())) {
+            return 0;
+        }
+
+        $response = $this->getClient()->ping();
+
+        if (isset($response->accountId)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getApiKey()
+    {
+        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
+        $model = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
+        return $model->load($storeId, 'id_shop')->getApiKey();
+    }
 }
