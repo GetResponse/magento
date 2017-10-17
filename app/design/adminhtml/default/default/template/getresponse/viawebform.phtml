@@ -1,11 +1,11 @@
 <form class="getresponse getresponse-viawebform" id="getresponseform" method="post"
-      action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/index/subform'); ?>">
+      action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/webform/save'); ?>">
 
     <ul class="messages">
         <li class="notice-msg">
             <ul>
                 <li>
-                    <span>Add forms (or exit popups) to your store. Get new contacts in your GetResponse lists when your customers fill the forms.</span>
+                    <span>Add forms (or exit popups) to your store. Get new contacts in your GetResponse lists when your customers fill out the forms.</span>
                 </li>
             </ul>
         </li>
@@ -55,31 +55,31 @@
                             <td class="value">
 
                                 <?php
-                                if (!empty($settings->forms) || !empty($settings->webforms)) {
+                                if (!empty($forms) || !empty($webforms)) {
                                     ?>
                                     <select id="selector_webform_id" name="webform_id"
                                             onchange="setType(jQuery(this));">
                                         <option value="">Select a form you want to display</option>
-                                        <?php if (!empty($settings->forms) && !empty($settings->webforms)) { ?>
+                                        <?php if (!empty($forms) && !empty($webforms)) { ?>
                                         <optgroup label="New Forms:">
                                             <?php } ?>
                                             <?php
-                                            foreach ($settings->forms as $form) {
+                                            foreach ($forms as $form) {
                                                 $selected = ($form->formId == $settings->webforms_settings['webform_id']) ? 'selected="selected"' : '';
                                                 echo '<option ' . $selected . ' data-version="new" value="' . $form->formId . '">' . $form->name . ' (' . $form->campaign->name . ')</option>';
                                             }
                                             ?>
-                                            <?php if (!empty($settings->forms) && !empty($settings->webforms)) { ?>
+                                            <?php if (!empty($forms) && !empty($webforms)) { ?>
                                         </optgroup>
                                         <optgroup label="Old Forms:">
                                             <?php } ?>
                                             <?php
-                                            foreach ($settings->webforms as $webform) {
+                                            foreach ($webforms as $webform) {
                                                 $selected = ($webform->webformId == $settings->webforms_settings['webform_id']) ? 'selected="selected"' : '';
                                                 echo '<option ' . $selected . ' data-version="old" value="' . $webform->webformId . '">' . $webform->name . ' (' . $webform->campaign->name . ')</option>';
                                             }
                                             ?>
-                                            <?php if (!empty($settings->forms) && !empty($settings->webforms)) { ?>
+                                            <?php if (!empty($forms) && !empty($webforms)) { ?>
                                         </optgroup>
                                     <?php } ?>
                                     </select>
@@ -102,12 +102,12 @@
                             <td class="value">
 
                                 <?php
-                                if (!empty($settings->layout_positions)) {
+                                if (!empty($layout_positions)) {
                                     ?>
                                     <select name="layout_position">
                                         <option value="">Select where to place the form</option>
                                         <?php
-                                        foreach ($settings->layout_positions as $id => $name) {
+                                        foreach ($layout_positions as $id => $name) {
                                             $selected = ($id == $settings->webforms_settings['layout_position']) ? 'selected="selected"' : '';
                                             echo '<option ' . $selected . ' value="' . $id . '">' . $name . '</option>';
                                         }
@@ -131,12 +131,12 @@
                             <td class="value">
 
                                 <?php
-                                if (!empty($settings->block_positions)) {
+                                if (!empty($block_positions)) {
                                     ?>
                                     <select name="block_position">
                                         <option value="">Select where to place the form</option>
                                         <?php
-                                        foreach ($settings->block_positions as $id => $name) {
+                                        foreach ($block_positions as $id => $name) {
                                             $selected = ($id == $settings->webforms_settings['block_position']) ? 'selected="selected"' : '';
                                             echo '<option ' . $selected . ' value="' . $id . '">' . $name . '</option>';
                                         }

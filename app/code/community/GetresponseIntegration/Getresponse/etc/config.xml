@@ -196,35 +196,35 @@
             <children>
                 <settings_page module="getresponse">
                     <title>GetResponse Account</title>
-                    <action>getresponse/index/index</action>
+                    <action>getresponse/account/index</action>
                 </settings_page>
                 <export_page module="getresponse">
                     <title>Export Customer Data on Demand</title>
-                    <action>getresponse/index/export</action>
+                    <action>getresponse/export/index</action>
                 </export_page>
                 <viapage_page module="getresponse">
                     <title>Add Contacts During Registrations</title>
-                    <action>getresponse/index/viapage</action>
+                    <action>getresponse/subscription/index</action>
                 </viapage_page>
                 <viawebform_page module="getresponse">
                     <title>Add Contacts via GetResponse Forms</title>
-                    <action>getresponse/index/viawebform</action>
+                    <action>getresponse/webform/index</action>
                 </viawebform_page>
                 <automation_page module="getresponse">
                     <title>Contact List Rules</title>
-                    <action>getresponse/index/automation</action>
+                    <action>getresponse/contactlistrules/index</action>
                 </automation_page>
                 <newsletter_page module="getresponse">
                     <title>Add to Contact List after Customer Subscribes</title>
-                    <action>getresponse/index/newsletter</action>
+                    <action>getresponse/newsletter/index</action>
                 </newsletter_page>
                 <web_traffic_page module="getresponse">
                     <title>Web Event Tracking</title>
-                    <action>getresponse/index/webtraffic</action>
+                    <action>getresponse/webtraffic/index</action>
                 </web_traffic_page>
                 <shop_page module="getresponse">
                     <title>GetResponse Ecommerce</title>
-                    <action>getresponse/shop/index</action>
+                    <action>getresponse/ecommerce/index</action>
                 </shop_page>
             </children>
         </getresponse_menu>

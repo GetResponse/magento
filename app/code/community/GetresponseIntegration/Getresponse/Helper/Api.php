@@ -1,11 +1,20 @@
 <?php
 
-class GetresponseIntegration_Getresponse_Helper_Api extends Mage_Core_Helper_Abstract
+class GetresponseIntegration_Getresponse_Helper_Api
 {
 	const CONTACT_ERROR = 1;
 	const CONTACT_UPDATED = 2;
 	const CONTACT_CREATED = 3;
     const ORIGIN_NAME = 'magento';
+
+    const GET_AUTORESPONDER_CACHE_KEY = 'get_autoresponders';
+    const GET_CAMPAIGN_CACHE_KEY = 'get_campaign';
+    const GET_FROM_FIELDS_CACHE_KEY = 'get_from_fields';
+    const GET_CONFIRMATIONS_SUBJECT = 'get_confirmations_subject';
+    const GET_CONFIRMATIONS_BODY = 'get_confirmations_body';
+    const GET_PUBLISHED_FORMS = 'get_published_forms';
+    const GET_PUBLISHED_WEB_FORMS = 'get_published_web_forms';
+    const GET_SHOPS = 'get_shops';
 
 	public static $status = array(
 		self::CONTACT_CREATED => 'Created',
@@ -16,7 +25,15 @@ class GetresponseIntegration_Getresponse_Helper_Api extends Mage_Core_Helper_Abs
 	/** @var array */
     private $cachedCustoms = [];
 
-	/**
+    /** @var GetresponseIntegration_Getresponse_Model_Cache */
+    protected $cache;
+
+    public function __construct()
+    {
+        $this->cache = Mage::getSingleton('getresponse/cache');
+    }
+
+    /**
 	 * Getresponse API instance
 	 */
 	public static function grapi()
@@ -86,6 +103,8 @@ class GetresponseIntegration_Getresponse_Helper_Api extends Mage_Core_Helper_Abs
 
 		$contact = $this->getContact($email, $campaign);
 
+		//echo "<pre>"; print_r($contact); die;
+
 		// If contact already exists in gr account.
 		if ( !empty($contact) && isset($contact->contactId)) {
 
@@ -105,7 +124,7 @@ class GetresponseIntegration_Getresponse_Helper_Api extends Mage_Core_Helper_Abs
 		}
 		else {
             $user_customs['origin'] = self::ORIGIN_NAME;
-			$params['customFieldValues'] = $this->set_customs($user_customs);
+			$params['customFieldValues'] = $this->setCustoms($user_customs);
 			$response = $this->grapi()->add_contact($params);
 
 			if (isset($response->codeDescription)) {
@@ -122,7 +141,7 @@ class GetresponseIntegration_Getresponse_Helper_Api extends Mage_Core_Helper_Abs
 	 *
 	 * @return array
 	 */
-	public function get_custom_fields()
+	public function getCustomFields()
 	{
 		$all_customs = array();
 		$results = $this->grapi()->get_custom_fields(array('perPage' => 1000));
@@ -147,7 +166,7 @@ class GetresponseIntegration_Getresponse_Helper_Api extends Mage_Core_Helper_Abs
 	 *
 	 * @return array
 	 */
-	public function set_customs($user_customs)
+	public function setCustoms($user_customs)
 	{
 		$custom_fields = array();
 
@@ -218,7 +237,7 @@ class GetresponseIntegration_Getresponse_Helper_Api extends Mage_Core_Helper_Abs
 			}
 		}
 
-		return array_merge($custom_fields, $this->set_customs($user_customs));
+		return array_merge($custom_fields, $this->setCustoms($user_customs));
 	}
 
 	/**
@@ -226,41 +245,92 @@ class GetresponseIntegration_Getresponse_Helper_Api extends Mage_Core_Helper_Abs
 	 */
 	public function getGrCampaigns()
 	{
-		$campaigns = array();
-		$results = $this->grapi()->get_campaigns(array('sort' => array('name' => 'asc')));
-		if ( !empty($results) && !isset($results->codeDescription)) {
-			foreach ($results as $result) {
-				$campaigns[$result->campaignId] = $result->name;
-			}
-		}
+        $cachedValue = $this->cache->load(self::GET_CAMPAIGN_CACHE_KEY);
+        if (false !== $cachedValue) {
+            return $cachedValue;
+        }
 
+        $campaigns = array();
+        $page = 1;
+        $perPage = 10;
+
+	    do {
+            $apiResponse = $this->grapi()->get_campaigns(array('sort' => array('name' => 'asc'), 'page' => $page, 'perPage' => $perPage));
+
+            if (isset($apiResponse->codeDescription)) {
+                $apiResponse = [];
+            }
+
+            foreach ($apiResponse as $result) {
+                $campaigns[$result->campaignId] = $result->name;
+            }
+
+            $page++;
+        } while ($perPage === count((array)$apiResponse));
+
+        $this->cache->save($campaigns, self::GET_CAMPAIGN_CACHE_KEY);
 		return $campaigns;
 	}
 
 	/**
 	 * Get getresponse campaigns from user account
 	 */
-	public function getForms()
+	public function getPublishedForms()
 	{
+        $cachedValue = $this->cache->load(self::GET_PUBLISHED_FORMS);
+        if (false !== $cachedValue) {
+            return $cachedValue;
+        }
+
 		$results = $this->grapi()->get_forms();
-		if ( !empty($results) && !isset($results->codeDescription)) {
-			return $results;
+		if (empty($results) || isset($results->codeDescription)) {
+			return false;
 		}
 
-		return false;
+		$forms = array();
+
+        foreach ($results as $form) {
+            if (isset($form->status) && $form->status == 'published') {
+                $forms[] = $form;
+            }
+        }
+
+        $this->cache->save($forms, self::GET_PUBLISHED_FORMS);
+		return $forms;
 	}
 
-	/**
-	 * Get getresponse campaigns from user account
-	 */
-	public function getWebForms()
+	public function getWebform($id)
+    {
+        return $this->grapi()->get_web_form($id);
+    }
+
+    public function getForm($id)
+    {
+        return $this->grapi()->get_form($id);
+    }
+
+	public function getPublishedWebForms()
 	{
+        $cachedValue = $this->cache->load(self::GET_PUBLISHED_WEB_FORMS);
+        if (false !== $cachedValue) {
+            return $cachedValue;
+        }
+
 		$results = $this->grapi()->get_web_forms();
-		if ( !empty($results) && !isset($results->codeDescription)) {
-			return $results;
+		if (empty($results) || isset($results->codeDescription)) {
+			return false;
 		}
 
-		return false;
+		$forms = [];
+
+        foreach ($results as $webform) {
+            if (isset($webform->status) && $webform->status == 'enabled') {
+                $forms[] = $webform;
+            }
+        }
+
+        $this->cache->save($forms, self::GET_PUBLISHED_WEB_FORMS);
+		return $forms;
 	}
 
 	/**
@@ -268,28 +338,40 @@ class GetresponseIntegration_Getresponse_Helper_Api extends Mage_Core_Helper_Abs
 	 */
 	public function getCampaignDays()
 	{
-		$autoresponders = $this->grapi()->get_autoresponders();
-		$campaign_days = array();
+	    $cachedValue = $this->cache->load(self::GET_AUTORESPONDER_CACHE_KEY);
+	    if (false !== $cachedValue) {
+	        return $cachedValue;
+        }
 
-		if ( !empty($autoresponders->codeDescription)) {
-			return false;
-		}
+        $campaignDays = array();
+        $page = 1;
+        $perPage = 100;
 
-		if ( !empty($autoresponders) && is_object($autoresponders)) {
-			foreach ($autoresponders as $autoresponder) {
-				if ($autoresponder->triggerSettings->dayOfCycle == null) {
-					continue;
-				}
+        do {
+            $apiResponse = $this->grapi()->get_autoresponders(array('page' => $page, 'perPage' => $perPage));
 
-				$campaign_days[$autoresponder->triggerSettings->subscribedCampaign->campaignId][$autoresponder->triggerSettings->dayOfCycle] =
-					array('day' => $autoresponder->triggerSettings->dayOfCycle,
-						  'name' => $autoresponder->subject,
-						  'status' => $autoresponder->status,
-					);
-			}
-		}
+            if (isset($apiResponse->codeDescription)) {
+                $apiResponse = [];
+            }
 
-		return $campaign_days;
+            foreach ($apiResponse as $autoresponder) {
+
+                if ($autoresponder->triggerSettings->dayOfCycle == null) {
+                    continue;
+                }
+
+                $campaignDays[$autoresponder->triggerSettings->subscribedCampaign->campaignId][$autoresponder->triggerSettings->dayOfCycle] =
+                array('day' => $autoresponder->triggerSettings->dayOfCycle,
+                    'name' => $autoresponder->subject,
+                    'status' => $autoresponder->status,
+                );
+            }
+
+            $page++;
+        } while ($perPage === count((array)$apiResponse));
+
+		$this->cache->save($campaignDays, self::GET_AUTORESPONDER_CACHE_KEY);
+		return $campaignDays;
 	}
 
 	/**
@@ -321,7 +403,7 @@ class GetresponseIntegration_Getresponse_Helper_Api extends Mage_Core_Helper_Abs
 			);
 
 			$result = $this->grapi()->create_campaign($params);
-
+            $this->cache->remove(self::GET_CAMPAIGN_CACHE_KEY);
 			return $result;
 		} catch (Exception $e) {
 			return $e->getMessage();
@@ -366,12 +448,32 @@ class GetresponseIntegration_Getresponse_Helper_Api extends Mage_Core_Helper_Abs
 	}
 
     /**
-     *
-     * @return object
+     * @return array
      */
     public function getShops()
     {
-        return $this->grapi()->get_shops();
+        $cachedValue = $this->cache->load(self::GET_SHOPS);
+        if (false !== $cachedValue) {
+            return $cachedValue;
+        }
+
+        $shops = array();
+        $page = 1;
+        $perPage = 100;
+
+        do {
+            $apiResponse = $this->grapi()->get_shops(array('page' => $page, 'perPage' => $perPage));
+            if (isset($apiResponse->codeDescription)) {
+                $apiResponse = [];
+            }
+
+            $shops = array_merge($shops, (array)$apiResponse);
+
+            $page++;
+        } while ($perPage === count((array)$apiResponse));
+
+        $this->cache->save($shops, self::GET_SHOPS);
+        return $shops;
 	}
 
     /**
@@ -384,7 +486,7 @@ class GetresponseIntegration_Getresponse_Helper_Api extends Mage_Core_Helper_Abs
     {
         $locale = substr(Mage::app()->getLocale()->getDefaultLocale(), 0, 2);
         $currency = Mage::app()->getStore()->getCurrentCurrencyCode();
-
+        $this->cache->remove(self::GET_SHOPS);
         return $this->grapi()->add_shop($name, $locale, $currency);
     }
 
@@ -440,8 +542,49 @@ class GetresponseIntegration_Getresponse_Helper_Api extends Mage_Core_Helper_Abs
         if (false === $response || !empty($response->codeDescription)) {
             return false;
         } else {
+            $this->cache->remove(self::GET_SHOPS);
             return true;
         }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFromFields()
+    {
+        $cachedValue = $this->cache->load(self::GET_FROM_FIELDS_CACHE_KEY);
+        if (false !== $cachedValue) {
+            return $cachedValue;
+        }
+
+        $apiResponse = $this->grapi()->get_account_from_fields();
+        $this->cache->save($apiResponse, self::GET_FROM_FIELDS_CACHE_KEY);
+        return $apiResponse;
+    }
+
+    public function getSubscriptionConfirmationsSubject($code)
+    {
+        $cachedValue = $this->cache->load(self::GET_CONFIRMATIONS_SUBJECT);
+        if (false !== $cachedValue) {
+            return $cachedValue;
+        }
+
+        $apiResponse = $this->grapi()->get_subscription_confirmations_subject($code);
+        $this->cache->save($apiResponse, self::GET_CONFIRMATIONS_SUBJECT);
+        return $apiResponse;
+    }
+
+
+    public function getSubscriptionConfirmationsBody($code)
+    {
+        $cachedValue = $this->cache->load(self::GET_CONFIRMATIONS_BODY);
+        if (false !== $cachedValue) {
+            return $cachedValue;
+        }
+
+        $apiResponse = $this->grapi()->get_subscription_confirmations_body($code);
+        $this->cache->save($apiResponse, self::GET_CONFIRMATIONS_BODY);
+        return $apiResponse;
     }
 
 }

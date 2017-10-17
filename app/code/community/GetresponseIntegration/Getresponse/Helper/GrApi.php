@@ -422,9 +422,9 @@ class GetresponseIntegration_Getresponse_Helper_GrApi
      *
      * @return object
      */
-    public function get_shops()
+    public function get_shops($params = array())
     {
-        return $this->call('shops');
+        return $this->call('shops?' . $this->setParams($params));
 	}
 
     /**

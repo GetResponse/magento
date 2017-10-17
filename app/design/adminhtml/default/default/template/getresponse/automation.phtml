@@ -5,7 +5,7 @@
             <li class="notice-msg">
                 <ul>
                     <li><span>
-                        <?php if (0 === count($settings->automations)): ?>
+                        <?php if (0 === count($rules)): ?>
                             Define rules that move or copy contacts between GetResponse lists when people make purchases in the selected product category.
                         <?php else: ?>
                             Automatically move or copy your customers between your GetResponse contact list when people purchase in Magento product category.
@@ -19,7 +19,7 @@
     <div class="content-header">
         <h3>Contact List Rules</h3>
         <p class="form-buttons">
-            <button onclick="setLocation('<?php echo Mage::helper("adminhtml")->getUrl("getresponse/index/add_contact_list_rule"); ?>')" type="button" class="scalable add" name="Submit"><span><span><span>Add New Rule</span></span></span></button>
+            <button onclick="setLocation('<?php echo Mage::helper("adminhtml")->getUrl("getresponse/contactlistrules/add"); ?>')" type="button" class="scalable add" name="Submit"><span><span><span>Add New Rule</span></span></span></button>
         </p>
     </div>
 
@@ -27,7 +27,7 @@
         <div class="grid">
             <div class="hor-scroll">
 
-                <p>Total <?php echo count($settings->automations) ?> records found</p>
+                <p>Total <?php echo count($rules) ?> records found</p>
 
                 <table cellspacing="0" class="data customs-table">
                     <colgroup>
@@ -51,20 +51,20 @@
 
                     <tbody>
                         <?php $even = true; ?>
-                        <?php if ( !empty($settings->automations)): ?>
+                        <?php if ( !empty($rules)): ?>
 
-                            <?php foreach ($settings->automations as $automation): ?>
+                            <?php foreach ($rules as $automation): ?>
 
                                 <tr <?php if ($even): ?> class="even"<?php endif ?>>
                                 <td>
-                                    <?php if (isset($settings->categories[$automation['category_id']])) : echo $settings->categories[$automation['category_id']]['name']; endif ?>
+                                    <?php if (isset($categories[$automation['category_id']])) : echo $categories[$automation['category_id']]['name']; endif ?>
                                 </td>
                                 <td>
                                     <?php
                                     echo $automation['action']; ?>
                                 </td>
                                 <td>
-                                    <?php if (isset($settings->campaigns[$automation['campaign_id']])) : echo $settings->campaigns[$automation['campaign_id']]; endif ?>
+                                    <?php if (isset($campaigns[$automation['campaign_id']])) : echo $campaigns[$automation['campaign_id']]; endif ?>
                                 </td>
                                 <td style="text-align: center;">
                                     <input
@@ -77,8 +77,8 @@
                                     >
                                 </td>
                                 <td>
-                                    <?php if (isset($settings->campaign_days[$automation['campaign_id']])): ?>
-                                        <?php foreach ($settings->campaign_days[$automation['campaign_id']] as $campaign): ?>
+                                    <?php if (isset($campaign_days[$automation['campaign_id']]) && 1 == $automation['active']): ?>
+                                        <?php foreach ($campaign_days[$automation['campaign_id']] as $campaign): ?>
                                             <?php if ($campaign['day'] == $automation['cycle_day']): ?>
                                             <?php echo "(Day: " . $campaign['day'] . ") " .  $campaign['name'] ?>
                                                 <?php endif ?>
@@ -86,7 +86,7 @@
                                     <?php endif ?>
                                 </td>
                                 <td style="text-align: center">
-                                    <a href="<?php echo Mage::helper("adminhtml")->getUrl("getresponse/index/edit_contact_list_rule/id/" . $automation['id']); ?>">Edit</a>
+                                    <a href="<?php echo Mage::helper("adminhtml")->getUrl("getresponse/contactlistrules/edit/id/" . $automation['id']); ?>">Edit</a>
 
                                 </td>
                                 </tr>
