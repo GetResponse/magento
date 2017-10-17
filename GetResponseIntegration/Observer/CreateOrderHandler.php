@@ -1,6 +1,8 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Directory\Model\CountryFactory;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer as EventObserver;
@@ -11,6 +13,7 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\Order;
 use GetResponse\GetResponseIntegration\Model\ProductMapFactory;
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class CreateOrderHandler
@@ -22,7 +25,11 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
     private $scopeConfig;
 
     private $orderFactory;
+
     private $quoteFactory;
+
+    /** @var GrRepository */
+    private $grRepository;
 
     /**
      * @param ObjectManagerInterface $objectManager
@@ -32,6 +39,8 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
      * @param ProductMapFactory $productMapFactory
      * @param CountryFactory $countryFactory
      * @param ScopeConfigInterface $scopeConfig
+     * @param RepositoryFactory $repositoryFactory
+     * @param Repository $repository
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
@@ -40,14 +49,17 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
         Order $orderFactory,
         ProductMapFactory $productMapFactory,
         CountryFactory $countryFactory,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        RepositoryFactory $repositoryFactory,
+        Repository $repository
     ) {
+        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory, $repository);
+
         $this->orderFactory = $orderFactory;
         $this->quoteFactory = $quoteFactory;
         $this->countryFactory = $countryFactory;
         $this->scopeConfig = $scopeConfig;
-
-        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory);
+        $this->grRepository = $repositoryFactory->buildRepository();
     }
 
     /**
@@ -74,7 +86,7 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
         $requestToGr['cartId'] = $quote->getGetresponseCartId();
 
 
-        $response = $this->apiClient->createOrder(
+        $response = $this->grRepository->createOrder(
             $shopId,
             $requestToGr
         );

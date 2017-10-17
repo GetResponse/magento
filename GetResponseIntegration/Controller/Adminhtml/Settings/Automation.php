@@ -1,10 +1,12 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
-use GetResponse\GetResponseIntegration\Block\Settings;
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\Controller\Result\JsonFactory;
 
 /**
  * Class Automation
@@ -12,18 +14,26 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Automation extends Action
 {
+    /** @var JsonFactory */
     protected $resultPageFactory;
 
-    public $grApi;
-
     /**
-     * Automation constructor.
      * @param Context $context
      * @param PageFactory $resultPageFactory
+     * @param AccessValidator $accessValidator
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        AccessValidator $accessValidator
+    )
     {
         parent::__construct($context);
+
+        if (false === $accessValidator->checkAccess()) {
+            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $this->resultPageFactory = $resultPageFactory;
     }
 
@@ -32,20 +42,8 @@ class Automation extends Action
      */
     public function execute()
     {
-        /** @var Settings $block */
-        $block = $this->_objectManager->create('GetResponse\GetResponseIntegration\Block\Settings');
-        $checkApiKey = $block->checkApiKey();
-        if ($checkApiKey === false) {
-            $this->messageManager->addWarningMessage('Your API key is not valid! Please update your settings.');
-        } elseif ($checkApiKey === 0) {
-            $this->messageManager->addWarningMessage('Your API key is empty. In order to use this function you need to save your API key');
-        }
-
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::settings');
         $resultPage->getConfig()->getTitle()->prepend('Contact List Rules');
-
         return $resultPage;
     }
-
 }

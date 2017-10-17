@@ -2,28 +2,32 @@
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
 
 use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
-use Magento\Framework\ObjectManagerInterface;
 
+/**
+ * Class Repository
+ * @package GetResponse\GetResponseIntegration\Domain\GetResponse
+ */
 class Repository
 {
-    /** @var GetResponseAPI3 */
+    /** @var  GetResponseAPI3 */
     private $resource;
 
-    /** @var ObjectManagerInterface */
-    private $objectManager;
-
     /**
-     * @param ObjectManagerInterface $objectManager
+     * @param GetResponseAPI3 $resource
      */
-    public function __construct(ObjectManagerInterface $objectManager)
+    public function __construct(GetResponseAPI3 $resource)
     {
-        $this->objectManager = $objectManager;
-        $this->resource = $this->getClient();
+        $this->resource = $resource;
     }
 
     public function createShop($name, $lang, $currency)
     {
         return $this->resource->createShop($name, $lang, $currency);
+    }
+
+    public function getShops()
+    {
+        return $this->resource->getShops();
     }
 
     public function deleteShop($id)
@@ -41,6 +45,21 @@ class Repository
         return $this->resource->updateContact($id, $params);
     }
 
+    public function deleteContact($id)
+    {
+        return $this->resource->deleteContact($id);
+    }
+
+    public function getContacts($params)
+    {
+        return $this->resource->getContacts($params);
+    }
+
+    public function getContact($id)
+    {
+        return $this->resource->getContact($id);
+    }
+
     public function getContactByEmail($email, $campaign)
     {
         $result = (array) $this->resource->getContacts([
@@ -51,6 +70,11 @@ class Repository
         ]);
 
         return array_pop($result);
+    }
+
+    public function getAccountDetails()
+    {
+        return $this->resource->ping();
     }
 
     public function getCustomFieldByName($name)
@@ -68,17 +92,88 @@ class Repository
         return $this->resource->createCampaign($params);
     }
 
-
-    private function getClient()
+    public function getFeatures()
     {
-        $storeId = $this->objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $settings = $this->objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
-        $data = $settings->load($storeId, 'id_shop')->getData();
+        return $this->resource->getFeatures();
+    }
 
-        $moduleInfo = $this->objectManager->get('Magento\Framework\Module\ModuleList')->getOne('GetResponse_GetResponseIntegration');
+    public function getTrackingCode()
+    {
+        return $this->resource->getTrackingCode();
+    }
 
-        $version = isset($moduleInfo['setup_version']) ? $moduleInfo['setup_version'] : '';
+    public function getCampaigns($params)
+    {
+        return $this->resource->getCampaigns($params);
+    }
 
-        return new GetResponseAPI3($data['api_key'], $data['api_url'], $data['api_domain'], $version);
+    public function getCampaign($id)
+    {
+        return $this->resource->getCampaign($id);
+    }
+
+    public function getAccountFromFields()
+    {
+        return $this->resource->getAccountFromFields();
+    }
+
+    public function getSubscriptionConfirmationsSubject($lang)
+    {
+        return $this->resource->getSubscriptionConfirmationsSubject($lang);
+    }
+
+    public function getSubscriptionConfirmationsBody($lang)
+    {
+        return $this->resource->getSubscriptionConfirmationsBody($lang);
+    }
+
+    public function getAutoresponders($params)
+    {
+        return $this->resource->getAutoresponders($params);
+    }
+
+    public function getForms($params)
+    {
+        return $this->resource->getForms($params);
+    }
+
+    public function getWebForms($params = [])
+    {
+        return $this->resource->getWebForms($params);
+    }
+
+    public function addProduct($shopId, $params)
+    {
+        return $this->resource->addProduct($shopId, $params);
+    }
+
+    public function deleteCart($shopId, $cartId)
+    {
+        return $this->resource->deleteCart($shopId, $cartId);
+    }
+
+    public function addCart($shopId, $params)
+    {
+        return $this->resource->addCart($shopId, $params);
+    }
+
+    public function updateCart($shopId, $cartId, $params)
+    {
+        return $this->resource->updateCart($shopId, $cartId, $params);
+    }
+
+    public function createOrder($shopId, $params)
+    {
+        return $this->resource->createOrder($shopId, $params);
+    }
+
+    public function updateOrder($shopId, $orderId, $params)
+    {
+        return $this->resource->updateOrder($shopId, $orderId, $params);
+    }
+
+    public function getOrder($shopId, $orderId, $params = [])
+    {
+        return $this->resource->getOrder($shopId, $orderId, $params);
     }
 }

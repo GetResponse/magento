@@ -2,6 +2,8 @@
 
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\Page;
@@ -19,10 +21,20 @@ class Index extends Action
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
+     * @param AccessValidator $accessValidator
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        AccessValidator $accessValidator
+    )
     {
         parent::__construct($context);
+
+        if (false === $accessValidator->checkAccess()) {
+            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $this->resultPageFactory = $resultPageFactory;
     }
 
@@ -32,7 +44,6 @@ class Index extends Action
     public function execute()
     {
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::settings');
         $resultPage->getConfig()->getTitle()->prepend('GetResponse Ecommerce');
 
         return $resultPage;

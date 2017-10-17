@@ -1,9 +1,10 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
-use GetResponse\GetResponseIntegration\Block\Settings;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetResponseRepositoryException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\ApiHelper;
-use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\ObjectManagerInterface;
@@ -14,21 +15,29 @@ use Magento\Framework\ObjectManagerInterface;
  */
 class SubscribeFromRegister implements ObserverInterface
 {
-    /**
-     * @var ObjectManagerInterface
-     */
+    /** @var ObjectManagerInterface */
     protected $_objectManager;
 
-    /** @var GetResponseAPI3 */
-    public $grApi;
+    /** @var Repository */
+    private $repository;
+
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /**
-     * SubscribeFromRegister constructor.
      * @param ObjectManagerInterface $objectManager
+     * @param Repository $repository
+     * @param RepositoryFactory $repositoryFactory
      */
-    public function __construct(ObjectManagerInterface $objectManager)
+    public function __construct(
+        ObjectManagerInterface $objectManager,
+        Repository $repository,
+        RepositoryFactory $repositoryFactory
+    )
     {
         $this->_objectManager = $objectManager;
+        $this->repository = $repository;
+        $this->repositoryFactory = $repositoryFactory;
     }
 
     /**
@@ -39,29 +48,23 @@ class SubscribeFromRegister implements ObserverInterface
      */
     public function execute(EventObserver $observer)
     {
-        /** @var Settings $block */
-        $block = $this->_objectManager->create('GetResponse\GetResponseIntegration\Block\Settings');
-        $settings = $block->getSettings();
-
-        if (!isset($settings['api_key'])) {
-            return $this;
-        }
-
-        $this->grApi = $block->getClient();
-
-        if (empty($this->grApi)) {
-            return $this;
-        }
-
-        $apiHelper = new ApiHelper($this->grApi);
+        $settings = $this->repository->getSettings();
 
         if ($settings['active_subscription'] != true) {
             return $this;
         }
+
+        try {
+            $grRepository = $this->repositoryFactory->buildRepository();
+        } catch (GetResponseRepositoryException $e) {
+            return $this;
+        }
+
+        $apiHelper = new ApiHelper($grRepository);
+
         $customer = $observer->getEvent()->getCustomer();
 
-        $subscriber = $this->_objectManager->create('Magento\Newsletter\Model\Subscriber');
-        $subscriber->loadByEmail($customer->getEmail());
+        $subscriber = $this->repository->loadSubscriberByEmail($customer->getEmail());
 
         if ($subscriber->isSubscribed() == true) {
 
@@ -75,7 +78,7 @@ class SubscribeFromRegister implements ObserverInterface
             }
 
             $params['customFieldValues'] = $apiHelper->setCustoms(array('origin' => 'magento2'));
-            $this->grApi->addContact($params);
+            $grRepository->addContact($params);
         }
 
         return $this;

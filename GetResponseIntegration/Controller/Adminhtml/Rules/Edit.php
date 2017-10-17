@@ -1,10 +1,14 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\App\Request\Http;
+
 
 
 /**
@@ -17,15 +21,24 @@ class Edit extends Action
     const BACK_URL = 'getresponseintegration/rules/edit';
 
     protected $resultPageFactory;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
+     * @param AccessValidator $accessValidator
      */
     public function __construct(
         Context $context,
-        PageFactory $resultPageFactory)
+        PageFactory $resultPageFactory,
+        AccessValidator $accessValidator
+    )
     {
         parent::__construct($context);
+
+        if (false === $accessValidator->checkAccess()) {
+            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $this->resultPageFactory = $resultPageFactory;
     }
 
@@ -48,10 +61,11 @@ class Edit extends Action
         }
 
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::rules');
         $resultPage->getConfig()->getTitle()->prepend('Edit rule');
 
-        $data = $this->getRequest()->getPostValue();
+        /** @var Http $request */
+        $request = $this->getRequest();
+        $data = $request->getPostValue();
 
         if (empty($data)) {
             return $resultPage;

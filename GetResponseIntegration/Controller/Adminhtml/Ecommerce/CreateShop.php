@@ -1,11 +1,15 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository as Repository;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
+use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 
 /**
@@ -25,25 +29,32 @@ class CreateShop extends Action
 
     /**
      * @param Context $context
-     * @param GrRepository $grRepository
+     * @param RepositoryFactory $repositoryFactory
      * @param Repository $repository
      * @param JsonFactory $resultJsonFactory
+     * @param AccessValidator $accessValidator
      */
     public function __construct(
         Context $context,
-        GrRepository $grRepository,
+        RepositoryFactory $repositoryFactory,
         Repository $repository,
-        JsonFactory $resultJsonFactory
+        JsonFactory $resultJsonFactory,
+        AccessValidator $accessValidator
     )
     {
         parent::__construct($context);
+
+        if (false === $accessValidator->checkAccess()) {
+            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $this->repository = $repository;
-        $this->grRepository = $grRepository;
+        $this->grRepository = $repositoryFactory->buildRepository();
         $this->resultJsonFactory = $resultJsonFactory;
     }
 
     /**
-     * Execute
+     * @return Json
      */
     public function execute()
     {

@@ -1,8 +1,11 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Getresponse\Repository as GrRepository;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Backend\App\Action\Context;
@@ -28,18 +31,26 @@ class Create extends Action
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
-     * @param GrRepository $grRepository
+     * @param RepositoryFactory $repositoryFactory
+     * @param AccessValidator $accessValidator
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         Repository $repository,
-        GrRepository $grRepository)
+        RepositoryFactory $repositoryFactory,
+        AccessValidator $accessValidator
+    )
     {
         parent::__construct($context);
+
+        if (false === $accessValidator->checkAccess()) {
+            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
-        $this->grRepository = $grRepository;
+        $this->grRepository = $repositoryFactory->buildRepository();
     }
 
     /**
@@ -53,7 +64,6 @@ class Create extends Action
         $backUrl = $this->getRequest()->getParam('back_url');
         $backParam = $this->getRequest()->getParam('back');
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::automation');
         $resultPage->getConfig()->getTitle()->prepend('New Contact List');
 
         /** @var Http $request */
@@ -126,5 +136,7 @@ class Create extends Action
         if (strlen($data['confirmation_body']) === 0) {
             return 'Confirmation body is a required field';
         }
+
+        return '';
     }
 }

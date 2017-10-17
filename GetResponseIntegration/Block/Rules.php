@@ -1,9 +1,11 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class Rules
@@ -14,15 +16,25 @@ class Rules extends GetResponse
     /** @var Repository */
     private $repository;
 
+    /** @var GrRepository */
+    private $grRepository;
+
     /**
      * @param Context $context
      * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
+     * @param RepositoryFactory $repositoryFactory
      */
-    public function __construct(Context $context, ObjectManagerInterface $objectManager, Repository $repository)
+    public function __construct(
+        Context $context,
+        ObjectManagerInterface $objectManager,
+        Repository $repository,
+        RepositoryFactory $repositoryFactory
+    )
     {
         parent::__construct($context, $objectManager);
         $this->repository = $repository;
+        $this->grRepository = $repositoryFactory->buildRepository();
     }
 
     /**
@@ -46,7 +58,7 @@ class Rules extends GetResponse
      */
     public function getCampaigns()
     {
-        return $this->getClient()->getCampaigns(['sort' => ['name' => 'asc']]);
+        return $this->grRepository->getCampaigns(['sort' => ['name' => 'asc']]);
     }
 
     public function getAutomationByParam($param)
@@ -62,7 +74,7 @@ class Rules extends GetResponse
     public function getAutoresponders()
     {
         $params = ['query' => ['triggerType' => 'onday', 'status' => 'active']];
-        $result = $this->getClient()->getAutoresponders($params);
+        $result = $this->grRepository->getAutoresponders($params);
         $autoresponders = [];
 
         if (!empty($result)) {

@@ -29,5 +29,7 @@ class RuleValidator
         if (strlen($campaignId) === 0) {
             return 'You need to select a target list';
         }
+
+        return '';
     }
 }

@@ -2,6 +2,9 @@
 
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
@@ -19,12 +22,22 @@ class Delete extends Action
 
     /**
      * @param Context $context
-     * @param GrRepository $grRepository
+     * @param RepositoryFactory $repositoryFactory
+     * @param AccessValidator $accessValidator
      */
-    public function __construct(Context $context, GrRepository $grRepository)
+    public function __construct(
+        Context $context,
+        RepositoryFactory $repositoryFactory,
+        AccessValidator $accessValidator
+    )
     {
         parent::__construct($context);
-        $this->grRepository = $grRepository;
+
+        if (false === $accessValidator->checkAccess()) {
+            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
+        $this->grRepository = $repositoryFactory->buildRepository();
     }
 
     /**

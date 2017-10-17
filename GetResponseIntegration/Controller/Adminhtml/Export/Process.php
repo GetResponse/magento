@@ -1,10 +1,13 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Export;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomsFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use GetResponse\GetResponseIntegration\Helper\ApiHelper;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
@@ -38,20 +41,27 @@ class Process extends Action
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
-     * @param GrRepository $grRepository
+     * @param RepositoryFactory $repositoryFactory
      * @param ApiHelper $apiHelper
+     * @param AccessValidator $accessValidator
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         Repository $repository,
-        GrRepository $grRepository,
-        ApiHelper $apiHelper
+        RepositoryFactory $repositoryFactory,
+        ApiHelper $apiHelper,
+        AccessValidator $accessValidator
     )
     {
         parent::__construct($context);
+
+        if (false === $accessValidator->checkAccess()) {
+            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $this->resultPageFactory = $resultPageFactory;
-        $this->grRepository = $grRepository;
+        $this->grRepository = $repositoryFactory->buildRepository();
         $this->apiHelper = $apiHelper;
     }
 
@@ -61,7 +71,6 @@ class Process extends Action
     public function execute()
     {
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::export');
         $resultPage->getConfig()->getTitle()->prepend('Export Customer Data on Demand');
 
         /** @var Http $request */

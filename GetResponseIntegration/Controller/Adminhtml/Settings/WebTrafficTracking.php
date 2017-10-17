@@ -1,11 +1,13 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\View\Result\PageFactory;
-use Magento\Backend\Model\View\Result\Page\Interceptor;
 
 /**
  * Class WebTrafficTracking
@@ -14,58 +16,56 @@ use Magento\Backend\Model\View\Result\Page\Interceptor;
 class WebTrafficTracking extends Action
 {
     /** @var PageFactory */
-    protected $resultPageFactory;
+    private $resultPageFactory;
 
-    public function __construct(Context $context, PageFactory $resultPageFactory)
+    /** @var Http */
+    private $request;
+
+    /** @var Repository */
+    private $repository;
+
+    /**
+     * @param Context $context
+     * @param PageFactory $resultPageFactory
+     * @param Repository $repository
+     * @param AccessValidator $accessValidator
+     */
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        Repository $repository,
+        AccessValidator $accessValidator
+    )
     {
         parent::__construct($context);
+
+        if (false === $accessValidator->checkAccess()) {
+            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $this->resultPageFactory = $resultPageFactory;
+        $this->request = $this->getRequest();
+        $this->repository = $repository;
     }
 
     /**
-     * @return Interceptor
+     * @return \Magento\Framework\View\Result\Page
      */
     public function execute()
     {
-        /** @var Http $request */
-        $request = $this->getRequest();
-        $data = $request->getPostValue();
+        $resultPage = $this->resultPageFactory->create();
+        $resultPage->getConfig()->getTitle()->prepend('Web Event Tracking');
+
+        $data = $this->request->getPostValue();
 
         if (isset($data['updateWebTraffic'])) {
-            $this->updateWebTraffic($data);
+
+            $status = (isset($data['web_traffic']) && '1' === $data['web_traffic']) ? 'enabled' : 'disabled';
+            $this->repository->updateWebTrafficStatus($status);
             $message = (isset($data['web_traffic']) && '1' === $data['web_traffic']) ? 'Web event traffic tracking enabled' : 'Web event traffic tracking disabled';
             $this->messageManager->addSuccessMessage($message);
         }
 
-        $block = $this->_objectManager->create('GetResponse\GetResponseIntegration\Block\Settings');
-        $checkApiKey = $block->checkApiKey();
-        if (false === $checkApiKey) {
-            $this->messageManager->addWarningMessage('Your API key is not valid! Please update your settings.');
-        } elseif ($checkApiKey === 0) {
-            $this->messageManager->addWarningMessage('Your API key is empty. In order to use this function you need to save your API key');
-        }
-
-        /** @var Interceptor $resultPage */
-        $resultPage = $this->resultPageFactory->create();
-
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::settings');
-        $resultPage->getConfig()->getTitle()->prepend('Web Event Tracking');
-
         return $resultPage;
-    }
-
-    /**
-     * @param array $data
-     */
-    private function updateWebTraffic($data)
-    {
-        $status = (isset($data['web_traffic']) && '1' === $data['web_traffic']) ? 'enabled' : 'disabled';
-
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
-
-        $settings->load($storeId, 'id_shop')
-            ->setWebTraffic($status)
-            ->save();
     }
 }

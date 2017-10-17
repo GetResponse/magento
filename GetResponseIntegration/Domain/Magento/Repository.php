@@ -293,5 +293,120 @@ class Repository
 
         );
     }
-}
 
+    public function saveAllAccountDetails($accountId, $firstName, $lastName, $email, $companyName, $phone, $state, $city, $street, $zipCode, $countryCode)
+    {
+        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
+
+        $account = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Account');
+
+        $account->load($storeId, 'id_shop')
+            ->setIdShop($storeId)
+            ->setAccountId($accountId)
+            ->setFirstName($firstName)
+            ->setLastName($lastName)
+            ->setEmail($email)
+            ->setCompanyName($companyName)
+            ->setPhone($phone)
+            ->setState($state)
+            ->setCity($city)
+            ->setStreet($street)
+            ->setZipCode($zipCode)
+            ->setCountryCode($countryCode)
+            ->save();
+    }
+
+    public function updateWebform($publish, $webformUrl, $webformId, $sidebar)
+    {
+        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
+
+        $webform = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Webform');
+
+        $webform->load($storeId, 'id_shop')
+            ->setIdShop($storeId)
+            ->setActiveSubscription($publish)
+            ->setUrl($webformUrl)
+            ->setWebformId($webformId)
+            ->setSidebar($sidebar)
+            ->save();
+    }
+
+    public function saveAllSettings($apiKey, $apiUrl, $domain, $trackingEnabled, $trackingCode)
+    {
+        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
+        $settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
+
+        $settings->load($storeId, 'id_shop')
+            ->setApiKey($apiKey)
+            ->setApiUrl($apiUrl)
+            ->setApiDomain($domain)
+            ->setIdShop($storeId)
+            ->setFeatureTracking($trackingEnabled)
+            ->setTrackingCodeSnippet($trackingCode)
+            ->save();
+    }
+
+    public function getCustomFields($isDefault = false)
+    {
+        $model = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Customs');
+        return $model->getCollection()->addFieldToFilter('default', $isDefault)->getData();
+    }
+
+    public function updateSettings($campaignId, $hasActiveSubscription, $isUpdated, $cycleDay)
+    {
+        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
+
+        $settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
+
+        $settings->load($storeId, 'id_shop')
+            ->setCampaignId($campaignId)
+            ->setActiveSubscription($hasActiveSubscription)
+            ->setUpdate($isUpdated)
+            ->setCycleDay($cycleDay)
+            ->save();
+    }
+
+    public function updateCustomField($id, $name, $isActive)
+    {
+        $custom = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Customs');
+
+        $custom->load($id)->setCustomName($name)->setActiveCustom($isActive)->save();
+    }
+
+    public function updateWebTrafficStatus($status)
+    {
+        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
+        $settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
+
+        $settings->load($storeId, 'id_shop')
+            ->setWebTraffic($status)
+            ->save();
+    }
+
+    public function loadSubscriberByEmail($email)
+    {
+        $subscriber = $this->_objectManager
+            ->create('Magento\Newsletter\Model\Subscriber')
+            ->loadByEmail($email);
+
+        return $subscriber;
+    }
+
+    public function loadOrder($id)
+    {
+        $order_object = $this->_objectManager->get('Magento\Sales\Model\Order');
+        return $order_object->load($id);
+    }
+
+    public function loadCustomer($id)
+    {
+        $customer_object = $this->_objectManager->get('Magento\Customer\Model\Customer');
+        return $customer_object->load($id);
+    }
+
+    public function loadCustomerAddress($id)
+    {
+        $address_object = $this->_objectManager->get('Magento\Customer\Model\Address');
+        return $address_object->load($id);
+    }
+}

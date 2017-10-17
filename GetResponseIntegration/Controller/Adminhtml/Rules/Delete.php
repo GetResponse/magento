@@ -1,7 +1,9 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Backend\App\Action\Context;
@@ -24,14 +26,21 @@ class Delete extends Action
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
+     * @param AccessValidator $accessValidator
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
-        Repository $repository
+        Repository $repository,
+        AccessValidator $accessValidator
     )
     {
         parent::__construct($context);
+
+        if (false === $accessValidator->checkAccess()) {
+            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
     }

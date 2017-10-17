@@ -1,7 +1,8 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
-use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Cache\Proxy;
 use Magento\Framework\ObjectManagerInterface;
@@ -12,6 +13,7 @@ use GetResponse\GetResponseIntegration\Model\ResourceModel\ProductMap\Collection
 use Magento\Quote\Model\Quote\Item;
 use Magento\Sales\Model\Order;
 use Magento\Directory\Model\CountryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class Ecommerce
@@ -26,9 +28,6 @@ class Ecommerce
     /** @var ObjectManagerInterface */
     protected $objectManager;
 
-    /** @var GetResponseAPI3 */
-    protected $apiClient;
-
     /** @var ProductMapFactory */
     protected $productMapFactory;
 
@@ -38,26 +37,36 @@ class Ecommerce
     /** @var Proxy */
     protected $cache;
 
+    /** @var GrRepository */
+    private $grRepository;
+
+    /** @var Repository */
+    private $repository;
+
     /**
      * @param ObjectManagerInterface $objectManager
      * @param Session $customerSession
      * @param ProductMapFactory $productMapFactory
      * @param CountryFactory $countryFactory
+     * @param RepositoryFactory $repositoryFactory
+     * @param Repository $repository
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
         Session $customerSession,
         ProductMapFactory $productMapFactory,
-        CountryFactory $countryFactory
+        CountryFactory $countryFactory,
+        RepositoryFactory $repositoryFactory,
+        Repository $repository
     ) {
         $this->objectManager = $objectManager;
         $this->customerSession = $customerSession;
         $this->productMapFactory = $productMapFactory;
         $this->countryFactory = $countryFactory;
 
-        $block = $objectManager->create('GetResponse\GetResponseIntegration\Block\Settings');
         $this->cache = $objectManager->get('Magento\Framework\App\CacheInterface');
-        $this->apiClient = $block->getClient();
+        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->repository = $repository;
     }
 
     /**
@@ -82,8 +91,7 @@ class Ecommerce
      */
     protected function getContactFromGetResponse()
     {
-        $block = $this->objectManager->create('GetResponse\GetResponseIntegration\Block\Settings');
-        $settings = $block->getSettings();
+        $settings = $this->repository->getSettings();
 
         /** @var Customer $customer */
         $customer = $this->customerSession->getCustomer();
@@ -95,14 +103,12 @@ class Ecommerce
             return unserialize($cachedCustomer);
         }
 
-        $params = array('query' =>
-            array(
-                'email' => $customer->getEmail(),
-                'campaignId' => $settings['campaign_id']
-            )
-        );
+        $params = ['query' => [
+            'email' => $customer->getEmail(),
+            'campaignId' => $settings['campaign_id']
+        ]];
 
-        $response = (array) $this->apiClient->getContacts($params);
+        $response = (array) $this->grRepository->getContacts($params);
         $grCustomer = array_pop($response);
 
         $this->cache->save(serialize($grCustomer), $cacheKey, [self::CACHE_KEY], 5*60);
@@ -171,7 +177,7 @@ class Ecommerce
             ],
         ];
 
-        $response = $this->apiClient->addProduct($shopId, $params);
+        $response = $this->grRepository->addProduct($shopId, $params);
         return $this->handleProductResponse($response);
     }
 

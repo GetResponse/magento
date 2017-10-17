@@ -1,10 +1,12 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
-use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\App\Request\Http;
 
 /**
  * Class Webformpost
@@ -14,31 +16,39 @@ class Webformpost extends Action
 {
     protected $resultPageFactory;
 
-    /** @var GetResponseAPI3 */
-    public $grApi;
+    /** @var Http */
+    private $request;
+
+    /** @var Repository */
+    private $repository;
 
     /**
-     * Webformpost constructor.
      * @param Context $context
-     * @param PageFactory $resultPageFactory
+     * @param Repository $repository
+     * @param AccessValidator $accessValidator
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
+    public function __construct(
+        Context $context,
+        Repository $repository,
+        AccessValidator $accessValidator
+    )
     {
         parent::__construct($context);
-        $this->resultPageFactory = $resultPageFactory;
+
+        if (false === $accessValidator->checkAccess()) {
+            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
+        $this->request = $this->getRequest();
+        $this->repository = $repository;
     }
 
     public function execute()
     {
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::settings');
-        $resultPage->getConfig()->getTitle()->prepend('Add contacts via GetResponse forms');
-
-        $data = $this->getRequest()->getPostValue();
-
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath('getresponseintegration/settings/webform');
 
+        $data = $this->request->getPostValue();
         $error = $this->validateWebformData($data);
 
         if (!empty($error)) {
@@ -47,19 +57,16 @@ class Webformpost extends Action
         }
 
         $publish = isset($data['publish']) ? $data['publish'] : 0;
-        $webform_id = isset($data['webform_id']) ? $data['webform_id'] : null;
-        $webform_url = isset($data['webform_url']) ? $data['webform_url'] : null;
+        $webformId = isset($data['webform_id']) ? $data['webform_id'] : null;
+        $webformUrl = isset($data['webform_url']) ? $data['webform_url'] : null;
         $sidebar = isset($data['sidebar']) ? $data['sidebar'] : null;
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $webform = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Webform');
 
-        $webform->load($storeId, 'id_shop')
-            ->setIdShop($storeId)
-            ->setActiveSubscription($publish)
-            ->setUrl($webform_url)
-            ->setWebformId($webform_id)
-            ->setSidebar($sidebar)
-            ->save();
+        $this->repository->updateWebform(
+            $publish,
+            $webformUrl,
+            $webformId,
+            $sidebar
+        );
 
         $this->messageManager->addSuccessMessage($publish ? 'Form published' : 'Form unpublished');
         return $resultRedirect;
@@ -86,5 +93,7 @@ class Webformpost extends Action
         if (strlen($position) === 0) {
             return 'You need to select positioning of the form';
         }
+
+        return '';
     }
 }

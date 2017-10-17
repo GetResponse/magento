@@ -1,7 +1,9 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
 
@@ -16,15 +18,30 @@ class Export extends GetResponse
     /** @var Repository */
     private $repository;
 
+    /** @var GrRepository */
+    private $grRepository;
+
     /**
      * @param Context $context
      * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
+     * @param RepositoryFactory $repositoryFactory
      */
-    public function __construct(Context $context, ObjectManagerInterface $objectManager, Repository $repository)
+    public function __construct(
+        Context $context,
+        ObjectManagerInterface $objectManager,
+        Repository $repository,
+        RepositoryFactory $repositoryFactory
+    )
     {
         parent::__construct($context, $objectManager);
         $this->repository = $repository;
+        $this->grRepository = $repositoryFactory->buildRepository();
+    }
+
+    public function getSettings()
+    {
+        return $this->repository->getSettings();
     }
 
     public function getCustomers()
@@ -53,7 +70,7 @@ class Export extends GetResponse
      */
     public function getCampaigns()
     {
-        return $this->getClient()->getCampaigns(['sort' => ['name' => 'asc']]);
+        return $this->grRepository->getCampaigns(['sort' => ['name' => 'asc']]);
     }
 
     /**
@@ -62,7 +79,7 @@ class Export extends GetResponse
      */
     public function getCampaign($id)
     {
-        return $this->getClient()->getCampaign($id);
+        return $this->grRepository->getCampaign($id);
     }
 
     /**
@@ -70,7 +87,7 @@ class Export extends GetResponse
      */
     public function getAccountFromFields()
     {
-        return $this->getClient()->getAccountFromFields();
+        return $this->grRepository->getAccountFromFields();
     }
 
     /**
@@ -79,7 +96,7 @@ class Export extends GetResponse
      */
     public function getSubscriptionConfirmationsSubject($lang)
     {
-        return $this->getClient()->getSubscriptionConfirmationsSubject($lang);
+        return $this->grRepository->getSubscriptionConfirmationsSubject($lang);
     }
 
     /**
@@ -88,7 +105,7 @@ class Export extends GetResponse
      */
     public function getSubscriptionConfirmationsBody($lang)
     {
-        return $this->getClient()->getSubscriptionConfirmationsBody($lang);
+        return $this->grRepository->getSubscriptionConfirmationsBody($lang);
     }
 
     /**
@@ -141,7 +158,8 @@ class Export extends GetResponse
     public function getAutoresponders()
     {
         $params = ['query' => ['triggerType' => 'onday', 'status' => 'active']];
-        $result = $this->getClient()->getAutoresponders($params);
+
+        $result = $this->grRepository->getAutoresponders($params);
         $autoresponders = [];
 
         if (!empty($result)) {

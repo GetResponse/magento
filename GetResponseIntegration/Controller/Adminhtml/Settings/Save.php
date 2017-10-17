@@ -1,10 +1,15 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
-use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
+use Magento\Framework\App\Request\Http;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
 /**
  * Class Save
@@ -12,20 +17,47 @@ use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
  */
 class Save extends Action
 {
-    /**
-     * @var PageFactory
-     */
-    protected $resultPageFactory;
+    const API_ERROR_MESSAGE = 'The API key seems incorrect. Please check if you typed or pasted it correctly. If you recently generated a new key, please make sure you’re using the right one';
+
+    const API_EMPTY_VALUE_MESSAGE = 'You need to enter API key. This field can\'t be empty';
+
+    /** @var PageFactory */
+    private $resultPageFactory;
+
+    /** @var Http */
+    private $request;
+
+    /** @var GrRepository */
+    private $grRepository;
+
+    /** @var Repository */
+    private $repository;
 
     /**
-     * Save constructor.
      * @param Context $context
      * @param PageFactory $resultPageFactory
+     * @param RepositoryFactory $repositoryFactory
+     * @param Repository $repository
+     * @param AccessValidator $accessValidator
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        RepositoryFactory $repositoryFactory,
+        Repository $repository,
+        AccessValidator $accessValidator
+    )
     {
         parent::__construct($context);
+
+        if (false === $accessValidator->checkAccess()) {
+            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $this->resultPageFactory = $resultPageFactory;
+        $this->request = $this->getRequest();
+        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->repository = $repository;
     }
 
     /**
@@ -33,101 +65,75 @@ class Save extends Action
      */
     public function execute()
     {
+        $resultPage = $this->resultPageFactory->create();
+        $resultPage->getConfig()->getTitle()->prepend('GetResponse account');
+
         $featureTracking = false;
         $trackingCodeSnippet = '';
-        $apiErrorMsg = 'The API key seems incorrect. Please check if you typed or pasted it correctly. If you recently generated a new key, please make sure you’re using the right one';
-        $apiEmptyErrorMsg = 'You need to enter API key. This field can\'t be empty';
 
-        $data = $this->getRequest()->getPostValue();
-        if (!empty($data)) {
-            if (!empty($data['getresponse_api_key'])) {
+        $data = $this->request->getPostValue();
 
-                $api_key = $data['getresponse_api_key'];
-                $api_url = null;
-                $api_domain = null;
+        if (empty($data)) {
+            return $resultPage;
+        }
 
-                if (isset($data['getresponse_360_account']) && 1 == $data['getresponse_360_account']) {
-                    $api_url = !empty($data['getresponse_api_url']) ? $data['getresponse_api_url'] : null;
-                    $api_domain = !empty($data['getresponse_api_domain']) ? $data['getresponse_api_domain'] : null;
-                }
+        if (empty($data['getresponse_api_key'])) {
+            $this->messageManager->addErrorMessage(self::API_EMPTY_VALUE_MESSAGE);
+        }
 
-                $moduleInfo = $this->_objectManager->get('Magento\Framework\Module\ModuleList')->getOne('GetResponse_GetResponseIntegration');
+        $apiKey = $data['getresponse_api_key'];
+        $apiUrl = null;
+        $domain = null;
 
-                $version = isset($moduleInfo['setup_version']) ? $moduleInfo['setup_version'] : '';
+        if (isset($data['getresponse_360_account']) && 1 == $data['getresponse_360_account']) {
+            $apiUrl = !empty($data['getresponse_api_url']) ? $data['getresponse_api_url'] : null;
+            $domain = !empty($data['getresponse_api_domain']) ? $data['getresponse_api_domain'] : null;
+        }
 
-                $client = new GetResponseAPI3($api_key, $api_url, $api_domain, $version);
-                $response = $client->ping();
+        $this->grRepository->createResource($apiKey, $apiUrl, $domain);
+        $response = $this->grRepository->getAccountDetails();
 
-                if (isset($response->accountId)) {
+        if (!isset($response->accountId)) {
+            $this->messageManager->addErrorMessage(self::API_ERROR_MESSAGE);
+            return $resultPage;
+        }
 
-                    $features = $client->getFeatures();
+        $features = $this->grRepository->getFeatures();
 
-                    if ($features instanceof \stdClass && $features->feature_tracking == 1) {
-                        $featureTracking = true;
+        if ($features instanceof \stdClass && $features->feature_tracking == 1) {
+            $featureTracking = true;
 
-                        // getting tracking code
-                        $trackingCode = (array) $client->getTrackingCode();
+            // getting tracking code
+            $trackingCode = (array) $this->grRepository->getTrackingCode();
 
-                        if (!empty($trackingCode) && is_object($trackingCode[0]) && 0 < strlen($trackingCode[0]->snippet)) {
-                            $trackingCodeSnippet = $trackingCode[0]->snippet;
-                        }
-                    }
-
-                    $this->storeData($response, $api_key, $api_url, $api_domain, $featureTracking, $trackingCodeSnippet);
-                    $this->messageManager->addSuccessMessage('GetResponse account connected');
-                } else {
-                    $this->messageManager->addErrorMessage($apiErrorMsg);
-                }
-            } else {
-                $this->messageManager->addErrorMessage($apiEmptyErrorMsg);
+            if (!empty($trackingCode) && is_object($trackingCode[0]) && 0 < strlen($trackingCode[0]->snippet)) {
+                $trackingCodeSnippet = $trackingCode[0]->snippet;
             }
         }
 
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::settings');
-        $resultPage->getConfig()->getTitle()->prepend('GetResponse account');
+        $this->repository->saveAllSettings(
+            $apiKey,
+            $apiUrl,
+            $domain,
+            $featureTracking ? 'enabled' : 'disabled',
+            $trackingCodeSnippet
+        );
 
+        $this->repository->saveAllAccountDetails(
+            $response->accountId,
+            $response->firstName,
+            $response->lastName,
+            $response->email,
+            $response->companyName,
+            $response->phone,
+            $response->state,
+            $response->city,
+            $response->street,
+            $response->zipCode,
+            $response->countryCode->countryCode
+        );
+
+        $this->messageManager->addSuccessMessage('GetResponse account connected');
         return $resultPage;
     }
-
-    /**
-     * @param object $response
-     * @param string $api_key
-     * @param string $api_url
-     * @param string $api_domain
-     * @param bool $featureTracking
-     * @param string $trackingCodeSnippet
-     */
-    private function storeData($response, $api_key, $api_url = null, $api_domain = null, $featureTracking = false, $trackingCodeSnippet = '')
-    {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
-
-        $settings->load($storeId, 'id_shop')
-            ->setApiKey($api_key)
-            ->setApiUrl($api_url)
-            ->setApiDomain($api_domain)
-            ->setIdShop($storeId)
-            ->setFeatureTracking($featureTracking ? 'enabled' : 'disabled')
-            ->setTrackingCodeSnippet($trackingCodeSnippet)
-            ->save();
-
-        $account = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Account');
-
-        $account->load($storeId, 'id_shop')
-            ->setIdShop($storeId)
-            ->setAccountId($response->accountId)
-            ->setFirstName($response->firstName)
-            ->setLastName($response->lastName)
-            ->setEmail($response->email)
-            ->setCompanyName($response->companyName)
-            ->setPhone($response->phone)
-            ->setState($response->state)
-            ->setCity($response->city)
-            ->setStreet($response->street)
-            ->setZipCode($response->zipCode)
-            ->setCountryCode($response->countryCode->countryCode)
-            ->save();
-    }
-
 }

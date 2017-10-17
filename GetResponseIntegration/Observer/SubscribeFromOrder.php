@@ -1,8 +1,10 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetResponseRepositoryException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\ApiHelper;
-use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\ObjectManagerInterface;
@@ -16,17 +18,28 @@ class SubscribeFromOrder implements ObserverInterface
     /** @var ObjectManagerInterface */
     protected $_objectManager;
 
-    /** @var GetResponseAPI3 */
-    public $grApi;
-
     /** @var ApiHelper */
     private $apiHelper;
 
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
+
+    /** @var Repository */
+    private $repository;
+
     /**
      * @param ObjectManagerInterface $objectManager
+     * @param RepositoryFactory $repositoryFactory
+     * @param Repository $repository
      */
-    public function __construct(ObjectManagerInterface $objectManager) {
+    public function __construct(
+        ObjectManagerInterface $objectManager,
+        RepositoryFactory $repositoryFactory,
+        Repository $repository
+    ) {
         $this->_objectManager = $objectManager;
+        $this->repositoryFactory = $repositoryFactory;
+        $this->repository = $repository;
     }
 
     /**
@@ -37,18 +50,22 @@ class SubscribeFromOrder implements ObserverInterface
      */
     public function execute(EventObserver $observer)
     {
-        $block = $this->_objectManager->create('GetResponse\GetResponseIntegration\Block\Settings');
-        $settings = $block->getSettings();
-        $automations = $block->getAutomations();
+        $settings = $this->repository->getSettings();
 
-        $this->grApi = $block->getClient();
-
-        if (empty($this->grApi) || $settings['active_subscription'] != true) {
+        if ($settings['active_subscription'] != true) {
             return $this;
         }
 
-        $this->apiHelper = new ApiHelper($this->grApi);
-        $active_customs = $block->getActiveCustoms();
+        try {
+            $grRepository = $this->repositoryFactory->buildRepository();
+        } catch (GetResponseRepositoryException $e) {
+            return $this;
+        }
+
+        $automations = $this->repository->getAutomations();
+
+        $this->apiHelper = new ApiHelper($grRepository);
+        $active_customs = $this->repository->getActiveCustoms();
 
         $order_id = $observer->getOrderIds();
         $order_id = (int) (is_array($order_id) ? array_pop($order_id) : $order_id);
@@ -57,24 +74,22 @@ class SubscribeFromOrder implements ObserverInterface
             return $this;
         }
 
-        $order_object = $this->_objectManager->get('Magento\Sales\Model\Order');
-        $order = $order_object->load($order_id);
+        $order = $this->repository->loadOrder($order_id);
 
         $customer_id = $order->getCustomerId();
+        $customer = $this->repository->loadCustomer($customer_id);
 
-        $customer_object = $this->_objectManager->get('Magento\Customer\Model\Customer');
-        $customer = $customer_object->load($customer_id);
+        $address = $this->repository->loadCustomerAddress($customer->getDefaultBilling());
 
-        $address_object = $this->_objectManager->get('Magento\Customer\Model\Address');
-        $address = $address_object->load($customer->getDefaultBilling());
-        if (empty($address->getData()['entity_id'])) {
-            $address_object = $this->_objectManager->create('Magento\Customer\Model\Address');
-            $address = $address_object->load($customer->getDefaultShipping());
-        }
+//        if (empty($address->getData()['entity_id'])) {
+//            $address_object = $this->_objectManager->create('Magento\Customer\Model\Address');
+//            $address = $address_object->load($customer->getDefaultShipping());
+//        }
 
         $data = array_merge($address->getData(), $customer->getData());
 
         $custom_fields = [];
+
         foreach ($active_customs as $custom) {
 
             if (in_array($custom['custom_field'], array('firstname', 'lastname'))) {
@@ -92,8 +107,7 @@ class SubscribeFromOrder implements ObserverInterface
             }
         }
 
-        $subscriber = $this->_objectManager->create('Magento\Newsletter\Model\Subscriber');
-        $subscriber->loadByEmail($customer->getEmail());
+        $subscriber = $this->repository->loadSubscriberByEmail($customer->getEmail());
 
         if ($subscriber->isSubscribed() == true) {
 
@@ -124,7 +138,8 @@ class SubscribeFromOrder implements ObserverInterface
                             if ($category_ids[$c]['action'] == 'move') {
                                 $move_subscriber = true;
                             }
-                            $response = $this->addContact($category_ids[$c]['campaign_id'], $customer->getFirstname(), $customer->getLastname(), $customer->getEmail(), $category_ids[$c]['cycle_day'], $custom_fields);
+
+                            $this->addContact($category_ids[$c]['campaign_id'], $customer->getFirstname(), $customer->getLastname(), $customer->getEmail(), $category_ids[$c]['cycle_day'], $custom_fields);
                         }
                     }
                 }
@@ -138,7 +153,7 @@ class SubscribeFromOrder implements ObserverInterface
                     $contact = array_pop($results);
 
                     if (!empty($contact) && isset($contact->contactId)) {
-                        $this->grApi->deleteContact($contact->contactId);
+                        $grRepository->deleteContact($contact->contactId);
                     }
                 }
             }
@@ -166,6 +181,12 @@ class SubscribeFromOrder implements ObserverInterface
      */
     public function addContact($campaign, $firstname, $lastname, $email, $cycle_day = 0, $user_customs = [])
     {
+        try {
+            $grRepository = $this->repositoryFactory->buildRepository();
+        } catch (GetResponseRepositoryException $e) {
+            return $this;
+        }
+
         $name = trim($firstname) . ' ' . trim($lastname);
         $user_customs['origin'] = 'magento2';
 
@@ -180,7 +201,7 @@ class SubscribeFromOrder implements ObserverInterface
             $params['dayOfCycle'] = (int) $cycle_day;
         }
 
-        $results = (array) $this->grApi->getContacts([
+        $results = (array) $grRepository->getContacts([
             'query' => [
                 'email'      => $email,
                 'campaignId' => $campaign
@@ -191,16 +212,16 @@ class SubscribeFromOrder implements ObserverInterface
 
         // if contact already exists in gr account
         if (!empty($contact) && isset($contact->contactId)) {
-            $results = $this->grApi->getContact($contact->contactId);
+            $results = $grRepository->getContact($contact->contactId);
             if (!empty($results->customFieldValues)) {
                 $params['customFieldValues'] = $this->apiHelper->mergeUserCustoms($results->customFieldValues, $user_customs);
             } else {
                 $params['customFieldValues'] = $this->apiHelper->setCustoms($user_customs);
             }
-            return $this->grApi->updateContact($contact->contactId, $params);
+            return $grRepository->updateContact($contact->contactId, $params);
         } else {
             $params['customFieldValues'] = $this->apiHelper->setCustoms($user_customs);
-            return $this->grApi->addContact($params);
+            return $grRepository->addContact($params);
         }
     }
 }

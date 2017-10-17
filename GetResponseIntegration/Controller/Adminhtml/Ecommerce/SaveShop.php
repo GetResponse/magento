@@ -1,7 +1,9 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Cache\TypeListInterface;
@@ -26,14 +28,21 @@ class SaveShop extends Action
      * @param Context $context
      * @param TypeListInterface $cache
      * @param Repository $repository
+     * @param AccessValidator $accessValidator
      */
     public function __construct(
         Context $context,
         TypeListInterface $cache,
-        Repository $repository
+        Repository $repository,
+        AccessValidator $accessValidator
     )
     {
         parent::__construct($context);
+
+        if (false === $accessValidator->checkAccess()) {
+            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $this->cache = $cache;
         $this->repository = $repository;
     }

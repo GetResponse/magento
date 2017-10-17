@@ -1,8 +1,7 @@
 <?php
 $from_fields = $block->getAccountFromFields();
-$lang = substr($block->getStoreLanguage(), 0, 2);
-$confirmation_subjects = $block->getSubscriptionConfirmationsSubject($lang);
-$confirmation_bodies = $block->getSubscriptionConfirmationsBody($lang);
+$confirmation_subjects = $block->getSubscriptionConfirmationsSubject();
+$confirmation_bodies = $block->getSubscriptionConfirmationsBody();
 ?>
 
 <form id="createNewListForm" action="<?php echo $block->getUrl('getresponseintegration/lists/create'); ?>" method="POST">

@@ -1,9 +1,11 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class Settings
@@ -14,15 +16,28 @@ class Settings extends GetResponse
     /** @var Repository */
     private $repository;
 
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
+
+    /** @var GrRepository */
+    private $grRepository;
+
     /**
      * @param Context $context
      * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
+     * @param RepositoryFactory $repositoryFactory
      */
-    public function __construct(Context $context, ObjectManagerInterface $objectManager, Repository $repository)
+    public function __construct(
+        Context $context,
+        ObjectManagerInterface $objectManager,
+        Repository $repository,
+        RepositoryFactory $repositoryFactory
+    )
     {
         parent::__construct($context, $objectManager);
         $this->repository = $repository;
+        $this->repositoryFactory = $repositoryFactory;
     }
 
     /**
@@ -69,13 +84,15 @@ class Settings extends GetResponse
             return $forms;
         }
 
-        $newForms = $this->getclient()->getForms(['query' => ['status' => 'enabled']]);
+        $grRepository = $this->repositoryFactory->createRepository($settings['api_key'], $settings['api_url'], $settings['api_domain']);
+
+        $newForms = $grRepository->getForms(['query' => ['status' => 'enabled']]);
         foreach ($newForms as $form) {
             if ($form->status == 'published') {
                 $forms['forms'][] = $form;
             }
         }
-        $oldWebforms = $this->getclient()->getWebForms();
+        $oldWebforms = $this->grRepository->getWebForms();
         foreach ($oldWebforms as $webform) {
             if ($webform->status == 'enabled') {
                 $forms['webforms'][] = $webform;
@@ -112,7 +129,13 @@ class Settings extends GetResponse
      */
     public function getHiddenApiKey()
     {
-        $apiKey = $this->getApiKey();
+        $settings = $this->repository->getSettings();
+
+        if (!isset($settings['api_key'])) {
+            return '';
+        }
+
+        $apiKey = $settings['api_key'];
         return strlen($apiKey) > 0 ? str_repeat("*", strlen($apiKey) - 6) . substr($apiKey, -6) : '';
     }
 
