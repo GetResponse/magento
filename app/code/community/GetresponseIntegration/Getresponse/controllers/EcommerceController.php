@@ -1,32 +1,34 @@
 <?php
 
-require_once Mage::getModuleDir('controllers', 'GetresponseIntegration_Getresponse').DIRECTORY_SEPARATOR.'BaseController.php';
+require_once Mage::getModuleDir('controllers',
+        'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
 
 /**
  * Class GetresponseIntegration_Getresponse_IndexController
  */
 class GetresponseIntegration_Getresponse_EcommerceController extends GetresponseIntegration_Getresponse_BaseController
 {
-	/**
-	 * GET getresponse/ecommerce/index
-	 */
-	public function indexAction()
-	{
+    /**
+     * GET getresponse/ecommerce/index
+     */
+    public function indexAction()
+    {
         $this->_initAction();
-		$this->_title($this->__('Shop'))->_title($this->__('GetResponse'));
+        $this->_title($this->__('Shop'))->_title($this->__('GetResponse'));
 
         $ecommerceSettings = Mage::getModel('getresponse/shop')->load($this->currentShopId)->getData();
 
-		$this->_addContent($this->getLayout()
+        $this->_addContent($this->getLayout()
             ->createBlock('Mage_Core_Block_Template', 'getresponse_content')
             ->setTemplate('getresponse/shop.phtml')
             ->assign('gr_shops', (array)$this->api->getShops())
             ->assign('shop_enabled', isset($ecommerceSettings['is_enabled']) ? $ecommerceSettings['is_enabled'] : 0)
-            ->assign('current_shop_id', isset($ecommerceSettings['gr_shop_id']) ? $ecommerceSettings['gr_shop_id'] : null)
-		);
+            ->assign('current_shop_id',
+                isset($ecommerceSettings['gr_shop_id']) ? $ecommerceSettings['gr_shop_id'] : null)
+        );
 
-		$this->renderLayout();
-	}
+        $this->renderLayout();
+    }
 
     /**
      * POST getresponse/ecommerce/save
@@ -42,11 +44,11 @@ class GetresponseIntegration_Getresponse_EcommerceController extends Getresponse
             return;
         }
 
-        $data = array(
+        $data = [
             'is_enabled' => empty($shopEnable) ? 0 : 1,
             'gr_shop_id' => $shopId,
             'shop_id' => $this->currentShopId,
-        );
+        ];
 
         try {
             Mage::getModel('getresponse/shop')
@@ -62,7 +64,7 @@ class GetresponseIntegration_Getresponse_EcommerceController extends Getresponse
 
         $this->_redirect('*/*/index');
 
-	}
+    }
 
     /**
      * AJAX POST getresponse/ecommerce/add_shop
@@ -73,10 +75,10 @@ class GetresponseIntegration_Getresponse_EcommerceController extends Getresponse
         $shopName = $this->getRequest()->getParam('name');
 
         if (0 === strlen($shopName)) {
-            $data = array(
+            $data = [
                 'type' => 'error',
                 'msg' => 'Shop name is incorrect.'
-            );
+            ];
 
             Mage::app()->getResponse()->setBody(json_encode($data, JSON_PRETTY_PRINT));
             return;
@@ -84,32 +86,32 @@ class GetresponseIntegration_Getresponse_EcommerceController extends Getresponse
 
         try {
             $shop = $this->api->addShop($shopName);
-            $data = array(
+            $data = [
                 'result' => 'success',
-                'msg' => 'Shop '.$shop->name.' successfully created.',
+                'msg' => 'Shop ' . $shop->name . ' successfully created.',
                 'shop_id' => $shop->shopId,
                 'shop_name' => $shop->name
-            );
+            ];
         } catch (\Exception $e) {
-            $data = array(
+            $data = [
                 'result' => 'error',
                 'msg' => 'Shop has not been created.',
-            );
+            ];
         }
         Mage::app()->getResponse()->setBody(json_encode($data, JSON_PRETTY_PRINT));
-	}
+    }
 
     /**
      * AJAX POST getresponse/ecommerce/delete_shop
      */
-	public function delete_shopAction()
+    public function delete_shopAction()
     {
         $this->_initAction();
 
         if (false === $this->api->deleteShop($this->getRequest()->getParam('id'))) {
-            $data = array('result' => 'error');
+            $data = ['result' => 'error'];
         } else {
-            $data = array('result' => 'success');
+            $data = ['result' => 'success'];
         }
         Mage::app()->getResponse()->setBody(json_encode($data, JSON_PRETTY_PRINT));
     }

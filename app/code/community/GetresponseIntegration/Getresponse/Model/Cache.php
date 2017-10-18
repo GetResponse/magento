@@ -13,7 +13,6 @@ class GetresponseIntegration_Getresponse_Model_Cache
     public function __construct()
     {
         $this->cache = Mage::app()->getCache();
-        //$this->cache->setOption('automatic_serialization', true);
     }
 
     /**

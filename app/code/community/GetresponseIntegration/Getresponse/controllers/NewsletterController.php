@@ -1,6 +1,7 @@
 <?php
 
-require_once Mage::getModuleDir('controllers', 'GetresponseIntegration_Getresponse').DIRECTORY_SEPARATOR.'BaseController.php';
+require_once Mage::getModuleDir('controllers',
+        'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
 
 class GetresponseIntegration_Getresponse_NewsletterController extends GetresponseIntegration_Getresponse_BaseController
 {
@@ -46,11 +47,11 @@ class GetresponseIntegration_Getresponse_NewsletterController extends Getrespons
         }
 
         Mage::getModel('getresponse/settings')->updateSettings(
-            array(
+            [
                 'newsletter_subscription' => $newsletterSubscription,
                 'newsletter_campaign_id' => $newsletterCampaignId,
                 'newsletter_cycle_day' => $newsletterCycleDay,
-            ),
+            ],
             $this->currentShopId
         );
 

@@ -1,14 +1,15 @@
 <?php
 
-require_once Mage::getModuleDir('controllers', 'GetresponseIntegration_Getresponse').DIRECTORY_SEPARATOR.'BaseController.php';
+require_once Mage::getModuleDir('controllers',
+        'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
 
 class GetresponseIntegration_Getresponse_ContactlistrulesController extends GetresponseIntegration_Getresponse_BaseController
 {
 
-    protected $actions = array(
+    protected $actions = [
         'move' => 'Moved',
         'copy' => 'Copied'
-    );
+    ];
 
     /**
      * GET getresponse/contactlistrules/index
@@ -108,27 +109,26 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
 
         $isAutoresponderOn = $this->getRequest()->getParam('gr_autoresponder', 0);
         $cycleDay = $this->getRequest()->getParam('cycle_day', '');
-        if (0 == $isAutoresponderOn) {
+        if (0 === $isAutoresponderOn) {
             $cycleDay = 0;
         }
 
-        $add = Mage::getModel('getresponse/automations')->createAutomation(array(
+        $add = Mage::getModel('getresponse/automations')->createAutomation([
             'id_shop' => $this->currentShopId,
             'category_id' => $params['category_id'],
             'campaign_id' => $params['campaign_id'],
             'cycle_day' => $cycleDay,
             'action' => $params['action'],
             'active' => $isAutoresponderOn
-        ));
+        ]);
 
         if ($add) {
             $this->_getSession()->addSuccess('Rule added');
             $this->_redirect('*/*/index');
-            return;
+
         } else {
             $this->_getSession()->addError('Rule has not been created. Rule already exist');
             $this->_redirectReferer();
-            return;
         }
     }
 
@@ -151,27 +151,25 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
 
         $isAutoresponderOn = $this->getRequest()->getParam('gr_autoresponder', 0);
         $cycleDay = $this->getRequest()->getParam('cycle_day', '');
-        if (0 == $isAutoresponderOn) {
+        if (0 === $isAutoresponderOn) {
             $cycleDay = 0;
         }
 
-        $add = Mage::getModel('getresponse/automations')->updateAutomation($id, array(
+        $add = Mage::getModel('getresponse/automations')->updateAutomation($id, [
             'id_shop' => $this->currentShopId,
             'category_id' => $params['category_id'],
             'campaign_id' => $params['campaign_id'],
             'cycle_day' => $cycleDay,
             'action' => $params['action'],
             'active' => $isAutoresponderOn
-        ));
+        ]);
 
         if ($add) {
             $this->_getSession()->addSuccess('Rule saved');
             $this->_redirect('*/*/index');
-            return;
         } else {
             $this->_getSession()->addError('Rule not saved');
             $this->_redirectReferer();
-            return;
         }
     }
 
@@ -205,7 +203,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
             ->getCollection()
             ->addAttributeToSelect('*')
             ->addAttributeToFilter('is_active', '1')
-            ->addAttributeToFilter('parent_id', array('eq' => $parentId));
+            ->addAttributeToFilter('parent_id', ['eq' => $parentId]);
 
         foreach ($allCats as $category) {
 
@@ -232,7 +230,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
      */
     protected function getCategories()
     {
-        $results = array();
+        $results = [];
         $categories = Mage::getModel('catalog/category')
             ->getCollection()
             ->setStoreId($this->currentShopId)

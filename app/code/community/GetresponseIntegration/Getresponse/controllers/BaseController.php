@@ -36,7 +36,8 @@ class GetresponseIntegration_Getresponse_BaseController extends Mage_Adminhtml_C
 
         if (empty($this->settings->api['api_key'])) {
 
-            if ('account' !== $this->getRequest()->getControllerName() || 'index' !== $this->getRequest()->getActionName()) {
+            if ('account' !== $this->getRequest()->getControllerName() || 'index' !== $this->getRequest()
+                    ->getActionName()) {
                 $this->_getSession()->addError('Access denied - module is not connected to GetResponse Account.');
                 $this->getResponse()->setRedirect($this->getUrl('getresponse/account/index'))->sendResponse();
                 exit;
@@ -63,7 +64,8 @@ class GetresponseIntegration_Getresponse_BaseController extends Mage_Adminhtml_C
         );
 
         if (!empty($this->settings->api['api_key'])) {
-            $this->settings->api['encrypted_api_key'] =  str_repeat("*", strlen($this->settings->api['api_key']) - 6) . substr($this->settings->api['api_key'], -6);
+            $this->settings->api['encrypted_api_key'] = str_repeat("*",
+                    strlen($this->settings->api['api_key']) - 6) . substr($this->settings->api['api_key'], -6);
         }
 
         $this->settings->account = Mage::getModel('getresponse/account')->load($this->currentShopId)->getData();

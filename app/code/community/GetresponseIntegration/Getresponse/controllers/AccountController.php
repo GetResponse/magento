@@ -1,6 +1,7 @@
 <?php
 
-require_once Mage::getModuleDir('controllers', 'GetresponseIntegration_Getresponse').DIRECTORY_SEPARATOR.'BaseController.php';
+require_once Mage::getModuleDir('controllers',
+        'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
 
 class GetresponseIntegration_Getresponse_AccountController extends GetresponseIntegration_Getresponse_BaseController
 {
@@ -63,15 +64,14 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
             $this->_forward('index');
             return;
         } elseif (!empty($status->codeDescription)) {
-            $this->_getSession()->addError('The API key seems incorrect. Please check if you typed or pasted it correctly. If you recently generated a new key, please make sure you’re using the right one');
+            $this->_getSession()
+                ->addError('The API key seems incorrect. Please check if you typed or pasted it correctly. If you recently generated a new key, please make sure you’re using the right one');
             $this->_forward('index');
             return;
-        }
-        elseif (empty($status->accountId)) {
+        } elseif (empty($status->accountId)) {
             $this->_getSession()->addError('Error - please try again');
             $this->_forward('index');
             return;
-
         }
 
         Mage::getModel('getresponse/account')->updateAccount($status, $this->currentShopId);
@@ -82,20 +82,20 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
         $featureTracking = 0;
         $features = $this->grapi()->get_features();
 
-        if ($features instanceof stdClass && $features->feature_tracking == 1) {
+        if ($features instanceof stdClass && 1 == $features->feature_tracking) {
             $featureTracking = 1;
         }
 
-        $data = array(
+        $data = [
             'id_shop' => $this->currentShopId,
             'api_key' => $apiKey,
             'api_url' => $apiUrl,
             'api_domain' => $apiDomain,
             'has_gr_traffic_feature_enabled' => $featureTracking
-        );
+        ];
 
         // getting tracking code
-        $trackingCode = (array) $this->grapi()->get_tracking_code();
+        $trackingCode = (array)$this->grapi()->get_tracking_code();
 
         if (!empty($trackingCode) && is_object($trackingCode[0]) && 0 < strlen($trackingCode[0]->snippet)) {
             $data['tracking_code_snippet'] = $trackingCode[0]->snippet;

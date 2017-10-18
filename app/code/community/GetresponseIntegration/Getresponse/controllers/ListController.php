@@ -1,6 +1,7 @@
 <?php
 
-require_once Mage::getModuleDir('controllers', 'GetresponseIntegration_Getresponse').DIRECTORY_SEPARATOR.'BaseController.php';
+require_once Mage::getModuleDir('controllers',
+        'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
 
 class GetresponseIntegration_Getresponse_ListController extends GetresponseIntegration_Getresponse_BaseController
 {
@@ -60,7 +61,8 @@ class GetresponseIntegration_Getresponse_ListController extends GetresponseInteg
             $this->_getSession()->addError('List name you entered already exists. Please enter a different name');
             $this->_redirect('*/*/index');
         } else {
-            $this->_getSession()->addError('List "' . $campaignName . '" has not been added' . ' - ' . $add->message . '.');
+            $this->_getSession()
+                ->addError('List "' . $campaignName . '" has not been added' . ' - ' . $add->message . '.');
             $this->_redirect('*/*/index');
         }
 

@@ -1,6 +1,7 @@
 <?php
 
-require_once Mage::getModuleDir('controllers', 'GetresponseIntegration_Getresponse').DIRECTORY_SEPARATOR.'BaseController.php';
+require_once Mage::getModuleDir('controllers',
+        'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
 
 class GetresponseIntegration_Getresponse_ExportController extends GetresponseIntegration_Getresponse_BaseController
 {
@@ -60,8 +61,8 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
         }
 
         $custom_fields = $this->prepareCustomFields(
-            isset($params['gr_custom_field']) ? $params['gr_custom_field'] : array(),
-            isset($params['custom_field']) ? $params['custom_field'] : array()
+            isset($params['gr_custom_field']) ? $params['gr_custom_field'] : [],
+            isset($params['custom_field']) ? $params['custom_field'] : []
         );
 
         if (!empty($params['gr_custom_field'])) {
@@ -79,7 +80,7 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
             'error' => 0,
         ];
 
-        if ( !empty($subscribers)) {
+        if (!empty($subscribers)) {
             foreach ($subscribers as $subscriber) {
                 $customer = Mage::getResourceModel('customer/customer_collection')
                     ->addAttributeToSelect('email')
@@ -92,9 +93,9 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
                     ->joinAttribute('country', 'customer_address/country_id', 'default_billing', null, 'left')
                     ->joinAttribute('company', 'customer_address/company', 'default_billing', null, 'left')
                     ->joinAttribute('birthday', 'customer/dob', 'entity_id', null, 'left')
-                    ->addFieldToFilter(array(
-                        array('attribute'=>'email','eq'=>$subscriber->getEmail())
-                    ))->getFirstItem();
+                    ->addFieldToFilter([
+                        ['attribute' => 'email', 'eq' => $subscriber->getEmail()]
+                    ])->getFirstItem();
 
                 if (!empty($customer)) {
                     $name = $customer->getName();
@@ -110,11 +111,11 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
                 );
 
                 if (GetresponseIntegration_Getresponse_Helper_Api::CONTACT_CREATED === $result) {
-                    $reports['created'] ++;
-                } elseif(GetresponseIntegration_Getresponse_Helper_Api::CONTACT_UPDATED == $result) {
-                    $reports['updated'] ++;
+                    $reports['created']++;
+                } elseif (GetresponseIntegration_Getresponse_Helper_Api::CONTACT_UPDATED == $result) {
+                    $reports['updated']++;
                 } else {
-                    $reports['error'] ++;
+                    $reports['error']++;
                 }
             }
         }

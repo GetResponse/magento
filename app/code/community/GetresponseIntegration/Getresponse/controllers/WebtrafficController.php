@@ -1,6 +1,7 @@
 <?php
 
-require_once Mage::getModuleDir('controllers', 'GetresponseIntegration_Getresponse').DIRECTORY_SEPARATOR.'BaseController.php';
+require_once Mage::getModuleDir('controllers',
+        'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
 
 class GetresponseIntegration_Getresponse_WebtrafficController extends GetresponseIntegration_Getresponse_BaseController
 {
@@ -31,7 +32,7 @@ class GetresponseIntegration_Getresponse_WebtrafficController extends Getrespons
         $hasActiveTrafficModule = (int)$this->getRequest()->getParam('has_active_traffic_module', 0);
 
         Mage::getModel('getresponse/settings')->updateSettings(
-            array('has_active_traffic_module' => $hasActiveTrafficModule),
+            ['has_active_traffic_module' => $hasActiveTrafficModule],
             $this->currentShopId
         );
 

@@ -1,10 +1,11 @@
 <?php
 
-require_once Mage::getModuleDir('controllers', 'GetresponseIntegration_Getresponse').DIRECTORY_SEPARATOR.'BaseController.php';
+require_once Mage::getModuleDir('controllers',
+        'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
 
 class GetresponseIntegration_Getresponse_WebformController extends GetresponseIntegration_Getresponse_BaseController
 {
-    public $layout_positions = array(
+    public $layout_positions = [
         'top.menu' => 'Navigation Bar',
         'after_body_start' => 'Page Top',
         'left' => 'Left Column',
@@ -12,12 +13,12 @@ class GetresponseIntegration_Getresponse_WebformController extends GetresponseIn
         'content' => 'Content',
         'before_body_end' => 'Page Bottom',
         'footer' => 'Footer'
-    );
+    ];
 
-    public $block_positions = array(
+    public $block_positions = [
         'after' => 'Bottom',
         'before' => 'Top',
-    );
+    ];
 
     /**
      * GET getresponse/webform/index
@@ -53,16 +54,17 @@ class GetresponseIntegration_Getresponse_WebformController extends GetresponseIn
         $active = $this->getRequest()->getParam('active_subscription', 0);
         $params = $this->getRequest()->getParams();
 
-        if (0 == $active) {
+        if (0 === $active) {
             Mage::getModel('getresponse/webforms')->updateWebforms(
-                array('webform_id' => $params['webform_id'],
+                [
+                    'webform_id' => $params['webform_id'],
                     'id_shop' => $this->currentShopId,
                     'active_subscription' => $active,
                     'layout_position' => '',
                     'block_position' => '',
                     'webform_title' => '',
                     'url' => ''
-                ),
+                ],
                 $this->currentShopId
             );
             $this->_getSession()->addSuccess('Form unpublished');
@@ -96,20 +98,20 @@ class GetresponseIntegration_Getresponse_WebformController extends GetresponseIn
 
         if (empty($webforms->codeDescription)) {
             Mage::getModel('getresponse/webforms')->updateWebforms(
-                array('webform_id' => $params['webform_id'],
+                [
+                    'webform_id' => $params['webform_id'],
                     'id_shop' => $this->currentShopId,
                     'active_subscription' => $active,
                     'layout_position' => $params['layout_position'],
                     'block_position' => $params['block_position'],
                     'webform_title' => trim($params['webform_title']),
                     'url' => $webforms->scriptUrl
-                ),
+                ],
                 $this->currentShopId
             );
 
             $this->_getSession()->addSuccess('Form published');
-        }
-        else {
+        } else {
             $this->_getSession()->addError('Error - please try again');
         }
 
