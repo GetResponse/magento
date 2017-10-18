@@ -5,6 +5,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Cache\Proxy;
+use Magento\Framework\App\CacheInterface;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Customer\Model\Customer;
 use GetResponse\GetResponseIntegration\Model\ProductMap;
@@ -34,9 +35,6 @@ class Ecommerce
     /** @var CountryFactory */
     protected $countryFactory;
 
-    /** @var Proxy */
-    protected $cache;
-
     /** @var GrRepository */
     private $grRepository;
 
@@ -64,7 +62,6 @@ class Ecommerce
         $this->productMapFactory = $productMapFactory;
         $this->countryFactory = $countryFactory;
 
-        $this->cache = $objectManager->get('Magento\Framework\App\CacheInterface');
         $this->grRepository = $repositoryFactory->buildRepository();
         $this->repository = $repository;
     }
@@ -91,13 +88,14 @@ class Ecommerce
      */
     protected function getContactFromGetResponse()
     {
+        $cache = $this->objectManager->get('Magento\Framework\App\CacheInterface');
         $settings = $this->repository->getSettings();
 
         /** @var Customer $customer */
         $customer = $this->customerSession->getCustomer();
 
         $cacheKey = md5($customer->getEmail().$settings['campaign_id']);
-        $cachedCustomer = $this->cache->load($cacheKey);
+        $cachedCustomer = $cache->load($cacheKey);
 
         if (false !== $cachedCustomer) {
             return unserialize($cachedCustomer);
@@ -111,7 +109,7 @@ class Ecommerce
         $response = (array) $this->grRepository->getContacts($params);
         $grCustomer = array_pop($response);
 
-        $this->cache->save(serialize($grCustomer), $cacheKey, [self::CACHE_KEY], 5*60);
+        $cache->save(serialize($grCustomer), $cacheKey, [self::CACHE_KEY], 5*60);
 
         return $grCustomer;
     }

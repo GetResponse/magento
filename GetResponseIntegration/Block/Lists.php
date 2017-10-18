@@ -6,12 +6,13 @@ use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+use Magento\Framework\View\Element\Template;
 
 /**
  * Class Lists
  * @package GetResponse\GetResponseIntegration\Block
  */
-class Lists extends GetResponse
+class Lists extends Template
 {
     /** @var Repository */
     private $repository;
@@ -32,7 +33,7 @@ class Lists extends GetResponse
         RepositoryFactory $repositoryFactory
     )
     {
-        parent::__construct($context, $objectManager);
+        parent::__construct($context);
         $this->repository = $repository;
         $this->grRepository = $repositoryFactory->buildRepository();
     }

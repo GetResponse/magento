@@ -1,14 +1,9 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */?>
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */
 
-<?php
-if (!$block->checkApiKey()) {
-    return;
-}
 $campaigns = $block->getCampaigns();
 $settings = $block->getSettings();
 $autoresponders = $block->getAutoresponders();
 $jsAutoresponders = $block->getAutorespondersForFrontend();
-
 ?>
 
 <style>

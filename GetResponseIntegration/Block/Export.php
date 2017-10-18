@@ -2,16 +2,20 @@
 namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RuleFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollection;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollectionFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
+use Magento\Framework\View\Element\Template;
 
 /**
  * Class Export
  * @package GetResponse\GetResponseIntegration\Block
  */
-class Export extends GetResponse
+class Export extends Template
 {
     public $stats;
 
@@ -34,7 +38,7 @@ class Export extends GetResponse
         RepositoryFactory $repositoryFactory
     )
     {
-        parent::__construct($context, $objectManager);
+        parent::__construct($context);
         $this->repository = $repository;
         $this->grRepository = $repositoryFactory->buildRepository();
     }
@@ -109,11 +113,11 @@ class Export extends GetResponse
     }
 
     /**
-     * @return mixed
+     * @return RulesCollection
      */
     public function getAutomations()
     {
-        return $this->repository->getAutomations();
+        return RulesCollectionFactory::buildFromRepository($this->repository->getRules());
     }
 
     /**

@@ -2,6 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetResponseRepositoryException;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
@@ -37,7 +38,7 @@ class Delete extends Action
     {
         parent::__construct($context);
 
-        if (false === $accessValidator->checkAccess()) {
+        if (false === $accessValidator->isConnectedToGetResponse()) {
             $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
@@ -46,10 +47,7 @@ class Delete extends Action
     }
 
     /**
-     * Dispatch request
-     *
      * @return \Magento\Framework\Controller\ResultInterface|ResponseInterface
-     * @throws \Magento\Framework\Exception\NotFoundException
      */
     public function execute()
     {
@@ -58,12 +56,12 @@ class Delete extends Action
 
         $id = $this->getRequest()->getParam('id');
 
-        if (empty($id)) {
+        try {
+            $this->repository->deleteRule($id);
+        } catch (GetResponseRepositoryException $e) {
             $this->messageManager->addErrorMessage('Incorrect rule');
             return $resultRedirect;
         }
-
-        $this->repository->deleteAutomation($id);
 
         $this->messageManager->addSuccessMessage('Rule deleted');
         return $resultRedirect;

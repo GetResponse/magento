@@ -2,6 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RuleFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
@@ -17,7 +18,7 @@ use Magento\Framework\App\Request\Http;
  */
 class Create extends Action
 {
-    const BACK_URL = 'getresponseintegration/rules/create';
+    const PAGE_TITLE = 'Create rule';
     const AUTOMATION_URL = 'getresponseintegration/settings/automation';
 
     private $resultPageFactory;
@@ -40,11 +41,12 @@ class Create extends Action
     {
         parent::__construct($context);
 
-        if (false === $accessValidator->checkAccess()) {
+        if (false === $accessValidator->isConnectedToGetResponse()) {
             $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
         $this->resultPageFactory = $resultPageFactory;
+        $this->repository = $repository;
     }
 
     /**
@@ -55,26 +57,30 @@ class Create extends Action
      */
     public function execute()
     {
-        $resultRedirect = $this->resultRedirectFactory->create();
-        $resultRedirect->setPath(self::BACK_URL);
-
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();
 
         if (empty($data)) {
-            return $resultRedirect;
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+            return $resultPage;
         }
 
         $error = RuleValidator::validateForPostedParams($data);
 
         if (!empty($error)) {
             $this->messageManager->addErrorMessage($error);
-            return $resultRedirect;
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+            return $resultPage;
         }
 
-        $this->repository->createAutomation($data);
+        $rule = RuleFactory::buildFromPayload($data);
+
+        $this->repository->createRule($rule);
         $this->messageManager->addSuccessMessage('Rule added');
+        $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::AUTOMATION_URL);
         return $resultRedirect;
     }

@@ -1,9 +1,5 @@
 <?php /** @var $block \GetResponse\GetResponseIntegration\Block\Settings */
 
-if (!$block->checkApiKey()) {
-    return;
-}
-
 $settings = $block->getSettings();
 
 if (isset($settings['feature_tracking']) && 'enabled' === $settings['feature_tracking']): ?>

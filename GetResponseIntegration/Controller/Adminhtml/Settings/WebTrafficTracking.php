@@ -39,7 +39,7 @@ class WebTrafficTracking extends Action
     {
         parent::__construct($context);
 
-        if (false === $accessValidator->checkAccess()) {
+        if (false === $accessValidator->isConnectedToGetResponse()) {
             $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
@@ -53,9 +53,6 @@ class WebTrafficTracking extends Action
      */
     public function execute()
     {
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend('Web Event Tracking');
-
         $data = $this->request->getPostValue();
 
         if (isset($data['updateWebTraffic'])) {
@@ -65,6 +62,9 @@ class WebTrafficTracking extends Action
             $message = (isset($data['web_traffic']) && '1' === $data['web_traffic']) ? 'Web event traffic tracking enabled' : 'Web event traffic tracking disabled';
             $this->messageManager->addSuccessMessage($message);
         }
+
+        $resultPage = $this->resultPageFactory->create();
+        $resultPage->getConfig()->getTitle()->prepend('Web Event Tracking');
 
         return $resultPage;
     }

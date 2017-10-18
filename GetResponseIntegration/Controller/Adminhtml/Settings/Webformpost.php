@@ -7,6 +7,7 @@ use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
+use Magento\Framework\View\Result\PageFactory;
 
 /**
  * Class Webformpost
@@ -14,6 +15,9 @@ use Magento\Framework\App\Request\Http;
  */
 class Webformpost extends Action
 {
+    const PAGE_TITLE = 'Add contacts via GetResponse forms';
+
+    /** @var PageFactory */
     protected $resultPageFactory;
 
     /** @var Http */
@@ -24,36 +28,48 @@ class Webformpost extends Action
 
     /**
      * @param Context $context
+     * @param PageFactory $resultPageFactory
      * @param Repository $repository
      * @param AccessValidator $accessValidator
      */
     public function __construct(
         Context $context,
+        PageFactory $resultPageFactory,
         Repository $repository,
         AccessValidator $accessValidator
     )
     {
         parent::__construct($context);
 
-        if (false === $accessValidator->checkAccess()) {
+        if (false === $accessValidator->isConnectedToGetResponse()) {
             $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
+        $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
     }
 
+    /**
+     * @return \Magento\Framework\View\Result\Page
+     */
     public function execute()
     {
-        $resultRedirect = $this->resultRedirectFactory->create();
-        $resultRedirect->setPath('getresponseintegration/settings/webform');
-
         $data = $this->request->getPostValue();
+
+        if (empty($data)) {
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+            return $resultPage;
+        }
+
         $error = $this->validateWebformData($data);
 
         if (!empty($error)) {
             $this->messageManager->addErrorMessage($error);
-            return $resultRedirect;
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+            return $resultPage;
         }
 
         $publish = isset($data['publish']) ? $data['publish'] : 0;
@@ -69,7 +85,9 @@ class Webformpost extends Action
         );
 
         $this->messageManager->addSuccessMessage($publish ? 'Form published' : 'Form unpublished');
-        return $resultRedirect;
+        $resultPage = $this->resultPageFactory->create();
+        $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+        return $resultPage;
     }
 
     /**

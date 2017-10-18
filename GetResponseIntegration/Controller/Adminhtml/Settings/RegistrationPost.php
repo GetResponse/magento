@@ -7,6 +7,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Request\Http;
@@ -17,6 +18,7 @@ use Magento\Framework\App\Request\Http;
  */
 class RegistrationPost extends Action
 {
+    const BACK_URL = 'getresponseintegration/settings/registration';
 
     const INVALID_CUSTOM_FIELD_MESSAGE = 'There is a problem with one of your custom field name! Field name must be composed using up to 32 characters, only a-z (lower case), numbers and "_".';
 
@@ -44,7 +46,7 @@ class RegistrationPost extends Action
     {
         parent::__construct($context);
 
-        if (false === $accessValidator->checkAccess()) {
+        if (false === $accessValidator->isConnectedToGetResponse()) {
             $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
@@ -54,17 +56,17 @@ class RegistrationPost extends Action
     }
 
     /**
-     * @return Page
+     * @return Redirect
      */
     public function execute()
     {
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend('Add Contacts During Registrations');
+        $resultRedirect = $this->resultRedirectFactory->create();
+        $resultRedirect->setPath(self::BACK_URL);
 
         $data = $this->request->getPostValue();
 
         if (empty($data)) {
-            return $resultPage;
+            return $resultRedirect;
         }
 
         $updateCustomFields = (isset($data['gr_sync_order_data'])) ? $data['gr_sync_order_data'] : 0;
@@ -79,7 +81,7 @@ class RegistrationPost extends Action
 
             if (empty($campaignId)) {
                 $this->messageManager->addErrorMessage('You need to select contact list');
-                return $resultPage;
+                return $resultRedirect;
             }
 
             if ($updateCustomFields) {
@@ -88,7 +90,7 @@ class RegistrationPost extends Action
                 foreach ($customs as $field => $name) {
                     if (false == preg_match('/^[_a-zA-Z0-9]{2,32}$/m', $name)) {
                         $this->messageManager->addErrorMessage(self::INVALID_CUSTOM_FIELD_MESSAGE);
-                        return $resultPage;
+                        return $resultRedirect;
                     }
                 }
                 $this->updateCustoms($customs);
@@ -103,7 +105,7 @@ class RegistrationPost extends Action
         }
 
         $this->messageManager->addSuccessMessage('Settings saved');
-        return $resultPage;
+        return $resultRedirect;
     }
 
     /**

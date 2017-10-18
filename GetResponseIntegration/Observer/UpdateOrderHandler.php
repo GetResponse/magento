@@ -69,7 +69,7 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
      */
     public function execute(EventObserver $observer)
     {
-        $shopId = $this->scopeConfig->getValue(Config::SHOP_ID);
+        $shopId = $this->scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
 
         /** @var \Magento\Sales\Model\Order $order */
         $order = $observer->getEvent()->getOrder();

@@ -4,12 +4,13 @@ namespace GetResponse\GetResponseIntegration\Block;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use Magento\Framework\View\Element\Template;
 
 /**
  * Class Webform
  * @package GetResponse\GetResponseIntegration\Block
  */
-class Webform extends GetResponse
+class Webform extends Template
 {
     /** @var Repository */
     private $repository;
@@ -19,9 +20,13 @@ class Webform extends GetResponse
      * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
      */
-    public function __construct(Context $context, ObjectManagerInterface $objectManager, Repository $repository)
+    public function __construct(
+        Context $context,
+        ObjectManagerInterface $objectManager,
+        Repository $repository
+    )
     {
-        parent::__construct($context, $objectManager);
+        parent::__construct($context);
         $this->repository = $repository;
     }
 
@@ -30,8 +35,6 @@ class Webform extends GetResponse
      */
     public function getWebformSettings()
     {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $webform_settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Webform');
-        return $webform_settings->load($storeId, 'id_shop')->getData();
+        return $this->repository->getWebformSettings();
     }
 }

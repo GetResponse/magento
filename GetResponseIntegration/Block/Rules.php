@@ -2,16 +2,18 @@
 namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RuleFactory;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+use Magento\Framework\View\Element\Template;
 
 /**
  * Class Rules
  * @package GetResponse\GetResponseIntegration\Block
  */
-class Rules extends GetResponse
+class Rules extends Template
 {
     /** @var Repository */
     private $repository;
@@ -32,7 +34,7 @@ class Rules extends GetResponse
         RepositoryFactory $repositoryFactory
     )
     {
-        parent::__construct($context, $objectManager);
+        parent::__construct($context);
         $this->repository = $repository;
         $this->grRepository = $repositoryFactory->buildRepository();
     }
@@ -61,11 +63,15 @@ class Rules extends GetResponse
         return $this->grRepository->getCampaigns(['sort' => ['name' => 'asc']]);
     }
 
-    public function getAutomationByParam($param)
+    public function getRuleById()
     {
-        return $this->repository->getAutomationByParam(
-            $this->getRequest()->getParam($param), $param
-        );
+        $id = $this->_request->getParam('id');
+
+        if (empty($id)) {
+            return null;
+        }
+
+        return RuleFactory::buildFromRepository($this->repository->getRuleById($id));
     }
 
     /**

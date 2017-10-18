@@ -18,6 +18,8 @@ use Magento\Framework\App\Request\Http;
  */
 class Create extends Action
 {
+    const PAGE_TITLE = 'New Contact List';
+
     /** @var PageFactory */
     protected $resultPageFactory;
 
@@ -44,7 +46,7 @@ class Create extends Action
     {
         parent::__construct($context);
 
-        if (false === $accessValidator->checkAccess()) {
+        if (false === $accessValidator->isConnectedToGetResponse()) {
             $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
@@ -62,15 +64,16 @@ class Create extends Action
     public function execute()
     {
         $backUrl = $this->getRequest()->getParam('back_url');
-        $backParam = $this->getRequest()->getParam('back');
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend('New Contact List');
+        $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();
 
         if (empty($data)) {
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
             return $resultPage;
         }
 
@@ -81,8 +84,9 @@ class Create extends Action
 
         if (!empty($error)) {
             $this->messageManager->addErrorMessage($error);
-            $resultRedirect->setPath('getresponseintegration/lists/create/back/' . $backParam);
-            return $resultRedirect;
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+            return $resultPage;
         }
 
         $lang = substr($this->repository->getMagentoCountryCode(), 0, 2);
@@ -102,7 +106,8 @@ class Create extends Action
         if (isset($result->httpStatus) && (int)$result->httpStatus >= 400) {
             $resultRedirect->setPath($backUrl);
             $this->messageManager->addErrorMessage(isset($result->codeDescription) ? $result->codeDescription . ' - uuid: ' . $result->uuid : 'Something goes wrong');
-            $resultRedirect->setPath('getresponseintegration/lists/create/back/' . $backParam);
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
             return $resultRedirect;
         } else {
             $this->messageManager->addSuccessMessage('List created');

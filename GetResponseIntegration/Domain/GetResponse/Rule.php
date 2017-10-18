@@ -1,46 +1,65 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\Category;
-
 /**
  * Class Rule
  * @package GetResponse\GetResponseIntegration\Domain\GetResponse
  */
 class Rule
 {
-    /** @var Category */
-    private $category;
+    /** @var int */
+    private $id;
+
+    /** @var int */
+    private $categoryId;
 
     /** @var string */
     private $action;
 
-    /** @var Campaign */
-    private $campaign;
+    /** @var string */
+    private $campaignId;
 
-    /** @var Autoresponder */
-    private $autoresponder;
+    /** @var int */
+    private $autoresponderDay;
 
     /**
-     * @param Category $category
+     * @param int $id
+     * @param int $categoryId
      * @param string $action
-     * @param Campaign $campaign
-     * @param Autoresponder $autoresponder
+     * @param string $campaignId
+     * @param int $autoresponderDay
      */
-    public function __construct(Category $category, $action, Campaign $campaign, Autoresponder $autoresponder)
+    public function __construct($id, $categoryId, $action, $campaignId, $autoresponderDay)
     {
-        $this->category = $category;
+        $this->id = $id;
+        $this->categoryId = $categoryId;
         $this->action = $action;
-        $this->campaign = $campaign;
-        $this->autoresponder = $autoresponder;
+        $this->campaignId = $campaignId;
+        $this->autoresponderDay = $autoresponderDay;
     }
 
     /**
-     * @return Category
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @return int
      */
     public function getCategory()
     {
-        return $this->category;
+        return $this->categoryId;
     }
 
     /**
@@ -52,18 +71,32 @@ class Rule
     }
 
     /**
-     * @return Campaign
+     * @return string
      */
     public function getCampaign()
     {
-        return $this->campaign;
+        return $this->campaignId;
     }
 
     /**
-     * @return Autoresponder
+     * @return int
      */
     public function getAutoresponder()
     {
-        return $this->autoresponder;
+        return $this->autoresponderDay;
+    }
+
+    /**
+     * @return array
+     */
+    public function asArray()
+    {
+        return [
+            'id' => $this->id,
+            'category' => $this->categoryId,
+            'action' => $this->action,
+            'campaign' => $this->campaignId,
+            'cycle_day' => $this->autoresponderDay
+        ];
     }
 }

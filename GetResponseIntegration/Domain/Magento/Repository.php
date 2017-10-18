@@ -1,16 +1,19 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetResponseRepositoryException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\ObjectManagerInterface;
 use GetResponse\GetResponseIntegration\Helper\Config;
 
-use GetResponse\GetResponseIntegration\Model\Account as ModelAccount;
 use GetResponse\GetResponseIntegration\Model\Automation as ModelAutomation;
 use GetResponse\GetResponseIntegration\Model\Settings as ModelSettings;
 use GetResponse\GetResponseIntegration\Model\Webform as ModelWebform;
 use Magento\Store\Model\Store;
+use Magento\Framework\App\Cache\Manager;
 
 /**
  * Class Repository
@@ -27,20 +30,26 @@ class Repository
     /** @var WriterInterface */
     private $configWriter;
 
+    /** @var Manager */
+    private $cacheManager;
+
     /**
      * @param ObjectManagerInterface $objectManager
      * @param ScopeConfigInterface $scopeConfig
      * @param WriterInterface $configWriter
+     * @param Manager $cacheManager
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
         ScopeConfigInterface $scopeConfig,
-        WriterInterface $configWriter
+        WriterInterface $configWriter,
+        Manager $cacheManager
     )
     {
         $this->_objectManager = $objectManager;
         $this->_scopeConfig = $scopeConfig;
         $this->configWriter = $configWriter;
+        $this->cacheManager = $cacheManager;
     }
 
     /**
@@ -48,7 +57,7 @@ class Repository
      */
     public function getShopId()
     {
-        $id = $this->_scopeConfig->getValue(Config::SHOP_ID);
+        $id = $this->_scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
         return strlen($id) > 0 ? $id : '';
     }
 
@@ -57,7 +66,7 @@ class Repository
      */
     public function getShopStatus()
     {
-        $status = $this->_scopeConfig->getValue(Config::SHOP_STATUS);
+        $status = $this->_scopeConfig->getValue(Config::CONFIG_DATA_SHOP_STATUS);
         return 'enabled' === $status ? 'enabled' : 'disabled';
     }
 
@@ -87,14 +96,30 @@ class Repository
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getAutomations()
+    public function getRules()
     {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Automation');
-        return $settings->getCollection()
-            ->addFieldToFilter('id_shop', $storeId);
+        return (array) json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_AUTOMATION));
+    }
+
+    /**
+     * @param Rule $rule
+     */
+    public function createRule(Rule $rule)
+    {
+        $rules = $this->getRules();
+        $rule->setId(count($rules));
+        $rules[] = $rule->asArray();
+
+        $this->configWriter->save(
+            Config::CONFIG_DATA_AUTOMATION,
+            json_encode($rules),
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+
+        $this->cacheManager->clean(['config']);
     }
 
     /**
@@ -105,6 +130,16 @@ class Repository
     {
         $_categoryHelper = $this->_objectManager->get('\Magento\Catalog\Model\Category');
         return $_categoryHelper->load($category_id)->getName();
+    }
+
+    /**
+     * @param $category_id
+     * @return array
+     */
+    public function getCategory($category_id)
+    {
+        $_categoryHelper = $this->_objectManager->get('\Magento\Catalog\Model\Category');
+        $category = $_categoryHelper->load($category_id)->getData();
     }
 
     /**
@@ -137,18 +172,6 @@ class Repository
         $settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
 
         return $settings->load($storeId, 'id_shop')->getData();
-    }
-
-    public function getAutomationByParam($value, $param)
-    {
-        $automation = $this->_objectManager->get('GetResponse\GetResponseIntegration\Model\Automation');
-        return $automation->load($value, $param)->getData();
-    }
-
-    public function deleteAutomation($id)
-    {
-        $automation = $this->_objectManager->get('GetResponse\GetResponseIntegration\Model\Automation');
-        $automation->load($id, 'id')->delete();
     }
 
     /**
@@ -190,29 +213,11 @@ class Repository
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getAccountInfo()
     {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $account = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Account');
-        return $account->load($storeId, 'id_shop');
-    }
-
-    public function createAutomation($data)
-    {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $automation = $this->_objectManager->get('GetResponse\GetResponseIntegration\Model\Automation');
-
-        $cycle_day = (isset($data['gr_autoresponder']) && $data['gr_autoresponder'] == 1 && isset($data['cycle_day'])) ? $data['cycle_day'] : '';
-
-        $automation->setIdShop($storeId)
-            ->setCategoryId($data['category'])
-            ->setCampaignId($data['campaign_id'])
-            ->setActive(1)
-            ->setCycleDay($cycle_day)
-            ->setAction($data['action'])
-            ->save();
+        return (array) json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_ACCOUNT));
     }
 
     public function updateAutomationStatus($id, $status)
@@ -232,11 +237,14 @@ class Repository
 
     public function clearAccount()
     {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
+        $this->configWriter->save(
+            Config::CONFIG_DATA_ACCOUNT,
+            null,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
 
-        /** @var ModelAccount $account */
-        $account = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Account');
-        $account->load($storeId, 'id_shop')->delete();
+        $this->cacheManager->clean(['config']);
     }
 
     public function clearWebforms()
@@ -254,8 +262,8 @@ class Repository
 
         /** @var ModelAutomation $automation */
         $automation = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Automation');
-        $automations = $automation->getCollection()->addFieldToFilter('id_shop', $storeId);
-        foreach ($automations as $automation) {
+        $rules = $automation->getCollection()->addFieldToFilter('id_shop', $storeId);
+        foreach ($rules as $automation) {
             $automation->delete();
         }
     }
@@ -275,45 +283,37 @@ class Repository
     public function saveShopStatus($status)
     {
         $this->configWriter->save(
-            Config::SHOP_STATUS,
+            Config::CONFIG_DATA_SHOP_STATUS,
             $status,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
-
         );
+
+        $this->cacheManager->clean(['config']);
     }
 
     public function saveShopId($shopId)
     {
         $this->configWriter->save(
-            Config::SHOP_ID,
+            Config::CONFIG_DATA_SHOP_ID,
             $shopId,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
-
         );
+
+        $this->cacheManager->clean(['config']);
     }
 
-    public function saveAllAccountDetails($accountId, $firstName, $lastName, $email, $companyName, $phone, $state, $city, $street, $zipCode, $countryCode)
+    public function saveAccountDetails(Account $account)
     {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
+        $this->configWriter->save(
+            Config::CONFIG_DATA_ACCOUNT,
+            json_encode($account->toArray()),
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
 
-        $account = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Account');
-
-        $account->load($storeId, 'id_shop')
-            ->setIdShop($storeId)
-            ->setAccountId($accountId)
-            ->setFirstName($firstName)
-            ->setLastName($lastName)
-            ->setEmail($email)
-            ->setCompanyName($companyName)
-            ->setPhone($phone)
-            ->setState($state)
-            ->setCity($city)
-            ->setStreet($street)
-            ->setZipCode($zipCode)
-            ->setCountryCode($countryCode)
-            ->save();
+        $this->cacheManager->clean(['config']);
     }
 
     public function updateWebform($publish, $webformUrl, $webformId, $sidebar)
@@ -408,5 +408,83 @@ class Repository
     {
         $address_object = $this->_objectManager->get('Magento\Customer\Model\Address');
         return $address_object->load($id);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return mixed|null
+     */
+    public function getRuleById($id)
+    {
+        if (empty($id)) {
+            return null;
+        }
+
+        $rules = $this->getRules();
+
+        if (0 === count($rules)) {
+            return null;
+        }
+
+        foreach ($rules as $rule) {
+            if ($rule->id == $id) {
+                return $rule;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int $id
+     * @param Rule $rule
+     * @throws GetResponseRepositoryException
+     */
+    public function updateRule($id, Rule $rule)
+    {
+        $rules = $this->getRules();
+
+        if (!isset($rules[$id])) {
+            throw GetResponseRepositoryException::buildForInvalidRuleId();
+        }
+
+        $rules[$id]->category =$rule->getCategory();
+        $rules[$id]->action =$rule->getAction();
+        $rules[$id]->campaign =$rule->getCampaign();
+        $rules[$id]->cycle_day =$rule->getAutoresponder();
+
+        $this->configWriter->save(
+            Config::CONFIG_DATA_AUTOMATION,
+            json_encode($rules),
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+
+        $this->cacheManager->clean(['config']);
+    }
+
+    /**
+     * @param int $id
+     * @throws GetResponseRepositoryException
+     */
+    public function deleteRule($id)
+    {
+        $rules = $this->getRules();
+
+        if (!isset($rules[$id])) {
+            throw GetResponseRepositoryException::buildForInvalidRuleId();
+        }
+
+        unset($rules[$id]);
+
+        $this->configWriter->save(
+            Config::CONFIG_DATA_AUTOMATION,
+            json_encode($rules),
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+
+        $this->cacheManager->clean(['config']);
     }
 }

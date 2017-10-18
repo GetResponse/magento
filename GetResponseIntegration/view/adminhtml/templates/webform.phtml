@@ -1,10 +1,4 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Settings */?>
-
-<?php
-if (!$block->checkApiKey()) {
-    return;
-}
-
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Settings */
 $forms = $block->getAllFormsFromGr();
 $settings = $block->getWebformSettings();
 

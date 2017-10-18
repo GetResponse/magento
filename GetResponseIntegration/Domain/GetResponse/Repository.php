@@ -72,9 +72,12 @@ class Repository
         return array_pop($result);
     }
 
+    /**
+     * @return array
+     */
     public function getAccountDetails()
     {
-        return $this->resource->ping();
+        return (array) $this->resource->ping();
     }
 
     public function getCustomFieldByName($name)

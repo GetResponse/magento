@@ -1,9 +1,4 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */?>
-
-<?php
-if (!$block->checkApiKey()) {
-    return;
-}
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */
 $campaigns = $block->getCampaigns();
 $customers = $block->getCustomers();
 $customs = $block->getDefaultCustoms()->getData();

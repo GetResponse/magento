@@ -6,6 +6,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\PageFactory;
 
 /**
@@ -14,6 +15,8 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Delete extends Action
 {
+    const BACK_URL = 'getresponseintegration/settings/index';
+
     /** @var Repository */
     private $repository;
 
@@ -37,7 +40,7 @@ class Delete extends Action
     {
         parent::__construct($context);
 
-        if (false === $accessValidator->checkAccess()) {
+        if (false === $accessValidator->isConnectedToGetResponse()) {
             $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
@@ -47,7 +50,7 @@ class Delete extends Action
 
 
     /**
-     * @return \Magento\Framework\View\Result\Page
+     * @return Redirect
      */
     public function execute()
     {
@@ -60,7 +63,8 @@ class Delete extends Action
 
         $this->messageManager->addSuccessMessage('GetResponse account disconnected');
 
-        $resultPage->getConfig()->getTitle()->prepend('GetResponse Account');
-        return $resultPage;
+        $resultRedirect = $this->resultRedirectFactory->create();
+        $resultRedirect->setPath(self::BACK_URL);
+        return $resultRedirect;
     }
 }

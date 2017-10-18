@@ -19,10 +19,9 @@ use Magento\Framework\App\Request\Http;
  */
 class Process extends Action
 {
-    protected $resultPageFactory;
+    const PAGE_TITLE = 'Export Customer Data on Demand';
 
-    /** @var ApiHelper */
-    private $apiHelper;
+    protected $resultPageFactory;
 
     /** @var Repository */
     private $repository;
@@ -42,7 +41,6 @@ class Process extends Action
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
-     * @param ApiHelper $apiHelper
      * @param AccessValidator $accessValidator
      */
     public function __construct(
@@ -50,19 +48,18 @@ class Process extends Action
         PageFactory $resultPageFactory,
         Repository $repository,
         RepositoryFactory $repositoryFactory,
-        ApiHelper $apiHelper,
         AccessValidator $accessValidator
     )
     {
         parent::__construct($context);
 
-        if (false === $accessValidator->checkAccess()) {
+        if (false === $accessValidator->isConnectedToGetResponse()) {
             $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
         $this->resultPageFactory = $resultPageFactory;
         $this->grRepository = $repositoryFactory->buildRepository();
-        $this->apiHelper = $apiHelper;
+        $this->repository = $repository;
     }
 
     /**
@@ -70,19 +67,24 @@ class Process extends Action
      */
     public function execute()
     {
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend('Export Customer Data on Demand');
-
         /** @var Http $request */
         $request = $this->getRequest();
 
         /** @var array $data */
         $data = $request->getPostValue();
 
+        if (empty($data)) {
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+            return $resultPage;
+        }
+
         $campaign = $data['campaign_id'];
 
         if (empty($campaign)) {
             $this->messageManager->addErrorMessage('You need to select contact list');
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
             return $resultPage;
         }
 
@@ -96,17 +98,17 @@ class Process extends Action
             if (false == preg_match('/^[_a-zA-Z0-9]{2,32}$/m', $name)) {
                 $this->messageManager->addErrorMessage('There is a problem with one of your custom field name! Field name
                 must be composed using up to 32 characters, only a-z (lower case), numbers and "_".');
+                $resultPage = $this->resultPageFactory->create();
+                $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
                 return $resultPage;
             }
         }
 
         // only those that are subscribed to newsletters
-        $customers = $this->repository->getCustomers();
+        $customers = $this->repository->getFullCustomersDetails();
 
         foreach ($customers as $customer) {
-
             // create contact factory
-
             $this->stats['count']++;
             $custom_fields = [];
             foreach ($customs as $field => $name) {
@@ -122,6 +124,8 @@ class Process extends Action
 
         $this->messageManager->addSuccessMessage('Customer data exported');
 
+        $resultPage = $this->resultPageFactory->create();
+        $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
         return $resultPage;
     }
 
@@ -140,6 +144,7 @@ class Process extends Action
      */
     public function addContact($campaign, $firstname, $lastname, $email, $cycle_day = 0, $user_customs = [])
     {
+        $apiHelper = new ApiHelper($this->grRepository);
         $name = trim($firstname) . ' ' . trim($lastname);
 
         $user_customs['origin'] = 'magento2';
@@ -160,9 +165,9 @@ class Process extends Action
         // if contact already exists in gr account
         if (!empty($contact) && isset($contact->contactId)) {
             if (!empty($contact->customFieldValues)) {
-                $params['customFieldValues'] = $this->apiHelper->mergeUserCustoms($contact->customFieldValues, $user_customs);
+                $params['customFieldValues'] = $apiHelper->mergeUserCustoms($contact->customFieldValues, $user_customs);
             } else {
-                $params['customFieldValues'] = $this->apiHelper->setCustoms($user_customs);
+                $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
             }
             $response = $this->grRepository->updateContact($contact->contactId, $params);
             if (isset($response->message)) {
@@ -172,7 +177,7 @@ class Process extends Action
             }
             return $response;
         } else {
-            $params['customFieldValues'] = $this->apiHelper->setCustoms($user_customs);
+            $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
 
             $response = $this->grRepository->addContact($params);
 

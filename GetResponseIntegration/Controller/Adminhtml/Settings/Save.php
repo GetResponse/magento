@@ -2,13 +2,15 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Cache\Manager;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Request\Http;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
 /**
@@ -17,6 +19,10 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
  */
 class Save extends Action
 {
+    const BACK_URL = 'getresponseintegration/settings/index';
+
+    const PAGE_TITLE = 'GetResponse account';
+
     const API_ERROR_MESSAGE = 'The API key seems incorrect. Please check if you typed or pasted it correctly. If you recently generated a new key, please make sure you’re using the right one';
 
     const API_EMPTY_VALUE_MESSAGE = 'You need to enter API key. This field can\'t be empty';
@@ -27,11 +33,11 @@ class Save extends Action
     /** @var Http */
     private $request;
 
-    /** @var GrRepository */
-    private $grRepository;
-
     /** @var Repository */
     private $repository;
+
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /**
      * @param Context $context
@@ -39,41 +45,38 @@ class Save extends Action
      * @param RepositoryFactory $repositoryFactory
      * @param Repository $repository
      * @param AccessValidator $accessValidator
+     * @param Manager $cacheManager
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         RepositoryFactory $repositoryFactory,
         Repository $repository,
-        AccessValidator $accessValidator
+        AccessValidator $accessValidator,
+        Manager $cacheManager
     )
     {
         parent::__construct($context);
 
-        if (false === $accessValidator->checkAccess()) {
-            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
-        $this->grRepository = $repositoryFactory->buildRepository();
         $this->repository = $repository;
+        $this->repositoryFactory = $repositoryFactory;
     }
 
     /**
-     * @return \Magento\Framework\View\Result\Page
+     * @return Redirect|Page
      */
     public function execute()
     {
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend('GetResponse account');
-
         $featureTracking = false;
         $trackingCodeSnippet = '';
 
         $data = $this->request->getPostValue();
 
         if (empty($data)) {
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
             return $resultPage;
         }
 
@@ -90,21 +93,23 @@ class Save extends Action
             $domain = !empty($data['getresponse_api_domain']) ? $data['getresponse_api_domain'] : null;
         }
 
-        $this->grRepository->createResource($apiKey, $apiUrl, $domain);
-        $response = $this->grRepository->getAccountDetails();
+        $grRepository = $this->repositoryFactory->createRepository($apiKey, $apiUrl, $domain);
+        $account = AccountFactory::buildFromApiResponse($grRepository->getAccountDetails());
 
-        if (!isset($response->accountId)) {
+        if (empty($account->getAccountId())) {
             $this->messageManager->addErrorMessage(self::API_ERROR_MESSAGE);
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
             return $resultPage;
         }
 
-        $features = $this->grRepository->getFeatures();
+        $features = $grRepository->getFeatures();
 
         if ($features instanceof \stdClass && $features->feature_tracking == 1) {
             $featureTracking = true;
 
             // getting tracking code
-            $trackingCode = (array) $this->grRepository->getTrackingCode();
+            $trackingCode = (array) $grRepository->getTrackingCode();
 
             if (!empty($trackingCode) && is_object($trackingCode[0]) && 0 < strlen($trackingCode[0]->snippet)) {
                 $trackingCodeSnippet = $trackingCode[0]->snippet;
@@ -119,21 +124,12 @@ class Save extends Action
             $trackingCodeSnippet
         );
 
-        $this->repository->saveAllAccountDetails(
-            $response->accountId,
-            $response->firstName,
-            $response->lastName,
-            $response->email,
-            $response->companyName,
-            $response->phone,
-            $response->state,
-            $response->city,
-            $response->street,
-            $response->zipCode,
-            $response->countryCode->countryCode
-        );
+        $this->repository->saveAccountDetails($account);
 
         $this->messageManager->addSuccessMessage('GetResponse account connected');
-        return $resultPage;
+
+        $resultRedirect = $this->resultRedirectFactory->create();
+        $resultRedirect->setPath(self::BACK_URL);
+        return $resultRedirect;
     }
 }

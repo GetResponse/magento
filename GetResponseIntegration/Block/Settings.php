@@ -1,17 +1,18 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+use Magento\Framework\View\Element\Template;
 
 /**
  * Class Settings
  * @package GetResponse\GetResponseIntegration\Block
  */
-class Settings extends GetResponse
+class Settings extends Template
 {
     /** @var Repository */
     private $repository;
@@ -19,23 +20,18 @@ class Settings extends GetResponse
     /** @var RepositoryFactory */
     private $repositoryFactory;
 
-    /** @var GrRepository */
-    private $grRepository;
-
     /**
      * @param Context $context
-     * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
      */
     public function __construct(
         Context $context,
-        ObjectManagerInterface $objectManager,
         Repository $repository,
         RepositoryFactory $repositoryFactory
     )
     {
-        parent::__construct($context, $objectManager);
+        parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
     }
@@ -69,7 +65,7 @@ class Settings extends GetResponse
      */
     public function getAccountInfo()
     {
-        return $this->repository->getAccountInfo();
+        return AccountFactory::buildFromRepository($this->repository->getAccountInfo());
     }
 
     /**
@@ -92,7 +88,7 @@ class Settings extends GetResponse
                 $forms['forms'][] = $form;
             }
         }
-        $oldWebforms = $this->grRepository->getWebForms();
+        $oldWebforms = $grRepository->getWebForms();
         foreach ($oldWebforms as $webform) {
             if ($webform->status == 'enabled') {
                 $forms['webforms'][] = $webform;
@@ -180,6 +176,14 @@ class Settings extends GetResponse
      */
     public function getAutomations()
     {
-        return $this->repository->getAutomations();
+        return $this->repository->getRules();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isConnectedToGetResponse()
+    {
+        return (new AccessValidator($this->repository))->isConnectedToGetResponse();
     }
 }

@@ -1,15 +1,9 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */?>
-
-<?php
-if (!$block->checkApiKey()) {
-    return;
-}
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */
 
 $categories = $block->getStoreCategories();
 $campaigns = $block->getCampaigns();
 $autoresponders = $block->getAutoresponders();
-$automations = $block->getAutomations()->getData();
-
+$rules = $block->getAutomations()->getRules();
 ?>
 
 <style>
@@ -104,44 +98,44 @@ $automations = $block->getAutomations()->getData();
                         </tr>
                     </thead>
                     <tbody>
-                    <?php if (empty($automations)): ?>
+                    <?php if (empty($rules)): ?>
                         <tr>
                             <td colspan="6" class="no-data">
                                 We couldn't find any records
                             </td>
                         </tr>
                         <?php else: ?>
-                        <?php foreach ($automations as $automation): ?>
+                        <?php foreach ($rules as $rule): ?>
                             <tr class="data-row" data-role="data-grid-bulk-row">
 
                                 <td class="category">
-                                    <?php echo $block->getCategoryName($automation['category_id']); ?>
+                                    <?php echo $block->getCategoryName($rule->getCategory()); ?>
                                 </td>
 
                                 <td class="action">
-                                    <?php echo $block->getAction($automation['action']); ?>
+                                    <?php echo $block->getAction($rule->getAction()); ?>
                                 </td>
 
                                 <td class="campaign">
-                                    <?php $campaign = $block->getCampaign($automation['campaign_id']); ?>
+                                    <?php $campaign = $block->getCampaign($rule->getCampaign()); ?>
                                     <?php echo isset($campaign->name) ? $campaign->name : ''; ?>
                                 </td>
 
                                 <td>
                                     <input type="checkbox" disabled="disabled"
-                                           <?php echo (null !== $automation['cycle_day']) ? 'checked="checked"' : '' ?> />
+                                           <?php echo !empty($rule->getAutoresponder()) ? 'checked="checked"' : '' ?> />
                                 </td>
 
                                 <td class="cycle_day_edit">
-                                    <?php if (isset($automation['cycle_day']) and $automation['cycle_day'] != ''):?>
+                                    <?php if (!empty($rule->getAutoresponder())):?>
 
-                                    (Day: <?php echo $automation['cycle_day'] ?>)
-                                    <?php  echo isset($autoresponders[$automation['campaign_id']][$automation['cycle_day']]) ? $autoresponders[$automation['campaign_id']][$automation['cycle_day']]['name'] : '' ?>
+                                    (Day: <?php echo $rule->getAutoresponder() ?>)
+                                    <?php  echo isset($autoresponders[$rule->getCampaign()][$rule->getAutoresponder()]) ? $autoresponders[$rule->getCampaign()][$rule->getAutoresponder()]['name'] : '' ?>
                             <?php endif ?>
                                 </td>
 
                                 <td>
-                                    <a href="<?php echo $block->getUrl('getresponseintegration/rules/edit/', array('id' => $automation['id'])); ?>">Edit</a>
+                                    <a href="<?php echo $block->getUrl('getresponseintegration/rules/edit/', array('id' => $rule->getId())); ?>">Edit</a>
                                 </td>
 
                             </tr>

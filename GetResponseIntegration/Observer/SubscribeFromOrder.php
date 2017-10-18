@@ -18,9 +18,6 @@ class SubscribeFromOrder implements ObserverInterface
     /** @var ObjectManagerInterface */
     protected $_objectManager;
 
-    /** @var ApiHelper */
-    private $apiHelper;
-
     /** @var RepositoryFactory */
     private $repositoryFactory;
 
@@ -62,9 +59,8 @@ class SubscribeFromOrder implements ObserverInterface
             return $this;
         }
 
-        $automations = $this->repository->getAutomations();
+        $automations = $this->repository->getRules();
 
-        $this->apiHelper = new ApiHelper($grRepository);
         $active_customs = $this->repository->getActiveCustoms();
 
         $order_id = $observer->getOrderIds();
@@ -144,7 +140,7 @@ class SubscribeFromOrder implements ObserverInterface
                     }
                 }
                 if ($move_subscriber) {
-                    $results = (array) $this->grApi->getContacts([
+                    $results = (array) $grRepository->getContacts([
                         'query' => [
                             'email'      => $customer->getEmail(),
                             'campaignId' => $settings['campaign_id']
@@ -187,6 +183,8 @@ class SubscribeFromOrder implements ObserverInterface
             return $this;
         }
 
+        $apiHelper = new ApiHelper($grRepository);
+
         $name = trim($firstname) . ' ' . trim($lastname);
         $user_customs['origin'] = 'magento2';
 
@@ -214,13 +212,13 @@ class SubscribeFromOrder implements ObserverInterface
         if (!empty($contact) && isset($contact->contactId)) {
             $results = $grRepository->getContact($contact->contactId);
             if (!empty($results->customFieldValues)) {
-                $params['customFieldValues'] = $this->apiHelper->mergeUserCustoms($results->customFieldValues, $user_customs);
+                $params['customFieldValues'] = $apiHelper->mergeUserCustoms($results->customFieldValues, $user_customs);
             } else {
-                $params['customFieldValues'] = $this->apiHelper->setCustoms($user_customs);
+                $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
             }
             return $grRepository->updateContact($contact->contactId, $params);
         } else {
-            $params['customFieldValues'] = $this->apiHelper->setCustoms($user_customs);
+            $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
             return $grRepository->addContact($params);
         }
     }

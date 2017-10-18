@@ -20,7 +20,7 @@ class AccessValidator
     /**
      * @return bool
      */
-    public function checkAccess()
+    public function isConnectedToGetResponse()
     {
         $settings = $this->repository->getSettings();
 

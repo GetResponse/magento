@@ -52,6 +52,7 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
     ) {
         $this->cart = $cart;
         $this->scopeConfig = $scopeConfig;
+        $this->grRepository = $repositoryFactory->buildRepository();
 
         parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory, $repository);
     }
@@ -67,7 +68,7 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
         }
 
         $totalPrice = $totalTaxPrice = 0;
-        $shopId = $this->scopeConfig->getValue(Config::SHOP_ID);
+        $shopId = $this->scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
 
         $requestToGr = [
             'contactId' => $this->getContactFromGetResponse()->contactId,
