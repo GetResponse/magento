@@ -8,17 +8,6 @@ $settings = $block->getSettings();
 
 if (isset($settings['feature_tracking']) && 'enabled' === $settings['feature_tracking']): ?>
 
-<style>
-    .page-main-hint {
-        float: left;
-    }
-
-    .page-main-hint span {
-        display: inline-block;
-        margin-top: .3rem;
-    }
-</style>
-
 <form method="post" action="<?php echo $block->getUrl('getresponseintegration/settings/webtraffictracking'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
     <div class="page-main-actions">

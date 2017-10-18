@@ -9,52 +9,6 @@ $forms = $block->getAllFormsFromGr();
 $settings = $block->getWebformSettings();
 
 ?>
-<style>
-    .label {
-        font-weight: bold;
-    }
-
-    .label label {
-        display: inline-block;
-    }
-
-    td.label {
-        vertical-align: top;
-    }
-
-    .value input {
-        margin-top: 4px;
-        width: 100%;
-    }
-
-    .note {
-        color: #303030;
-        font-size: 12px;
-        margin-top: 5px;
-    }
-
-    .admin__scope-old input[type="checkbox"] {
-        -moz-appearance: checkbox;
-    }
-
-    tr {
-        margin-bottom: 5px;
-    }
-
-    .page-main-hint {
-        float: left;
-    }
-
-    .page-main-hint span {
-        display: inline-block;
-        margin-top: 1rem;
-    }
-
-    .hidden {
-        display: none
-    }
-
-</style>
 
 <form method="post" action="<?php echo $block->getUrl('getresponseintegration/settings/webformpost'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
