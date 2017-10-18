@@ -12,12 +12,9 @@ class GetresponseIntegration_Getresponse_Model_Webforms extends Mage_Core_Model_
 	}
 
     /**
-     * Override for automaticly choosing integration by shop id
-     *
-     * @param $id
-     * @param null $field
-     *
-     * @return mixed
+     * @param int $id
+     * @param string|null $field
+     * @return Mage_Core_Model_Abstract
      */
     public function load($id, $field = null)
     {
@@ -29,14 +26,13 @@ class GetresponseIntegration_Getresponse_Model_Webforms extends Mage_Core_Model_
     }
 
 	/**
-	 * @param $data
-	 * @param $shop_id
-	 *
+	 * @param array $data
+	 * @param int $shopId
 	 * @return bool
 	 */
-	public function updateWebforms($data, $shop_id)
+	public function updateWebforms($data, $shopId)
 	{
-		$model = $this->load($shop_id)->addData($data);
+		$model = $this->load($shopId)->addData($data);
 
 		try {
 			$model->save();
@@ -47,17 +43,21 @@ class GetresponseIntegration_Getresponse_Model_Webforms extends Mage_Core_Model_
 		return true;
 	}
 
-	/**
-	 *
-	 */
-	public function disconnectWebforms($shop_id)
+    /**
+     * @param int $shopId
+     */
+	public function disconnect($shopId)
 	{
-		$data = array(
-			'webform_id' => '',
-			'active_subscription' => '0',
-			'url' => '',
-			'webform_title' => 'Webform',
-		);
-		$this->updateWebforms($data, $shop_id);
+		$this->updateWebforms(
+            array(
+                'webform_id' => '',
+                'active_subscription' => '0',
+                'url' => '',
+                'webform_title' => '',
+                'layout_position' => '',
+                'block_position' => '',
+            )
+            , $shopId
+        );
 	}
 }

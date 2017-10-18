@@ -2,21 +2,6 @@
 
 class GetresponseIntegration_Getresponse_Helper_GrApi
 {
-	/**
-	 *
-	 * Invalid API Key code.
-	 *
-	 * @var int
-	 */
-	public $invalid_apikey_code = 1014;
-
-	/**
-	 *
-	 * API code on success.
-	 *
-	 * @var int
-	 */
-	public $success_api_code = 200;
 
 	/**
 	 *
@@ -68,14 +53,6 @@ class GetresponseIntegration_Getresponse_Helper_GrApi
 
 	/**
 	 *
-	 * Https status code.
-	 *
-	 * @var int
-	 */
-	public $http_status;
-
-	/**
-	 *
 	 * Ping result object.
 	 *
 	 * @var object
@@ -89,6 +66,14 @@ class GetresponseIntegration_Getresponse_Helper_GrApi
 	 * @var bool
 	 */
 	public $status = true;
+
+    /**
+     * @var array
+     * 1014 - Problem during authentication process
+     * 1018 - Your IP was blocked
+     * 1017 - Suspected behaviour, API was permanently blocked, please contact with our support
+     */
+	private $unauthorizedResponseCodes = [1014, 1018, 1017];
 
 	/**
 	 * Set api key and optionally API endpoint
@@ -556,32 +541,36 @@ class GetresponseIntegration_Getresponse_Helper_GrApi
 		}
 
 		try {
-			$curl = curl_init();
-			curl_setopt_array($curl, $options);
-
-			$response = json_decode(curl_exec($curl));
-
-			$this->http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-			curl_close($curl);
-
-            if (!empty($response->codeDescription)) {
-                Mage::helper('getresponse/logger')->log(
-                    sprintf('API: %s %s method failed: %s (%s)', $http_method, $api_method, $response->codeDescription, $response->code)
-                );
-            } else {
-                Mage::helper('getresponse/logger')->log(
-                    sprintf('API: %s %s method successed', $http_method, $api_method)
-                );
-            }
-
-            return (object)$response;
-
-		} catch (Exception $e) {
+            $curl = curl_init();
+            curl_setopt_array($curl, $options);
+            $response = json_decode(curl_exec($curl));
+            curl_close($curl);
+        } catch (Exception $e) {
             Mage::helper('getresponse/logger')->logException($e);
             return false;
-		}
+        }
 
+
+        if (!empty($response->codeDescription)) {
+            Mage::helper('getresponse/logger')->log(
+                sprintf('API: %s %s method failed: %s (%s)', $http_method, $api_method, $response->codeDescription,
+                    $response->code)
+            );
+        } else {
+            Mage::helper('getresponse/logger')->log(
+                sprintf('API: %s %s method successed', $http_method, $api_method)
+            );
+        }
+
+        if (isset($response->httpStatus) && (int)$response->httpStatus >= 400 && (int)$response->httpStatus < 500) {
+            if (isset($response->code) && in_array($response->code, $this->unauthorizedResponseCodes)) {
+                Mage::helper('getresponse')->handleUnauthorizedApiCall();
+            }
+        } else {
+            Mage::helper('getresponse')->resetUnauthorizedApiCallDate();
+        }
+
+        return (object)$response;
 	}
 
 	/**
@@ -605,5 +594,4 @@ class GetresponseIntegration_Getresponse_Helper_GrApi
     {
         return $this->call('shops/'.$shopId, 'DELETE');
     }
-
 }

@@ -30,14 +30,14 @@ class GetresponseIntegration_Getresponse_Model_Account extends Mage_Core_Model_A
 
     /**
 	 * @param $account
-	 * @param $shop_id
+	 * @param $shopId
 	 *
 	 * @return bool
 	 */
-	public function updateAccount($account, $shop_id)
+	public function updateAccount($account, $shopId)
 	{
 		$data = array(
-		    'id_shop' => $shop_id,
+		    'id_shop' => $shopId,
 			'accountId' => isset($account->accountId) ? $account->accountId : null,
 			'firstName' => isset($account->firstName) ? $account->firstName : null,
 			'lastName' => isset($account->lastName) ? $account->lastName : null,
@@ -53,7 +53,7 @@ class GetresponseIntegration_Getresponse_Model_Account extends Mage_Core_Model_A
 			'timeZone_name' => isset($account->timeZone->name) ? $account->timeZone->name : null,
 			'timeZone_offest' => isset($account->timeZone->offset) ? $account->timeZone->offset : null,
 		);
-		$model = $this->load($shop_id)->addData($data);
+		$model = $this->load($shopId)->addData($data);
 
 		try {
 			$model->save();
@@ -64,13 +64,13 @@ class GetresponseIntegration_Getresponse_Model_Account extends Mage_Core_Model_A
 		return true;
 	}
 
-	/**
-	 *
-	 */
-	public function disconnectAccount($shop_id)
+    /**
+     * @param int $shopId
+     */
+	public function disconnect($shopId)
 	{
 		$data = new stdClass();
-		$this->updateAccount($data, $shop_id);
+		$this->updateAccount($data, $shopId);
 	}
 
 }

@@ -51,22 +51,11 @@ class GetresponseIntegration_Getresponse_WebformController extends GetresponseIn
     {
         $this->_initAction();
 
-        $active = $this->getRequest()->getParam('active_subscription', 0);
+        $isEnabled = $this->getRequest()->getParam('active_subscription', 0);
         $params = $this->getRequest()->getParams();
 
-        if (0 === $active) {
-            Mage::getModel('getresponse/webforms')->updateWebforms(
-                [
-                    'webform_id' => $params['webform_id'],
-                    'id_shop' => $this->currentShopId,
-                    'active_subscription' => $active,
-                    'layout_position' => '',
-                    'block_position' => '',
-                    'webform_title' => '',
-                    'url' => ''
-                ],
-                $this->currentShopId
-            );
+        if (0 === $isEnabled) {
+            Mage::getModel('getresponse/webforms')->disconnect($this->currentShopId);
             $this->_getSession()->addSuccess('Form unpublished');
             $this->_redirect('*/*/index');
             return;
@@ -101,7 +90,7 @@ class GetresponseIntegration_Getresponse_WebformController extends GetresponseIn
                 [
                     'webform_id' => $params['webform_id'],
                     'id_shop' => $this->currentShopId,
-                    'active_subscription' => $active,
+                    'active_subscription' => $isEnabled,
                     'layout_position' => $params['layout_position'],
                     'block_position' => $params['block_position'],
                     'webform_title' => trim($params['webform_title']),

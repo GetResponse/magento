@@ -201,11 +201,10 @@ class GetresponseIntegration_Getresponse_Model_Observer
 	}
 
 	/**
-	 * @param $observer
-	 *
+	 * @param Varien_Event_Observer $observer
 	 * @return bool
 	 */
-	public function createAccountOrder($observer)
+	public function createAccountOrder(Varien_Event_Observer $observer)
 	{
 		if ( !Mage::helper('getresponse')->isEnabled()) {
 			return $this;

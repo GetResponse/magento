@@ -38,7 +38,7 @@ class GetresponseIntegration_Getresponse_BaseController extends Mage_Adminhtml_C
 
             if ('account' !== $this->getRequest()->getControllerName() || 'index' !== $this->getRequest()
                     ->getActionName()) {
-                $this->_getSession()->addError('Access denied - module is not connected to GetResponse Account.');
+                $this->_getSession()->addError('Access denied - module is not connected to GetResponse Account');
                 $this->getResponse()->setRedirect($this->getUrl('getresponse/account/index'))->sendResponse();
                 exit;
             }

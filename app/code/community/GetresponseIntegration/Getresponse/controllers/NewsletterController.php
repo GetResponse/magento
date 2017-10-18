@@ -32,23 +32,21 @@ class GetresponseIntegration_Getresponse_NewsletterController extends Getrespons
     {
         $this->_initAction();
 
-        $newsletterSubscription = (int)$this->getRequest()->getParam('newsletter_subscription', 0);
+        $isEnabled = (int)$this->getRequest()->getParam('newsletter_subscription', 0);
         $newsletterCampaignId = $this->getRequest()->getParam('newsletter_campaign_id', '');
         $newsletterCycleDay = (int)$this->getRequest()->getParam('newsletter_cycle_day', 0);
-        $newsletterAutoresponder = (int)$this->getRequest()->getParam('newsletter_autoresponder', 0);
+        $isAutoresponderEnabled = (int)$this->getRequest()->getParam('newsletter_autoresponder', 0);
 
-        if (0 === $newsletterSubscription) {
+        if (0 === $isEnabled) {
             $newsletterCampaignId = '';
             $newsletterCycleDay = 0;
         } else {
-            if (0 === $newsletterAutoresponder) {
-                $newsletterCycleDay = 0;
-            }
+            $newsletterCycleDay = 0 === $isAutoresponderEnabled ? 0 : $newsletterCycleDay;
         }
 
         Mage::getModel('getresponse/settings')->updateSettings(
             [
-                'newsletter_subscription' => $newsletterSubscription,
+                'newsletter_subscription' => $isEnabled,
                 'newsletter_campaign_id' => $newsletterCampaignId,
                 'newsletter_cycle_day' => $newsletterCycleDay,
             ],

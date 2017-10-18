@@ -35,7 +35,7 @@ class GetresponseIntegration_Getresponse_EcommerceController extends Getresponse
      */
     public function saveAction()
     {
-        $shopEnable = $this->getRequest()->getParam('shop_enabled');
+        $isEnabled = (int)$this->getRequest()->getParam('shop_enabled', 0);
         $shopId = $this->getRequest()->getParam('shop_id');
 
         if (empty($shopId)) {
@@ -44,23 +44,22 @@ class GetresponseIntegration_Getresponse_EcommerceController extends Getresponse
             return;
         }
 
-        $data = [
-            'is_enabled' => empty($shopEnable) ? 0 : 1,
-            'gr_shop_id' => $shopId,
-            'shop_id' => $this->currentShopId,
-        ];
+        if (1 === $isEnabled) {
+            $data = [
+                'is_enabled' => 1,
+                'gr_shop_id' => $shopId,
+                'shop_id' => $this->currentShopId,
+            ];
 
-        try {
             Mage::getModel('getresponse/shop')
                 ->load($this->currentShopId)
                 ->setData($data)
                 ->save();
-
-            $this->_getSession()->addSuccess('Ecommerce settings saved');
-
-        } catch (Exception $e) {
-            $this->_getSession()->addError('Error during settings details save: ' . $e->getMessage());
+        } else {
+            Mage::getModel('getresponse/shop')->disconnect($this->currentShopId);
         }
+
+        $this->_getSession()->addSuccess('Ecommerce settings saved');
 
         $this->_redirect('*/*/index');
 
