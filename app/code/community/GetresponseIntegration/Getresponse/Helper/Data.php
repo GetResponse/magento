@@ -115,9 +115,11 @@ class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Ab
 	{
 		$categories = array();
 		if ($order->getId()) {
+
 			foreach ($order->getAllVisibleItems() as $item) {
 				$product = Mage::getModel('catalog/product')->load($item->getProductId());
 				$cats = $product->getCategoryIds();
+
 				if ( !empty($cats)) {
 					foreach ($cats as $cat) {
 						$categories[] = $cat;

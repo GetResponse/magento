@@ -17,8 +17,6 @@ class GetresponseIntegration_Getresponse_Model_Shop extends Mage_Core_Model_Abst
      */
     public function disconnect($shopId)
     {
-        //echo "<pre>";print_r($this->load($shopId)); die;
-
         $this->load($shopId)
             ->addData(['is_enabled' => 0])
             ->save();

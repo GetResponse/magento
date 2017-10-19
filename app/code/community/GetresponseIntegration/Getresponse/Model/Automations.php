@@ -16,8 +16,7 @@ class GetresponseIntegration_Getresponse_Model_Automations extends Mage_Core_Mod
 
 	/**
 	 * @param $shopId
-	 *
-	 * @return mixed
+	 * @return array
 	 */
 	public function getAutomations($shopId)
 	{

@@ -7,8 +7,8 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
 {
 
     protected $actions = [
-        'move' => 'Moved',
-        'copy' => 'Copied'
+        'moved' => 'Moved',
+        'copied' => 'Copied'
     ];
 
     /**
@@ -119,7 +119,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
             'campaign_id' => $params['campaign_id'],
             'cycle_day' => $cycleDay,
             'action' => $params['action'],
-            'active' => $isAutoresponderOn
+            'active' => 1
         ]);
 
         if ($add) {
@@ -161,7 +161,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
             'campaign_id' => $params['campaign_id'],
             'cycle_day' => $cycleDay,
             'action' => $params['action'],
-            'active' => $isAutoresponderOn
+            'active' => 1
         ]);
 
         if ($add) {

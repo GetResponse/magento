@@ -14,7 +14,7 @@
 	<div class="content-header">
 		<h3>Export Customer Data on Demand</h3>
         <p class="form-buttons">
-            <button onclick="setLocation('<?php echo Mage::helper("adminhtml")->getUrl("getresponse/index/create_list")."?back_url=".base64_encode('getresponse/export/index'); ?>')" type="button" name="Submit" class="scalable add"><span>Add New Contact List</span></button>
+            <button onclick="setLocation('<?php echo Mage::helper("adminhtml")->getUrl("getresponse/list/index")."?back_url=".base64_encode('getresponse/export/index'); ?>')" type="button" name="Submit" class="scalable add"><span>Add New Contact List</span></button>
             <button id="gr_export" type="submit" onclick="getresponseexport.submit();" name="Submit"><span>Export</span></button>
         </p>
 	</div>
