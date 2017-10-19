@@ -1,0 +1,100 @@
+/**
+* GetResponse Plugin for Magento 2.x
+*/
+
+/* [ Helpers ] */
+
+/* Variables: colors */
+@lightGrey: #CCCCCC;
+@ultraLightGrey: #F8F8F8;
+@positiveGreen: blue;
+@white: #FFFFFF;
+@titleBlack: #41362F;
+
+/* Variables: sizes */
+@baseTextSize: 11pt;
+
+/* Mixins */
+.hidden {
+    display: none;
+}
+
+.left {
+    float: left;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* [ Pages ] */
+
+/* Add custom GetResponse icon to main menu */
+.admin__menu #menu-getresponse-getresponseintegration.level-0 > a {
+    &:before {
+        content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAQCAYAAADj5tSrAAADBUlEQVQ4ja2Ty4scVRjFz31XPyftdLprpl+TMQlZ6SpudSEiKCKEgH+BboIouB6NyS4gSnChiAkiEV2oEERwpRs3zl8QNRkyM51Jt5MwXV1V91bVvddFMkMajZOHZ334ft/5HuSbSxfPAXgD/7MIIcgyUytXqiscwDuEEFhrURQ5OBdgjMF7/1iAPMtAKUOvf+hHCiC21kJKOZpvtlY4579bax8rhbUFrLXoDZZeKZdLqxSAK/IclWrti+XDR8/U5+a+zIwBIeSRAN57ZMZgodNZaYeLl2/fvvUUvSfeYmYMGo35z4SUKIr84aoTAu88tE7RChc/7vaWzqRJwm9sbn5HAYBSCmP0C8ZoVKr1YavVfjcz5oH3QgiBLXJooxEudM53+4NTIMBwc/1SEk+XKQAwzpEmSTOJ4xOEAAfb4fvNVvitThM45/YdndYazjn0Bktvdbq9NznjGI9GL/41vnlSKZXRvW4owa3t8dksNyCEotcfnAgXux86Z6F1CmvtTDLnHPIsQ55lqNXqvywfPvpMq9X+iFKKyWTnyMb1tR8opaCMpXsQISSiyeTYaGvrNGMUzjksdLpvd/tLxxtPzH8qhLi+6/Xeg1G6Xa3Xv+70Bq/2Dy0/Vy5XfgOANE0X1q7+8astCiqEhPee8ntjCylxc2u4IoS81mqHF7XWCErl1XKluprEMUmT+Mj2eFSvzx3QtfrcVRmoREoFZx2kVIin0dNr1/78Kc9MUwXBXvIZyO4TbqyvXSiKfNBstU8LKpBpDUqJF0JeUUEJUikwzuGdh7MWjDFsj0evDzfXP7HWQqlgZrQzEO89OOcghODGcOO9aRS9dKDR+ECp4HtGmQYhOBiGcNaBUQrnPYuiycvRzs6pKNp5njEGpdQ/rnIGsguilEKpAHE8PR5Po6+CUmlLqeBnD1xhjEXOuerU+yeNMc8anfY8PKSQd37lX86eA7jvfQohAABZloVG69cIvWv1d5ohlILf9fyHCAdQ3c/FGAMY2892P1U5gM8BnHzUCg+gy38DWG1g0hhRC0kAAAAASUVORK5CYII=');
+    }
+
+    &._active:before,
+    &:hover:before {
+        content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAQCAYAAADj5tSrAAABSElEQVQ4jbXTPUtcQRTG8d9eFDRqowG7pBD8AlqKwfgZUkQlaBDsfCu0TplYaEgaG8EiJKZRELERFKxESKuFle1aqFddi5BYzCzcXNxEzN6nmXMezsx/zryUKml5AROKUQs+lCpp+XdBgKpeJriOyTkWcFpHwCh2E/yKxhrm8L1OgCWsoi/JmJ1xXK4D4Btm0Ir1LGQQjTjBp/8AfMHrGG/gaRbShjcxnsTeIwDvMBLjYWHjt6VKWr6MAMKlP89MWsHYAxb/gXnsxLwXhzG+SHLFz/A5k7/FAL7iLFd7gy2h+54MoBv7mbok30lVs1jMeU/QhWb8FLrOg/uxHWurSmtB4COm7/FraQ7v7/HT/HFlNYUjjKOjRk0bhnBQAwD+1skfuxFe27FwF03C2b9A+7/mlippORU+TVG6SgoGQGuD8BdeFQjZvAM/GE8d5YbIMgAAAABJRU5ErkJggg==');
+    }
+}
+
+/* Info in page' main actions section */
+.page-main-hint {
+    .left;
+}
+
+.page-main-hint span {
+    display: inline-block;
+    margin-top: 1rem;
+}
+
+/* Format data grid info when having no-data */
+td.no-data {
+    .text-center;
+    padding: 4rem;
+}
+
+/* Format account data table on Settings page */
+.title {
+    padding-bottom: 10px;
+    border-bottom: 1px solid @lightGrey;
+    margin-bottom: 20px;
+
+    span {
+        font-size: @baseTextSize;
+        color: @titleBlack;
+    }
+}
+
+.account_data {
+    width: 100%;
+
+    tr {
+        &:nth-child(even) {
+            background: @white;
+        }
+
+        &:nth-child(odd) {
+            background: @ultraLightGrey;
+        }
+    }
+
+    td {
+        padding: .75rem 1.5rem;
+
+        &:nth-child(1) {
+            width: 127px;
+        }
+
+        &:nth-child(2) {
+            width: auto;
+        }
+    }
+
+    .status-connected {
+        color: @positiveGreen;
+    }
+}
