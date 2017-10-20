@@ -1,10 +1,10 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RuleFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollection;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollectionFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use Magento\Framework\ObjectManagerInterface;
@@ -17,8 +17,6 @@ use Magento\Framework\View\Element\Template;
  */
 class Export extends Template
 {
-    public $stats;
-
     /** @var Repository */
     private $repository;
 
@@ -43,9 +41,14 @@ class Export extends Template
         $this->grRepository = $repositoryFactory->buildRepository();
     }
 
-    public function getSettings()
+    /**
+     * @return RegistrationSettings
+     */
+    public function getExportSettings()
     {
-        return $this->repository->getSettings();
+        return RegistrationSettingsFactory::createFromRepository(
+            $this->repository->getRegistrationSettings()
+        );
     }
 
     public function getCustomers()
@@ -56,17 +59,9 @@ class Export extends Template
     /**
      * @return mixed
      */
-    public function getActiveCustoms()
+    public function getCustoms()
     {
-        return $this->repository->getActiveCustoms();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDefaultCustoms()
-    {
-        return $this->repository->getDefaultCustoms();
+        return CustomFieldsCollectionFactory::buildFromRepository($this->repository->getCustoms());
     }
 
     /**
@@ -75,85 +70,6 @@ class Export extends Template
     public function getCampaigns()
     {
         return $this->grRepository->getCampaigns(['sort' => ['name' => 'asc']]);
-    }
-
-    /**
-     * @param $id
-     * @return mixed
-     */
-    public function getCampaign($id)
-    {
-        return $this->grRepository->getCampaign($id);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getAccountFromFields()
-    {
-        return $this->grRepository->getAccountFromFields();
-    }
-
-    /**
-     * @param $lang
-     * @return mixed
-     */
-    public function getSubscriptionConfirmationsSubject($lang)
-    {
-        return $this->grRepository->getSubscriptionConfirmationsSubject($lang);
-    }
-
-    /**
-     * @param $lang
-     * @return mixed
-     */
-    public function getSubscriptionConfirmationsBody($lang)
-    {
-        return $this->grRepository->getSubscriptionConfirmationsBody($lang);
-    }
-
-    /**
-     * @return RulesCollection
-     */
-    public function getAutomations()
-    {
-        return RulesCollectionFactory::buildFromRepository($this->repository->getRules());
-    }
-
-    /**
-     * @param $category_id
-     * @return mixed
-     */
-    public function getCategoryName($category_id)
-    {
-        return $this->repository->getCategoryName($category_id);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getStoreCategories()
-    {
-        return $this->repository->getStoreCategories();
-    }
-
-    /**
-     * @param $category \Magento\Catalog\Helper\Category|\Magento\Catalog\Model\Category
-     */
-    public function getSubcategories($category)
-    {
-        if ($category->hasChildren()) {
-            $childrenCategories = $category->getChildren();
-            foreach ($childrenCategories as $childrenCategory) {
-                $string = '';
-                for ($i = $childrenCategory->getLevel(); $i > 2; $i--) {
-                    $string .= '-';
-                }
-                echo '<option value="' . $childrenCategory->getEntityId() . '"> ' .
-                    $string . ' ' . $childrenCategory->getName() . '</option>';
-                $this->getSubcategories($childrenCategory);
-            }
-        }
     }
 
     /**
@@ -179,24 +95,6 @@ class Export extends Template
         }
 
         return $autoresponders;
-    }
-
-    /**
-     * @param $action
-     *
-     * @return string
-     */
-    public function getAction($action)
-    {
-        switch ($action) {
-            case 'copy':
-                return 'copied';
-                break;
-
-            case 'move':
-                return 'moved';
-                break;
-        }
     }
 
     /**

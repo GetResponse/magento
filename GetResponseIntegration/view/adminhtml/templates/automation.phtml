@@ -1,9 +1,8 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */
-
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Rules */
 $categories = $block->getStoreCategories();
 $campaigns = $block->getCampaigns();
 $autoresponders = $block->getAutoresponders();
-$rules = $block->getAutomations()->getRules();
+$rules = $block->getRulesCollection()->getRules();
 ?>
 
 <style>

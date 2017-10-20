@@ -1,52 +1,48 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RuleFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollection;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollectionFactory;
-use Magento\Framework\ObjectManagerInterface;
-use Magento\Framework\View\Element\Template\Context;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use Magento\Framework\View\Element\Template;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use Magento\Framework\View\Element\Template\Context;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+
 
 /**
- * Class Rules
+ * Class Registration
  * @package GetResponse\GetResponseIntegration\Block
  */
-class Rules extends Template
+class Registration extends Template
 {
     /** @var Repository */
     private $repository;
+
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /** @var GrRepository */
     private $grRepository;
 
     /**
      * @param Context $context
-     * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
      */
     public function __construct(
         Context $context,
-        ObjectManagerInterface $objectManager,
         Repository $repository,
         RepositoryFactory $repositoryFactory
     )
     {
         parent::__construct($context);
         $this->repository = $repository;
+        $this->repositoryFactory = $repositoryFactory;
         $this->grRepository = $repositoryFactory->buildRepository();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getStoreCategories()
-    {
-        return $this->repository->getStoreCategories();
     }
 
     /**
@@ -57,32 +53,14 @@ class Rules extends Template
         return $this->grRepository->getCampaigns(['sort' => ['name' => 'asc']]);
     }
 
-    public function getRuleById()
-    {
-        $id = $this->_request->getParam('id');
-
-        if (empty($id)) {
-            return null;
-        }
-
-        return RuleFactory::buildFromRepository($this->repository->getRuleById($id));
-    }
-
     /**
-     * @return RulesCollection
+     * @return ConnectionSettings
      */
-    public function getRulesCollection()
+    public function getConnectionSettings()
     {
-        return RulesCollectionFactory::buildFromRepository($this->repository->getRules());
-    }
-
-    /**
-     * @param $category_id
-     * @return mixed
-     */
-    public function getCategoryName($category_id)
-    {
-        return $this->repository->getCategoryName($category_id);
+        return ConnectionSettingsFactory::buildFromRepository(
+            $this->repository->getConnectionSettings()
+        );
     }
 
     /**
@@ -91,6 +69,7 @@ class Rules extends Template
     public function getAutoresponders()
     {
         $params = ['query' => ['triggerType' => 'onday', 'status' => 'active']];
+
         $result = $this->grRepository->getAutoresponders($params);
         $autoresponders = [];
 
@@ -133,51 +112,18 @@ class Rules extends Template
         return $result;
     }
 
-    /**
-     * @param $category \Magento\Catalog\Helper\Category|\Magento\Catalog\Model\Category
-     */
-    public function getSubcategories($category)
+    public function getCustoms()
     {
-        if ($category->hasChildren()) {
-            $childrenCategories = $category->getChildren();
-            foreach ($childrenCategories as $childrenCategory) {
-                $string = '';
-                for ($i = $childrenCategory->getLevel(); $i > 2; $i--) {
-                    $string .= '-';
-                }
-                echo '<option value="' . $childrenCategory->getEntityId() . '"> ' .
-                    $string . ' ' . $childrenCategory->getName() . '</option>';
-                $this->getSubcategories($childrenCategory);
-            }
-        }
+        return CustomFieldsCollectionFactory::buildFromRepository($this->repository->getCustoms());
     }
 
     /**
-     * @param $action
-     *
-     * @return string
+     * @return RegistrationSettings
      */
-    public function getAction($action)
+    public function getRegistrationSettings()
     {
-        switch ($action) {
-            case 'copy':
-                return 'copied';
-                break;
-
-            case 'move':
-                return 'moved';
-                break;
-        }
-
-        return '';
-    }
-
-    /**
-     * @param $id
-     * @return mixed
-     */
-    public function getCampaign($id)
-    {
-        return $this->grRepository->getCampaign($id);
+        return RegistrationSettingsFactory::createFromRepository(
+            $this->repository->getRegistrationSettings()
+        );
     }
 }

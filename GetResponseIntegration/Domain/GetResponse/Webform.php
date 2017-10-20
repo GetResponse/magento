@@ -2,30 +2,30 @@
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
 
 /**
- * Class Autoresponder
+ * Class Webform
  * @package GetResponse\GetResponseIntegration\Domain\GetResponse
  */
-class Autoresponder
+class Webform
 {
     /** @var string */
     private $id;
 
-    /** @var int */
-    private $cycleDay;
+    /** @var string */
+    private $name;
 
     /** @var string */
-    private $title;
+    private $url;
 
     /**
      * @param string $id
-     * @param int $cycleDay
-     * @param string $title
+     * @param string $name
+     * @param string $url
      */
-    public function __construct($id, $cycleDay, $title)
+    public function __construct($id, $name, $url)
     {
         $this->id = $id;
-        $this->cycleDay = $cycleDay;
-        $this->title = $title;
+        $this->name = $name;
+        $this->url = $url;
     }
 
     /**
@@ -37,18 +37,18 @@ class Autoresponder
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getCycleDay()
+    public function getName()
     {
-        return $this->cycleDay;
+        return $this->name;
     }
 
     /**
      * @return string
      */
-    public function getTitle()
+    public function getUrl()
     {
-        return $this->title;
+        return $this->url;
     }
 }

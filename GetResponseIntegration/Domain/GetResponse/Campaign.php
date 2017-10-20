@@ -25,6 +25,9 @@ class Campaign
     /** @var string */
     private $body;
 
+    /** @var string */
+    private $language;
+
     /**
      * @param string $id
      * @param string $name
@@ -32,8 +35,9 @@ class Campaign
      * @param string $replyTo
      * @param string $subject
      * @param string $body
+     * @param string $language
      */
-    public function __construct($id, $name, $fromField, $replyTo, $subject, $body)
+    public function __construct($id, $name, $fromField, $replyTo, $subject, $body, $language = 'EN')
     {
         $this->id = $id;
         $this->name = $name;
@@ -89,5 +93,31 @@ class Campaign
     public function getBody()
     {
         return $this->body;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLanguage()
+    {
+        return $this->language;
+    }
+
+    /**
+     * @return array
+     */
+    public function forApiRequest()
+    {
+        $params = [];
+        $params['name'] = $this->name;
+        $params['languageCode'] = $this->language;
+        $params['confirmation'] = [
+            'fromField' => ['fromFieldId' => $this->fromField],
+            'replyTo' => ['fromFieldId' => $this->replyTo],
+            'subscriptionConfirmationBodyId' => $this->body,
+            'subscriptionConfirmationSubjectId' => $this->subject
+        ];
+
+        return $params;
     }
 }

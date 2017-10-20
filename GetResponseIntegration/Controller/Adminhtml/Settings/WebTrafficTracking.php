@@ -3,10 +3,13 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingFactory;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
 /**
@@ -15,6 +18,7 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class WebTrafficTracking extends Action
 {
+    const BACK_URL = 'getresponseintegration/settings/webtraffictracking';
     /** @var PageFactory */
     private $resultPageFactory;
 
@@ -49,7 +53,7 @@ class WebTrafficTracking extends Action
     }
 
     /**
-     * @return \Magento\Framework\View\Result\Page
+     * @return Redirect|Page
      */
     public function execute()
     {
@@ -57,10 +61,24 @@ class WebTrafficTracking extends Action
 
         if (isset($data['updateWebTraffic'])) {
 
-            $status = (isset($data['web_traffic']) && '1' === $data['web_traffic']) ? 'enabled' : 'disabled';
-            $this->repository->updateWebTrafficStatus($status);
-            $message = (isset($data['web_traffic']) && '1' === $data['web_traffic']) ? 'Web event traffic tracking enabled' : 'Web event traffic tracking disabled';
+            $webEventTracking = WebEventTrackingFactory::buildFromRepository(
+                $this->repository->getWebEventTracking()
+            );
+
+            $newWebEventTracking = WebEventTrackingFactory::buildFromParams(
+                (isset($data['web_traffic']) && 1 === (int) $data['web_traffic']) ? 1 : 0,
+                $webEventTracking->isFeatureTrackingEnabled(),
+                $webEventTracking->getCodeSnippet()
+            );
+
+            $this->repository->saveWebEventTracking($newWebEventTracking);
+
+            $message = ($newWebEventTracking->isEnabled()) ? 'Web event traffic tracking enabled' : 'Web event traffic tracking disabled';
             $this->messageManager->addSuccessMessage($message);
+
+            $resultRedirect = $this->resultRedirectFactory->create();
+            $resultRedirect->setPath(self::BACK_URL);
+            return $resultRedirect;
         }
 
         $resultPage = $this->resultPageFactory->create();

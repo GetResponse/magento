@@ -71,6 +71,7 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
         $shopId = $this->scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
 
         $requestToGr = [
+            'externalId' => $this->cart->getQuote()->getId(),
             'contactId' => $this->getContactFromGetResponse()->contactId,
             'currency' => $this->cart->getQuote()->getQuoteCurrencyCode(),
             'totalPrice' => $totalPrice,

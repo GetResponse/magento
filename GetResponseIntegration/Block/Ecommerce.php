@@ -2,6 +2,8 @@
 namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use Magento\Framework\ObjectManagerInterface;
@@ -41,7 +43,7 @@ class Ecommerce extends Template
     /**
      * @return string
      */
-    public function getShopStatusFromConfig()
+    public function getShopStatus()
     {
         return $this->repository->getShopStatus();
     }
@@ -62,8 +64,13 @@ class Ecommerce extends Template
         return (array) $this->grRepository->getShops();
     }
 
-    public function getSettings()
+    /**
+     * @return RegistrationSettings
+     */
+    public function getRegistrationSettings()
     {
-        return $this->repository->getSettings();
+        return RegistrationSettingsFactory::createFromRepository(
+            $this->repository->getRegistrationSettings()
+        );
     }
 }

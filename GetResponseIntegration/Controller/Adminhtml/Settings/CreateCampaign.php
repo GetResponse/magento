@@ -2,6 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CampaignFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Getresponse\Repository as GrRepository;
@@ -72,18 +73,10 @@ class CreateCampaign extends Action
         $data = $this->request->getPostValue();
         $lang = substr($this->repository->getMagentoCountryCode(), 0, 2);
 
-        $params = [];
-        $params['name'] = $data['campaign_name'];
-        $params['languageCode'] = (isset($lang)) ? $lang : 'EN';
-        $params['confirmation'] = [
-            'fromField' => ['fromFieldId' => $data['from_field']],
-            'replyTo' => ['fromFieldId' => $data['reply_to_field']],
-            'subscriptionConfirmationBodyId' => $data['confirmation_body'],
-            'subscriptionConfirmationSubjectId' => $data['confirmation_subject']
-        ];
+        $campaign = CampaignFactory::buildFromUserPayload($data);
 
         return $this->resultJsonFactory->create()->setData(
-            $this->grRepository->createCampaign($params)
+            $this->grRepository->createCampaign($campaign)
         );
     }
 }

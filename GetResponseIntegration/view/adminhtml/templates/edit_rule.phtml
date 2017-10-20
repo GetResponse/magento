@@ -1,11 +1,9 @@
 <?php
 /** @var GetResponse\GetResponseIntegration\Block\Rules $block */
-$customs = $block->getDefaultCustoms()->getData();
 /** @var \GetResponse\GetResponseIntegration\Domain\GetResponse\Rule $rule */
 $rule = $block->getRuleById();
 $categories = $block->getStoreCategories();
 $campaigns = $block->getCampaigns();
-$autoresponders = $block->getAutoresponders();
 $jsAutoresponders = $block->getAutorespondersForFrontend();
 ?>
 <form id="editRuleForm" action="" method="POST">
@@ -51,6 +49,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                         <option
                                             <?php if ($category->getEntityId() === $rule->getCategory()): ?>selected="selected"<?php endif ?>
                                             value="<?php echo $category->getEntityId() ?>"><?php echo $category->getName() ?></option>
+                                        <?php echo $block->getSubcategories($category) ?>
                                     <?php endforeach ?>
                                 <?php endif ?>
                             </select>

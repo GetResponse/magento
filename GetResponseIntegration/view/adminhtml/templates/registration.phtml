@@ -1,9 +1,9 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Registration */
 
 $campaigns = $block->getCampaigns();
-$settings = $block->getSettings();
-$autoresponders = $block->getAutoresponders();
+$registrationSettings = $block->getRegistrationSettings();
 $jsAutoresponders = $block->getAutorespondersForFrontend();
+
 ?>
 
 <style>
@@ -88,20 +88,14 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                         <div class="admin__field-control control">
                             <div class="admin__field admin__field-option gr_enabled__field">
                                 <input id="gr_enabled" name="gr_enabled" class="admin__control-checkbox" type="checkbox" value="1"
-                                    <?php
-                                        if (isset($settings['active_subscription']) && $settings['active_subscription'] == true) {
-                                            echo ' checked="checked"';
-                                        }
-                                    ?>
+                                    <?php if($registrationSettings->isEnabled()): ?>checked="checked" <?php endif ?>
                                 >
                                 <label class="admin__field-label" for="publish">Add contacts to GetResponse during registration</label>
                             </div>
                         </div>
                     </div>
                     <div class="admin__field field field-basic_campaign required _required forms
-                        <?php if (!isset($settings['active_subscription']) || $settings['active_subscription'] != 1):?>
-                            hidden
-                        <?php endif ?>"
+                        <?php if (!$registrationSettings->isEnabled()):?>hidden<?php endif ?>"
                     >
                         <label class="label admin__field-label" for="campaign_id">
                             <span>Contact list</span>
@@ -110,23 +104,23 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                             <div class="admin__field">
                                 <select name="campaign_id" id="campaign_id" class="select admin__control-select" aria-required="true">
                                     <option value="">Select a list</option>
-                                    <?php
-                                    if (count($campaigns) > 0) {
-                                        foreach ($campaigns as $campaign) {
-                                            echo '<option value="' . $campaign->campaignId . '"';
-                                            if (!empty($settings['campaign_id']) && $settings['campaign_id'] == $campaign->campaignId) {
-                                                echo ' selected="selected"';
-                                            }
-                                            echo '>' . $campaign->name . '</option>';
-                                        }
-                                    }
-                                    ?>
+                                    <?php if (count($campaigns) > 0): ?>
+                                        <?php foreach ($campaigns as $campaign): ?>
+                                            <option
+                                                value="<?php echo $campaign->campaignId ?>"
+                                                <?php if ($registrationSettings->getCampaignId() == $campaign->campaignId): ?>
+                                                    selected="selected"
+                                                <?php endif ?>>
+                                            <?php echo $campaign->name ?>
+                                            </option>
+                                        <?php endforeach ?>
+                                    <?php endif ?>
                                 </select>
                             </div>
                         </div>
                     </div>
                     <div class="admin__field field field-basic_autoresponder forms
-                        <?php if (!isset($settings['active_subscription']) || $settings['active_subscription'] != 1): ?> hidden<?php endif ?>">
+                        <?php if (!$registrationSettings->isEnabled()): ?> hidden<?php endif ?>">
                         <label class="label admin__field-label" for="gr_enabled"></label>
                         <div class="admin__field-control control">
                             <div class="admin__field admin__field-option gr_enabled__field">
@@ -135,18 +129,14 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                        name="gr_autoresponder"
                                        id="gr_autoresponder"
                                        value="1"
-                                    <?php
-                                    if (isset($settings['cycle_day']) && $settings['cycle_day'] != '0') {
-                                        echo ' checked="checked"';
-                                    }
-                                    ?>
+                                    <?php if ($registrationSettings->getCycleDay() !== 0):?> checked="checked"<?php endif ?>
                                 />
                                 <label class="admin__field-label" for="gr_autoresponder">Add to autoresponder cycle</label>
                             </div>
                         </div>
                     </div>
                     <div class="admin__field field field-basic_autoresponder forms
-                        <?php if (!isset($settings['active_subscription']) || $settings['active_subscription'] != 1): ?> hidden<?php endif ?>">
+                        <?php if (!$registrationSettings->isEnabled()): ?> hidden<?php endif ?>">
                         <label class="label admin__field-label" for="cycle_day">
                             <span>Autoresponder day</span>
                         </label>
@@ -158,7 +148,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                     </div>
 
                     <div class="admin__field field field-basic_subscription with-note forms
-                        <?php if (!isset($settings['active_subscription']) || $settings['active_subscription'] != 1):?>hidden<?php endif ?>">
+                        <?php if (!$registrationSettings->isEnabled()):?>hidden<?php endif ?>">
                         <label class="label admin__field-label" for="subscription">Contacts info</label>
                         <div class="admin__field-control control">
                             <div class="admin__field admin__field-option gr_enabled__field">
@@ -168,11 +158,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                     name="gr_sync_order_data"
                                     id="gr_sync_order_data"
                                     value="1"
-                                    <?php
-                                    if (isset($settings['update']) && $settings['update'] == 1) {
-                                        echo ' checked="checked"';
-                                    }
-                                    ?>
+                                    <?php if ($registrationSettings->isCustomFieldsModiefied()): ?> checked="checked" <?php endif ?>
                                 />
                                 <label class="admin__field-label" for="gr_sync_order_data">Update contact info</label>
                                 <div class="note admin__field-note" id="gr_sync_order_data-note">
@@ -182,7 +168,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                         </div>
                     </div>
                     <div>
-                        <div class="config admin__scope-old updateforms <?php if (!isset($settings['update']) || (int) $settings['update'] === 0):?>hidden<?php endif ?>">
+                        <div class="config admin__scope-old updateforms <?php if (!$registrationSettings->isCustomFieldsModiefied()):?>hidden<?php endif ?>">
                             <?php include 'customs_grid.phtml'; ?>
                             <div class="note admin__field-note">You can use lowercase English alphabet characters, numbers, and underscore ("_"). Maximum 32 characters</div>
                         </div>

@@ -1,8 +1,11 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
 
-use Magento\Framework\ObjectManagerInterface;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository as MagentoRepository;
+use Magento\Framework\ObjectManagerInterface;
 
 /**
  * Class RepositoryFactory
@@ -10,31 +13,53 @@ use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
  */
 class RepositoryFactory
 {
+    /** @var MagentoRepository */
+    private $repository;
+
     /** @var ObjectManagerInterface */
     private $objectManager;
 
     /**
      * @param ObjectManagerInterface $objectManager
+     * @param MagentoRepository $repository
      */
-    public function __construct(ObjectManagerInterface $objectManager)
+    public function __construct(
+        ObjectManagerInterface $objectManager,
+        MagentoRepository $repository
+    )
     {
         $this->objectManager = $objectManager;
+        $this->repository = $repository;
     }
 
+    /**
+     * @return Repository
+     * @throws GetResponseRepositoryException
+     */
     public function buildRepository()
     {
-        $storeId = $this->objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $settings = $this->objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
-        $data = $settings->load($storeId, 'id_shop')->getData();
+        $connectionSettings = ConnectionSettingsFactory::buildFromRepository(
+            $this->repository->getConnectionSettings()
+        );
 
-        if (!isset($data['api_key'])) {
+        if (empty($connectionSettings->getApiKey())) {
             throw GetResponseRepositoryException::buildForInvalidApiKey();
         }
 
+        return RepositoryFactory::buildFromConnectionSettings($connectionSettings);
+    }
+
+    /**
+     * @param ConnectionSettings $connectionSettings
+     *
+     * @return Repository
+     */
+    public function buildFromConnectionSettings(ConnectionSettings $connectionSettings)
+    {
         return new Repository(new GetResponseAPI3(
-            $data['api_key'],
-            $data['api_url'],
-            $data['api_domain'],
+            $connectionSettings->getApiKey(),
+            $connectionSettings->getUrl(),
+            $connectionSettings->getDomain(),
             $this->getVersion()
         ));
     }

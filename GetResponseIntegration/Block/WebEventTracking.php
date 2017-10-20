@@ -1,16 +1,17 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking as MagentoWebEventTracking;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingFactory;
-use Magento\Framework\View\Element\Template;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Framework\View\Element\Template\Context;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use Magento\Framework\View\Element\Template;
 
 /**
- * Class Header
+ * Class WebEventTracking
  * @package GetResponse\GetResponseIntegration\Block
  */
-class Header extends Template
+class WebEventTracking extends Template
 {
     /** @var Repository */
     private $repository;
@@ -19,25 +20,21 @@ class Header extends Template
      * @param Context $context
      * @param Repository $repository
      */
-    public function __construct(Context $context, Repository $repository)
-    {
+    public function __construct(
+        Context $context,
+        Repository $repository
+    ) {
         parent::__construct($context);
         $this->repository = $repository;
     }
 
     /**
-     * @return string
+     * @return MagentoWebEventTracking
      */
-    public function getSnippetCode()
+    public function getWebEventTracking()
     {
-        $webEventTracking = WebEventTrackingFactory::buildFromRepository(
+        return WebEventTrackingFactory::buildFromRepository(
             $this->repository->getWebEventTracking()
         );
-
-        if ($webEventTracking->isEnabled()) {
-            return $webEventTracking->getCodeSnippet();
-        }
-
-        return '';
     }
 }

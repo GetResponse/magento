@@ -11,8 +11,6 @@ use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Request\Http;
 
-
-
 /**
  * Class Edit
  * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules
@@ -98,20 +96,6 @@ class Edit extends Action
 
         $rule = RuleFactory::buildFromPayload($data);
         $this->repository->updateRule($id, $rule);
-
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $automation = $this->_objectManager->get('GetResponse\GetResponseIntegration\Model\Automation');
-
-        $cycle_day = (isset($data['gr_autoresponder']) && $data['gr_autoresponder'] == 1 && isset($data['cycle_day'])) ? $data['cycle_day'] : '';
-
-        $automation->load($id, 'id')
-            ->setIdShop($storeId)
-            ->setCategoryId($data['category'])
-            ->setCampaignId($data['campaign_id'])
-            ->setActive(1)
-            ->setCycleDay($cycle_day)
-            ->setAction($data['action'])
-            ->save();
 
         $this->messageManager->addSuccessMessage('Rule has been updated');
         $resultRedirect = $this->resultRedirectFactory->create();

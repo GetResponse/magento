@@ -3,7 +3,10 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\DefaultCustomFieldsFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingFactory;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Cache\Manager;
@@ -108,7 +111,6 @@ class Save extends Action
         if ($features instanceof \stdClass && $features->feature_tracking == 1) {
             $featureTracking = true;
 
-            // getting tracking code
             $trackingCode = (array) $grRepository->getTrackingCode();
 
             if (!empty($trackingCode) && is_object($trackingCode[0]) && 0 < strlen($trackingCode[0]->snippet)) {
@@ -116,15 +118,16 @@ class Save extends Action
             }
         }
 
-        $this->repository->saveAllSettings(
-            $apiKey,
-            $apiUrl,
-            $domain,
-            $featureTracking ? 'enabled' : 'disabled',
-            $trackingCodeSnippet
+        $this->repository->saveConnectionSettings(
+            ConnectionSettingsFactory::buildFromUserPayload($apiKey, $apiUrl, $domain)
         );
 
+        $this->repository->saveWebEventTracking(
+            WebEventTrackingFactory::buildFromParams(false, $featureTracking, $trackingCodeSnippet)
+        );
         $this->repository->saveAccountDetails($account);
+
+        $this->repository->setCustomsOnInit(DefaultCustomFieldsFactory::buildDefaultCustomsMap());
 
         $this->messageManager->addSuccessMessage('GetResponse account connected');
 

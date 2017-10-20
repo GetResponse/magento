@@ -2,7 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Export;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomsFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
@@ -69,8 +69,6 @@ class Process extends Action
     {
         /** @var Http $request */
         $request = $this->getRequest();
-
-        /** @var array $data */
         $data = $request->getPostValue();
 
         if (empty($data)) {
@@ -89,7 +87,7 @@ class Process extends Action
         }
 
         if (isset($data['gr_sync_order_data'])) {
-            $customs = CustomsFactory::buildFromFormPayload($data);
+            $customs = CustomFieldFactory::buildFromUserPayload($data);
         } else {
             $customs = [];
         }

@@ -1,8 +1,11 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Settings */
+<?php
+use GetResponse\GetResponseIntegration\Block\WebEventTracking;
 
-$settings = $block->getSettings();
+/** @var $block WebEventTracking */
 
-if (isset($settings['feature_tracking']) && 'enabled' === $settings['feature_tracking']): ?>
+$webTrafficTracking = $block->getWebEventTracking();
+
+if ($webTrafficTracking->isFeatureTrackingEnabled()): ?>
 
 <style>
     .page-main-hint {
@@ -35,7 +38,7 @@ if (isset($settings['feature_tracking']) && 'enabled' === $settings['feature_tra
                id="web_traffic"
                value="1"
             <?php
-            if (isset($settings['web_traffic']) && 'enabled' === $settings['web_traffic']) {
+            if ($webTrafficTracking->isEnabled()) {
                 echo ' checked="checked"';
             }
             ?>

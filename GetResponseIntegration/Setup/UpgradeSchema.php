@@ -23,7 +23,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
         $setup->endSetup();
     }
 
-    private function upgradeToVersion2010($setup)
+    /**
+     * @param SchemaSetupInterface $setup
+     */
+    private function upgradeToVersion2010(SchemaSetupInterface $setup)
     {
         $setup->getConnection()->addColumn(
             $setup->getTable('getresponse_settings'),

@@ -15,7 +15,7 @@ class RuleFactory
     public static function buildFromPayload(array $data)
     {
         return new Rule(
-            null,
+            uniqid(),
             $data['category'],
             $data['action'],
             $data['campaign_id'],

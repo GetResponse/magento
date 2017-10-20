@@ -1,4 +1,7 @@
 <?php
+use GetResponse\GetResponseIntegration\Block\Lists;
+
+/** @var Lists $block */
 $from_fields = $block->getAccountFromFields();
 $confirmation_subjects = $block->getSubscriptionConfirmationsSubject();
 $confirmation_bodies = $block->getSubscriptionConfirmationsBody();

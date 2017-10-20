@@ -3,6 +3,7 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\GetResponseRepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\ApiHelper;
 use Magento\Framework\Event\ObserverInterface;
@@ -48,9 +49,11 @@ class SubscribeFromRegister implements ObserverInterface
      */
     public function execute(EventObserver $observer)
     {
-        $settings = $this->repository->getSettings();
+        $registrationSettings = RegistrationSettingsFactory::createFromRepository(
+            $this->repository->getRegistrationSettings()
+        );
 
-        if ($settings['active_subscription'] != true) {
+        if (!$registrationSettings->isEnabled()) {
             return $this;
         }
 
@@ -69,12 +72,12 @@ class SubscribeFromRegister implements ObserverInterface
         if ($subscriber->isSubscribed() == true) {
 
             $params = [];
-            $params['campaign'] = ['campaignId' => $settings['campaign_id']];
+            $params['campaign'] = ['campaignId' => $registrationSettings->getCampaignId()];
             $params['name'] = $customer->getFirstname() . ' ' . $customer->getLastname();
             $params['email'] = $customer->getEmail();
 
-            if (isset($settings['cycle_day'])) {
-                $params['dayOfCycle'] = (int)$settings['cycle_day'];
+            if ($registrationSettings->getCycleDay()) {
+                $params['dayOfCycle'] = (int) $registrationSettings->getCycleDay();
             }
 
             $params['customFieldValues'] = $apiHelper->setCustoms(array('origin' => 'magento2'));

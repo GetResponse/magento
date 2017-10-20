@@ -16,7 +16,6 @@ class Registration extends Action
     protected $resultPageFactory;
 
     /**
-     * Registration constructor.
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param AccessValidator $accessValidator

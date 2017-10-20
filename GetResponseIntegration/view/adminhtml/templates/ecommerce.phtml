@@ -16,9 +16,9 @@
 <?php /** @var $block \GetResponse\GetResponseIntegration\Block\Ecommerce */
 
 $shops = $block->getShops();
-$shopStatus = $block->getShopStatusFromConfig();
+$shopStatus = $block->getShopStatus();
 $currentShopId = $block->getCurrentShopId();
-$settings = $block->getSettings();
+$settings = $block->getRegistrationSettings();
 ?>
 
 <form method="post" action="<?php echo $block->getUrl('getresponseintegration/ecommerce/saveshop'); ?>">
@@ -31,7 +31,7 @@ $settings = $block->getSettings();
         <div class="page-actions">
             <div class="page-actions-inner">
                 <div class="page-actions-buttons">
-                    <?php if (isset($settings['active_subscription']) && $settings['active_subscription'] == 1): ?>
+                    <?php if ($settings->isEnabled()): ?>
                         <button title="Export" type="submit"
                                 class="action-default scalable save primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
                                 role="button" aria-disabled="false">
@@ -47,7 +47,7 @@ $settings = $block->getSettings();
     <div id="page:main-container" class="page-columns">
         <div class="admin__old">
             <div id="container" class="main-col">
-                <?php if (isset($settings['active_subscription']) && $settings['active_subscription'] == 0): ?>
+                <?php if (!$settings->isEnabled()): ?>
                     <div id="messages">
                         <div class="messages">
                             <div class="message message-notice notice">

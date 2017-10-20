@@ -8,6 +8,7 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\App\Cache\Manager;
 
 /**
  * Class Delete
@@ -25,17 +26,22 @@ class Delete extends Action
      */
     protected $resultPageFactory;
 
+    /** @var Manager */
+    private $cacheManager;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
      * @param AccessValidator $accessValidator
+     * @param Manager $cacheManager
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         Repository $repository,
-        AccessValidator $accessValidator
+        AccessValidator $accessValidator,
+        Manager $cacheManager
     )
     {
         parent::__construct($context);
@@ -46,6 +52,7 @@ class Delete extends Action
 
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
+        $this->cacheManager = $cacheManager;
     }
 
 
@@ -54,12 +61,15 @@ class Delete extends Action
      */
     public function execute()
     {
-        $resultPage = $this->resultPageFactory->create();
-
-        $this->repository->clearSettings();
-        $this->repository->clearAccount();
+        $this->repository->clearConnectionSettings();
+        $this->repository->clearRegistrationSettings();
+        $this->repository->clearAccountDetails();
         $this->repository->clearWebforms();
-        $this->repository->clearAutomation();
+        $this->repository->clearRules();
+        $this->repository->clearWebEventTracking();
+        $this->repository->clearCustoms();
+
+        $this->cacheManager->clean(['config']);
 
         $this->messageManager->addSuccessMessage('GetResponse account disconnected');
 

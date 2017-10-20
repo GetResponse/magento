@@ -80,8 +80,6 @@ class Create extends Action
         // validator
         $error = $this->validateNewListParams($data);
 
-        $resultRedirect = $this->resultRedirectFactory->create();
-
         if (!empty($error)) {
             $this->messageManager->addErrorMessage($error);
             $resultPage = $this->resultPageFactory->create();
@@ -104,13 +102,13 @@ class Create extends Action
         $result = $this->grRepository->createCampaign($params);
 
         if (isset($result->httpStatus) && (int)$result->httpStatus >= 400) {
-            $resultRedirect->setPath($backUrl);
             $this->messageManager->addErrorMessage(isset($result->codeDescription) ? $result->codeDescription . ' - uuid: ' . $result->uuid : 'Something goes wrong');
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-            return $resultRedirect;
+            return $resultPage;
         } else {
             $this->messageManager->addSuccessMessage('List created');
+            $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath($backUrl);
             return $resultRedirect;
         }

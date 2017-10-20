@@ -2,10 +2,9 @@
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Customer\Model\Session;
-use Magento\Framework\App\Cache\Proxy;
-use Magento\Framework\App\CacheInterface;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Customer\Model\Customer;
 use GetResponse\GetResponseIntegration\Model\ProductMap;
@@ -89,12 +88,15 @@ class Ecommerce
     protected function getContactFromGetResponse()
     {
         $cache = $this->objectManager->get('Magento\Framework\App\CacheInterface');
-        $settings = $this->repository->getSettings();
+
+        $settings = RegistrationSettingsFactory::createFromRepository(
+            $this->repository->getRegistrationSettings()
+        );
 
         /** @var Customer $customer */
         $customer = $this->customerSession->getCustomer();
 
-        $cacheKey = md5($customer->getEmail().$settings['campaign_id']);
+        $cacheKey = md5($customer->getEmail().$settings->getCampaignId());
         $cachedCustomer = $cache->load($cacheKey);
 
         if (false !== $cachedCustomer) {
@@ -103,7 +105,7 @@ class Ecommerce
 
         $params = ['query' => [
             'email' => $customer->getEmail(),
-            'campaignId' => $settings['campaign_id']
+            'campaignId' => $settings->getCampaignId()
         ]];
 
         $response = (array) $this->grRepository->getContacts($params);

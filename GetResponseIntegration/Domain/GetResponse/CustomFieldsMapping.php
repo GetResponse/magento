@@ -5,7 +5,7 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
  * Class CustomsMapping
  * @package GetResponse\GetResponseIntegration\Domain\GetResponse
  */
-class CustomsMapping
+class CustomFieldsMapping
 {
     /** @var int */
     private $id;

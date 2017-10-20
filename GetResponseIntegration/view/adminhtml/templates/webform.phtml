@@ -1,7 +1,6 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Settings */
-$forms = $block->getAllFormsFromGr();
-$settings = $block->getWebformSettings();
-
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Webform */
+$formsCollection = $block->getWebFormsCollection();
+$webformSettings = $block->getWebformSettings();
 ?>
 <style>
     .label {
@@ -78,7 +77,7 @@ $settings = $block->getWebformSettings();
                         <div class="admin__field-control control">
                             <div class="admin__field admin__field-option publish__field">
                                 <input id="publish" name="publish" class="admin__control-checkbox" type="checkbox" value="1"
-                                    <?php if (isset($settings['active_subscription']) && $settings['active_subscription'] == 1):?>
+                                    <?php if ($webformSettings->isEnabled()):?>
                                         checked="checked"
                                     <?php endif ?>
                                 >
@@ -86,7 +85,7 @@ $settings = $block->getWebformSettings();
                             </div>
                         </div>
                     </div>
-                    <div class="admin__field field field-basic_webform required _required forms <?php if (!isset($settings['update']) || (int) $settings['update'] === 0):?>hidden<?php endif ?>">
+                    <div class="admin__field field field-basic_webform required _required forms">
                         <label class="label admin__field-label" for="webform_id">
                             <span>Form</span>
                         </label>
@@ -94,31 +93,16 @@ $settings = $block->getWebformSettings();
                             <div class="admin__field">
                                 <select name="webform_id" id="webform_id" class="select admin__control-select" aria-required="true">
                                     <option value="">Select a form you want to display</option>
-                                    <?php if (!empty($forms['forms']) || !empty($forms['webforms'])):?>
-                                        <?php if (isset($forms['forms']) && count($forms['forms']) > 0): ?>
-                                            <?php foreach ($forms['forms'] as $form): ?>
-                                                <option
-                                                    value="<?php echo $form->webformId?>"
-                                                    data-url="<?php echo $form->scriptUrl?>"
-                                                    <?php if(isset($settings['webform_id']) && $settings['webform_id'] == $form->webformId):?>
-                                                        selected="selected"
-                                                    <?php endif ?>
-                                                ><?php echo $form->name ?></option>
-                                            <?php endforeach ?>
-                                        <?php endif ?>
-
-                                        <?php if (!empty($forms['webforms'])): ?>
-                                            <option value="" disabled="disabled">Old Web Forms:</option>
-                                            <?php foreach ($forms['webforms'] as $form): ?>
-                                                <option
-                                                    value="<?php echo $form->webformId?>"
-                                                    data-url="<?php echo $form->scriptUrl?>"
-                                                    <?php if(isset($settings['webform_id']) && $settings['webform_id'] == $form->webformId):?>
-                                                        selected="selected"
-                                                    <?php endif ?>
-                                                ><?php echo $form->name ?></option>
-                                            <?php endforeach ?>
-                                        <?php endif ?>
+                                    <?php if (!empty($formsCollection->getWebforms())):?>
+                                        <?php foreach ($formsCollection->getWebforms() as $form): ?>
+                                            <option
+                                                value="<?php echo $form->getId()?>"
+                                                data-url="<?php echo $form->getUrl()?>"
+                                                <?php if($webformSettings->getWebformId() == $form->getId()):?>
+                                                    selected="selected"
+                                                <?php endif ?>
+                                            ><?php echo $form->getName() ?></option>
+                                        <?php endforeach ?>
                                     <?php else: ?>
                                         <option value="" disabled="disabled">No forms</option>
                                     <?php endif ?>
@@ -127,7 +111,7 @@ $settings = $block->getWebformSettings();
                             </div>
                         </div>
                     </div>
-                    <div class="admin__field field field-basic_sidebar required _required forms <?php if (!isset($settings['update']) || (int) $settings['update'] === 0):?>hidden<?php endif ?>">
+                    <div class="admin__field field field-basic_sidebar required _required forms">
                         <label class="label admin__field-label" for="sidebar">
                             <span>Block position</span>
                         </label>
@@ -139,7 +123,7 @@ $settings = $block->getWebformSettings();
                                     foreach ($positions as $position => $name):?>
                                         <option
                                             value="<?php echo $position ?>"
-                                            <?php if (isset($settings['sidebar']) && $position == $settings['sidebar']): ?>
+                                            <?php if ($webformSettings->getSidebar() === $position): ?>
                                                 selected="selected"
                                             <?php endif ?>
                                         ><?php echo $name ?></option>

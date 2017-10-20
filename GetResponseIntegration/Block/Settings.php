@@ -4,9 +4,11 @@ namespace GetResponse\GetResponseIntegration\Block;
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Framework\View\Element\Template;
+use Magento\Framework\App\Request\Http;
 
 /**
  * Class Settings
@@ -39,71 +41,9 @@ class Settings extends Template
     /**
      * @return mixed
      */
-    public function getCustomers()
-    {
-        return $this->repository->getFullCustomersDetails();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getSettings()
-    {
-        return $this->repository->getSettings();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getWebformSettings()
-    {
-        return $this->repository->getWebformSettings();
-    }
-
-    /**
-     * @return mixed
-     */
     public function getAccountInfo()
     {
         return AccountFactory::buildFromRepository($this->repository->getAccountInfo());
-    }
-
-    /**
-     * @return array
-     */
-    public function getAllFormsFromGr()
-    {
-        $settings = $this->getSettings();
-        $forms = [];
-
-        if (!isset($settings['api_key'])) {
-            return $forms;
-        }
-
-        $grRepository = $this->repositoryFactory->createRepository($settings['api_key'], $settings['api_url'], $settings['api_domain']);
-
-        $newForms = $grRepository->getForms(['query' => ['status' => 'enabled']]);
-        foreach ($newForms as $form) {
-            if ($form->status == 'published') {
-                $forms['forms'][] = $form;
-            }
-        }
-        $oldWebforms = $grRepository->getWebForms();
-        foreach ($oldWebforms as $webform) {
-            if ($webform->status == 'enabled') {
-                $forms['webforms'][] = $webform;
-            }
-        }
-
-        return $forms;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getActiveCustoms()
-    {
-        return $this->repository->getActiveCustoms();
     }
 
     /**
@@ -111,7 +51,9 @@ class Settings extends Template
      */
     public function getLastPostedApiKey()
     {
-        $data = $this->getRequest()->getPostValue();
+        /** @var Http $request */
+        $request = $this->getRequest();
+        $data =$request->getPostValue();
         if (!empty($data)) {
             if (isset($data['getresponse_api_key'])) {
                 return $data['getresponse_api_key'];
@@ -125,14 +67,15 @@ class Settings extends Template
      */
     public function getHiddenApiKey()
     {
-        $settings = $this->repository->getSettings();
+        $settings = ConnectionSettingsFactory::buildFromRepository(
+            $this->repository->getConnectionSettings()
+        );
 
-        if (!isset($settings['api_key'])) {
+        if (empty($settings->getApiKey())) {
             return '';
         }
 
-        $apiKey = $settings['api_key'];
-        return strlen($apiKey) > 0 ? str_repeat("*", strlen($apiKey) - 6) . substr($apiKey, -6) : '';
+        return strlen($settings->getApiKey()) > 0 ? str_repeat("*", strlen($settings->getApiKey()) - 6) . substr($settings->getApiKey(), -6) : '';
     }
 
     /**
@@ -140,7 +83,9 @@ class Settings extends Template
      */
     public function getLastPostedApiAccount()
     {
-        $data = $this->getRequest()->getPostValue();
+        /** @var Http $request */
+        $request = $this->getRequest();
+        $data = $request->getPostValue();
         if (!empty($data['getresponse_360_account']) && 1 == $data['getresponse_360_account']) {
             return $data['getresponse_360_account'];
         }
@@ -152,7 +97,9 @@ class Settings extends Template
      */
     public function getLastPostedApiUrl()
     {
-        $data = $this->getRequest()->getPostValue();
+        /** @var Http $request */
+        $request = $this->getRequest();
+        $data = $request->getPostValue();
         if (!empty($data['getresponse_api_url'])) {
             return $data['getresponse_api_url'];
         }
@@ -164,19 +111,13 @@ class Settings extends Template
      */
     public function getLastPostedApiDomain()
     {
-        $data = $this->getRequest()->getPostValue();
+        /** @var Http $request */
+        $request = $this->getRequest();
+        $data = $request->getPostValue();
         if (!empty($data['getresponse_api_domain'])) {
             return $data['getresponse_api_domain'];
         }
         return false;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getAutomations()
-    {
-        return $this->repository->getRules();
     }
 
     /**

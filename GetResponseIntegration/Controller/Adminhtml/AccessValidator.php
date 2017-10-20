@@ -22,9 +22,13 @@ class AccessValidator
      */
     public function isConnectedToGetResponse()
     {
-        $settings = $this->repository->getSettings();
+        $connectionSettings = $this->repository->getConnectionSettings();
 
-        if (!isset($settings['api_key']) || 0 === strlen($settings['api_key'])) {
+        if (empty($connectionSettings)) {
+            return false;
+        }
+
+        if (!isset($connectionSettings['apiKey']) || 0 === strlen($connectionSettings['apiKey'])) {
             return false;
         }
 

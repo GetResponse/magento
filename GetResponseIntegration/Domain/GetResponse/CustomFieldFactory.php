@@ -5,14 +5,14 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
  * Class CustomsFactory
  * @package GetResponse\GetResponseIntegration\Domain\GetResponse
  */
-class CustomsFactory
+class CustomFieldFactory
 {
     /**
      * @param array $data
      *
      * @return array
      */
-    public static function buildFromFormPayload($data)
+    public static function buildFromUserPayload($data)
     {
         if (!isset($data['custom']) || empty($data['custom'])) {
             return [];

@@ -2,13 +2,14 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomsFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\Redirect;
-use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Request\Http;
 
@@ -74,7 +75,8 @@ class RegistrationPost extends Action
         $isEnabled = isset($data['gr_enabled']) && 1 == $data['gr_enabled'] ? true : false;
 
         if (!$isEnabled) {
-            $this->repository->updateSettings(null, 0, 0, 0);
+            $registrationSettings = RegistrationSettingsFactory::buildFromPayload(0, 0, '', 0);
+            $this->repository->saveRegistrationSettings($registrationSettings);
         } else {
 
             $campaignId = $data['campaign_id'];
@@ -85,7 +87,7 @@ class RegistrationPost extends Action
             }
 
             if ($updateCustomFields) {
-                $customs = CustomsFactory::buildFromFormPayload($data);
+                $customs = CustomFieldFactory::buildFromUserPayload($data);
 
                 foreach ($customs as $field => $name) {
                     if (false == preg_match('/^[_a-zA-Z0-9]{2,32}$/m', $name)) {
@@ -93,34 +95,26 @@ class RegistrationPost extends Action
                         return $resultRedirect;
                     }
                 }
-                $this->updateCustoms($customs);
+
+                $customs = CustomFieldsCollectionFactory::buildFromUserPayload(
+                    $customs,
+                    $this->repository->getCustoms()
+                );
+
+                $this->repository->updateCustoms($customs);
             }
 
-            $this->repository->updateSettings(
-                $campaignId,
+            $registrationSettings = RegistrationSettingsFactory::buildFromPayload(
                 $isEnabled,
                 $updateCustomFields,
+                $campaignId,
                 $cycleDay
             );
+
+            $this->repository->saveRegistrationSettings($registrationSettings);
         }
 
         $this->messageManager->addSuccessMessage('Settings saved');
         return $resultRedirect;
-    }
-
-    /**
-     * @param $customs
-     */
-    public function updateCustoms($customs)
-    {
-        $allCustoms = $this->repository->getCustomFields();
-
-        foreach ($allCustoms as $custom) {
-            if (isset($customs[$custom['custom_field']])) {
-                $this->repository->updateCustomField($custom['id'], $custom['custom_name'], 1);
-            } else {
-                $this->repository->updateCustomField($custom['id'], $custom['custom_name'], 0);
-            }
-        }
     }
 }

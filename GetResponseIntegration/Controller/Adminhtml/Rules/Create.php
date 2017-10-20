@@ -11,7 +11,6 @@ use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Request\Http;
 
-
 /**
  * Class Create
  * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules

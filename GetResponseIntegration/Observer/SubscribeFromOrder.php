@@ -3,6 +3,7 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\GetResponseRepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\ApiHelper;
 use Magento\Framework\Event\ObserverInterface;
@@ -47,9 +48,11 @@ class SubscribeFromOrder implements ObserverInterface
      */
     public function execute(EventObserver $observer)
     {
-        $settings = $this->repository->getSettings();
+        $registrationSettings = RegistrationSettingsFactory::createFromRepository(
+            $this->repository->getRegistrationSettings()
+        );
 
-        if ($settings['active_subscription'] != true) {
+        if (!$registrationSettings->isEnabled()) {
             return $this;
         }
 
@@ -59,9 +62,9 @@ class SubscribeFromOrder implements ObserverInterface
             return $this;
         }
 
-        $automations = $this->repository->getRules();
+        $rules = $this->repository->getRules();
 
-        $active_customs = $this->repository->getActiveCustoms();
+        $customs = $this->repository->getCustoms();
 
         $order_id = $observer->getOrderIds();
         $order_id = (int) (is_array($order_id) ? array_pop($order_id) : $order_id);
@@ -77,29 +80,25 @@ class SubscribeFromOrder implements ObserverInterface
 
         $address = $this->repository->loadCustomerAddress($customer->getDefaultBilling());
 
-//        if (empty($address->getData()['entity_id'])) {
-//            $address_object = $this->_objectManager->create('Magento\Customer\Model\Address');
-//            $address = $address_object->load($customer->getDefaultShipping());
-//        }
-
         $data = array_merge($address->getData(), $customer->getData());
 
         $custom_fields = [];
 
-        foreach ($active_customs as $custom) {
+        foreach ($customs as $custom) {
 
-            if (in_array($custom['custom_field'], array('firstname', 'lastname'))) {
+            if ($custom->isDefault) {
                 continue;
             }
 
-            if ($custom['custom_field'] == 'birthday') {
-                $custom['custom_field'] = 'dob';
+            if ($custom->customField == 'birthday') {
+                $custom->customField = 'dob';
             }
-            if ($custom['custom_field'] == 'country') {
-                $custom['custom_field'] = 'country_id';
+            if ($custom->customField == 'country') {
+                $custom->customField = 'country_id';
             }
-            if (!empty($data[$custom['custom_field']])) {
-                $custom_fields[$custom['custom_name']] = $data[$custom['custom_field']];
+
+            if (!empty($data[$custom->customField])) {
+                $custom_fields[$custom->customName] = $data[$custom->customField];
             }
         }
 
@@ -109,15 +108,15 @@ class SubscribeFromOrder implements ObserverInterface
 
             $move_subscriber = false;
 
-            if (!empty($automations)) {
+            if (!empty($rules)) {
                 $category_ids = [];
-                foreach ($automations as $a) {
-                    if ($a['active'] == 1) {
-                        $category_ids[$a['category_id']] = [
-                            'category_id' => $a['category_id'],
-                            'action' => $a['action'],
-                            'campaign_id' => $a['campaign_id'],
-                            'cycle_day' => $a['cycle_day']
+                foreach ($rules as $rule) {
+                    if ($rule['active'] == 1) {
+                        $category_ids[$rule['category_id']] = [
+                            'category_id' => $rule['category_id'],
+                            'action' => $rule['action'],
+                            'campaign_id' => $rule['campaign_id'],
+                            'cycle_day' => $rule['cycle_day']
                         ];
                     }
                 }
@@ -135,7 +134,14 @@ class SubscribeFromOrder implements ObserverInterface
                                 $move_subscriber = true;
                             }
 
-                            $this->addContact($category_ids[$c]['campaign_id'], $customer->getFirstname(), $customer->getLastname(), $customer->getEmail(), $category_ids[$c]['cycle_day'], $custom_fields);
+                            $this->addContact(
+                                $category_ids[$c]['campaign_id'],
+                                $customer->getFirstname(),
+                                $customer->getLastname(),
+                                $customer->getEmail(),
+                                $category_ids[$c]['cycle_day'],
+                                $custom_fields
+                            );
                         }
                     }
                 }
@@ -143,7 +149,7 @@ class SubscribeFromOrder implements ObserverInterface
                     $results = (array) $grRepository->getContacts([
                         'query' => [
                             'email'      => $customer->getEmail(),
-                            'campaignId' => $settings['campaign_id']
+                            'campaignId' => $registrationSettings->getCampaignId()
                         ]
                     ]);
                     $contact = array_pop($results);
@@ -154,7 +160,14 @@ class SubscribeFromOrder implements ObserverInterface
                 }
             }
             if (!$move_subscriber) {
-                $response = $this->addContact($settings['campaign_id'], $customer->getFirstname(), $customer->getLastname(), $customer->getEmail(), $settings['cycle_day'], $custom_fields);
+                $this->addContact(
+                    $registrationSettings->getCampaignId(),
+                    $customer->getFirstname(),
+                    $customer->getLastname(),
+                    $customer->getEmail(),
+                    $registrationSettings->getCycleDay(),
+                    $custom_fields
+                );
             }
         }
 
