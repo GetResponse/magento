@@ -14,13 +14,13 @@ $isApiActive = $block->checkApiKey();
             <div class="page-actions-inner">
                 <div class="page-actions-buttons">
                     <?php if (!$isApiActive) : ?>
-                        <button id="save" title="Connect" type="submit" class="action-default scalable connect primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
+                        <button id="saveBtn" title="Connect" type="submit" class="action-default scalable connect primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
                             <span class="ui-button-text">
                                 <span>Connect</span>
                             </span>
                         </button>
                         <?php else : ?>
-                        <button id="save" data-bind="click: confirmationOpened" title="disconnect" class="action-default scalable disconnect primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
+                        <button id="disconnectBtn" title="disconnect" class="action-default scalable disconnect primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
                             <span class="ui-button-text">
                                 <span>Disconnect</span>
                             </span>
@@ -143,51 +143,10 @@ $isApiActive = $block->checkApiKey();
     <div>When you disconnect you won't be able to get new contacts via forms, comments, or during account registration.</div>
 </div>
 
+<input type="hidden" id="jsDeleteUrl" value="<?php echo $block->getUrl("getresponseintegration/settings/delete"); ?>" />
+
 <script>
-    require(['jquery'],function($) {
-        var mx_account = $('#getresponse_360_account'), mx_options = $('#getresponse_360_account_options');
-        if (mx_account.prop('checked') === true) {
-            mx_options.toggleClass('hidden');
-        }
-        mx_account.change(function () {
-            mx_options.toggleClass('hidden');
-        });
-    });
 
-    function confirmationOpened() {
-        require(
-            [
-                'jquery',
-                'Magento_Ui/js/modal/modal'
-            ],
-            function ($, modal) {
-                var url = '<?php echo $block->getUrl('getresponseintegration/settings/delete'); ?>';
-                var options = {
-                    type: 'popup',
-                    responsive: true,
-                    innerScroll: true,
-                    title: 'Disconnect from GetResponse?',
-                    buttons: [
-                        {
-                            text: $.mage.__('Stay connected'),
-                            class: 'action-secondary action-dismiss',
-                            click: function () {
-                                this.closeModal();
-                            }
-                        }, {
-                            text: $.mage.__('Disconnect'),
-                            class: 'action-primary action-accept',
-                            click: function () {
-                                window.location.href = url;
-                                return false;
-                            }
-                        },
-                    ]
-                };
-
-                var popup = modal(options, $('#popup-modal'));
-                $('#popup-modal').modal('openModal');
-            }
-        );
-    }
+    require(['settings']);
+    
 </script>
