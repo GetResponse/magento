@@ -1,7 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettings as MagentoWebEventTracking;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -29,7 +29,7 @@ class WebEventTracking extends Template
     }
 
     /**
-     * @return MagentoWebEventTracking
+     * @return WebEventTrackingSettings
      */
     public function getWebEventTracking()
     {
