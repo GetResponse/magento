@@ -103,7 +103,7 @@ class Webformpost extends Action
      */
     private function validateWebformData($data)
     {
-        $webformId = isset($data['webform_id']) ? $data['webform_id'] : '';
+        $webformId = isset($data['webformId']) ? $data['webformId'] : '';
         $position = isset($data['sidebar']) ? $data['sidebar'] : '';
 
         if (strlen($webformId) === 0 && strlen($position) === 0) {

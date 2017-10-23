@@ -13,6 +13,9 @@ class WebformSettingsFactory
      */
     public static function createFromArray(array $resource)
     {
+        if (empty($resource)) {
+            return new WebformSettings(false, '', '', '');
+        }
         return new WebformSettings(
             (bool)$resource['isEnabled'],
             $resource['url'],
