@@ -43,8 +43,7 @@ class WebTrafficTracking extends Action
         PageFactory $resultPageFactory,
         Repository $repository,
         RepositoryValidator $repositoryValidator
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
@@ -59,6 +58,7 @@ class WebTrafficTracking extends Action
     {
         if (!$this->repositoryValidator->validate()) {
             $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
+
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 

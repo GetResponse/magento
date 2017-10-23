@@ -24,8 +24,7 @@ class Repository
     public function __construct(
         GetResponseAPI3 $resource,
         CacheInterface $cache
-    )
-    {
+    ) {
         $this->resource = $resource;
         $this->cache = $cache;
     }
@@ -144,7 +143,7 @@ class Repository
      */
     public function getCustomFieldByName($name)
     {
-        $cacheKey = md5('getCustomFieldByName::'.$name);
+        $cacheKey = md5('getCustomFieldByName::' . $name);
 
         $cachedData = $this->cache->load($cacheKey);
 

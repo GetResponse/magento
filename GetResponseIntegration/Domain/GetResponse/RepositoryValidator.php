@@ -66,12 +66,15 @@ class RepositoryValidator
         if (isset($response->httpStatus) && (int)$response->httpStatus >= 400 && (int)$response->httpStatus < 500) {
             if (isset($response->code) && in_array($response->code, Config::UNAUTHORIZED_RESPONSE_CODES)) {
                 $this->handleUnauthorizedApiCall();
+
                 return false;
             }
+
             return true;
         }
 
         $this->repository->setUnauthorizedApiCallDate('');
+
         return true;
     }
 

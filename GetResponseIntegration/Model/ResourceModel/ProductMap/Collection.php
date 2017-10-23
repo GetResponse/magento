@@ -16,6 +16,7 @@ class Collection extends AbstractCollection
      */
     protected function _construct()
     {
-        $this->_init('GetResponse\GetResponseIntegration\Model\ProductMap', 'GetResponse\GetResponseIntegration\Model\ResourceModel\ProductMap');
+        $this->_init('GetResponse\GetResponseIntegration\Model\ProductMap',
+            'GetResponse\GetResponseIntegration\Model\ResourceModel\ProductMap');
     }
 }

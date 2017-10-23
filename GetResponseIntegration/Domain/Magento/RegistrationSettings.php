@@ -46,7 +46,7 @@ class RegistrationSettings
      */
     public function isCustomFieldsModified()
     {
-        return 1 === (int) $this->customFieldsStatus;
+        return 1 === (int)$this->customFieldsStatus;
     }
 
     /**

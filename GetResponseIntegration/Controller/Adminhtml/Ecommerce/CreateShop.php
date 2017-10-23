@@ -36,8 +36,7 @@ class CreateShop extends Action
         RepositoryFactory $repositoryFactory,
         Repository $repository,
         JsonFactory $resultJsonFactory
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->grRepository = $repositoryFactory->createRepository();
@@ -54,7 +53,7 @@ class CreateShop extends Action
         $data = $request->getPostValue();
 
         if (!isset($data['shop_name']) || strlen($data['shop_name']) === 0) {
-            return  $this->resultJsonFactory->create()->setData(['error' => 'Incorrect shop name']);
+            return $this->resultJsonFactory->create()->setData(['error' => 'Incorrect shop name']);
         }
 
         $countryCode = $this->repository->getMagentoCountryCode();

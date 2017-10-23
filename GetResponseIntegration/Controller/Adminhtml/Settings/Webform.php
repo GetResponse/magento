@@ -31,8 +31,7 @@ class Webform extends Action
         Context $context,
         PageFactory $resultPageFactory,
         RepositoryValidator $repositoryValidator
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->repositoryValidator = $repositoryValidator;
@@ -46,11 +45,13 @@ class Webform extends Action
     {
         if (!$this->repositoryValidator->validate()) {
             $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
+
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend('Add contacts via GetResponse forms');
+
         return $resultPage;
     }
 }

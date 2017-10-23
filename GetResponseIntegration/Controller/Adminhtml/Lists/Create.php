@@ -46,8 +46,7 @@ class Create extends Action
         Repository $repository,
         RepositoryFactory $repositoryFactory,
         RepositoryValidator $repositoryValidator
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
@@ -65,6 +64,7 @@ class Create extends Action
     {
         if (!$this->repositoryValidator->validate()) {
             $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
+
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
@@ -79,6 +79,7 @@ class Create extends Action
         if (empty($data)) {
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
@@ -89,6 +90,7 @@ class Create extends Action
             $this->messageManager->addErrorMessage($error);
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
@@ -101,11 +103,13 @@ class Create extends Action
             $this->messageManager->addErrorMessage(isset($result->codeDescription) ? $result->codeDescription . ' - uuid: ' . $result->uuid : 'Something goes wrong');
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         } else {
             $this->messageManager->addSuccessMessage('List created');
             $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath($backUrl);
+
             return $resultRedirect;
         }
     }

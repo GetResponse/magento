@@ -61,8 +61,7 @@ class Save extends Action
         Repository $repository,
         Manager $cacheManager,
         RepositoryValidator $repositoryValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         $this->resultPageFactory = $resultPageFactory;
@@ -106,6 +105,7 @@ class Save extends Action
         $grRepository = $this->repositoryFactory->createNewRepository($apiKey, $apiUrl, $domain);
         if (false === $this->repositoryValidator->validateGrRepository($grRepository)) {
             $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
+
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 

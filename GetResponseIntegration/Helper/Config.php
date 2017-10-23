@@ -21,7 +21,7 @@ class Config
     const PLUGIN_MAIN_PAGE = 'getresponseintegration/settings/index';
 
     const UNAUTHORIZED_RESPONSE_CODES = [1014, 1018, 1017];
-    const DISCONNECT_DELAY = 60*60*24;
+    const DISCONNECT_DELAY = 60 * 60 * 24;
 
     const INCORRECT_API_RESOONSE_MESSAGE = 'Incorrect API response';
     const CACHE_KEY = 'getresponse_cache';

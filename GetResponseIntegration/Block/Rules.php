@@ -148,7 +148,7 @@ class Rules extends Template
 
                 $selected = $selectedCategory == $childrenCategory->getEntityId() ? 'selected="selected"' : '';
 
-                echo '<option '.$selected.' value="' . $childrenCategory->getEntityId() . '"> ' .
+                echo '<option ' . $selected . ' value="' . $childrenCategory->getEntityId() . '"> ' .
                     $string . ' ' . $childrenCategory->getName() . '</option>';
                 $this->getSubcategories($childrenCategory, $selectedCategory);
             }
