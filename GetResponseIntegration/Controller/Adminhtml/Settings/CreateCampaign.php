@@ -70,12 +70,10 @@ class CreateCampaign extends Action
     public function execute()
     {
         $data = $this->request->getPostValue();
-        $lang = substr($this->repository->getMagentoCountryCode(), 0, 2);
-
-        $campaign = CampaignFactory::createFromArray($data);
+        $data['lang'] = substr($this->repository->getMagentoCountryCode(), 0, 2);
 
         return $this->resultJsonFactory->create()->setData(
-            $this->grRepository->createCampaign($campaign)
+            $this->grRepository->createCampaign(CampaignFactory::createFromArray($data))
         );
     }
 }

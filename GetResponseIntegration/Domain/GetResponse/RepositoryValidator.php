@@ -50,7 +50,7 @@ class RepositoryValidator
     public function validate()
     {
         return $this->validateGrRepository(
-            $this->repositoryFactory->buildRepository()
+            $this->repositoryFactory->createRepository()
         );
     }
 

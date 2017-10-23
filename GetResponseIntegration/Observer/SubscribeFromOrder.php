@@ -58,7 +58,7 @@ class SubscribeFromOrder implements ObserverInterface
 
         try {
             $grRepository = $this->repositoryFactory->createRepository();
-        } catch (GetResponseRepositoryException $e) {
+        } catch (RepositoryException $e) {
             return $this;
         }
 
@@ -191,7 +191,7 @@ class SubscribeFromOrder implements ObserverInterface
     {
         try {
             $grRepository = $this->repositoryFactory->createRepository();
-        } catch (GetResponseRepositoryException $e) {
+        } catch (RepositoryException $e) {
             return $this;
         }
 

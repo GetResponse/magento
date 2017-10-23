@@ -37,7 +37,7 @@ class Delete extends Action
     )
     {
         parent::__construct($context);
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
         $this->repositoryValidator = $repositoryValidator;
     }
 

@@ -40,7 +40,7 @@ class CreateShop extends Action
     {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
         $this->resultJsonFactory = $resultJsonFactory;
     }
 

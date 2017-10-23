@@ -6,7 +6,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RuleFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollectionFactory;
-use Magento\Catalog\Model\Category;
 use Magento\Framework\Data\Tree\Node;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;

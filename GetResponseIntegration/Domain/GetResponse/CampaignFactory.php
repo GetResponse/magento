@@ -9,10 +9,9 @@ class CampaignFactory
 {
     /**
      * @param array $data
-     * @param string $language
      * @return Campaign
      */
-    public static function createFromArray(array $data, $language = 'EN')
+    public static function createFromArray(array $data)
     {
         return new Campaign(
             null,
@@ -21,7 +20,7 @@ class CampaignFactory
             $data['reply_to_field'],
             $data['confirmation_subject'],
             $data['confirmation_body'],
-            $language
+            $data['lang']
         );
     }
 }

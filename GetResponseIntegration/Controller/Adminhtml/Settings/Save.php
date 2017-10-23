@@ -1,13 +1,13 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
 use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\DefaultCustomFieldsFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingFactory;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Cache\Manager;
@@ -103,13 +103,13 @@ class Save extends Action
             $domain = !empty($data['getresponse_api_domain']) ? $data['getresponse_api_domain'] : null;
         }
 
-        $grRepository = $this->repositoryFactory->createRepository($apiKey, $apiUrl, $domain);
+        $grRepository = $this->repositoryFactory->createNewRepository($apiKey, $apiUrl, $domain);
         if (false === $this->repositoryValidator->validateGrRepository($grRepository)) {
             $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
-        $account = AccountFactory::buildFromApiResponse($grRepository->getAccountDetails());
+        $account = AccountFactory::createFromArray($grRepository->getAccountDetails());
 
         if (empty($account->getAccountId())) {
             $this->messageManager->addErrorMessage(self::API_ERROR_MESSAGE);

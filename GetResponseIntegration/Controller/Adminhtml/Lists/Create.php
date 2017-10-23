@@ -51,7 +51,7 @@ class Create extends Action
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
         $this->repositoryValidator = $repositoryValidator;
     }
 
@@ -92,9 +92,9 @@ class Create extends Action
             return $resultPage;
         }
 
-        $lang = substr($this->repository->getMagentoCountryCode(), 0, 2);
+        $data['lang'] = substr($this->repository->getMagentoCountryCode(), 0, 2);
         $result = $this->grRepository->createCampaign(
-            CampaignFactory::buildFromUserPayload($data, $lang)
+            CampaignFactory::createFromArray($data)
         );
 
         if (isset($result->httpStatus) && (int)$result->httpStatus >= 400) {

@@ -114,7 +114,7 @@ class Ecommerce
         $response = (array)$this->grRepository->getContacts($params);
         $grCustomer = array_pop($response);
 
-        $cache->save(serialize($grCustomer), $cacheKey, [self::CACHE_KEY], 5 * 60);
+        $cache->save(serialize($grCustomer), $cacheKey, [Config::CACHE_KEY], Config::CACHE_TIME);
 
         return $grCustomer;
     }
