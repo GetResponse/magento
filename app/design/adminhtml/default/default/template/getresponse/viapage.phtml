@@ -15,7 +15,7 @@
             <tbody><tr>
                 <td style="width:50%;"><h3>Add Contacts During Registrations</h3></td>
                 <td class="form-buttons">
-                    <button onclick="setLocation('<?php echo Mage::helper("adminhtml")->getUrl("getresponse/index/create_list")."?back_url=".base64_encode('getresponse/index/viapage'); ?>')" type="button" name="Submit" class="scalable add"><span>Add New Contact List</span></button>
+                    <button onclick="setLocation('<?php echo Mage::helper("adminhtml")->getUrl("getresponse/list/index")."?back_url=".base64_encode('getresponse/subscription/index'); ?>')" type="button" name="Submit" class="scalable add"><span>Add New Contact List</span></button>
                     <button title="Save" onclick="getresponseviapage.submit();" type="button" class="scalable save" style=""><span><span><span>Save</span></span></span></button>
                 </td>
             </tr></tbody>
@@ -23,7 +23,7 @@
     </div>
 
     <div class="entry-edit">
-        <form id="getresponseviapage" class="getresponse" method="post" action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/index/subpage'); ?>">
+        <form id="getresponseviapage" class="getresponse" method="post" action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/subscription/save'); ?>">
 
             <div class="entry-edit-head">
                 <h4 class="icon-head head-edit-form fieldset-legend">Subscribe After Customer Register</h4>
@@ -60,7 +60,7 @@
                                     <select id="campaign_id" name="campaign_id" class=" select">
                                         <option value="">Select a list</option>
                                         <?php
-                                        foreach ($settings->campaigns as $id => $name) {
+                                        foreach ($campaigns as $id => $name) {
                                             echo '<option value="' . $id . '"', ($id == $settings->api['campaign_id']) ? ' selected="selected"' : '', '>' . $name . '</option>';
                                         }
                                         ?>
@@ -120,7 +120,7 @@
                                     />
                                     <label for="gr_sync_order_data">Update contact info</label>
                                     <p class="note">Select this option if you want to overwrite contact details that already exist in your GetResponse database.<br />
-                                        Clear this option to keep existing data intact.</p>
+                                        Clear this option to keep existing data intact</p>
 
                                 </td>
                             </tr>
@@ -214,7 +214,7 @@
 <script>
     (function($) {
 
-        var available_cycles = $.parseJSON('<?php echo isset($settings->campaign_days) ? addslashes(json_encode($settings->campaign_days)) : "{}"; ?>');
+        var available_cycles = $.parseJSON('<?php echo isset($campaign_days) ? addslashes(json_encode($campaign_days)) : "{}"; ?>');
 
         $('#active_subscription').click(function() {
             $('.details').toggle('slow');
@@ -239,8 +239,8 @@
 
         // Custom Map
 
-        var customs = <?php echo $settings->customs_json ?>;
-        var custom_values = <?php echo $settings->custom_values_json ?>;
+        var customs = <?php echo $customs['customs']; ?>;
+        var custom_values = <?php echo $customs['custom_values']; ?>;
 
         $.each(customs, function (key, val) {
             if(1 === parseInt(val.active_custom)) {

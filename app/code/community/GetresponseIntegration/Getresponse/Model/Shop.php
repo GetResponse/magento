@@ -12,4 +12,14 @@ class GetresponseIntegration_Getresponse_Model_Shop extends Mage_Core_Model_Abst
         $this->_init('getresponse/shop');
     }
 
+    /**
+     * @param int $shopId
+     */
+    public function disconnect($shopId)
+    {
+        $this->load($shopId)
+            ->addData(['is_enabled' => 0])
+            ->save();
+    }
+
 }

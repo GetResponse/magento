@@ -1,10 +1,10 @@
 <form class="getresponse getresponse-create-list" method="post" id="getresponseaddrule"
-      action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/index/create_contact_list_rule'); ?>">
+      action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/contactlistrules/save'); ?>">
 
     <div class="content-header">
         <h3>New Rule</h3>
         <p class="form-buttons">
-            <button title="Back" type="button" class="scalable back" onclick="setLocation('<?=Mage::helper("adminhtml")->getUrl('getresponse/index/automation');?>')" style=""><span><span><span>Back</span></span></span></button>
+            <button title="Back" type="button" class="scalable back" onclick="setLocation('<?=Mage::helper("adminhtml")->getUrl('getresponse/contactlistrules/index');?>')" style=""><span><span><span>Back</span></span></span></button>
             <button type="submit" onclick="getresponseaddrule.submit();" name="Submit" id="saveContactList" class="scalable save"><span><span><span>Save Rule</span></span></span></button>
         </p>
     </div>
@@ -22,9 +22,9 @@
                     <tr>
                         <td class="label">If  customer buys in the category<span class="required">*</span></td>
                         <td class="value">
-                            <?php if ( !empty($settings->categories_tree)): ?>
+                            <?php if ( !empty($categories_tree)): ?>
                                 <select class="GR_input" name="category_id" id="category_id">
-                                    <?php echo $settings->categories_tree; ?>
+                                    <?php echo $categories_tree; ?>
                                 </select>
                             <?php else: ?>
                                 <span class="error">An error occurred while trying to get categories.</span>
@@ -39,9 +39,9 @@
                     <tr>
                         <td class="label">They are<span class="required">*</span></td>
                         <td class="value">
-                            <?php if ( !empty($settings->actions)): ?>
+                            <?php if ( !empty($actions)): ?>
                                 <select class="GR_input" name="action" id="action">
-                                    <?php foreach ($settings->actions as $id => $name): ?>
+                                    <?php foreach ($actions as $id => $name): ?>
                                         echo '<option value="<?php echo $id ?>"><?php echo $name ?></option>
                                     <?php endforeach; ?>
                                 </select>
@@ -58,9 +58,9 @@
                     <tr>
                         <td class="label">Into the contact list<span class="required">*</span></td>
                         <td class="value">
-                            <?php if ( !empty($settings->campaigns)): ?>
+                            <?php if ( !empty($campaigns)): ?>
                                 <select class="GR_input" name="campaign_id" id="campaign_id">
-                                    <?php foreach ($settings->campaigns as $id => $name): ?>
+                                    <?php foreach ($campaigns as $id => $name): ?>
                                         <option value="<?php echo $id ?>"><?php echo $name ?></option>
                                     <?php endforeach ?>
                                 </select>
@@ -99,7 +99,7 @@
 
     <script>
 
-        available_cycles = jQuery.parseJSON('<?php echo isset($settings->campaign_days) ? addslashes(json_encode($settings->campaign_days)) : "{}"; ?>');
+        available_cycles = jQuery.parseJSON('<?php echo isset($campaign_days) ? addslashes(json_encode($campaign_days)) : "{}"; ?>');
 
         cycles.init(
             available_cycles,

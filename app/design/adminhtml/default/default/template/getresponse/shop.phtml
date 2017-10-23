@@ -4,9 +4,9 @@
         <ul class="messages">
             <li class="notice-msg">
                 <ul>
-                    <li><span>GetResponse helps you track and collect ecommerce data. You can stay informed about customers’ behaviour and spending habits.<br/>
+                    <li><span>GetResponse helps you track and collect ecommerce data. You can stay informed about customers’ behavior and spending habits.<br/>
 Use this data to create marketing automation workflows that react to purchases, abandoned carts, or the amounts of money spent.<br />
-Make sure to <a href="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/index/viapage'); ?>">enable adding contacts during registration</a> to start sending ecommerce data to GetResponse.
+Make sure to <a href="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/subscription/index'); ?>">enable adding contacts during registration</a> to start sending ecommerce data to GetResponse.
                 </ul>
             </li>
         </ul>
@@ -24,7 +24,7 @@ Make sure to <a href="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/
     </div>
 
     <div class="entry-edit">
-        <form id="getresponseecommerce" class="getresponse" method="post" action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/shop/update'); ?>">
+        <form id="getresponseecommerce" class="getresponse" method="post" action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/ecommerce/save'); ?>">
 
             <input name="form_key" type="hidden" value="<?php echo Mage::getSingleton('core/session')->getFormKey() ?>"/>
 
@@ -285,8 +285,8 @@ Make sure to <a href="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/
 
         storaManagemen.init(
             $('#add-new-store'),
-            '<?php echo Mage::helper("adminhtml")->getUrl('getresponse/shop/delete'); ?>',
-            '<?php echo Mage::helper("adminhtml")->getUrl('getresponse/shop/add'); ?>',
+            '<?php echo Mage::helper("adminhtml")->getUrl('getresponse/ecommerce/delete_shop'); ?>',
+            '<?php echo Mage::helper("adminhtml")->getUrl('getresponse/ecommerce/add_shop'); ?>',
             '<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>'
         );
 

@@ -1,5 +1,5 @@
 <form class="getresponse" method="post" name="getresponseexport"
-      action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/index/exported'); ?>">
+      action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/export/run'); ?>">
 
     <ul class="messages">
         <li class="notice-msg">
@@ -14,7 +14,7 @@
 	<div class="content-header">
 		<h3>Export Customer Data on Demand</h3>
         <p class="form-buttons">
-            <button onclick="setLocation('<?php echo Mage::helper("adminhtml")->getUrl("getresponse/index/create_list")."?back_url=".base64_encode('getresponse/index/export'); ?>')" type="button" name="Submit" class="scalable add"><span>Add New Contact List</span></button>
+            <button onclick="setLocation('<?php echo Mage::helper("adminhtml")->getUrl("getresponse/list/index")."?back_url=".base64_encode('getresponse/export/index'); ?>')" type="button" name="Submit" class="scalable add"><span>Add New Contact List</span></button>
             <button id="gr_export" type="submit" onclick="getresponseexport.submit();" name="Submit"><span>Export</span></button>
         </p>
 	</div>
@@ -33,10 +33,10 @@
                     <tr>
                         <td class="label"><label for="api_key">Contact list <span class="required">*</span></span></label></td>
                         <td class="value">
-                            <?php if ( !empty($settings->campaigns)) :?>
+                            <?php if ( !empty($campaigns)) :?>
                                 <select name="campaign_id" id="campaign_id">
                                     <option value="">Select a list</option>
-                                    <?php foreach ($settings->campaigns as $id => $name) : ?>
+                                    <?php foreach ($campaigns as $id => $name) : ?>
                                     <?php echo '<option value="' . $id . '">' . $name . '</option>'; ?>
                                     <?php endforeach; ?>
                                 </select>
@@ -79,7 +79,7 @@
                             <input type="checkbox" name="gr_sync_order_data" id="gr_sync_order_data" value="1"/>
                             <label for="gr_sync_order_data">Update contact info</label>
                             <p class="note">Select this option if you want to overwrite contact details that already exist in your GetResponse database.<br />
-Clear this option to keep existing data intact.</p>
+Clear this option to keep existing data intact</p>
                         </td>
                     </tr>
 
@@ -168,8 +168,8 @@ Clear this option to keep existing data intact.</p>
 
 <script>
 
-    var customs = <?php echo $settings->customs_json ?>;
-    var custom_values = <?php echo $settings->custom_values_json ?>;
+    var customs = <?php echo $customs['customs']; ?>;
+    var custom_values = <?php echo $customs['custom_values']; ?>;
 
     jQuery('.add-new-mapping').on('click', function() {
         GetresponseMapping(customs, custom_values);
@@ -188,7 +188,7 @@ Clear this option to keep existing data intact.</p>
     }
     switchHandler();
 
-    available_cycles = jQuery.parseJSON('<?php echo isset($settings->campaign_days) ? addslashes(json_encode($settings->campaign_days)) : "{}"; ?>');
+    available_cycles = jQuery.parseJSON('<?php echo isset($campaign_days) ? addslashes(json_encode($campaign_days)) : "{}"; ?>');
 
     var cycles1 = cycles.init(
         available_cycles,
@@ -196,7 +196,7 @@ Clear this option to keep existing data intact.</p>
         jQuery('#cycle_day'),
         jQuery('#gr_autoresponder'),
         jQuery('label[for="gr_autoresponder"]'),
-        <?php echo isset($settings->api['cycle_day']) ? $settings->api['cycle_day'] : ''; ?>
+        ''
     );
 
 

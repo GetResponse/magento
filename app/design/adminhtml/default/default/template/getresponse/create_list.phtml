@@ -1,5 +1,5 @@
 <form class="getresponse getresponse-create-list" method="post" id="getresponselist"
-      action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/index/create_new_list'); ?>">
+      action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/list/save'); ?>">
 
     <input type="hidden" name="back_url" value="<?php echo $back_url; ?>" />
 
@@ -33,10 +33,10 @@
                         <tr>
                             <td class="label">From field <span class="required">*</span></td>
                             <td class="value">
-                                <?php if ( !empty($settings->from)): ?>
+                                <?php if ( !empty($from_fields)): ?>
                                 <select name="from" id="form_from">
                                     <option value="">Select from field</option>
-                                    <?php foreach ($settings->from as $from): ?>
+                                    <?php foreach ($from_fields as $from): ?>
                                         <?php if ($from->isActive == true): ?>
                                             <option
                                                 value="<?php echo $from->fromFieldId ?>">
@@ -57,10 +57,10 @@
                         <tr>
                             <td class="label">Reply-to <span class="required">*</span></td>
                             <td class="value">
-                                <?php if ( !empty($settings->from)): ?>
+                                <?php if ( !empty($from_fields)): ?>
                                 <select name="reply_to" id="form_reply_to">
                                     <option value="">Select reply-to-address</option>
-                                    <?php foreach ($settings->from as $from): ?>
+                                    <?php foreach ($from_fields as $from): ?>
                                         <?php if ($from->isActive == true):?>
                                             <option
                                                 value="<?php echo $from->fromFieldId?>">
@@ -81,10 +81,10 @@
                         <tr>
                             <td class="label">Confirmation subject <span class="required">*</span></td>
                             <td class="value">
-                                <?php if ( !empty($settings->confirmation_subject)): ?>
+                                <?php if ( !empty($confirmation_subject)): ?>
                                 <select name="confirmation_subject" id="form_confirmation_subject">
                                     <option value="">Select confirmation message subject</option>
-                                    <?php foreach ($settings->confirmation_subject as $cs): ?>
+                                    <?php foreach ($confirmation_subject as $cs): ?>
                                         <option value="<?php echo $cs->subscriptionConfirmationSubjectId ?>"><?php echo $cs->subject ?></option>
                                     <?php endforeach ?>
                                 </select>
@@ -101,10 +101,10 @@
                         <tr>
                             <td class="label">Confirmation body <span class="required">*</span></td>
                             <td class="value">
-                                <?php if ( !empty($settings->confirmation_body)): ?>
+                                <?php if ( !empty($confirmation_body)): ?>
                                 <select name="confirmation_body" id="form_confirmation_body">
                                     <option value="">Select confirmation message body template</option>
-                                    <?php foreach ($settings->confirmation_body as $cb): ?>
+                                    <?php foreach ($confirmation_body as $cb): ?>
                                         <option value="<?php echo $cb->subscriptionConfirmationBodyId ?>"><?php echo $cb->contentPlain?></option>
                                     <?php endforeach ?>
                                 </select>

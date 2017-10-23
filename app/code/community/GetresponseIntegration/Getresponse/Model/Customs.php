@@ -30,28 +30,27 @@ class GetresponseIntegration_Getresponse_Model_Customs extends Mage_Core_Model_A
     }
 
     /**
-     * @param $shop_id
-     *
+     * @param $shopId
      * @return mixed
      */
-    public function getCustoms($shop_id)
+    public function getCustoms($shopId)
     {
-        return $this->getCollection()->addFieldToFilter('id_shop', $shop_id)->getData();
+        return $this->getCollection()->addFieldToFilter('id_shop', $shopId)->getData();
     }
 
     /**
-     * @param int $shop_id
+     * @param int $shopId
      */
-    public function connectCustoms($shop_id) {
+    public function connectCustoms($shopId) {
 
-        if (!empty($this->getCustoms($shop_id))) {
+        if (!empty($this->getCustoms($shopId))) {
             return;
         }
 
         foreach ($this->fields as $field) {
             $custom = Mage::getModel('getresponse/customs');
             $custom->setData(array(
-                'id_shop' => $shop_id,
+                'id_shop' => $shopId,
                 'custom_field' => $field['name'],
                 'custom_value' => $field['name'],
                 'default' => $field['value'],
@@ -81,9 +80,8 @@ class GetresponseIntegration_Getresponse_Model_Customs extends Mage_Core_Model_A
     }
 
     /**
-     * @param $params
+     * @param array $params
      * @param $customer
-     *
      * @return array
      */
     public static function mapExportCustoms($params, $customer)
@@ -104,23 +102,22 @@ class GetresponseIntegration_Getresponse_Model_Customs extends Mage_Core_Model_A
     }
 
     /**
-     * @param $user_customs
-     * @param $db_customs
-     *
+     * @param array $userCustoms
+     * @param array $dbCustoms
      * @return array
      */
-    public static function mapCustoms($user_customs, $db_customs)
+    public static function mapCustoms($userCustoms, $dbCustoms)
     {
         $fields = array();
-        if ( !empty($user_customs) && !empty($db_customs)) {
+        if ( !empty($userCustoms) && !empty($dbCustoms)) {
 
-            foreach ($db_customs as $cf) {
+            foreach ($dbCustoms as $cf) {
                 if (
-                    in_array($cf['custom_field'], array_keys($user_customs))
-                    && !empty($user_customs[$cf['custom_field']])
+                    in_array($cf['custom_field'], array_keys($userCustoms))
+                    && !empty($userCustoms[$cf['custom_field']])
                     && !in_array($cf['custom_field'], self::RESERVED_CUSTOM_FIELDS)
                 ) {
-                    $fields[$cf['custom_value']] = trim(preg_replace('/\s+/', ' ', $user_customs[$cf['custom_field']]));
+                    $fields[$cf['custom_value']] = trim(preg_replace('/\s+/', ' ', $userCustoms[$cf['custom_field']]));
                 }
             }
         }
@@ -128,11 +125,11 @@ class GetresponseIntegration_Getresponse_Model_Customs extends Mage_Core_Model_A
     }
 
     /**
-     *
+     * @param int $shopId
      */
-    public function disconnectCustoms($shop_id)
+    public function disconnect($shopId)
     {
-        $customs = $this->getCustoms($shop_id);
+        $customs = $this->getCustoms($shopId);
         if ( !empty($customs)) {
             foreach ($customs as $custom) {
                 $data = array(

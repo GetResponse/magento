@@ -12,12 +12,9 @@ class GetresponseIntegration_Getresponse_Model_Settings extends Mage_Core_Model_
 	}
 
     /**
-     * Override for automaticly choosing integration by shop id
-     *
-     * @param $id
-     * @param null $field
-     *
-     * @return mixed
+     * @param int $id
+     * @param string|null $field
+     * @return Mage_Core_Model_Abstract
      */
     public function load($id, $field = null)
     {
@@ -29,13 +26,12 @@ class GetresponseIntegration_Getresponse_Model_Settings extends Mage_Core_Model_
     }
 
     /**
-	 * @param $shop_id
-	 *
+	 * @param $shopId
 	 * @return bool
 	 */
-	public function disconnectSettings($shop_id)
+	public function disconnect($shopId)
 	{
-		$model = $this->load($shop_id)->addData(array(
+		$model = $this->load($shopId)->addData(array(
 			'api_key' => '',
 			'api_url' => '',
 			'api_domain' => '',
@@ -63,13 +59,13 @@ class GetresponseIntegration_Getresponse_Model_Settings extends Mage_Core_Model_
 
 	/**
 	 * @param $data
-	 * @param $shop_id
+	 * @param $shopId
 	 *
 	 * @return bool
 	 */
-	public function updateSettings($data, $shop_id)
+	public function updateSettings($data, $shopId)
 	{
-		$model = $this->load($shop_id)->addData($data);
+		$model = $this->load($shopId)->addData($data);
 
 		try {
 			$model->save();

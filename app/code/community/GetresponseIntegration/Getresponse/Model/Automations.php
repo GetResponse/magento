@@ -15,13 +15,24 @@ class GetresponseIntegration_Getresponse_Model_Automations extends Mage_Core_Mod
 	}
 
 	/**
-	 * @param $shop_id
-	 *
-	 * @return mixed
+	 * @param $shopId
+	 * @return array
 	 */
-	public function getAutomations($shop_id)
+	public function getAutomations($shopId)
 	{
-		return $this->getCollection()->addFieldToFilter('id_shop', $shop_id)->getData();
+		$rules = $this->getCollection()->addFieldToFilter('id_shop', $shopId)->getData();
+
+		foreach ($rules as &$rule) {
+		    if ('copy' === $rule['action']) {
+		        $rule['action_name'] = 'Copied';
+            } elseif ('move' === $rule['action']) {
+                $rule['action_name'] = 'Moved';
+            } else {
+                $rule['action_name'] = $rule['action'];
+            }
+        }
+
+        return $rules;
 	}
 
     /**
@@ -89,24 +100,24 @@ class GetresponseIntegration_Getresponse_Model_Automations extends Mage_Core_Mod
 
 	/**
 	 * @param $categories
-	 * @param $shop_id
+	 * @param $shopId
 	 *
 	 * @return array
 	 */
-	public function getActiveAutomationsByCategoriesAndShopId($categories, $shop_id)
+	public function getActiveAutomationsByCategoriesAndShopId($categories, $shopId)
 	{
 		$automations = array();
 		if (empty($categories)) {
 			return $automations;
 		}
 
-		foreach ($categories as $category_id) {
+		foreach ($categories as $categoryId) {
 			$automation =
 				Mage::getModel('getresponse/automations')
 					->getCollection()
 					->addFieldToFilter('active', self::ACTIVE)
-					->addFieldToFilter('id_shop', $shop_id)
-					->addFieldToFilter('category_id', $category_id)
+					->addFieldToFilter('id_shop', $shopId)
+					->addFieldToFilter('category_id', $categoryId)
 					->getData();
 
 			if ( !empty($automation)) {
@@ -117,12 +128,12 @@ class GetresponseIntegration_Getresponse_Model_Automations extends Mage_Core_Mod
 		return $automations;
 	}
 
-	/**
-	 *
-	 */
-	public function disconnectAutomations($shop_id)
+    /**
+     * @param string $shopId
+     */
+	public function disconnect($shopId)
 	{
-		$automations = $this->getAutomations($shop_id);
+		$automations = $this->getAutomations($shopId);
 		if ( !empty($automations)) {
 			foreach ($automations as $automation) {
 				$this->deleteAutomation($automation['id']);

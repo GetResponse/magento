@@ -56,15 +56,13 @@ class GetresponseIntegration_Getresponse_Model_Observer
 		return $this;
 	}
 
-	/**
-	 * @param Varien_Event_Observer $observer
-	 *
-	 * @return $this
-	 */
+    /**
+     * @param Varien_Event_Observer $observer
+     */
 	public function addJQueryToHeader(Varien_Event_Observer $observer)
 	{
 	    if ( !Mage::helper('getresponse')->isEnabled()) {
-			return $this;
+			return;
 		}
 
 		/* @var $block Mage_Page_Block_Html_Head */
@@ -76,33 +74,28 @@ class GetresponseIntegration_Getresponse_Model_Observer
 			}
 		}
 
-		return $this;
+		return;
 	}
 
-	/**
-	 * @param $observer
-	 *
-	 * @return $this
-	 */
-	public function set_block($observer)
+    /**
+     * @param Varien_Event_Observer $observer
+     */
+	public function set_block(Varien_Event_Observer $observer)
 	{
 		if ( !Mage::helper('getresponse')->isEnabled()) {
-			return $this;
+			return;
 		}
 
 		$shop_id = Mage::helper('getresponse')->getStoreId();
 
 		$settings = Mage::getModel('getresponse/settings')->load($shop_id)->getData();
 		if (empty($settings['api_key'])) {
-			return $this;
+			return;
 		}
 
 		$webforms = Mage::getModel('getresponse/webforms')->load($shop_id)->getData();
 
 		if ( !empty($webforms) && $webforms['active_subscription'] == 1 && !empty($webforms['url'])) {
-			$action = $observer->getEvent()->getAction();
-			//			$fullActionName = $action->getFullActionName();
-			//			$sub_position = 'before="cart_sidebar"';
 			$sub_position = ($webforms['block_position'] == 'before') ? 'before="-"' : 'after="-"';
 
 			$myXml = '<reference name="' . $webforms['layout_position'] . '">';
@@ -125,24 +118,20 @@ class GetresponseIntegration_Getresponse_Model_Observer
 			$myXml .= '</block></block>';
 			$myXml .= '</reference>';
 			$layout = $observer->getEvent()->getLayout();
-			//		if ($fullActionName == 'catalog_product_view') {
+
 			$layout->getUpdate()->addUpdate($myXml);
 			$layout->generateXml();
-			//		}
-		}
 
-		return $this;
+		}
 	}
 
-	/**
-	 * @param Varien_Event_Observer $observer
-	 *
-	 * @return $this
-	 */
+    /**
+     * @param Varien_Event_Observer $observer
+     */
 	public function addCssToHeader(Varien_Event_Observer $observer)
 	{
 		if ( !Mage::helper('getresponse')->isEnabled()) {
-			return $this;
+			return;
 		}
 
 		/* @var $block Mage_Page_Block_Html_Head */
@@ -154,19 +143,15 @@ class GetresponseIntegration_Getresponse_Model_Observer
 			$block->addCss('css/jquery-ui.min.css');
 			$block->addCss('css/jquery.switchButton.css');
 		}
-
-		return $this;
 	}
 
-	/**
-	 * @param $observer
-	 *
-	 * @return bool
-	 */
-	public function createAccount($observer)
+    /**
+     * @param Varien_Event_Observer $observer
+     */
+	public function createAccount(Varien_Event_Observer $observer)
 	{
 		if ( !Mage::helper('getresponse')->isEnabled()) {
-			return $this;
+			return;
 		}
 
 		$event = $observer->getEvent();
@@ -175,12 +160,12 @@ class GetresponseIntegration_Getresponse_Model_Observer
 		$settings = Mage::getModel('getresponse/settings')->load($shop_id)->getData();
 
 		if (empty($settings['api_key']) || $settings['active_subscription'] != '1' || empty($settings['campaign_id'])) {
-			return $this;
+			return;
 		}
 
 		$subscriberModel = Mage::getModel('newsletter/subscriber')->loadByEmail($customer->getEmail());
 		if (false === $subscriberModel->isSubscribed()) {
-			return $this;
+			return;
 		}
 
 		Mage::helper('getresponse/api')->setApiDetails(
@@ -196,19 +181,15 @@ class GetresponseIntegration_Getresponse_Model_Observer
 			$settings['cycle_day'],
 			array()
 		);
-
-		return $this;
 	}
 
 	/**
-	 * @param $observer
-	 *
-	 * @return bool
+	 * @param Varien_Event_Observer $observer
 	 */
-	public function createAccountOrder($observer)
+	public function createAccountOrder(Varien_Event_Observer $observer)
 	{
 		if ( !Mage::helper('getresponse')->isEnabled()) {
-			return $this;
+			return;
 		}
 
 		$order = $observer->getEvent()->getOrder();
@@ -219,12 +200,12 @@ class GetresponseIntegration_Getresponse_Model_Observer
 
 		$settings = Mage::getModel('getresponse/settings')->load($shop_id)->getData();
 		if (empty($settings['api_key']) || $settings['active_subscription'] != '1' || empty($settings['campaign_id'])) {
-			return $this;
+			return;
 		}
 
 		$subscriberModel = Mage::getModel('newsletter/subscriber')->loadByEmail($customer->getEmail());
 		if (false === $subscriberModel->isSubscribed()) {
-			return $this;
+			return;
 		}
 
 		$customs = Mage::getModel('getresponse/customs')->getCustoms($shop_id);
@@ -253,8 +234,6 @@ class GetresponseIntegration_Getresponse_Model_Observer
 		);
 
 		$this->automationHandler($categories, $shop_id, $customer, $user_customs, $customs, $settings);
-
-		return $this;
 	}
 
 	/**
@@ -264,8 +243,6 @@ class GetresponseIntegration_Getresponse_Model_Observer
 	 * @param $user_customs
 	 * @param $customs
 	 * @param $settings
-	 *
-	 * @return bool
 	 */
 	public function automationHandler($categories, $shop_id, $customer, $user_customs, $customs, $settings)
 	{
@@ -273,7 +250,7 @@ class GetresponseIntegration_Getresponse_Model_Observer
 			->getActiveAutomationsByCategoriesAndShopId($categories, $shop_id);
 
 		if (empty($automations)) {
-			return false;
+			return;
 		}
 
 		$delete_contact = false;
@@ -295,53 +272,44 @@ class GetresponseIntegration_Getresponse_Model_Observer
 
 		if ($delete_contact === true) {
 			$contact = Mage::helper('getresponse/api')->getContact($customer->getEmail(), $settings['campaign_id']);
-			if ($contact->contactId) {
+			if (isset($contact->contactId)) {
 				Mage::helper('getresponse/api')->deleteContact($contact->contactId);
 			}
 		}
-
-		return true;
 	}
 
     /**
-     * This action is running before all pages loading.
-     *
      * @param Varien_Event_Observer $observer
-     *
-     * @return $this
      */
-    public function initBeforeEventAction($observer)
+    public function initBeforeEventAction(Varien_Event_Observer $observer)
     {
         if (!Mage::helper('getresponse')->isEnabled()) {
-            return $this;
+            return;
         }
 
         $shop_id = Mage::helper('getresponse')->getStoreId();
         $settings = Mage::getModel('getresponse/settings')->load($shop_id)->getData();
 
         if (empty($settings['api_key'])) {
-            return $this;
+            return;
         }
 
         Mage::register('_subscription_on_checkout', (bool) $settings['subscription_on_checkout']);
     }
 
     /**
-     * Get billing data if 'is_subscribed' parameter is ticked.
-     *
-     * @param  Varien_Event_Observer$observer
-     * @return $this
+     * @param Varien_Event_Observer $observer
      */
-    public function checkoutSaveAddress($observer)
+    public function checkoutSaveAddress(Varien_Event_Observer $observer)
     {
         if (!Mage::helper('getresponse')->isEnabled()) {
-            return $this;
+            return;
         }
 
         $post = Mage::app()->getRequest()->getPost();
 
         if (empty($post) || empty($post['billing']) || (isset($post['is_subscribed']) && $post['is_subscribed'] != 1)) {
-            return $this;
+            return;
         }
 
         /** @var Mage_Core_Model_Session $session */
@@ -349,19 +317,15 @@ class GetresponseIntegration_Getresponse_Model_Observer
 
         $session->setData('_is_subscribed', true);
         $session->setData('_subscriber_data', $post['billing']);
-
-        return $this;
     }
 
     /**
      * @param Varien_Event_Observer $observer
-     *
-     * @return $this
      */
-    public function checkoutAllAfterFormSubmitted($observer)
+    public function checkoutAllAfterFormSubmitted(Varien_Event_Observer $observer)
     {
         if ( !Mage::helper('getresponse')->isEnabled()) {
-            return $this;
+            return;
         }
 
         /** @var Varien_Event $event */
@@ -371,7 +335,7 @@ class GetresponseIntegration_Getresponse_Model_Observer
         $Quote =$event->getQuote();
 
         if (false === in_array($Quote->getCheckoutMethod(true), array('register', 'guest'))) {
-            return $this;
+            return;
         }
 
         /** @var Mage_Core_Model_Session $session */
@@ -380,7 +344,7 @@ class GetresponseIntegration_Getresponse_Model_Observer
         $isSubscribed = (bool) $session->getData('_is_subscribed');
 
         if (0 === $isSubscribed) {
-            return $this;
+            return;
         }
 
         $details = (array) $session->getData('_subscriber_data');
@@ -390,7 +354,7 @@ class GetresponseIntegration_Getresponse_Model_Observer
         $session->setData('_subscriber_data', null);
 
         if (empty($details['email'])) {
-            return $this;
+            return;
         }
 
         Mage::getModel('newsletter/subscriber')->subscribe($details['email']);
@@ -400,7 +364,7 @@ class GetresponseIntegration_Getresponse_Model_Observer
         $settings = Mage::getModel('getresponse/settings')->load($shop_id)->getData();
 
         if (empty($settings['api_key'])) {
-            return $this;
+            return;
         }
 
         Mage::helper('getresponse/api')->setApiDetails(
@@ -421,26 +385,22 @@ class GetresponseIntegration_Getresponse_Model_Observer
             $settings['cycle_day'],
             Mage::getModel('getresponse/customs')->mapCustoms($details, $customs)
         );
-
-        return $this;
     }
 
     /**
      * @param Varien_Event_Observer $observer
-     *
-     * @return $this
      */
     public function initBeforeAddToNewsletterAction(Varien_Event_Observer $observer)
     {
         if ( !Mage::helper('getresponse')->isEnabled()) {
-            return $this;
+            return;
         }
 
         $shop_id = Mage::helper('getresponse')->getStoreId();
         $settings = Mage::getModel('getresponse/settings')->load($shop_id)->getData();
 
         if (empty($settings['api_key']) || '1' !== $settings['newsletter_subscription'] || empty($settings['newsletter_campaign_id'])) {
-            return $this;
+            return;
         }
 
         $name = $email = null;
@@ -460,13 +420,13 @@ class GetresponseIntegration_Getresponse_Model_Observer
         }
 
         if (empty($email)) {
-            return $this;
+            return;
         }
 
         $subscriberModel = Mage::getModel('newsletter/subscriber')->loadByEmail($email);
 
         if (false === $subscriberModel->isSubscribed()) {
-            return $this;
+            return;
         }
 
         Mage::helper('getresponse/api')->setApiDetails(
@@ -482,7 +442,5 @@ class GetresponseIntegration_Getresponse_Model_Observer
             $settings['cycle_day'],
             []
         );
-
-        return $this;
     }
 }

@@ -7,6 +7,9 @@ class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Ab
 	 */
 	const NAME_DIR_JS = 'getresponse/';
 
+	const UNAUTHORIZED_API_CALL_CONFIG_PATH = 'getresponse/unauthorized_calls/date';
+	const DISCONNECT_DELAY = 60*60*24; // one day
+
 	/**
 	 * List files for include.
 	 *
@@ -112,9 +115,11 @@ class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Ab
 	{
 		$categories = array();
 		if ($order->getId()) {
+
 			foreach ($order->getAllVisibleItems() as $item) {
 				$product = Mage::getModel('catalog/product')->load($item->getProductId());
 				$cats = $product->getCategoryIds();
+
 				if ( !empty($cats)) {
 					foreach ($cats as $cat) {
 						$categories[] = $cat;
@@ -126,16 +131,36 @@ class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Ab
 		return array_unique($categories);
 	}
 
-	/**
-	 * disconnectIntegration
-	 */
-	public function disconnectIntegration($shop_id)
+    /**
+     * @param int $shopId
+     */
+	public function disconnectIntegration($shopId)
 	{
-		Mage::getModel('getresponse/settings')->disconnectSettings($shop_id);
-		Mage::getModel('getresponse/account')->disconnectAccount($shop_id);
-		Mage::getModel('getresponse/customs')->disconnectCustoms($shop_id);
-		Mage::getModel('getresponse/webforms')->disconnectWebforms($shop_id);
-		Mage::getModel('getresponse/automations')->disconnectAutomations($shop_id);
+		Mage::getModel('getresponse/settings')->disconnect($shopId);
+		Mage::getModel('getresponse/account')->disconnect($shopId);
+		Mage::getModel('getresponse/customs')->disconnect($shopId);
+		Mage::getModel('getresponse/webforms')->disconnect($shopId);
+		Mage::getModel('getresponse/automations')->disconnect($shopId);
+        Mage::getModel('getresponse/shop')->disconnect($shopId);
 	}
+
+	public function handleUnauthorizedApiCall()
+    {
+        $firstOccurrenceTime = Mage::getStoreConfig(self::UNAUTHORIZED_API_CALL_CONFIG_PATH);
+
+        if (empty($firstOccurrenceTime)) {
+            Mage::getConfig()->saveConfig(self::UNAUTHORIZED_API_CALL_CONFIG_PATH, time());
+        } else {
+            $now = time();
+            if ($now - $firstOccurrenceTime > self::DISCONNECT_DELAY) {
+                $this->disconnectIntegration($this->getStoreId());
+            }
+        }
+    }
+
+    public function resetUnauthorizedApiCallDate()
+    {
+        Mage::getConfig()->deleteConfig(self::UNAUTHORIZED_API_CALL_CONFIG_PATH);
+    }
 
 }

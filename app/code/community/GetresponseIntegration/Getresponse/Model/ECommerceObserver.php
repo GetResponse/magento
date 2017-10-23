@@ -40,7 +40,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
     /**
      * @param Varien_Event_Observer $observer
      */
-    public function addProductToCartHandler($observer)
+    public function addProductToCartHandler(Varien_Event_Observer $observer)
     {
         if (false === $this->canHandleECommerceEvent()) {
             return;
@@ -225,8 +225,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
      */
     public function createOrderHandler($observer)
     {
-        Mage::log(Mage::app()->getRequest()->getRequestUri(), 7, 'getresponse.log');
-
         if (false === $this->canHandleECommerceEvent()) {
             return;
         }
@@ -335,6 +333,10 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
      */
     public function orderDetailsChangedHandler(Varien_Event_Observer $observer)
     {
+        if (false === $this->canHandleECommerceEvent()) {
+            return;
+        }
+
         /** @var Mage_Sales_Model_Order $order */
         $order = $observer->getEvent()->getOrder();
         $requestToGr = $this->createOrderPayload($order);

@@ -15,7 +15,7 @@
             <tbody><tr>
                 <td style="width:50%;"><h3>Add to Contact List after Customer Subscibes</h3></td>
                 <td class="form-buttons">
-                    <button onclick="setLocation('<?php echo Mage::helper("adminhtml")->getUrl("getresponse/index/create_list")."?back_url=".base64_encode('getresponse/index/newsletter'); ?>')" type="button" class="scalable add" name="Submit"><span>Add New Contact List</span></button>
+                    <button onclick="setLocation('<?php echo Mage::helper("adminhtml")->getUrl("getresponse/list/index")."?back_url=".base64_encode('getresponse/newsletter/index'); ?>')" type="button" class="scalable add" name="Submit"><span>Add New Contact List</span></button>
                     <button title="Save" onclick="getresponsenewsletter.submit();" type="button" class="scalable save" style=""><span><span><span>Save</span></span></span></button>
                 </td>
             </tr></tbody>
@@ -23,7 +23,7 @@
     </div>
 
     <div class="entry-edit">
-        <form id="getresponsenewsletter" class="getresponse" method="post" action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/index/activate_newsletter'); ?>">
+        <form id="getresponsenewsletter" class="getresponse" method="post" action="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/newsletter/save'); ?>">
 
             <div class="entry-edit-head">
                 <h4 class="icon-head head-edit-form fieldset-legend">Subscribe After Customer Signs Up</h4>
@@ -60,7 +60,7 @@
                                 <select id="newsletter_campaign_id" name="newsletter_campaign_id" class=" select">
                                     <option value="">Select a list</option>
                                     <?php
-                                    foreach ($settings->campaigns as $id => $name) {
+                                    foreach ($campaigns as $id => $name) {
                                         echo '<option value="' . $id . '"', ($id == $settings->api['newsletter_campaign_id']) ? ' selected="selected"' : '', '>' . $name . '</option>';
                                     }
                                     ?>
@@ -105,7 +105,7 @@
 <script>
     (function($) {
 
-        var available_cycles = $.parseJSON('<?php echo isset($settings->campaign_days) ? addslashes(json_encode($settings->campaign_days)) : "{}"; ?>');
+        var available_cycles = $.parseJSON('<?php echo isset($campaign_days) ? addslashes(json_encode($campaign_days)) : "{}"; ?>');
 
         $('#newsletter_subscription').click(function() {
             $('.details').toggle('slow');
