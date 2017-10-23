@@ -1,15 +1,16 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Export;
 
-use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Helper\Config;
+use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use GetResponse\GetResponseIntegration\Helper\ApiHelper;
-use GetResponse\GetResponseIntegration\Helper\Config;
-use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Request\Http;
 
@@ -36,37 +37,41 @@ class Process extends Action
     /** @var GrRepository */
     private $grRepository;
 
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
-     * @param AccessValidator $accessValidator
+     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         Repository $repository,
         RepositoryFactory $repositoryFactory,
-        AccessValidator $accessValidator
+        RepositoryValidator $repositoryValidator
     )
     {
         parent::__construct($context);
-
-        if (false === $accessValidator->isConnectedToGetResponse()) {
-            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $this->resultPageFactory = $resultPageFactory;
         $this->grRepository = $repositoryFactory->buildRepository();
         $this->repository = $repository;
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
-     * @return \Magento\Framework\View\Result\Page
+     * @return \Magento\Framework\App\ResponseInterface|Page
      */
     public function execute()
     {
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();

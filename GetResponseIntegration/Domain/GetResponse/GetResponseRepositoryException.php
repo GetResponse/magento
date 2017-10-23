@@ -9,6 +9,7 @@ class GetResponseRepositoryException extends \Exception
 {
     const INVALID_API_KEY = '12001';
     const INVALID_RULE_ID = '12002';
+    const INVALID_RESPONSE_CODE = '12003';
 
     /**
      * @return GetResponseRepositoryException

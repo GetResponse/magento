@@ -1,11 +1,14 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
-use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Helper\Config;
-use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Backend\App\Action;
 
 /**
  * Class Registration
@@ -13,36 +16,40 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Registration extends Action
 {
+    /** @var PageFactory */
     protected $resultPageFactory;
+
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
 
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
-     * @param AccessValidator $accessValidator
+     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
-        AccessValidator $accessValidator
-    )
-    {
+        RepositoryValidator $repositoryValidator
+    ) {
         parent::__construct($context);
-
-        if (false === $accessValidator->isConnectedToGetResponse()) {
-            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $this->resultPageFactory = $resultPageFactory;
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
-     * @return \Magento\Framework\View\Result\Page
+     * @return ResponseInterface|Page
      */
     public function execute()
     {
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend('Add Contacts During Registrations');
+
         return $resultPage;
     }
-
 }

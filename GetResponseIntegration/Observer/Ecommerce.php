@@ -4,6 +4,7 @@ namespace GetResponse\GetResponseIntegration\Observer;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Customer\Model\Session;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Customer\Model\Customer;
@@ -21,7 +22,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrReposi
  */
 class Ecommerce
 {
-    const CACHE_KEY = 'getresponse_cache';
     /** @var Session */
     protected $customerSession;
 
@@ -111,7 +111,7 @@ class Ecommerce
         $response = (array) $this->grRepository->getContacts($params);
         $grCustomer = array_pop($response);
 
-        $cache->save(serialize($grCustomer), $cacheKey, [self::CACHE_KEY], 5*60);
+        $cache->save(serialize($grCustomer), $cacheKey, [Config::CACHE_KEY], Config::CACHE_TIME);
 
         return $grCustomer;
     }

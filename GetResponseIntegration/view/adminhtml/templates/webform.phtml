@@ -85,7 +85,7 @@ $webformSettings = $block->getWebformSettings();
                             </div>
                         </div>
                     </div>
-                    <div class="admin__field field field-basic_webform required _required forms">
+                    <div class="admin__field field field-basic_webform required _required forms <?php if (!$webformSettings->isEnabled()):?>hidden<?php endif ?>">
                         <label class="label admin__field-label" for="webform_id">
                             <span>Form</span>
                         </label>
@@ -111,7 +111,7 @@ $webformSettings = $block->getWebformSettings();
                             </div>
                         </div>
                     </div>
-                    <div class="admin__field field field-basic_sidebar required _required forms">
+                    <div class="admin__field field field-basic_sidebar required _required forms <?php if (!$webformSettings->isEnabled()):?>hidden<?php endif ?>">
                         <label class="label admin__field-label" for="sidebar">
                             <span>Block position</span>
                         </label>

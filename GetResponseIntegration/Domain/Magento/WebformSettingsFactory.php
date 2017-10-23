@@ -13,6 +13,10 @@ class WebformSettingsFactory
      */
     public static function buildFromUserPayload($data)
     {
+        if (empty($data)) {
+            return new WebformSettings(false, null, null, null);
+        }
+
         return new WebformSettings(
             (isset($data['publish']) && 1 == $data['publish']) ? true : false,
             $data['webform_url'],
@@ -28,6 +32,10 @@ class WebformSettingsFactory
      */
     public static function buildFromRepository(array $resource)
     {
+        if (empty($resource)) {
+            return new WebformSettings(false, null, null, null);
+        }
+
         return new WebformSettings(
             (bool) $resource['isEnabled'],
             $resource['url'],

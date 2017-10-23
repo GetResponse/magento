@@ -348,15 +348,24 @@ class GetResponseAPI3
             $options[CURLOPT_CUSTOMREQUEST] = 'DELETE';
         }
 
-        $curl = curl_init();
-        curl_setopt_array($curl, $options);
+        try {
+            $curl = curl_init();
+            curl_setopt_array($curl, $options);
 
-        $response = json_decode(curl_exec($curl));
+            $response = json_decode(curl_exec($curl));
+            $this->http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-        $this->http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            curl_close($curl);
+        } catch (\Exception $e) {
+            return false;
+        }
 
-        curl_close($curl);
-        return (object)$response;
+        $response = (object)$response;
+
+//        $response->httpStatus = 401;
+//        $response->code = 1014;
+
+        return $response;
     }
 
     /**

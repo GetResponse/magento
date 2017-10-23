@@ -555,4 +555,34 @@ class Repository
     {
         return (array) json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_WEBFORMS));
     }
+
+    /**
+     * @return mixed
+     */
+    public function getUnauthorizedApiCallDate()
+    {
+        return $this->_scopeConfig->getValue(Config::CONFIG_DATA_UNAUTHORIZED_API_CALL_DATE);
+    }
+
+
+    public function setUnauthorizedApiCallDate($value)
+    {
+        $this->configWriter->save(
+            Config::CONFIG_DATA_UNAUTHORIZED_API_CALL_DATE,
+            $value,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+    }
+
+    public function clearDatabase()
+    {
+        $this->clearConnectionSettings();
+        $this->clearRegistrationSettings();
+        $this->clearAccountDetails();
+        $this->clearWebforms();
+        $this->clearRules();
+        $this->clearWebEventTracking();
+        $this->clearCustoms();
+    }
 }

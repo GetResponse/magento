@@ -1,6 +1,8 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetResponseRepositoryException;
+
 /**
  * Class ConnectionSettingsFactory
  * @package GetResponse\GetResponseIntegration\Domain\GetResponse
@@ -21,11 +23,14 @@ class ConnectionSettingsFactory
 
     /**
      * @param array $resource
-     *
      * @return ConnectionSettings
+     * @throws GetResponseRepositoryException
      */
     public static function buildFromRepository(array $resource)
     {
+        if (empty($resource['apiKey'])) {
+            throw GetResponseRepositoryException::buildForInvalidApiKey();
+        }
 
         return new ConnectionSettings(
             $resource['apiKey'],

@@ -16,6 +16,14 @@ class Config
     const CONFIG_DATA_REGISTRATION_SETTINGS = 'getresponse/registration/settings';
     const CONFIG_DATA_REGISTRATION_CUSTOMS = 'getresponse/registration/customs';
     const CONFIG_DATA_WEBFORMS = 'getresponse/webforms';
+    const CONFIG_DATA_UNAUTHORIZED_API_CALL_DATE = 'getresponse/unauthorized-api-call-date';
 
     const PLUGIN_MAIN_PAGE = 'getresponseintegration/settings/index';
+
+    const UNAUTHORIZED_RESPONSE_CODES = [1014, 1018, 1017];
+    const DISCONNECT_DELAY = 60*60*24;
+
+    const INCORRECT_API_RESOONSE_MESSAGE = 'Incorrect API response';
+    const CACHE_KEY = 'getresponse_cache';
+    const CACHE_TIME = 5*60;
 }

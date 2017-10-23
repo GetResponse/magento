@@ -47,9 +47,9 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                 <?php if (!empty($categories)): ?>
                                     <?php foreach ($categories as $category): ?>
                                         <option
-                                            <?php if ($category->getEntityId() === $rule->getCategory()): ?>selected="selected"<?php endif ?>
+                                            <?php if ($category->getEntityId() == $rule->getCategory()): ?>selected="selected"<?php endif ?>
                                             value="<?php echo $category->getEntityId() ?>"><?php echo $category->getName() ?></option>
-                                        <?php echo $block->getSubcategories($category) ?>
+                                        <?php echo $block->getSubcategories($category, $rule->getCategory()) ?>
                                     <?php endforeach ?>
                                 <?php endif ?>
                             </select>

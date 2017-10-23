@@ -1,9 +1,9 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -125,6 +125,12 @@ class Settings extends Template
      */
     public function isConnectedToGetResponse()
     {
-        return (new AccessValidator($this->repository))->isConnectedToGetResponse();
+        $settings = $this->repository->getConnectionSettings();
+
+        if (empty($settings['apiKey'])) {
+            return false;
+        }
+
+        return true;
     }
 }
