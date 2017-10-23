@@ -557,7 +557,7 @@ class Repository
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getUnauthorizedApiCallDate()
     {
@@ -565,6 +565,9 @@ class Repository
     }
 
 
+    /**
+     * @param string $value
+     */
     public function setUnauthorizedApiCallDate($value)
     {
         $this->configWriter->save(

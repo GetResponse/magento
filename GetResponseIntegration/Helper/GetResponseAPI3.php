@@ -360,12 +360,7 @@ class GetResponseAPI3
             return false;
         }
 
-        $response = (object)$response;
-
-//        $response->httpStatus = 401;
-//        $response->code = 1014;
-
-        return $response;
+        return (object)$response;
     }
 
     /**

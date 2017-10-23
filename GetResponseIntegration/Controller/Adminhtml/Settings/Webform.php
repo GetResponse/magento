@@ -19,6 +19,7 @@ class Webform extends Action
     protected $resultPageFactory;
     /** @var RepositoryValidator */
 
+    /** @var RepositoryValidator */
     private $repositoryValidator;
 
     /**
