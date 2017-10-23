@@ -184,9 +184,7 @@ $settings = $block->getRegistrationSettings();
                     form_key: FORM_KEY,
                     shop_name: shopName
                 },
-                success: function (data) {
-                    var json = jQuery.parseJSON(data);
-
+                success: function (json) {
                     if (json.error) {
                         // tutaj trzeba dodać notyfikację dla klienta o błędzie!
                         return false;

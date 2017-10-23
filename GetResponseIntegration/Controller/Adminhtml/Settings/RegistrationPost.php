@@ -1,14 +1,15 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
-use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Request\Http;
@@ -32,34 +33,39 @@ class RegistrationPost extends Action
     /** @var Repository */
     private $repository;
 
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
-     * @param AccessValidator $accessValidator
+     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         Repository $repository,
-        AccessValidator $accessValidator
-    ) {
+        RepositoryValidator $repositoryValidator
+    )
+    {
         parent::__construct($context);
-
-        if (false === $accessValidator->isConnectedToGetResponse()) {
-            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
-     * @return Redirect
+     * @return ResponseInterface|Redirect
      */
     public function execute()
     {
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::BACK_URL);
 

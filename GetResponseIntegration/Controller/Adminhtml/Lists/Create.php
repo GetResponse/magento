@@ -1,13 +1,13 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
-use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CampaignFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Getresponse\Repository as GrRepository;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CampaignFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Getresponse\Repository as GrRepository;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
@@ -30,29 +30,29 @@ class Create extends Action
     /** @var GrRepository */
     private $grRepository;
 
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
-     * @param AccessValidator $accessValidator
+     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         Repository $repository,
         RepositoryFactory $repositoryFactory,
-        AccessValidator $accessValidator
-    ) {
+        RepositoryValidator $repositoryValidator
+    )
+    {
         parent::__construct($context);
-
-        if (false === $accessValidator->isConnectedToGetResponse()) {
-            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->createRepository();
+        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -63,6 +63,11 @@ class Create extends Action
      */
     public function execute()
     {
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $backUrl = $this->getRequest()->getParam('back_url');
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
@@ -74,7 +79,6 @@ class Create extends Action
         if (empty($data)) {
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-
             return $resultPage;
         }
 
@@ -85,35 +89,23 @@ class Create extends Action
             $this->messageManager->addErrorMessage($error);
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-
             return $resultPage;
         }
 
         $lang = substr($this->repository->getMagentoCountryCode(), 0, 2);
-
-        $params = [];
-        $params['name'] = $data['campaign_name'];
-        $params['languageCode'] = (isset($lang)) ? $lang : 'EN';
-        $params['confirmation'] = [
-            'fromField' => ['fromFieldId' => $data['from_field']],
-            'replyTo' => ['fromFieldId' => $data['reply_to_field']],
-            'subscriptionConfirmationBodyId' => $data['confirmation_body'],
-            'subscriptionConfirmationSubjectId' => $data['confirmation_subject']
-        ];
-
-        $result = $this->grRepository->createCampaign(CampaignFactory::createFromArray($params));
+        $result = $this->grRepository->createCampaign(
+            CampaignFactory::buildFromUserPayload($data, $lang)
+        );
 
         if (isset($result->httpStatus) && (int)$result->httpStatus >= 400) {
             $this->messageManager->addErrorMessage(isset($result->codeDescription) ? $result->codeDescription . ' - uuid: ' . $result->uuid : 'Something goes wrong');
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-
             return $resultPage;
         } else {
             $this->messageManager->addSuccessMessage('List created');
             $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath($backUrl);
-
             return $resultRedirect;
         }
     }

@@ -1,16 +1,17 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
-use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\DefaultCustomFieldsFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
-use Magento\Backend\App\Action;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingFactory;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Cache\Manager;
-use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Request\Http;
@@ -42,32 +43,38 @@ class Save extends Action
     /** @var RepositoryFactory */
     private $repositoryFactory;
 
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param RepositoryFactory $repositoryFactory
      * @param Repository $repository
-     * @param AccessValidator $accessValidator
      * @param Manager $cacheManager
+     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         RepositoryFactory $repositoryFactory,
         Repository $repository,
-        AccessValidator $accessValidator,
-        Manager $cacheManager
-    ) {
+        Manager $cacheManager,
+        RepositoryValidator $repositoryValidator
+    )
+    {
         parent::__construct($context);
 
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
+        $this->repositoryValidator = $repositoryValidator;
     }
 
+
     /**
-     * @return Redirect|Page
+     * @return ResponseInterface|Page
      */
     public function execute()
     {
@@ -96,8 +103,13 @@ class Save extends Action
             $domain = !empty($data['getresponse_api_domain']) ? $data['getresponse_api_domain'] : null;
         }
 
-        $grRepository = $this->repositoryFactory->createNewRepository($apiKey, $apiUrl, $domain);
-        $account = AccountFactory::createFromArray($grRepository->getAccountDetails());
+        $grRepository = $this->repositoryFactory->createRepository($apiKey, $apiUrl, $domain);
+        if (false === $this->repositoryValidator->validateGrRepository($grRepository)) {
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
+        $account = AccountFactory::buildFromApiResponse($grRepository->getAccountDetails());
 
         if (empty($account->getAccountId())) {
             $this->messageManager->addErrorMessage(self::API_ERROR_MESSAGE);
@@ -144,9 +156,6 @@ class Save extends Action
 
         $this->messageManager->addSuccessMessage('GetResponse account connected');
 
-        $resultRedirect = $this->resultRedirectFactory->create();
-        $resultRedirect->setPath(self::BACK_URL);
-
-        return $resultRedirect;
+        return $this->_redirect(self::BACK_URL);
     }
 }

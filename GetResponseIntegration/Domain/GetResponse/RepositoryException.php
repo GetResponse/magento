@@ -5,13 +5,15 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
  * Class GetResponseRepositoryException
  * @package GetResponse\GetResponseIntegration\Domain\GetResponse
  */
-class GetResponseRepositoryException extends \Exception
+class RepositoryException extends \Exception
 {
     const INVALID_API_KEY = '12001';
     const INVALID_RULE_ID = '12002';
+    const INVALID_RESPONSE_CODE = '12003';
+    const CONNECTION_SETTINGS_NOT_FOUND = '12004';
 
     /**
-     * @return GetResponseRepositoryException
+     * @return RepositoryException
      */
     public static function buildForInvalidApiKey()
     {
@@ -19,7 +21,7 @@ class GetResponseRepositoryException extends \Exception
     }
 
     /**
-     * @return GetResponseRepositoryException
+     * @return RepositoryException
      */
     public static function buildForInvalidRuleId()
     {

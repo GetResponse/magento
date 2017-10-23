@@ -1,11 +1,11 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules;
 
-use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetResponseRepositoryException;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\ResultInterface;
@@ -25,26 +25,26 @@ class Delete extends Action
     /** @var Repository */
     private $repository;
 
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
-     * @param AccessValidator $accessValidator
+     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         Repository $repository,
-        AccessValidator $accessValidator
-    ) {
+        RepositoryValidator $repositoryValidator
+    )
+    {
         parent::__construct($context);
-
-        if (false === $accessValidator->isConnectedToGetResponse()) {
-            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -52,6 +52,11 @@ class Delete extends Action
      */
     public function execute()
     {
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::AUTOMATION_URL);
 
@@ -59,7 +64,7 @@ class Delete extends Action
 
         try {
             $this->repository->deleteRule($id);
-        } catch (GetResponseRepositoryException $e) {
+        } catch (RepositoryException $e) {
             $this->messageManager->addErrorMessage('Incorrect rule');
 
             return $resultRedirect;

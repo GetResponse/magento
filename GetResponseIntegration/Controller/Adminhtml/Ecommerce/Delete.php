@@ -1,12 +1,15 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
-use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use Magento\Backend\App\Action\Context;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Redirect;
 
 /**
  * Class Delete
@@ -14,35 +17,40 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrReposi
  */
 class Delete extends Action
 {
+    const BACK_URL = 'getresponseintegration/ecommerce/index';
+
     /** @var GrRepository */
     private $grRepository;
 
-    const BACK_URL = 'getresponseintegration/ecommerce/index';
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
 
     /**
      * @param Context $context
      * @param RepositoryFactory $repositoryFactory
-     * @param AccessValidator $accessValidator
+     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         RepositoryFactory $repositoryFactory,
-        AccessValidator $accessValidator
-    ) {
+        RepositoryValidator $repositoryValidator
+    )
+    {
         parent::__construct($context);
-
-        if (false === $accessValidator->isConnectedToGetResponse()) {
-            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
-        $this->grRepository = $repositoryFactory->createRepository();
+        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
-     * @return \Magento\Framework\Controller\Result\Redirect
+     * @return ResponseInterface|Redirect
      */
     public function execute()
     {
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $resultRedirect = $this->resultRedirectFactory->create();
 
         $id = $this->getRequest()->getParam('id');

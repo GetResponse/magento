@@ -1,7 +1,9 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
 
+use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
+use Magento\Framework\App\CacheInterface;
 
 /**
  * Class Repository
@@ -12,12 +14,20 @@ class Repository
     /** @var  GetResponseAPI3 */
     private $resource;
 
+    /** @var CacheInterface */
+    private $cache;
+
     /**
      * @param GetResponseAPI3 $resource
+     * @param CacheInterface $cache
      */
-    public function __construct(GetResponseAPI3 $resource)
+    public function __construct(
+        GetResponseAPI3 $resource,
+        CacheInterface $cache
+    )
     {
         $this->resource = $resource;
+        $this->cache = $cache;
     }
 
     /**
@@ -134,7 +144,19 @@ class Repository
      */
     public function getCustomFieldByName($name)
     {
-        return $this->resource->getCustomFieldByName($name);
+        $cacheKey = md5('getCustomFieldByName::'.$name);
+
+        $cachedData = $this->cache->load($cacheKey);
+
+        if (false !== $cachedData) {
+            return unserialize($cachedData);
+        }
+
+        $result = $this->resource->getCustomFieldByName($name);
+
+        $this->cache->save(serialize($result), $cacheKey, [Config::CACHE_KEY], Config::CACHE_TIME);
+
+        return $result;
     }
 
     /**
@@ -329,5 +351,13 @@ class Repository
     public function getOrder($shopId, $orderId, $params = [])
     {
         return $this->resource->getOrder($shopId, $orderId, $params);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function ping()
+    {
+        return $this->resource->ping();
     }
 }

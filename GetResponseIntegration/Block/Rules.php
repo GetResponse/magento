@@ -6,6 +6,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RuleFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollectionFactory;
+use Magento\Catalog\Model\Category;
 use Magento\Framework\Data\Tree\Node;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
@@ -134,8 +135,9 @@ class Rules extends Template
 
     /**
      * @param Node $node
+     * @param $selectedCategory
      */
-    public function getSubcategories(Node $node)
+    public function getSubcategories(Node $node, $selectedCategory)
     {
         if ($node->hasChildren()) {
             $childrenCategories = $node->getChildren();
@@ -144,9 +146,12 @@ class Rules extends Template
                 for ($i = $childrenCategory->getLevel(); $i > 2; $i--) {
                     $string .= '-';
                 }
-                echo '<option value="' . $childrenCategory->getEntityId() . '"> ' .
+
+                $selected = $selectedCategory == $childrenCategory->getEntityId() ? 'selected="selected"' : '';
+
+                echo '<option '.$selected.' value="' . $childrenCategory->getEntityId() . '"> ' .
                     $string . ' ' . $childrenCategory->getName() . '</option>';
-                $this->getSubcategories($childrenCategory);
+                $this->getSubcategories($childrenCategory, $selectedCategory);
             }
         }
     }

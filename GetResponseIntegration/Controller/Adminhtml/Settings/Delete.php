@@ -1,10 +1,8 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
-use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\PageFactory;
@@ -33,25 +31,19 @@ class Delete extends Action
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
-     * @param AccessValidator $accessValidator
      * @param Manager $cacheManager
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         Repository $repository,
-        AccessValidator $accessValidator,
         Manager $cacheManager
     ) {
         parent::__construct($context);
-
-        if (false === $accessValidator->isConnectedToGetResponse()) {
-            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
         $this->cacheManager = $cacheManager;
+
     }
 
 
@@ -60,14 +52,7 @@ class Delete extends Action
      */
     public function execute()
     {
-        $this->repository->clearConnectionSettings();
-        $this->repository->clearRegistrationSettings();
-        $this->repository->clearAccountDetails();
-        $this->repository->clearWebforms();
-        $this->repository->clearRules();
-        $this->repository->clearWebEventTracking();
-        $this->repository->clearCustoms();
-
+        $this->repository->clearDatabase();
         $this->cacheManager->clean(['config']);
 
         $this->messageManager->addSuccessMessage('GetResponse account disconnected');

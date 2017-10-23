@@ -1,14 +1,15 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
-use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
-use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Cache\TypeListInterface;
+use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\App\Request\Http;
+use Magento\Backend\App\Action;
 
 /**
  * Class SaveShop
@@ -24,33 +25,38 @@ class SaveShop extends Action
     /** @var Repository */
     private $repository;
 
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
      * @param Context $context
      * @param TypeListInterface $cache
      * @param Repository $repository
-     * @param AccessValidator $accessValidator
+     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         TypeListInterface $cache,
         Repository $repository,
-        AccessValidator $accessValidator
-    ) {
+        RepositoryValidator $repositoryValidator
+    )
+    {
         parent::__construct($context);
-
-        if (false === $accessValidator->isConnectedToGetResponse()) {
-            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $this->cache = $cache;
         $this->repository = $repository;
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
-     * @return Redirect
+     * @return ResponseInterface|Redirect
      */
     public function execute()
     {
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::BACK_URL);
 

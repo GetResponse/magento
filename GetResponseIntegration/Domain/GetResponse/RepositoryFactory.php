@@ -3,9 +3,12 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository as MagentoRepository;
+use Magento\Framework\App\CacheInterface;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Controller\ResultFactory;
 
 /**
  * Class RepositoryFactory
@@ -19,33 +22,33 @@ class RepositoryFactory
     /** @var ObjectManagerInterface */
     private $objectManager;
 
+    /** @var CacheInterface */
+    private $cache;
+
     /**
      * @param ObjectManagerInterface $objectManager
      * @param MagentoRepository $repository
+     * @param CacheInterface $cache
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
-        MagentoRepository $repository
-    ) {
+        MagentoRepository $repository,
+        CacheInterface $cache
+    ){
         $this->objectManager = $objectManager;
         $this->repository = $repository;
+        $this->cache = $cache;
     }
 
     /**
      * @return Repository
-     * @throws GetResponseRepositoryException
+     * @throws RepositoryException
      */
-    public function createRepository()
+    public function buildRepository()
     {
-        $connectionSettings = ConnectionSettingsFactory::createFromArray(
+        return RepositoryFactory::buildFromConnectionSettings(ConnectionSettingsFactory::buildFromRepository(
             $this->repository->getConnectionSettings()
-        );
-
-        if (empty($connectionSettings->getApiKey())) {
-            throw GetResponseRepositoryException::buildForInvalidApiKey();
-        }
-
-        return RepositoryFactory::createFromConnectionSettings($connectionSettings);
+        ));
     }
 
     /**
@@ -53,14 +56,13 @@ class RepositoryFactory
      *
      * @return Repository
      */
-    public function createFromConnectionSettings(ConnectionSettings $connectionSettings)
+    public function buildFromConnectionSettings(ConnectionSettings $connectionSettings)
     {
-        return new Repository(new GetResponseAPI3(
+        return $this->createRepository(
             $connectionSettings->getApiKey(),
             $connectionSettings->getUrl(),
-            $connectionSettings->getDomain(),
-            $this->getVersion()
-        ));
+            $connectionSettings->getDomain()
+        );
     }
 
     /**
@@ -70,14 +72,17 @@ class RepositoryFactory
      *
      * @return Repository
      */
-    public function createNewRepository($apiKey, $url, $domain)
+    public function createRepository($apiKey, $url, $domain)
     {
-        return new Repository(new GetResponseAPI3(
-            $apiKey,
-            $url,
-            $domain,
-            $this->getVersion()
-        ));
+        return new Repository(
+            new GetResponseAPI3(
+                $apiKey,
+                $url,
+                $domain,
+                $this->getVersion()
+            ),
+            $this->cache
+        );
     }
 
     /**

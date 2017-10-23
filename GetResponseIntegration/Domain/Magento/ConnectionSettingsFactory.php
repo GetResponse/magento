@@ -9,7 +9,6 @@ class ConnectionSettingsFactory
 {
     /**
      * @param array $resource
-     *
      * @return ConnectionSettings
      */
     public static function createFromArray(array $resource)

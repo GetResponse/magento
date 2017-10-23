@@ -45,6 +45,7 @@ class Campaign
         $this->replyTo = $replyTo;
         $this->subject = $subject;
         $this->body = $body;
+        $this->language = $language;
     }
 
     /**

@@ -1,7 +1,6 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
@@ -67,12 +66,19 @@ class Settings extends Template
      */
     public function getHiddenApiKey()
     {
-        $settings = ConnectionSettingsFactory::createFromArray(
-            $this->repository->getConnectionSettings()
-        );
+        $settings = $this->repository->getConnectionSettings();
 
-        return strlen($settings->getApiKey()) > 0 ? str_repeat("*",
-                strlen($settings->getApiKey()) - 6) . substr($settings->getApiKey(), -6) : '';
+        if (empty($settings)) {
+            return '';
+        }
+
+        $settings = ConnectionSettingsFactory::createFromArray($settings);
+
+        if (empty($settings->getApiKey())) {
+            return '';
+        }
+
+        return strlen($settings->getApiKey()) > 0 ? str_repeat("*", strlen($settings->getApiKey()) - 6) . substr($settings->getApiKey(), -6) : '';
     }
 
     /**
@@ -125,6 +131,7 @@ class Settings extends Template
      */
     public function isConnectedToGetResponse()
     {
-        return (new AccessValidator($this->repository))->isConnectedToGetResponse();
+        $settings = $this->repository->getConnectionSettings();
+        return !empty($settings['apiKey']);
     }
 }

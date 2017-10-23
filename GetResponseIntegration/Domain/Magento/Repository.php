@@ -3,7 +3,7 @@ namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetResponseRepositoryException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
@@ -305,7 +305,7 @@ class Repository
     /**
      * @param int $id
      * @param Rule $rule
-     * @throws GetResponseRepositoryException
+     * @throws RepositoryException
      */
     public function updateRule($id, Rule $rule)
     {
@@ -563,5 +563,38 @@ class Repository
     public function getWebformSettings()
     {
         return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_WEBFORMS));
+    }
+
+    /**
+     * @return string
+     */
+    public function getUnauthorizedApiCallDate()
+    {
+        return $this->_scopeConfig->getValue(Config::CONFIG_DATA_UNAUTHORIZED_API_CALL_DATE);
+    }
+
+
+    /**
+     * @param string $value
+     */
+    public function setUnauthorizedApiCallDate($value)
+    {
+        $this->configWriter->save(
+            Config::CONFIG_DATA_UNAUTHORIZED_API_CALL_DATE,
+            $value,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+    }
+
+    public function clearDatabase()
+    {
+        $this->clearConnectionSettings();
+        $this->clearRegistrationSettings();
+        $this->clearAccountDetails();
+        $this->clearWebforms();
+        $this->clearRules();
+        $this->clearWebEventTracking();
+        $this->clearCustoms();
     }
 }

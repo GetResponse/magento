@@ -1,12 +1,10 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
-use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
-use GetResponse\GetResponseIntegration\Helper\Config;
-use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Controller\Result\Json;
@@ -32,23 +30,17 @@ class CreateShop extends Action
      * @param RepositoryFactory $repositoryFactory
      * @param Repository $repository
      * @param JsonFactory $resultJsonFactory
-     * @param AccessValidator $accessValidator
      */
     public function __construct(
         Context $context,
         RepositoryFactory $repositoryFactory,
         Repository $repository,
-        JsonFactory $resultJsonFactory,
-        AccessValidator $accessValidator
-    ) {
+        JsonFactory $resultJsonFactory
+    )
+    {
         parent::__construct($context);
-
-        if (false === $accessValidator->isConnectedToGetResponse()) {
-            $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->createRepository();
+        $this->grRepository = $repositoryFactory->buildRepository();
         $this->resultJsonFactory = $resultJsonFactory;
     }
 
@@ -62,7 +54,7 @@ class CreateShop extends Action
         $data = $request->getPostValue();
 
         if (!isset($data['shop_name']) || strlen($data['shop_name']) === 0) {
-            return $this->resultJsonFactory->create()->setData(['error' => 'Incorrect shop name']);
+            return  $this->resultJsonFactory->create()->setData(['error' => 'Incorrect shop name']);
         }
 
         $countryCode = $this->repository->getMagentoCountryCode();
