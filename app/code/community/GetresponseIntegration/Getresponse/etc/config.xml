@@ -2,7 +2,7 @@
 <config>
     <modules>
         <GetresponseIntegration_Getresponse>
-            <version>19.1.0</version>
+            <version>19.1.1</version>
         </GetresponseIntegration_Getresponse>
     </modules>
     <global>
