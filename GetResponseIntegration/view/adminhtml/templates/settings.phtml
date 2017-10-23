@@ -1,6 +1,11 @@
 <?php
-/** @var $block \GetResponse\GetResponseIntegration\Block\Settings */
-$isApiActive = $block->checkApiKey();
+use GetResponse\GetResponseIntegration\Block\Settings;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
+/** @var $block Settings */
+$isApiActive = $block->isConnectedToGetResponse();
+
+/** @var Account $account */
+$account = $block->getAccountInfo();
 ?>
 
 <form method="post" action="<?php echo $block->getUrl('getresponseintegration/settings/save'); ?>">
@@ -105,9 +110,7 @@ $isApiActive = $block->checkApiKey();
                         </tr>
                         <?php endif; ?>
                             <?php
-                            if ($isApiActive) :
-                                $account = $block->getAccountInfo();
-                            ?>
+                            if ($isApiActive) : ?>
                         <tr>
                             <td>Name:</td>
                             <td><?php echo $account->getFirstName() . ' ' . $account->getLastName(); ?></td>

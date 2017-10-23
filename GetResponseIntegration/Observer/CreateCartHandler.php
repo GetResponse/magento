@@ -1,6 +1,8 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Checkout\Model\Cart;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -11,6 +13,7 @@ use Magento\Quote\Model\Quote\Item;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Model\ProductMapFactory;
 use Magento\Directory\Model\CountryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class CreateCartHandler
@@ -24,6 +27,9 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
     /** @var ScopeConfigInterface */
     private $scopeConfig;
 
+    /** @var GrRepository */
+    private $grRepository;
+
     /**
      * @param ObjectManagerInterface $objectManager
      * @param Cart $cart
@@ -31,6 +37,8 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
      * @param Session $customerSession
      * @param ProductMapFactory $productMapFactory
      * @param CountryFactory $countryFactory
+     * @param RepositoryFactory $repositoryFactory
+     * @param Repository $repository
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
@@ -38,12 +46,16 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
         ScopeConfigInterface $scopeConfig,
         Session $customerSession,
         ProductMapFactory $productMapFactory,
-        CountryFactory $countryFactory
+        CountryFactory $countryFactory,
+        RepositoryFactory $repositoryFactory,
+        Repository $repository
     ) {
         $this->cart = $cart;
         $this->scopeConfig = $scopeConfig;
+        $this->grRepository = $repositoryFactory->createRepository();
 
-        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory);
+        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory,
+            $repository);
     }
 
     /**
@@ -57,9 +69,10 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
         }
 
         $totalPrice = $totalTaxPrice = 0;
-        $shopId = $this->scopeConfig->getValue(Config::SHOP_ID);
+        $shopId = $this->scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
 
         $requestToGr = [
+            'externalId' => $this->cart->getQuote()->getId(),
             'contactId' => $this->getContactFromGetResponse()->contactId,
             'currency' => $this->cart->getQuote()->getQuoteCurrencyCode(),
             'totalPrice' => $totalPrice,
@@ -100,7 +113,8 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
 
         if (empty($requestToGr['selectedVariants'])) {
             if (!empty($quote->getData('getresponse_cart_id'))) {
-                $this->apiClient->deleteCart(
+
+                $this->grRepository->deleteCart(
                     $shopId,
                     $quote->getData('getresponse_cart_id')
                 );
@@ -108,20 +122,22 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
                 $quote->setData('getresponse_cart_id', '');
                 $quote->save();
             }
+
             return $this;
         }
 
         if (empty($quote->getData('getresponse_cart_id'))) {
-            $response = $this->apiClient->addCart($shopId, $requestToGr);
+            $response = $this->grRepository->addCart($shopId, $requestToGr);
             $quote->setData('getresponse_cart_id', $response->cartId);
             $quote->save();
         } else {
-            $this->apiClient->updateCart(
+            $this->grRepository->updateCart(
                 $shopId,
                 $quote->getData('getresponse_cart_id'),
                 $requestToGr
             );
         }
+
         return $this;
     }
 }

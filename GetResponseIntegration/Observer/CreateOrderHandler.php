@@ -1,6 +1,8 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Directory\Model\CountryFactory;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer as EventObserver;
@@ -11,6 +13,7 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\Order;
 use GetResponse\GetResponseIntegration\Model\ProductMapFactory;
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class CreateOrderHandler
@@ -21,8 +24,14 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
     /** @var ScopeConfigInterface */
     private $scopeConfig;
 
-    private $orderFactory;
+    /** @var Order */
+    private $order;
+
+    /** @var QuoteFactory */
     private $quoteFactory;
+
+    /** @var GrRepository */
+    private $grRepository;
 
     /**
      * @param ObjectManagerInterface $objectManager
@@ -32,6 +41,8 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
      * @param ProductMapFactory $productMapFactory
      * @param CountryFactory $countryFactory
      * @param ScopeConfigInterface $scopeConfig
+     * @param RepositoryFactory $repositoryFactory
+     * @param Repository $repository
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
@@ -40,14 +51,18 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
         Order $orderFactory,
         ProductMapFactory $productMapFactory,
         CountryFactory $countryFactory,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        RepositoryFactory $repositoryFactory,
+        Repository $repository
     ) {
-        $this->orderFactory = $orderFactory;
+        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory,
+            $repository);
+
+        $this->order = $orderFactory;
         $this->quoteFactory = $quoteFactory;
         $this->countryFactory = $countryFactory;
         $this->scopeConfig = $scopeConfig;
-
-        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory);
+        $this->grRepository = $repositoryFactory->createRepository();
     }
 
     /**
@@ -59,13 +74,13 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
             return;
         }
 
-        $shopId = $this->scopeConfig->getValue(Config::SHOP_ID);
+        $shopId = $this->scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
 
         $orderIds = $observer->getEvent()->getOrderIds();
         $lastOrderId = $orderIds[0];
 
         /** @var Order $order */
-        $order = $this->orderFactory->load($lastOrderId);
+        $order = $this->order->load($lastOrderId);
 
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->quoteFactory->create()->load($order->getQuoteId());
@@ -74,7 +89,7 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
         $requestToGr['cartId'] = $quote->getGetresponseCartId();
 
 
-        $response = $this->apiClient->createOrder(
+        $response = $this->grRepository->createOrder(
             $shopId,
             $requestToGr
         );

@@ -1,11 +1,15 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules;
 
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RuleFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
-
+use Magento\Framework\App\Request\Http;
 
 /**
  * Class Edit
@@ -13,15 +17,34 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Edit extends Action
 {
+    const PAGE_TITLE = 'Edit rule';
+    const AUTOMATION_URL = 'getresponseintegration/settings/automation';
+
+    /** @var PageFactory */
     protected $resultPageFactory;
+
+    /** @var Repository */
+    private $repository;
+
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
+     * @param Repository $repository
+     * @param RepositoryValidator $repositoryValidator
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
-    {
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        Repository $repository,
+        RepositoryValidator $repositoryValidator
+    ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
+        $this->repository = $repository;
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -32,23 +55,40 @@ class Edit extends Action
      */
     public function execute()
     {
-        $resultRedirect = $this->resultRedirectFactory->create();
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
+
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
 
         $id = $this->getRequest()->getParam('id');
 
         if (empty($id)) {
             $this->messageManager->addErrorMessage('Incorrect rule');
-            $resultRedirect->setPath('getresponseintegration/settings/automation');
+            $resultRedirect = $this->resultRedirectFactory->create();
+            $resultRedirect->setPath(self::AUTOMATION_URL);
+
             return $resultRedirect;
         }
 
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::rules');
-        $resultPage->getConfig()->getTitle()->prepend('Edit rule');
+        $rule = $this->repository->getRuleById($id);
 
-        $data = $this->getRequest()->getPostValue();
+        if (empty($rule)) {
+            $this->messageManager->addErrorMessage('Incorrect rule');
+            $resultRedirect = $this->resultRedirectFactory->create();
+            $resultRedirect->setPath(self::AUTOMATION_URL);
+
+            return $resultRedirect;
+        }
+
+        /** @var Http $request */
+        $request = $this->getRequest();
+        $data = $request->getPostValue();
 
         if (empty($data)) {
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
@@ -56,27 +96,20 @@ class Edit extends Action
 
         if (!empty($error)) {
             $this->messageManager->addErrorMessage($error);
-            $resultRedirect->setPath('getresponseintegration/rules/create');
-            return $resultRedirect;
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
+            return $resultPage;
         }
 
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $automation = $this->_objectManager->get('GetResponse\GetResponseIntegration\Model\Automation');
-
-        $cycle_day = (isset($data['gr_autoresponder']) && $data['gr_autoresponder'] == 1 && isset($data['cycle_day'])) ? $data['cycle_day'] : '';
-
-        $automation->load($id, 'id')
-            ->setIdShop($storeId)
-            ->setCategoryId($data['category'])
-            ->setCampaignId($data['campaign_id'])
-            ->setActive(1)
-            ->setCycleDay($cycle_day)
-            ->setAction($data['action'])
-            ->save();
+        $data['id'] = uniqid();
+        $rule = RuleFactory::createFromArray($data);
+        $this->repository->updateRule($id, $rule);
 
         $this->messageManager->addSuccessMessage('Rule has been updated');
+        $resultRedirect = $this->resultRedirectFactory->create();
+        $resultRedirect->setPath(self::AUTOMATION_URL);
 
-        $resultRedirect->setPath('getresponseintegration/settings/automation');
         return $resultRedirect;
     }
 }

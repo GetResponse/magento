@@ -1,12 +1,4 @@
 <?php
-/**
- * GetResponse API V3 class
- *
- *  @author    Grzegorz Struczynski <grzegorz.struczynski@implix.com>
- *  @see http://apidocs.getresponse.com/en/v3/resources
- *  @copyright GetResponse
- *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
- */
 namespace GetResponse\GetResponseIntegration\Helper;
 
 /**
@@ -15,18 +7,29 @@ namespace GetResponse\GetResponseIntegration\Helper;
  */
 class GetResponseAPI3
 {
+    /** @var string */
     private $api_key;
+
+    /** @var string */
     private $api_url = 'https://api.getresponse.com/v3';
+
+    /** @var int */
     private $timeout = 8;
-    private $enterprise_domain = null;
+
+    /** @var string */
+    private $enterprise_domain;
+
+    /** @var string */
     public $http_status;
+
+    /** @var string */
     private $version;
 
     /**
      * Set api key and optionally API endpoint
-     * @param      $api_key
-     * @param null $api_url
-     * @param null $enterprise_domain
+     * @param string $api_key
+     * @param string $api_url
+     * @param string $enterprise_domain
      * @param string $version
      */
     public function __construct($api_key, $api_url = null, $enterprise_domain = null, $version = '')
@@ -92,16 +95,8 @@ class GetResponseAPI3
     }
 
     /**
-     * list all RSS newsletters
-     * @return mixed
-     */
-    public function getRSSNewsletters()
-    {
-        $this->call('rss-newsletters', 'GET', null);
-    }
-
-    /**
      * get all subscription confirmation subjects
+     * @param string $lang
      * @return mixed
      */
     public function getSubscriptionConfirmationsSubject($lang = 'EN')
@@ -111,6 +106,7 @@ class GetResponseAPI3
 
     /**
      * get all subscription confirmation bodies
+     * @param string $lang
      * @return mixed
      */
     public function getSubscriptionConfirmationsBody($lang = 'EN')
@@ -119,29 +115,9 @@ class GetResponseAPI3
     }
 
     /**
-     * send one newsletter
-     *
-     * @param $params
-     * @return mixed
-     */
-    public function sendNewsletter($params)
-    {
-        return $this->call('newsletters', 'POST', $params);
-    }
-
-    /**
-     * @param $params
-     * @return mixed
-     */
-    public function sendDraftNewsletter($params)
-    {
-        return $this->call('newsletters/send-draft', 'POST', $params);
-    }
-
-    /**
      * add single contact into your campaign
      *
-     * @param $params
+     * @param array $params
      * @return mixed
      */
     public function addContact($params)
@@ -161,15 +137,6 @@ class GetResponseAPI3
     }
 
     /**
-     * get contact activities
-     * @param $contact_id
-     */
-    public function getContactActivities($contact_id)
-    {
-        $this->call('contacts/' . $contact_id . '/activities');
-    }
-
-    /**
      * retrieving contact by params
      * @param array $params
      *
@@ -182,7 +149,7 @@ class GetResponseAPI3
 
     /**
      * updating any fields of your subscriber (without email of course)
-     * @param       $contact_id
+     * @param string $contact_id
      * @param array $params
      *
      * @return mixed
@@ -217,7 +184,7 @@ class GetResponseAPI3
     /**
      * retrieve single custom field
      *
-     * @param string $cs_id obtained by API
+     * @param array $params
      * @return mixed
      */
     public function addCustomField($params = [])
@@ -250,7 +217,7 @@ class GetResponseAPI3
     /**
      * add custom field
      *
-     * @param $params
+     * @param array $params
      * @return mixed
      */
     public function setCustomField($params)
@@ -261,7 +228,7 @@ class GetResponseAPI3
     /**
      * retrieve single custom field
      *
-     * @param string $cs_id obtained by API
+     * @param string $custom_id obtained by API
      * @return mixed
      */
     public function getCustomField($custom_id)
@@ -270,24 +237,14 @@ class GetResponseAPI3
     }
 
     /**
-     * retrieving billing information
-     *
-     * @return mixed
-     */
-    public function getBillingInfo()
-    {
-        return $this->call('accounts/billing');
-    }
-
-    /**
      * get single web form
      *
-     * @param int $w_id
+     * @param int $webform_id
      * @return mixed
      */
-    public function getWebForm($w_id)
+    public function getWebForm($webform_id)
     {
-        return $this->call('webforms/' . $w_id);
+        return $this->call('webforms/' . $webform_id);
     }
 
     /**
@@ -346,7 +303,7 @@ class GetResponseAPI3
      * @param string $http_method
      * @param array $params
      * @return mixed
-     * @throws Exception
+     * @throws \Exception
      */
     private function call($api_method = null, $http_method = 'GET', $params = [])
     {
@@ -360,7 +317,7 @@ class GetResponseAPI3
         }
 
         $params = json_encode($params);
-        $url = $this->api_url  . '/' .  $api_method;
+        $url = $this->api_url . '/' . $api_method;
 
         $headers = [
             'X-Auth-Token: api-key ' . $this->api_key,
@@ -391,14 +348,18 @@ class GetResponseAPI3
             $options[CURLOPT_CUSTOMREQUEST] = 'DELETE';
         }
 
-        $curl = curl_init();
-        curl_setopt_array($curl, $options);
+        try {
+            $curl = curl_init();
+            curl_setopt_array($curl, $options);
 
-        $response = json_decode(curl_exec($curl));
+            $response = json_decode(curl_exec($curl));
+            $this->http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-        $this->http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            curl_close($curl);
+        } catch (\Exception $e) {
+            return false;
+        }
 
-        curl_close($curl);
         return (object)$response;
     }
 
@@ -415,6 +376,7 @@ class GetResponseAPI3
                 $result[$key] = $value;
             }
         }
+
         return http_build_query($result);
     }
 
@@ -427,11 +389,11 @@ class GetResponseAPI3
      */
     public function createShop($shopName, $locale, $currency)
     {
-        $params = array(
+        $params = [
             'name' => $shopName,
             'locale' => $locale,
             'currency' => $currency
-        );
+        ];
 
         return $this->call('shops', 'POST', $params);
     }
@@ -445,6 +407,7 @@ class GetResponseAPI3
     }
 
     /**
+     * @param string $shopId
      * @return mixed
      */
     public function deleteShop($shopId)
@@ -452,34 +415,71 @@ class GetResponseAPI3
         return $this->call('shops/' . $shopId, 'DELETE');
     }
 
+    /**
+     * @param string $shopId
+     * @param array $params
+     *
+     * @return mixed
+     */
     public function addNewCart($shopId, $params)
     {
         return $this->call('shops/' . $shopId . '/carts', 'POST', $params);
     }
 
+    /**
+     * @param string $shopId
+     * @param string $cartId
+     * @param array $params
+     *
+     * @return mixed
+     */
     public function updateCart($shopId, $cartId, $params)
     {
-        return $this->call('shops/' . $shopId . '/carts/'.$cartId, 'POST', $params);
+        return $this->call('shops/' . $shopId . '/carts/' . $cartId, 'POST', $params);
     }
 
+    /**
+     * @param string $shopId
+     * @param string $cartId
+     *
+     * @return mixed
+     */
     public function deleteCart($shopId, $cartId)
     {
-        return $this->call('shops/' . $shopId . '/carts/'.$cartId, 'DELETE');
+        return $this->call('shops/' . $shopId . '/carts/' . $cartId, 'DELETE');
     }
 
+    /**
+     * @param string $shopId
+     * @param array $params
+     *
+     * @return mixed
+     */
     public function addProduct($shopId, $params)
     {
-        return $this->call('shops/'.$shopId.'/products', 'POST', $params);
+        return $this->call('shops/' . $shopId . '/products', 'POST', $params);
     }
 
+    /**
+     * @param string $shopId
+     * @param array $params
+     *
+     * @return mixed
+     */
     public function addCart($shopId, $params)
     {
-        return $this->call('shops/'.$shopId.'/carts', 'POST', $params);
+        return $this->call('shops/' . $shopId . '/carts', 'POST', $params);
     }
 
+    /**
+     * @param string $shopId
+     * @param array $params
+     *
+     * @return mixed
+     */
     public function createOrder($shopId, $params)
     {
-        return $this->call('shops/'.$shopId.'/orders', 'POST', $params);
+        return $this->call('shops/' . $shopId . '/orders', 'POST', $params);
     }
 
     /**
@@ -491,12 +491,19 @@ class GetResponseAPI3
      */
     public function getOrder($shopId, $orderId, $params = [])
     {
-        return $this->call('shops/'.$shopId.'/orders/'.$orderId, 'GET', $params);
+        return $this->call('shops/' . $shopId . '/orders/' . $orderId, 'GET', $params);
     }
 
+    /**
+     * @param string $shopId
+     * @param string $orderId
+     * @param array $params
+     *
+     * @return mixed
+     */
     public function updateOrder($shopId, $orderId, $params)
     {
-        return $this->call('shops/'.$shopId.'/orders/'.$orderId, 'POST', $params);
+        return $this->call('shops/' . $shopId . '/orders/' . $orderId, 'POST', $params);
     }
 
     /**
@@ -506,7 +513,8 @@ class GetResponseAPI3
      */
     public function getCustomFieldByName($name)
     {
-        $result = (array) $this->call('custom-fields?query[name]=' . $name);
+        $result = (array)$this->call('custom-fields?query[name]=' . $name);
+
         return reset($result);
     }
 }

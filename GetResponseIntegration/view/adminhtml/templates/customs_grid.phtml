@@ -1,6 +1,19 @@
 <?php
-$customs = $block->getDefaultCustoms()->getData();
+
+use GetResponse\GetResponseIntegration\Block\Export;
+use GetResponse\GetResponseIntegration\Block\Registration;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomField;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
+
+/** @var $block Registration */
+/** @var $block Export */
+/** @var CustomField $_custom */
+/** @var CustomFieldsCollection $customsCollection */
+$customsCollection = $block->getCustoms();
 $customNum = 3;
+$customs = $customsCollection->toArray();
+$arr = array_slice($customs, $customNum);
+$firstCustom = reset($arr);
 ?>
 <div class="admin__data-grid-header admin__data-grid-toolbar">
     <button id="addNewMappingBtn" title="Add new mapping" type="button" class="action- scalable action-secondary">
@@ -23,19 +36,19 @@ $customNum = 3;
         </tr>
         </thead>
         <tbody id="customsDataBody">
-        <?php if (count($customs) > 0): ?>
-            <?php foreach ($customs as $key => $custom): ?>
-                <?php if ($custom['active_custom'] == 1): ?>
+        <?php if (count($customsCollection->getCustoms()) > 0): ?>
+            <?php foreach ($customsCollection->getCustoms() as $key => $custom): ?>
+                <?php if ($custom->isActive()): ?>
                     <tr class="data-row <?php if ($key % 2): ?>_odd-row<?php endif ?>">
                         <td>
                             <div class="data-grid-cell-content">
                                 <select
-                                    <?php if ($custom['default'] == 1): ?>disabled<?php endif ?>
+                                    <?php if ($custom->isDefault()): ?>disabled<?php endif ?>
                                     name="custom[]">
-                                    <?php foreach ($customs as $_custom): ?>
+                                    <?php foreach ($customsCollection->getCustoms() as $_custom): ?>
                                         <option
-                                            <?php if ($_custom['id'] === $custom['id']): ?>selected="selected"<?php endif ?>
-                                            value="<?php echo $_custom['custom_field'] ?>"><?php echo $_custom['custom_value'] ?></option>
+                                            <?php if ($_custom->getId() === $custom->getId()): ?>selected="selected"<?php endif ?>
+                                            value="<?php echo $_custom->getCustomField() ?>"><?php echo $_custom->getCustomValue() ?></option>
                                     <?php endforeach ?>
                                 </select>
                             </div>
@@ -43,13 +56,13 @@ $customNum = 3;
                         <td>
                             <div class="data-grid-cell-content">
                                 <input
-                                    <?php if ($custom['default'] == 1): ?>disabled<?php endif ?>
-                                    type="text" name="gr_custom[]" value="<?php echo $custom['custom_name'] ?>">
+                                    <?php if ($custom->isDefault()): ?>disabled<?php endif ?>
+                                    type="text" name="gr_custom[]" value="<?php echo $custom->getCustomName() ?>">
                             </div>
                         </td>
                         <td>
                             <div class="data-grid-cell-content">
-                                <?php if ($custom['default'] != 1): ?>
+                                <?php if (!$custom->isDefault()): ?>
                                     <a href="#" class="deleteCustomBtn">Delete</a>
                                 <?php endif ?>
                             </div>

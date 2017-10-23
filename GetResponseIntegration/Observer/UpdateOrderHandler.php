@@ -1,6 +1,8 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Directory\Model\CountryFactory;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer as EventObserver;
@@ -11,6 +13,7 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\Order;
 use GetResponse\GetResponseIntegration\Model\ProductMapFactory;
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class UpdateOrderHandler
@@ -21,8 +24,17 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
     /** @var ScopeConfigInterface */
     private $scopeConfig;
 
-    private $orderFactory;
+    /** @var Order */
+    private $order;
+
+    /** @var QuoteFactory */
     private $quoteFactory;
+
+    /** @var GrRepository */
+    private $grRepository;
+
+    /** @var Repository */
+    private $repository;
 
     /**
      * @param ObjectManagerInterface $objectManager
@@ -32,6 +44,8 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
      * @param ProductMapFactory $productMapFactory
      * @param CountryFactory $countryFactory
      * @param ScopeConfigInterface $scopeConfig
+     * @param RepositoryFactory $repositoryFactory
+     * @param Repository $repository
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
@@ -40,13 +54,18 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
         Order $orderFactory,
         ProductMapFactory $productMapFactory,
         CountryFactory $countryFactory,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        RepositoryFactory $repositoryFactory,
+        Repository $repository
     ) {
-        $this->orderFactory = $orderFactory;
+        $this->order = $orderFactory;
         $this->quoteFactory = $quoteFactory;
         $this->scopeConfig = $scopeConfig;
+        $this->grRepository = $repositoryFactory->createRepository();
+        $this->repository = $repository;
 
-        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory);
+        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory,
+            $repository);
     }
 
     /**
@@ -54,7 +73,7 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
      */
     public function execute(EventObserver $observer)
     {
-        $shopId = $this->scopeConfig->getValue(Config::SHOP_ID);
+        $shopId = $this->scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
 
         /** @var \Magento\Sales\Model\Order $order */
         $order = $observer->getEvent()->getOrder();
@@ -66,7 +85,7 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
             return;
         }
 
-        $this->apiClient->updateOrder(
+        $this->grRepository->updateOrder(
             $shopId,
             $order->getGetresponseOrderId(),
             $requestToGr
@@ -82,14 +101,14 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
      */
     public function getGetresponseCartId(Order $order)
     {
-        $shopId = $this->scopeConfig->getValue(Config::SHOP_ID);
+        $shopId = $this->repository->getShopId();
         $getresponseOrderId = $order->getData('getresponse_order_id');
 
         if (empty($getresponseOrderId)) {
             return null;
         }
 
-        $order = $this->apiClient->getOrder($shopId, $getresponseOrderId);
+        $order = $this->grRepository->getOrder($shopId, $getresponseOrderId);
 
         return isset($order->cartId) ? $order->cartId : null;
     }

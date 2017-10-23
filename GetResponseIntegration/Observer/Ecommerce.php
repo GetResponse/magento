@@ -1,9 +1,11 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
-use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Customer\Model\Session;
-use Magento\Framework\App\Cache\Proxy;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Customer\Model\Customer;
 use GetResponse\GetResponseIntegration\Model\ProductMap;
@@ -12,6 +14,7 @@ use GetResponse\GetResponseIntegration\Model\ResourceModel\ProductMap\Collection
 use Magento\Quote\Model\Quote\Item;
 use Magento\Sales\Model\Order;
 use Magento\Directory\Model\CountryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class Ecommerce
@@ -19,15 +22,11 @@ use Magento\Directory\Model\CountryFactory;
  */
 class Ecommerce
 {
-    const CACHE_KEY = 'getresponse_cache';
     /** @var Session */
     protected $customerSession;
 
     /** @var ObjectManagerInterface */
     protected $objectManager;
-
-    /** @var GetResponseAPI3 */
-    protected $apiClient;
 
     /** @var ProductMapFactory */
     protected $productMapFactory;
@@ -35,29 +34,35 @@ class Ecommerce
     /** @var CountryFactory */
     protected $countryFactory;
 
-    /** @var Proxy */
-    protected $cache;
+    /** @var GrRepository */
+    private $grRepository;
+
+    /** @var Repository */
+    private $repository;
 
     /**
      * @param ObjectManagerInterface $objectManager
      * @param Session $customerSession
      * @param ProductMapFactory $productMapFactory
      * @param CountryFactory $countryFactory
+     * @param RepositoryFactory $repositoryFactory
+     * @param Repository $repository
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
         Session $customerSession,
         ProductMapFactory $productMapFactory,
-        CountryFactory $countryFactory
+        CountryFactory $countryFactory,
+        RepositoryFactory $repositoryFactory,
+        Repository $repository
     ) {
         $this->objectManager = $objectManager;
         $this->customerSession = $customerSession;
         $this->productMapFactory = $productMapFactory;
         $this->countryFactory = $countryFactory;
 
-        $block = $objectManager->create('GetResponse\GetResponseIntegration\Block\Settings');
-        $this->cache = $objectManager->get('Magento\Framework\App\CacheInterface');
-        $this->apiClient = $block->getClient();
+        $this->grRepository = $repositoryFactory->createRepository();
+        $this->repository = $repository;
     }
 
     /**
@@ -74,6 +79,7 @@ class Ecommerce
         if (!isset($contact->contactId)) {
             return false;
         }
+
         return true;
     }
 
@@ -82,30 +88,33 @@ class Ecommerce
      */
     protected function getContactFromGetResponse()
     {
-        $block = $this->objectManager->create('GetResponse\GetResponseIntegration\Block\Settings');
-        $settings = $block->getSettings();
+        $cache = $this->objectManager->get('Magento\Framework\App\CacheInterface');
+
+        $settings = RegistrationSettingsFactory::createFromArray(
+            $this->repository->getRegistrationSettings()
+        );
 
         /** @var Customer $customer */
         $customer = $this->customerSession->getCustomer();
 
-        $cacheKey = md5($customer->getEmail().$settings['campaign_id']);
-        $cachedCustomer = $this->cache->load($cacheKey);
+        $cacheKey = md5($customer->getEmail() . $settings->getCampaignId());
+        $cachedCustomer = $cache->load($cacheKey);
 
         if (false !== $cachedCustomer) {
             return unserialize($cachedCustomer);
         }
 
-        $params = array('query' =>
-            array(
+        $params = [
+            'query' => [
                 'email' => $customer->getEmail(),
-                'campaignId' => $settings['campaign_id']
-            )
-        );
+                'campaignId' => $settings->getCampaignId()
+            ]
+        ];
 
-        $response = (array) $this->apiClient->getContacts($params);
+        $response = (array)$this->grRepository->getContacts($params);
         $grCustomer = array_pop($response);
 
-        $this->cache->save(serialize($grCustomer), $cacheKey, [self::CACHE_KEY], 5*60);
+        $cache->save(serialize($grCustomer), $cacheKey, [Config::CACHE_KEY], Config::CACHE_TIME);
 
         return $grCustomer;
     }
@@ -145,6 +154,7 @@ class Ecommerce
         ]);
 
         $productMap->save();
+
         return $productId;
     }
 
@@ -163,7 +173,7 @@ class Ecommerce
             'variants' => [
                 [
                     'name' => $magentoCartItem->getProduct()->getName(),
-                    'price'=> $magentoCartItem->getProduct()->getPrice(),
+                    'price' => $magentoCartItem->getProduct()->getPrice(),
                     'priceTax' => 0,
                     'quantity' => $magentoCartItem->getProduct()->getQty(),
                     'sku' => $magentoCartItem->getProduct()->getSku(),
@@ -171,7 +181,8 @@ class Ecommerce
             ],
         ];
 
-        $response = $this->apiClient->addProduct($shopId, $params);
+        $response = $this->grRepository->addProduct($shopId, $params);
+
         return $this->handleProductResponse($response);
     }
 
@@ -210,7 +221,7 @@ class Ecommerce
             'currency' => $order->getOrderCurrencyCode(),
             'status' => $order->getStatus(),
             'cartId' => 0,
-            'shippingPrice'  => $order->getShippingAmount(),
+            'shippingPrice' => $order->getShippingAmount(),
             'externalId' => $order->getId(),
             'shippingAddress' => [
                 'countryCode' => $shippingCountry->getData('iso3_code'),

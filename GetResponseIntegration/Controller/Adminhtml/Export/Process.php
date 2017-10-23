@@ -1,13 +1,18 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Export;
 
-use GetResponse\GetResponseIntegration\Block\Settings;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomsFactory;
-use GetResponse\GetResponseIntegration\Helper\ApiHelper;
-use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+use GetResponse\GetResponseIntegration\Helper\ApiHelper;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\App\Request\Http;
 
 /**
  * Class Process
@@ -15,53 +20,81 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Process extends Action
 {
+    const PAGE_TITLE = 'Export Customer Data on Demand';
+
     protected $resultPageFactory;
 
-    /** @var ApiHelper */
-    private $apiHelper;
-
-    /** @var GetResponseAPI3 */
-    public $grApi;
+    /** @var Repository */
+    private $repository;
 
     public $stats = [
-        'count'      => 0,
-        'added'      => 0,
-        'updated'    => 0,
-        'error'      => 0
+        'count' => 0,
+        'added' => 0,
+        'updated' => 0,
+        'error' => 0
     ];
 
+    /** @var GrRepository */
+    private $grRepository;
+
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
-     * Process constructor.
      * @param Context $context
      * @param PageFactory $resultPageFactory
+     * @param Repository $repository
+     * @param RepositoryFactory $repositoryFactory
+     * @param RepositoryValidator $repositoryValidator
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
-    {
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        Repository $repository,
+        RepositoryFactory $repositoryFactory,
+        RepositoryValidator $repositoryValidator
+    ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
+        $this->grRepository = $repositoryFactory->createRepository();
+        $this->repository = $repository;
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
-     * @return \Magento\Framework\View\Result\Page
+     * @return \Magento\Framework\App\ResponseInterface|Page
      */
     public function execute()
     {
-        /** @var Settings $block */
-        $block = $this->_objectManager->create('GetResponse\GetResponseIntegration\Block\Settings');
-        $data = $this->getRequest()->getPostValue();
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
+
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
+        /** @var Http $request */
+        $request = $this->getRequest();
+        $data = $request->getPostValue();
+
+        if (empty($data)) {
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
+            return $resultPage;
+        }
 
         $campaign = $data['campaign_id'];
+
         if (empty($campaign)) {
             $this->messageManager->addErrorMessage('You need to select contact list');
             $resultPage = $this->resultPageFactory->create();
-            $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::export');
-            $resultPage->getConfig()->getTitle()->prepend('Export Customer Data on Demand');
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 
             return $resultPage;
         }
 
         if (isset($data['gr_sync_order_data'])) {
-            $customs = CustomsFactory::buildFromFormPayload($data);
+            $customs = CustomFieldFactory::createFromArray($data);
         } else {
             $customs = [];
         }
@@ -71,25 +104,17 @@ class Process extends Action
                 $this->messageManager->addErrorMessage('There is a problem with one of your custom field name! Field name
                 must be composed using up to 32 characters, only a-z (lower case), numbers and "_".');
                 $resultPage = $this->resultPageFactory->create();
-                $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::export');
-                $resultPage->getConfig()->getTitle()->prepend('Export Customer Data on Demand');
+                $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 
                 return $resultPage;
             }
         }
 
         // only those that are subscribed to newsletters
-        $customers = $block->getCustomers();
-        $this->grApi = $block->getClient();
-
-        if (empty($this->grApi)) {
-            return;
-        }
-
-        $this->apiHelper = new ApiHelper($this->grApi);
+        $customers = $this->repository->getFullCustomersDetails();
 
         foreach ($customers as $customer) {
-            $customer = $customer->getData();
+            // create contact factory
             $this->stats['count']++;
             $custom_fields = [];
             foreach ($customs as $field => $name) {
@@ -98,16 +123,16 @@ class Process extends Action
                 }
             }
             $custom_fields['origin'] = 'magento2';
-            $cycle_day = (isset($data['gr_autoresponder']) && $data['cycle_day'] != '') ? (int) $data['cycle_day'] : 0;
+            $cycle_day = (isset($data['gr_autoresponder']) && $data['cycle_day'] != '') ? (int)$data['cycle_day'] : 0;
 
-            $this->addContact($campaign, $customer['firstname'], $customer['lastname'], $customer['email'], $cycle_day, $custom_fields);
+            $this->addContact($campaign, $customer['firstname'], $customer['lastname'], $customer['email'], $cycle_day,
+                $custom_fields);
         }
 
         $this->messageManager->addSuccessMessage('Customer data exported');
 
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::export');
-        $resultPage->getConfig()->getTitle()->prepend('Export Customer Data on Demand');
+        $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 
         return $resultPage;
     }
@@ -120,60 +145,57 @@ class Process extends Action
      * @param       $firstname
      * @param       $lastname
      * @param       $email
-     * @param int   $cycle_day
+     * @param int $cycle_day
      * @param array $user_customs
      *
      * @return mixed
      */
     public function addContact($campaign, $firstname, $lastname, $email, $cycle_day = 0, $user_customs = [])
     {
+        $apiHelper = new ApiHelper($this->grRepository);
         $name = trim($firstname) . ' ' . trim($lastname);
 
         $user_customs['origin'] = 'magento2';
 
         $params = [
-            'name'       => $name,
-            'email'      => $email,
-            'campaign'   => ['campaignId' => $campaign],
-            'ipAddress'  => $_SERVER['REMOTE_ADDR']
+            'name' => $name,
+            'email' => $email,
+            'campaign' => ['campaignId' => $campaign],
+            'ipAddress' => $_SERVER['REMOTE_ADDR']
         ];
 
         if (!empty($cycle_day)) {
-            $params['dayOfCycle'] = (int) $cycle_day;
+            $params['dayOfCycle'] = (int)$cycle_day;
         }
 
-        $results = (array) $this->grApi->getContacts([
-            'query' => [
-                'email'      => $email,
-                'campaignId' => $campaign
-            ]
-        ]);
-
-        $contact = array_pop($results);
+        $contact = $this->grRepository->getContactByEmail($email, $campaign);
 
         // if contact already exists in gr account
         if (!empty($contact) && isset($contact->contactId)) {
-            $results = $this->grApi->getContact($contact->contactId);
-            if (!empty($results->customFieldValues)) {
-                $params['customFieldValues'] = $this->apiHelper->mergeUserCustoms($results->customFieldValues, $user_customs);
+            if (!empty($contact->customFieldValues)) {
+                $params['customFieldValues'] = $apiHelper->mergeUserCustoms($contact->customFieldValues, $user_customs);
             } else {
-                $params['customFieldValues'] = $this->apiHelper->setCustoms($user_customs);
+                $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
             }
-            $response = $this->grApi->updateContact($contact->contactId, $params);
+            $response = $this->grRepository->updateContact($contact->contactId, $params);
             if (isset($response->message)) {
                 $this->stats['error']++;
             } else {
                 $this->stats['updated']++;
             }
+
             return $response;
         } else {
-            $params['customFieldValues'] = $this->apiHelper->setCustoms($user_customs);
-            $response = $this->grApi->addContact($params);
+            $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
+
+            $response = $this->grRepository->addContact($params);
+
             if (isset($response->message)) {
                 $this->stats['error']++;
             } else {
                 $this->stats['added']++;
             }
+
             return $response;
         }
     }

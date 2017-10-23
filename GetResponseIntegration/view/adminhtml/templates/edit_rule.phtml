@@ -1,10 +1,9 @@
 <?php
-$customs = $block->getDefaultCustoms()->getData();
-$automation = $block->getAutomationByParam('id');
-
+/** @var GetResponse\GetResponseIntegration\Block\Rules $block */
+/** @var \GetResponse\GetResponseIntegration\Domain\GetResponse\Rule $rule */
+$rule = $block->getCurrentRule();
 $categories = $block->getStoreCategories();
 $campaigns = $block->getCampaigns();
-$autoresponders = $block->getAutoresponders();
 $jsAutoresponders = $block->getAutorespondersForFrontend();
 ?>
 <form id="editRuleForm" action="" method="POST">
@@ -48,8 +47,9 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                 <?php if (!empty($categories)): ?>
                                     <?php foreach ($categories as $category): ?>
                                         <option
-                                            <?php if ($category->getEntityId() === $automation['category_id']): ?>selected="selected"<?php endif ?>
+                                            <?php if ($category->getEntityId() == $rule->getCategory()): ?>selected="selected"<?php endif ?>
                                             value="<?php echo $category->getEntityId() ?>"><?php echo $category->getName() ?></option>
+                                        <?php echo $block->getSubcategories($category, $rule->getCategory()) ?>
                                     <?php endforeach ?>
                                 <?php endif ?>
                             </select>
@@ -65,11 +65,11 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                             <select name="action" id="action" class="admin__control-select">
                                 <option value="">They are</option>
                                 <option
-                                    <?php if ($automation['action'] === 'move'): ?>selected="selected"<?php endif ?>
+                                    <?php if ($rule->getAction() == 'move'): ?>selected="selected"<?php endif ?>
                                     value="move">moved
                                 </option>
                                 <option
-                                    <?php if ($automation['action'] === 'copy'): ?>selected="selected"<?php endif ?>
+                                    <?php if ($rule->getAction() == 'copy'): ?>selected="selected"<?php endif ?>
                                     value="copy">copied
                                 </option>
                             </select>
@@ -82,12 +82,12 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                             <span>Into the contact list</span>
                         </label>
                         <div class="admin__field-control _with-tooltip">
-                            <select name="campaign_id" id="campaign_id" class="admin__control-select">
+                            <select name="campaign" id="campaign_id" class="admin__control-select">
                                 <option value="">Into the contact list</option>
                                 <?php if (count($campaigns) > 0): ?>
                                     <?php foreach ($campaigns as $campaign): ?>
                                         <option
-                                            <?php if ($campaign->campaignId === $automation['campaign_id']): ?>selected="selected"<?php endif ?>
+                                            <?php if ($campaign->campaignId == $rule->getCampaign()): ?>selected="selected"<?php endif ?>
                                             value="<?php echo $campaign->campaignId ?>">
                                             <?php echo $campaign->name ?>
                                         </option>
@@ -108,7 +108,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                        id="gr_autoresponder"
                                        value="1"
                                     <?php
-                                    if (isset($automation['cycle_day']) && $automation['cycle_day'] != '0') {
+                                    if (!empty($rule->getAutoresponder())) {
                                         echo ' checked="checked"';
                                     }
                                     ?>
@@ -124,7 +124,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                         <div class="admin__field-control control">
                             <div class="admin__field cycle_day">
                                 <select name="cycle_day" id="cycle_day" class="select admin__control-select" aria-required="true" disabled="disabled"></select>
-                                <input type="hidden" name="selected_cycle_day" value="<?php echo $automation['cycle_day'] ?>" />
+                                <input type="hidden" name="selected_cycle_day" value="<?php echo $rule->getAutoresponder() ?>" />
                             </div>
                         </div>
                     </div>

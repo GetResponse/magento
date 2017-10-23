@@ -1,9 +1,16 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
-use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettingsFactory;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Request\Http;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
 /**
@@ -12,56 +19,80 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Webformpost extends Action
 {
+    const BACK_URL = 'getresponseintegration/settings/webform';
+
+    const PAGE_TITLE = 'Add contacts via GetResponse forms';
+
+    /** @var PageFactory */
     protected $resultPageFactory;
 
-    /** @var GetResponseAPI3 */
-    public $grApi;
+    /** @var Http */
+    private $request;
+
+    /** @var Repository */
+    private $repository;
+
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
 
     /**
-     * Webformpost constructor.
      * @param Context $context
      * @param PageFactory $resultPageFactory
+     * @param Repository $repository
+     * @param RepositoryValidator $repositoryValidator
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
-    {
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        Repository $repository,
+        RepositoryValidator $repositoryValidator
+    ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
+        $this->request = $this->getRequest();
+        $this->repository = $repository;
+        $this->repositoryValidator = $repositoryValidator;
     }
 
+    /**
+     * @return ResponseInterface|Redirect|Page
+     */
     public function execute()
     {
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::settings');
-        $resultPage->getConfig()->getTitle()->prepend('Add contacts via GetResponse forms');
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
 
-        $data = $this->getRequest()->getPostValue();
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
 
-        $resultRedirect = $this->resultRedirectFactory->create();
-        $resultRedirect->setPath('getresponseintegration/settings/webform');
+        $data = $this->request->getPostValue();
+
+        if (empty($data)) {
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
+            return $resultPage;
+        }
 
         $error = $this->validateWebformData($data);
 
         if (!empty($error)) {
             $this->messageManager->addErrorMessage($error);
-            return $resultRedirect;
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
+            return $resultPage;
         }
 
-        $publish = isset($data['publish']) ? $data['publish'] : 0;
-        $webform_id = isset($data['webform_id']) ? $data['webform_id'] : null;
-        $webform_url = isset($data['webform_url']) ? $data['webform_url'] : null;
-        $sidebar = isset($data['sidebar']) ? $data['sidebar'] : null;
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $webform = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Webform');
+        $webform = WebformSettingsFactory::createFromArray($data);
 
-        $webform->load($storeId, 'id_shop')
-            ->setIdShop($storeId)
-            ->setActiveSubscription($publish)
-            ->setUrl($webform_url)
-            ->setWebformId($webform_id)
-            ->setSidebar($sidebar)
-            ->save();
+        $this->repository->saveWebformSettings($webform);
 
-        $this->messageManager->addSuccessMessage($publish ? 'Form published' : 'Form unpublished');
+        $this->messageManager->addSuccessMessage($webform->isEnabled() ? 'Form published' : 'Form unpublished');
+
+        $resultRedirect = $this->resultRedirectFactory->create();
+        $resultRedirect->setPath(self::BACK_URL);
+
         return $resultRedirect;
     }
 
@@ -72,7 +103,7 @@ class Webformpost extends Action
      */
     private function validateWebformData($data)
     {
-        $webformId = isset($data['webform_id']) ? $data['webform_id'] : '';
+        $webformId = isset($data['webformId']) ? $data['webformId'] : '';
         $position = isset($data['sidebar']) ? $data['sidebar'] : '';
 
         if (strlen($webformId) === 0 && strlen($position) === 0) {
@@ -86,5 +117,7 @@ class Webformpost extends Action
         if (strlen($position) === 0) {
             return 'You need to select positioning of the form';
         }
+
+        return '';
     }
 }

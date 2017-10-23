@@ -1,47 +1,50 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
-use GetResponse\GetResponseIntegration\Helper\Config;
+use Magento\Framework\View\Element\Template;
 
 /**
  * Class Ecommerce
  * @package GetResponse\GetResponseIntegration\Block
  */
-class Ecommerce extends GetResponse
+class Ecommerce extends Template
 {
-    /** @var ObjectManagerInterface */
-    protected $_objectManager;
+    /** @var Repository */
+    private $repository;
 
-    /** @var ScopeConfigInterface  */
-    private $scopeConfig;
+    /** @var GrRepository */
+    private $grRepository;
 
     /**
      * @param Context $context
      * @param ObjectManagerInterface $objectManager
+     * @param Repository $repository
+     * @param RepositoryFactory $repositoryFactory
      */
-    public function __construct(Context $context, ObjectManagerInterface $objectManager)
-    {
-        parent::__construct($context, $objectManager);
-
-        $this->_objectManager = $objectManager;
-        $this->scopeConfig = $context->getScopeConfig();
+    public function __construct(
+        Context $context,
+        ObjectManagerInterface $objectManager,
+        Repository $repository,
+        RepositoryFactory $repositoryFactory
+    ) {
+        parent::__construct($context);
+        $this->repository = $repository;
+        $this->grRepository = $repositoryFactory->createRepository();
     }
 
     /**
      * @return string
      */
-    public function getShopStatusFromConfig()
+    public function getShopStatus()
     {
-        $shopStatus = $this->scopeConfig->getValue(Config::SHOP_STATUS);
-
-        if ('enabled' === $shopStatus) {
-            return 'enabled';
-        }
-
-        return 'disabled';
+        return $this->repository->getShopStatus();
     }
 
     /**
@@ -49,7 +52,7 @@ class Ecommerce extends GetResponse
      */
     public function getCurrentShopId()
     {
-        return $this->scopeConfig->getValue(Config::SHOP_ID);
+        return $this->repository->getShopId();
     }
 
     /**
@@ -57,6 +60,16 @@ class Ecommerce extends GetResponse
      */
     public function getShops()
     {
-        return (array) $this->getClient()->getShops();
+        return (array)$this->grRepository->getShops();
+    }
+
+    /**
+     * @return RegistrationSettings
+     */
+    public function getRegistrationSettings()
+    {
+        return RegistrationSettingsFactory::createFromArray(
+            $this->repository->getRegistrationSettings()
+        );
     }
 }

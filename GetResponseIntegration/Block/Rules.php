@@ -1,33 +1,45 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RuleFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollection;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollectionFactory;
+use Magento\Framework\Data\Tree\Node;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
-use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+use Magento\Framework\View\Element\Template;
 
 /**
  * Class Rules
  * @package GetResponse\GetResponseIntegration\Block
  */
-class Rules extends GetResponse
+class Rules extends Template
 {
-    /** @var ObjectManagerInterface */
-    protected $_objectManager;
+    /** @var Repository */
+    private $repository;
 
-    /** @var ScopeConfigInterface  */
-    private $scopeConfig;
+    /** @var GrRepository */
+    private $grRepository;
 
     /**
      * @param Context $context
      * @param ObjectManagerInterface $objectManager
+     * @param Repository $repository
+     * @param RepositoryFactory $repositoryFactory
      */
-    public function __construct(Context $context, ObjectManagerInterface $objectManager)
-    {
-        parent::__construct($context, $objectManager);
-
-        $this->_objectManager = $objectManager;
-        $this->scopeConfig = $context->getScopeConfig();
+    public function __construct(
+        Context $context,
+        ObjectManagerInterface $objectManager,
+        Repository $repository,
+        RepositoryFactory $repositoryFactory
+    ) {
+        parent::__construct($context);
+        $this->repository = $repository;
+        $this->grRepository = $repositoryFactory->createRepository();
     }
 
     /**
@@ -35,20 +47,7 @@ class Rules extends GetResponse
      */
     public function getStoreCategories()
     {
-        $_categoryHelper = $this->_objectManager->get('\Magento\Catalog\Helper\Category');
-        $categories = $_categoryHelper->getStoreCategories(true, false, true);
-
-        return $categories;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDefaultCustoms()
-    {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $customs = $this->_objectManager->get('GetResponse\GetResponseIntegration\Model\Customs');
-        return $customs->getCollection($storeId, 'id_shop');
+        return $this->repository->getStoreCategories();
     }
 
     /**
@@ -56,14 +55,32 @@ class Rules extends GetResponse
      */
     public function getCampaigns()
     {
-        return $this->getClient()->getCampaigns(['sort' => ['name' => 'asc']]);
+        return $this->grRepository->getCampaigns(['sort' => ['name' => 'asc']]);
     }
 
-    public function getAutomationByParam($param)
+    /**
+     * @return Rule
+     */
+    public function getCurrentRule()
     {
-        $value = $this->getRequest()->getParam($param);
-        $automation = $this->_objectManager->get('GetResponse\GetResponseIntegration\Model\Automation');
-        return $automation->load($value, $param)->getData();
+        return RuleFactory::createFromArray((array)$this->repository->getRuleById($this->_request->getParam('id')));
+    }
+
+    /**
+     * @return RulesCollection
+     */
+    public function getRulesCollection()
+    {
+        return RulesCollectionFactory::createFromRepository($this->repository->getRules());
+    }
+
+    /**
+     * @param $category_id
+     * @return mixed
+     */
+    public function getCategoryName($category_id)
+    {
+        return $this->repository->getCategoryName($category_id);
     }
 
     /**
@@ -72,7 +89,7 @@ class Rules extends GetResponse
     public function getAutoresponders()
     {
         $params = ['query' => ['triggerType' => 'onday', 'status' => 'active']];
-        $result = $this->getClient()->getAutoresponders($params);
+        $result = $this->grRepository->getAutoresponders($params);
         $autoresponders = [];
 
         if (!empty($result)) {
@@ -111,6 +128,58 @@ class Rules extends GetResponse
 
             $result[$id] = $array;
         }
+
         return $result;
+    }
+
+    /**
+     * @param Node $node
+     * @param $selectedCategory
+     */
+    public function getSubcategories(Node $node, $selectedCategory)
+    {
+        if ($node->hasChildren()) {
+            $childrenCategories = $node->getChildren();
+            foreach ($childrenCategories as $childrenCategory) {
+                $string = '';
+                for ($i = $childrenCategory->getLevel(); $i > 2; $i--) {
+                    $string .= '-';
+                }
+
+                $selected = $selectedCategory == $childrenCategory->getEntityId() ? 'selected="selected"' : '';
+
+                echo '<option ' . $selected . ' value="' . $childrenCategory->getEntityId() . '"> ' .
+                    $string . ' ' . $childrenCategory->getName() . '</option>';
+                $this->getSubcategories($childrenCategory, $selectedCategory);
+            }
+        }
+    }
+
+    /**
+     * @param string $action
+     *
+     * @return string
+     */
+    public function getAction($action)
+    {
+        switch ($action) {
+            case 'copy':
+                return 'copied';
+
+            case 'move':
+                return 'moved';
+
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    public function getCampaign($id)
+    {
+        return $this->grRepository->getCampaign($id);
     }
 }

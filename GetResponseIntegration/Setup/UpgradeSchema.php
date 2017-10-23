@@ -12,6 +12,11 @@ use Magento\Framework\Setup\UpgradeSchemaInterface;
  */
 class UpgradeSchema implements UpgradeSchemaInterface
 {
+    /**
+     * @param SchemaSetupInterface $setup
+     * @param ModuleContextInterface $context
+     *
+     */
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
         $setup->startSetup();
@@ -23,7 +28,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
         $setup->endSetup();
     }
 
-    private function upgradeToVersion2010($setup)
+    /**
+     * @param SchemaSetupInterface $setup
+     */
+    private function upgradeToVersion2010(SchemaSetupInterface $setup)
     {
         $setup->getConnection()->addColumn(
             $setup->getTable('getresponse_settings'),

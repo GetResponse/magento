@@ -1,11 +1,14 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
-use GetResponse\GetResponseIntegration\Block\Ecommerce;
 use Magento\Backend\App\Action;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Request\Http;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
 
 /**
  * Class CreateShop
@@ -13,40 +16,52 @@ use Magento\Framework\App\Request\Http;
  */
 class CreateShop extends Action
 {
-    /**
-     * @var PageFactory
-     */
-    protected $resultPageFactory;
+    /** @var Repository */
+    private $repository;
+
+    /** @var GrRepository */
+    private $grRepository;
+
+    /** @var JsonFactory */
+    private $resultJsonFactory;
 
     /**
-     * CreateCampaign constructor.
      * @param Context $context
-     * @param PageFactory $resultPageFactory
+     * @param RepositoryFactory $repositoryFactory
+     * @param Repository $repository
+     * @param JsonFactory $resultJsonFactory
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
-    {
+    public function __construct(
+        Context $context,
+        RepositoryFactory $repositoryFactory,
+        Repository $repository,
+        JsonFactory $resultJsonFactory
+    ) {
         parent::__construct($context);
-        $this->resultPageFactory = $resultPageFactory;
+        $this->repository = $repository;
+        $this->grRepository = $repositoryFactory->createRepository();
+        $this->resultJsonFactory = $resultJsonFactory;
     }
 
     /**
-     * Execute
+     * @return Json
      */
     public function execute()
     {
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();
-        /** @var Ecommerce $block */
-        $block = $this->_objectManager->create('GetResponse\GetResponseIntegration\Block\Ecommerce');
-        $lang = substr($block->getStoreLanguage(), 0, 2);
-        $currency = 'EUR';
 
         if (!isset($data['shop_name']) || strlen($data['shop_name']) === 0) {
-            die(json_encode(['error' => 'Incorrect shop name']));
+            return $this->resultJsonFactory->create()->setData(['error' => 'Incorrect shop name']);
         }
 
-        echo json_encode($block->getClient()->createShop($data['shop_name'], $lang, $currency));
-        die;
+        $countryCode = $this->repository->getMagentoCountryCode();
+        $lang = substr($countryCode, 0, 2);
+        $currency = $this->repository->getMagentoCurrencyCode();
+
+        $result = $this->grRepository->createShop($data['shop_name'], $lang, $currency);
+
+        return $this->resultJsonFactory->create()->setData($result);
     }
 }

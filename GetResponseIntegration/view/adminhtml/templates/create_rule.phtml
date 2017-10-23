@@ -1,8 +1,6 @@
-<?php
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Rules */
 $categories = $block->getStoreCategories();
 $campaigns = $block->getCampaigns();
-$settings = $block->getSettings();
-$autoresponders = $block->getAutoresponders();
 $jsAutoresponders = $block->getAutorespondersForFrontend();
 
 ?>
@@ -44,6 +42,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                 <?php if (!empty($categories)): ?>
                                     <?php foreach ($categories as $category): ?>
                                         <option value="<?php echo $category->getEntityId() ?>"><?php echo $category->getName() ?></option>
+                                        <?php echo $block->getSubcategories($category, null) ?>
                                     <?php endforeach ?>
                                 <?php endif ?>
                             </select>
@@ -70,7 +69,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                             <span>Into the contact list</span>
                         </label>
                         <div class="admin__field-control _with-tooltip">
-                            <select name="campaign_id" id="campaign_id" class="admin__control-select">
+                            <select name="campaign" id="campaign_id" class="admin__control-select">
                                 <option value="">Select a list</option>
                                 <?php if (count($campaigns) > 0):?>
                                     <?php foreach ($campaigns as $campaign): ?>
@@ -93,11 +92,6 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                        name="gr_autoresponder"
                                        id="gr_autoresponder"
                                        value="1"
-                                    <?php
-                                        if (isset($settings['cycle_day']) && $settings['cycle_day'] != '0') {
-                                            echo ' checked="checked"';
-                                        }
-                                    ?>
                                 />
                                 <label class="admin__field-label" for="gr_autoresponder">Add to autoresponder cycle</label>
                             </div>
