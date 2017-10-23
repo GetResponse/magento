@@ -43,7 +43,6 @@ class Delete extends Action
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
         $this->cacheManager = $cacheManager;
-
     }
 
 

@@ -125,8 +125,14 @@ class Process extends Action
             $custom_fields['origin'] = 'magento2';
             $cycle_day = (isset($data['gr_autoresponder']) && $data['cycle_day'] != '') ? (int)$data['cycle_day'] : 0;
 
-            $this->addContact($campaign, $customer['firstname'], $customer['lastname'], $customer['email'], $cycle_day,
-                $custom_fields);
+            $this->addContact(
+                $campaign,
+                $customer['firstname'],
+                $customer['lastname'],
+                $customer['email'],
+                $cycle_day,
+                $custom_fields
+            );
         }
 
         $this->messageManager->addSuccessMessage('Customer data exported');

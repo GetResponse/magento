@@ -78,8 +78,10 @@ class Settings extends Template
             return '';
         }
 
-        return strlen($settings->getApiKey()) > 0 ? str_repeat("*",
-                strlen($settings->getApiKey()) - 6) . substr($settings->getApiKey(), -6) : '';
+        return strlen($settings->getApiKey()) > 0 ? str_repeat(
+            "*",
+            strlen($settings->getApiKey()) - 6
+        ) . substr($settings->getApiKey(), -6) : '';
     }
 
     /**

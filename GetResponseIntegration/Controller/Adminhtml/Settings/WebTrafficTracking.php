@@ -65,7 +65,6 @@ class WebTrafficTracking extends Action
         $data = $this->request->getPostValue();
 
         if (isset($data['updateWebTraffic'])) {
-
             $webEventTracking = WebEventTrackingSettingsFactory::createFromArray(
                 $this->repository->getWebEventTracking()
             );

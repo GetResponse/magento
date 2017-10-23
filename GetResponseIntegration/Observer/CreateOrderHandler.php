@@ -55,8 +55,14 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
         RepositoryFactory $repositoryFactory,
         Repository $repository
     ) {
-        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory,
-            $repository);
+        parent::__construct(
+            $objectManager,
+            $customerSession,
+            $productMapFactory,
+            $countryFactory,
+            $repositoryFactory,
+            $repository
+        );
 
         $this->order = $orderFactory;
         $this->quoteFactory = $quoteFactory;

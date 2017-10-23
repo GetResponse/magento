@@ -85,7 +85,6 @@ class SubscribeFromOrder implements ObserverInterface
         $custom_fields = [];
 
         foreach ($customs as $custom) {
-
             if ($custom->isDefault) {
                 continue;
             }
@@ -105,7 +104,6 @@ class SubscribeFromOrder implements ObserverInterface
         $subscriber = $this->repository->loadSubscriberByEmail($customer->getEmail());
 
         if ($subscriber->isSubscribed() == true) {
-
             $move_subscriber = false;
 
             if (!empty($rules)) {

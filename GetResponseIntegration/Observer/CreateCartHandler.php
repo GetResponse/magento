@@ -54,8 +54,14 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
         $this->scopeConfig = $scopeConfig;
         $this->grRepository = $repositoryFactory->createRepository();
 
-        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory,
-            $repository);
+        parent::__construct(
+            $objectManager,
+            $customerSession,
+            $productMapFactory,
+            $countryFactory,
+            $repositoryFactory,
+            $repository
+        );
     }
 
     /**
@@ -82,7 +88,6 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
 
         /** @var Item $magentoCartItem */
         foreach ($this->cart->getQuote()->getAllItems() as $magentoCartItem) {
-
             if ('simple' !== $magentoCartItem->getProductType()) {
                 continue;
             }
@@ -113,7 +118,6 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
 
         if (empty($requestToGr['selectedVariants'])) {
             if (!empty($quote->getData('getresponse_cart_id'))) {
-
                 $this->grRepository->deleteCart(
                     $shopId,
                     $quote->getData('getresponse_cart_id')

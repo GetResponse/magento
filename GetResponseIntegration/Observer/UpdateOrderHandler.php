@@ -64,8 +64,14 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
         $this->grRepository = $repositoryFactory->createRepository();
         $this->repository = $repository;
 
-        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory,
-            $repository);
+        parent::__construct(
+            $objectManager,
+            $customerSession,
+            $productMapFactory,
+            $countryFactory,
+            $repositoryFactory,
+            $repository
+        );
     }
 
     /**

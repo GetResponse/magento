@@ -243,7 +243,6 @@ class Ecommerce
 
         /** @var Item $item */
         foreach ($order->getAllItems() as $item) {
-
             if ('simple' !== $item->getProductType()) {
                 false;
             }

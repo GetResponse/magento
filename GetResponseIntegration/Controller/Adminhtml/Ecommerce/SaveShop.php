@@ -65,7 +65,6 @@ class SaveShop extends Action
         $data = $request->getPostValue();
 
         if (isset($data['e_commerce_status']) && '1' === $data['e_commerce_status']) {
-
             if (empty($data['shop_id'])) {
                 $this->messageManager->addErrorMessage('You need to choose a store');
 
