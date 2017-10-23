@@ -7,8 +7,8 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
 {
 
     protected $actions = [
-        'moved' => 'Moved',
-        'copied' => 'Copied'
+        'move' => 'Moved',
+        'copy' => 'Copied'
     ];
 
     /**
@@ -20,16 +20,6 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
         $this->_title($this->__('Campaign rules'))->_title($this->__('GetResponse'));
 
         $this->settings->campaign_days = Mage::helper('getresponse/api')->getCampaignDays();
-
-        if (!empty($this->settings->automations)) {
-            foreach ($this->settings->automations as &$automation) {
-                if ('copy' === $automation['action']) {
-                    $automation['action'] = 'copied';
-                } else if ('move' === $automation['action']) {
-                    $automation['action'] = 'moved';
-                }
-            }
-        }
 
         $this->_addContent($this->getLayout()
             ->createBlock('Mage_Core_Block_Template', 'getresponse_content')

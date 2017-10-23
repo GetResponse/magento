@@ -265,7 +265,7 @@ class GetresponseIntegration_Getresponse_Model_Observer
 				Mage::getModel('getresponse/customs')->mapCustoms($user_customs, $customs)
 			);
 
-			if ($automation['action'] == 'moved') {
+			if ($automation['action'] == 'move') {
 				$delete_contact = true;
 			}
 		}

@@ -20,7 +20,19 @@ class GetresponseIntegration_Getresponse_Model_Automations extends Mage_Core_Mod
 	 */
 	public function getAutomations($shopId)
 	{
-		return $this->getCollection()->addFieldToFilter('id_shop', $shopId)->getData();
+		$rules = $this->getCollection()->addFieldToFilter('id_shop', $shopId)->getData();
+
+		foreach ($rules as &$rule) {
+		    if ('copy' === $rule['action']) {
+		        $rule['action_name'] = 'Copied';
+            } elseif ('move' === $rule['action']) {
+                $rule['action_name'] = 'Moved';
+            } else {
+                $rule['action_name'] = $rule['action'];
+            }
+        }
+
+        return $rules;
 	}
 
     /**
