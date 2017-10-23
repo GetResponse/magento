@@ -5,7 +5,7 @@ use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 
 /**
  * Class Collection
- * @package GetResponse\GetResponseIntegration\Model\ResourceModel\Account
+ * @package GetResponse\GetResponseIntegration\Model\ResourceModel\ProductMap
  */
 class Collection extends AbstractCollection
 {
