@@ -3,7 +3,6 @@ namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -67,9 +66,13 @@ class Settings extends Template
      */
     public function getHiddenApiKey()
     {
-        $settings = ConnectionSettingsFactory::buildFromRepository(
-            $this->repository->getConnectionSettings()
-        );
+        $settings = $this->repository->getConnectionSettings();
+
+        if (empty($settings)) {
+            return '';
+        }
+
+        $settings = ConnectionSettingsFactory::buildFromRepository($settings);
 
         if (empty($settings->getApiKey())) {
             return '';
@@ -127,10 +130,6 @@ class Settings extends Template
     {
         $settings = $this->repository->getConnectionSettings();
 
-        if (empty($settings['apiKey'])) {
-            return false;
-        }
-
-        return true;
+        return !empty($settings['apiKey']);
     }
 }

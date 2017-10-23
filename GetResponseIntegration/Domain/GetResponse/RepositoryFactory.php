@@ -42,15 +42,13 @@ class RepositoryFactory
 
     /**
      * @return Repository
-     * @throws GetResponseRepositoryException
+     * @throws RepositoryException
      */
     public function buildRepository()
     {
-        $connectionSettings = ConnectionSettingsFactory::buildFromRepository(
+        return RepositoryFactory::buildFromConnectionSettings(ConnectionSettingsFactory::buildFromRepository(
             $this->repository->getConnectionSettings()
-        );
-
-        return RepositoryFactory::buildFromConnectionSettings($connectionSettings);
+        ));
     }
 
     /**

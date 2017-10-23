@@ -1,11 +1,13 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
+
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Message\ManagerInterface;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+
 /**
  * Class RepositoryValidator
  * @package GetResponse\GetResponseIntegration\Domain\GetResponse
@@ -21,7 +23,7 @@ class RepositoryValidator
     /** @var ResultFactory */
     private $resultFactory;
 
-    /** @var ManagerInterface  */
+    /** @var ManagerInterface */
     private $messageManager;
 
     /**
@@ -35,8 +37,7 @@ class RepositoryValidator
         Repository $repository,
         ResultFactory $resultFactory,
         ManagerInterface $messageManager
-    )
-    {
+    ) {
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
         $this->resultFactory = $resultFactory;
@@ -48,12 +49,9 @@ class RepositoryValidator
      */
     public function validate()
     {
-        try {
-            $grRepository = $this->repositoryFactory->buildRepository();
-            return $this->validateGrRepository($grRepository);
-        } catch (GetResponseRepositoryException $e) {
-            return false;
-        }
+        return $this->validateGrRepository(
+            $this->repositoryFactory->buildRepository()
+        );
     }
 
     /**
@@ -71,10 +69,10 @@ class RepositoryValidator
                 return false;
             }
             return true;
-        } else {
-            $this->repository->setUnauthorizedApiCallDate('');
-            return true;
         }
+
+        $this->repository->setUnauthorizedApiCallDate('');
+        return true;
     }
 
     private function handleUnauthorizedApiCall()

@@ -3,7 +3,7 @@ namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetResponseRepositoryException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
@@ -296,7 +296,7 @@ class Repository
     /**
      * @param int $id
      * @param Rule $rule
-     * @throws GetResponseRepositoryException
+     * @throws RepositoryException
      */
     public function updateRule($id, Rule $rule)
     {

@@ -54,16 +54,6 @@ class Registration extends Template
     }
 
     /**
-     * @return ConnectionSettings
-     */
-    public function getConnectionSettings()
-    {
-        return ConnectionSettingsFactory::buildFromRepository(
-            $this->repository->getConnectionSettings()
-        );
-    }
-
-    /**
      * @return array
      */
     public function getAutoresponders()

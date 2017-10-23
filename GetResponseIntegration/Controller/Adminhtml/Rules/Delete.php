@@ -3,7 +3,7 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules;
 
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetResponseRepositoryException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Framework\App\ResponseInterface;
@@ -62,7 +62,7 @@ class Delete extends Action
 
         try {
             $this->repository->deleteRule($id);
-        } catch (GetResponseRepositoryException $e) {
+        } catch (RepositoryException $e) {
             $this->messageManager->addErrorMessage('Incorrect rule');
             return $resultRedirect;
         }

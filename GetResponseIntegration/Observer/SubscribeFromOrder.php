@@ -1,7 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetResponseRepositoryException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -58,7 +58,7 @@ class SubscribeFromOrder implements ObserverInterface
 
         try {
             $grRepository = $this->repositoryFactory->buildRepository();
-        } catch (GetResponseRepositoryException $e) {
+        } catch (RepositoryException $e) {
             return $this;
         }
 
@@ -192,7 +192,7 @@ class SubscribeFromOrder implements ObserverInterface
     {
         try {
             $grRepository = $this->repositoryFactory->buildRepository();
-        } catch (GetResponseRepositoryException $e) {
+        } catch (RepositoryException $e) {
             return $this;
         }
 
