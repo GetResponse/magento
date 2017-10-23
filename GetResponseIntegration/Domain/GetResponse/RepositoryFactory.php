@@ -47,7 +47,7 @@ class RepositoryFactory
         $settings = $this->repository->getConnectionSettings();
 
         if (empty($settings)) {
-            throw RepositoryException::buildForInvalidApiKey();
+            throw \GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException::buildForInvalidApiKey();
         }
 
         return RepositoryFactory::createFromConnectionSettings(
