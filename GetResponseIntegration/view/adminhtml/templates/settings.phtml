@@ -4,8 +4,10 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
 /** @var $block Settings */
 $isApiActive = $block->isConnectedToGetResponse();
 
-/** @var Account $account */
-$account = $block->getAccountInfo();
+if ($isApiActive) {
+    /** @var Account $account */
+    $account = $block->getAccountInfo();
+}
 ?>
 <style>
     .label {
