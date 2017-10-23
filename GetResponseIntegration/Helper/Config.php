@@ -25,5 +25,5 @@ class Config
 
     const INCORRECT_API_RESOONSE_MESSAGE = 'Incorrect API response';
     const CACHE_KEY = 'getresponse_cache';
-    const CACHE_TIME = 5*60;
+    const CACHE_TIME = 600; // 10 minutes of cache time
 }
