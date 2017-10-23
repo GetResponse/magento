@@ -109,9 +109,9 @@ class Repository
      */
     public function getContactByEmail($email, $campaign)
     {
-        $result = (array) $this->resource->getContacts([
+        $result = (array)$this->resource->getContacts([
             'query' => [
-                'email'      => $email,
+                'email' => $email,
                 'campaignId' => $campaign
             ]
         ]);
@@ -124,7 +124,7 @@ class Repository
      */
     public function getAccountDetails()
     {
-        return (array) $this->resource->ping();
+        return (array)$this->resource->ping();
     }
 
     /**

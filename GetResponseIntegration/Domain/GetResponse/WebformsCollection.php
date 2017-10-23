@@ -8,7 +8,7 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
 class WebformsCollection
 {
     /** @var array|Webform[] */
-   private $webforms;
+    private $webforms;
 
     /**
      * * @param Webform $webform

@@ -25,8 +25,7 @@ class Index extends Action
         Context $context,
         PageFactory $resultPageFactory,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {

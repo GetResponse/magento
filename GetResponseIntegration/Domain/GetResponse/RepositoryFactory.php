@@ -26,8 +26,7 @@ class RepositoryFactory
     public function __construct(
         ObjectManagerInterface $objectManager,
         MagentoRepository $repository
-    )
-    {
+    ) {
         $this->objectManager = $objectManager;
         $this->repository = $repository;
     }
@@ -36,9 +35,9 @@ class RepositoryFactory
      * @return Repository
      * @throws GetResponseRepositoryException
      */
-    public function buildRepository()
+    public function createRepository()
     {
-        $connectionSettings = ConnectionSettingsFactory::buildFromRepository(
+        $connectionSettings = ConnectionSettingsFactory::createFromArray(
             $this->repository->getConnectionSettings()
         );
 
@@ -46,7 +45,7 @@ class RepositoryFactory
             throw GetResponseRepositoryException::buildForInvalidApiKey();
         }
 
-        return RepositoryFactory::buildFromConnectionSettings($connectionSettings);
+        return RepositoryFactory::createFromConnectionSettings($connectionSettings);
     }
 
     /**
@@ -54,7 +53,7 @@ class RepositoryFactory
      *
      * @return Repository
      */
-    public function buildFromConnectionSettings(ConnectionSettings $connectionSettings)
+    public function createFromConnectionSettings(ConnectionSettings $connectionSettings)
     {
         return new Repository(new GetResponseAPI3(
             $connectionSettings->getApiKey(),
@@ -64,7 +63,14 @@ class RepositoryFactory
         ));
     }
 
-    public function createRepository($apiKey, $url, $domain)
+    /**
+     * @param string $apiKey
+     * @param string $url
+     * @param string $domain
+     *
+     * @return Repository
+     */
+    public function createNewRepository($apiKey, $url, $domain)
     {
         return new Repository(new GetResponseAPI3(
             $apiKey,
@@ -74,9 +80,13 @@ class RepositoryFactory
         ));
     }
 
+    /**
+     * @return string
+     */
     private function getVersion()
     {
-        $moduleInfo = $this->objectManager->get('Magento\Framework\Module\ModuleList')->getOne('GetResponse_GetResponseIntegration');
+        $moduleInfo = $this->objectManager->get('Magento\Framework\Module\ModuleList')
+            ->getOne('GetResponse_GetResponseIntegration');
 
         return isset($moduleInfo['setup_version']) ? $moduleInfo['setup_version'] : '';
     }

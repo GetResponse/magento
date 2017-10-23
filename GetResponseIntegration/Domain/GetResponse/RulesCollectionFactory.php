@@ -12,7 +12,7 @@ class RulesCollectionFactory
      *
      * @return RulesCollection|Rule[]
      */
-    public static function buildFromRepository(array $data)
+    public static function createFromRepository(array $data)
     {
         $rules = new RulesCollection();
 

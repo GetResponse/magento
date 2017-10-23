@@ -1,7 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Setup;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettings;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomField;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
@@ -36,8 +36,7 @@ class UpgradeData implements UpgradeDataInterface
     public function __construct(
         WriterInterface $configWriter,
         Manager $cacheManager
-    )
-    {
+    ) {
         $this->configWriter = $configWriter;
         $this->cacheManager = $cacheManager;
     }
@@ -50,8 +49,7 @@ class UpgradeData implements UpgradeDataInterface
     public function upgrade(
         ModuleDataSetupInterface $setup,
         ModuleContextInterface $context
-    )
-    {
+    ) {
         $setup->startSetup();
 
         if (version_compare($context->getVersion(), '20.1.1', '<=')) {
@@ -66,7 +64,7 @@ class UpgradeData implements UpgradeDataInterface
 
             $this->ver2011removeUnusedTables($setup);
 
-             $this->cacheManager->clean(['config']);
+            $this->cacheManager->clean(['config']);
         }
 
         $setup->endSetup();
@@ -77,7 +75,7 @@ class UpgradeData implements UpgradeDataInterface
      */
     private function ver2011updateConnectionSettings(ModuleDataSetupInterface $setup)
     {
-        $sql = "SELECT api_key, api_url, api_domain FROM ".$setup->getTable('getresponse_settings');
+        $sql = "SELECT api_key, api_url, api_domain FROM " . $setup->getTable('getresponse_settings');
         $data = $setup->getConnection()->fetchAll($sql);
 
         if (0 === count($data)) {
@@ -85,8 +83,13 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         foreach ($data as $row) {
-            $settings = ConnectionSettingsFactory::buildFromUserPayload($row['api_key'], $row['api_url'],
-                $row['api_domain']);
+            $payload = [
+                'apiKey' => $row['api_key'],
+                'url' => $row['api_url'],
+                'domain' => $row['api_domain']
+            ];
+
+            $settings = ConnectionSettingsFactory::createFromArray($payload);
 
             $this->configWriter->save(
                 Config::CONFIG_DATA_CONNECTION_SETTINGS,
@@ -102,7 +105,7 @@ class UpgradeData implements UpgradeDataInterface
      */
     private function ver2011migrateAccountSettings(ModuleDataSetupInterface $setup)
     {
-        $sql = "SELECT * FROM ".$setup->getTable('getresponse_account');
+        $sql = "SELECT * FROM " . $setup->getTable('getresponse_account');
         $data = $setup->getConnection()->fetchAll($sql);
 
         if (0 === count($data)) {
@@ -139,7 +142,7 @@ class UpgradeData implements UpgradeDataInterface
      */
     private function ver2011migrateRulesSettings(ModuleDataSetupInterface $setup)
     {
-        $sql = "SELECT * FROM ".$setup->getTable('getresponse_automation');
+        $sql = "SELECT * FROM " . $setup->getTable('getresponse_automation');
         $data = $setup->getConnection()->fetchAll($sql);
 
         if (0 === count($data)) {
@@ -173,7 +176,7 @@ class UpgradeData implements UpgradeDataInterface
      */
     private function ver2011migrateCustomFieldsSettings(ModuleDataSetupInterface $setup)
     {
-        $sql = "SELECT * FROM ".$setup->getTable('getresponse_customs');
+        $sql = "SELECT * FROM " . $setup->getTable('getresponse_customs');
         $data = $setup->getConnection()->fetchAll($sql);
 
         if (0 === count($data)) {
@@ -207,7 +210,7 @@ class UpgradeData implements UpgradeDataInterface
      */
     private function ver2011migrateWebformSettings(ModuleDataSetupInterface $setup)
     {
-        $sql = "SELECT * FROM ".$setup->getTable('getresponse_webform');
+        $sql = "SELECT * FROM " . $setup->getTable('getresponse_webform');
         $data = $setup->getConnection()->fetchAll($sql);
 
         if (0 === count($data)) {
@@ -237,7 +240,7 @@ class UpgradeData implements UpgradeDataInterface
      */
     private function ver2011updateRegistrationSettings(ModuleDataSetupInterface $setup)
     {
-        $sql = "SELECT * FROM ".$setup->getTable('getresponse_settings');
+        $sql = "SELECT * FROM " . $setup->getTable('getresponse_settings');
         $data = $setup->getConnection()->fetchAll($sql);
 
         if (0 === count($data)) {
@@ -267,7 +270,7 @@ class UpgradeData implements UpgradeDataInterface
      */
     private function ver2011migrateWebEventTrackingSettings(ModuleDataSetupInterface $setup)
     {
-        $sql = "SELECT * FROM ".$setup->getTable('getresponse_settings');
+        $sql = "SELECT * FROM " . $setup->getTable('getresponse_settings');
         $data = $setup->getConnection()->fetchAll($sql);
 
         if (0 === count($data)) {
@@ -276,7 +279,7 @@ class UpgradeData implements UpgradeDataInterface
 
         foreach ($data as $row) {
 
-            $webEventTracking = new WebEventTracking(
+            $webEventTracking = new WebEventTrackingSettings(
                 $row['web_traffic'],
                 $row['feature_tracking'],
                 $row['tracking_code_snippet']
@@ -296,10 +299,10 @@ class UpgradeData implements UpgradeDataInterface
      */
     private function ver2011removeUnusedTables(ModuleDataSetupInterface $setup)
     {
-        $setup->getConnection()->query("DROP TABLE IF EXISTS ".$setup->getTable('getresponse_account'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS ".$setup->getTable('getresponse_automation'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS ".$setup->getTable('getresponse_customs'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS ".$setup->getTable('getresponse_settings'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS ".$setup->getTable('getresponse_webform'));
+        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_account'));
+        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_automation'));
+        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_customs'));
+        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_settings'));
+        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_webform'));
     }
 }

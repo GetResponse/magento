@@ -1,5 +1,4 @@
 <?php
-
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
@@ -29,15 +28,14 @@ class Delete extends Action
         Context $context,
         RepositoryFactory $repositoryFactory,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
             $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
     }
 
     /**
@@ -52,6 +50,7 @@ class Delete extends Action
         if (empty($id)) {
             $this->messageManager->addErrorMessage('Incorrect shop');
             $resultRedirect->setPath(self::BACK_URL);
+
             return $resultRedirect;
         }
 
@@ -64,6 +63,7 @@ class Delete extends Action
         }
 
         $resultRedirect->setPath(self::BACK_URL);
+
         return $resultRedirect;
     }
 }

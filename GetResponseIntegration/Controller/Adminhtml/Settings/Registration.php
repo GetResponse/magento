@@ -5,6 +5,7 @@ use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
 /**
@@ -13,6 +14,7 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Registration extends Action
 {
+    /** @var PageFactory */
     protected $resultPageFactory;
 
     /**
@@ -24,8 +26,7 @@ class Registration extends Action
         Context $context,
         PageFactory $resultPageFactory,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
@@ -36,13 +37,13 @@ class Registration extends Action
     }
 
     /**
-     * @return \Magento\Framework\View\Result\Page
+     * @return Page
      */
     public function execute()
     {
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend('Add Contacts During Registrations');
+
         return $resultPage;
     }
-
 }

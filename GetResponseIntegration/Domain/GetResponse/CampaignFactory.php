@@ -12,7 +12,7 @@ class CampaignFactory
      * @param string $language
      * @return Campaign
      */
-    public static function buildFromUserPayload(array $data, $language = 'EN')
+    public static function createFromArray(array $data, $language = 'EN')
     {
         return new Campaign(
             null,

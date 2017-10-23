@@ -31,8 +31,7 @@ class Settings extends Template
         Context $context,
         Repository $repository,
         RepositoryFactory $repositoryFactory
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
@@ -43,7 +42,7 @@ class Settings extends Template
      */
     public function getAccountInfo()
     {
-        return AccountFactory::buildFromRepository($this->repository->getAccountInfo());
+        return AccountFactory::createFromArray($this->repository->getAccountInfo());
     }
 
     /**
@@ -53,12 +52,13 @@ class Settings extends Template
     {
         /** @var Http $request */
         $request = $this->getRequest();
-        $data =$request->getPostValue();
+        $data = $request->getPostValue();
         if (!empty($data)) {
             if (isset($data['getresponse_api_key'])) {
                 return $data['getresponse_api_key'];
             }
         }
+
         return false;
     }
 
@@ -67,15 +67,12 @@ class Settings extends Template
      */
     public function getHiddenApiKey()
     {
-        $settings = ConnectionSettingsFactory::buildFromRepository(
+        $settings = ConnectionSettingsFactory::createFromArray(
             $this->repository->getConnectionSettings()
         );
 
-        if (empty($settings->getApiKey())) {
-            return '';
-        }
-
-        return strlen($settings->getApiKey()) > 0 ? str_repeat("*", strlen($settings->getApiKey()) - 6) . substr($settings->getApiKey(), -6) : '';
+        return strlen($settings->getApiKey()) > 0 ? str_repeat("*",
+                strlen($settings->getApiKey()) - 6) . substr($settings->getApiKey(), -6) : '';
     }
 
     /**
@@ -89,6 +86,7 @@ class Settings extends Template
         if (!empty($data['getresponse_360_account']) && 1 == $data['getresponse_360_account']) {
             return $data['getresponse_360_account'];
         }
+
         return 0;
     }
 
@@ -103,6 +101,7 @@ class Settings extends Template
         if (!empty($data['getresponse_api_url'])) {
             return $data['getresponse_api_url'];
         }
+
         return false;
     }
 
@@ -117,6 +116,7 @@ class Settings extends Template
         if (!empty($data['getresponse_api_domain'])) {
             return $data['getresponse_api_domain'];
         }
+
         return false;
     }
 

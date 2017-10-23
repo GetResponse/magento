@@ -34,8 +34,7 @@ class SubscribeFromRegister implements ObserverInterface
         ObjectManagerInterface $objectManager,
         Repository $repository,
         RepositoryFactory $repositoryFactory
-    )
-    {
+    ) {
         $this->_objectManager = $objectManager;
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
@@ -49,7 +48,7 @@ class SubscribeFromRegister implements ObserverInterface
      */
     public function execute(EventObserver $observer)
     {
-        $registrationSettings = RegistrationSettingsFactory::createFromRepository(
+        $registrationSettings = RegistrationSettingsFactory::createFromArray(
             $this->repository->getRegistrationSettings()
         );
 
@@ -58,7 +57,7 @@ class SubscribeFromRegister implements ObserverInterface
         }
 
         try {
-            $grRepository = $this->repositoryFactory->buildRepository();
+            $grRepository = $this->repositoryFactory->createRepository();
         } catch (GetResponseRepositoryException $e) {
             return $this;
         }
@@ -77,10 +76,10 @@ class SubscribeFromRegister implements ObserverInterface
             $params['email'] = $customer->getEmail();
 
             if ($registrationSettings->getCycleDay()) {
-                $params['dayOfCycle'] = (int) $registrationSettings->getCycleDay();
+                $params['dayOfCycle'] = (int)$registrationSettings->getCycleDay();
             }
 
-            $params['customFieldValues'] = $apiHelper->setCustoms(array('origin' => 'magento2'));
+            $params['customFieldValues'] = $apiHelper->setCustoms(['origin' => 'magento2']);
             $grRepository->addContact($params);
         }
 

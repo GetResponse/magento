@@ -76,7 +76,7 @@ $webformSettings = $block->getWebformSettings();
                         <label class="label admin__field-label" for="publish"></label>
                         <div class="admin__field-control control">
                             <div class="admin__field admin__field-option publish__field">
-                                <input id="publish" name="publish" class="admin__control-checkbox" type="checkbox" value="1"
+                                <input id="publish" name="isEnabled" class="admin__control-checkbox" type="checkbox" value="1"
                                     <?php if ($webformSettings->isEnabled()):?>
                                         checked="checked"
                                     <?php endif ?>
@@ -91,7 +91,7 @@ $webformSettings = $block->getWebformSettings();
                         </label>
                         <div class="admin__field-control control">
                             <div class="admin__field">
-                                <select name="webform_id" id="webform_id" class="select admin__control-select" aria-required="true">
+                                <select name="webformId" id="webform_id" class="select admin__control-select" aria-required="true">
                                     <option value="">Select a form you want to display</option>
                                     <?php if (!empty($formsCollection->getWebforms())):?>
                                         <?php foreach ($formsCollection->getWebforms() as $form): ?>
@@ -107,7 +107,7 @@ $webformSettings = $block->getWebformSettings();
                                         <option value="" disabled="disabled">No forms</option>
                                     <?php endif ?>
                                 </select>
-                                <input type="hidden" value="" name="webform_url" id="webform_url" />
+                                <input type="hidden" value="" name="url" id="webform_url" />
                             </div>
                         </div>
                     </div>

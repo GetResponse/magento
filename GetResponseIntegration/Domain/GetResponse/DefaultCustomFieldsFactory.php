@@ -10,7 +10,7 @@ class DefaultCustomFieldsFactory
     /**
      * @return array
      */
-    public static function buildDefaultCustomsMap()
+    public static function createDefaultCustomsMap()
     {
         return [
             [

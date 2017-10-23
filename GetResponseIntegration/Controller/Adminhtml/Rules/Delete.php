@@ -8,6 +8,7 @@ use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\View\Result\PageFactory;
 
 /**
@@ -16,6 +17,7 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Delete extends Action
 {
+    /** @var PageFactory */
     private $resultPageFactory;
 
     const AUTOMATION_URL = 'getresponseintegration/settings/automation';
@@ -34,8 +36,7 @@ class Delete extends Action
         PageFactory $resultPageFactory,
         Repository $repository,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
@@ -47,7 +48,7 @@ class Delete extends Action
     }
 
     /**
-     * @return \Magento\Framework\Controller\ResultInterface|ResponseInterface
+     * @return ResultInterface|ResponseInterface
      */
     public function execute()
     {
@@ -60,10 +61,12 @@ class Delete extends Action
             $this->repository->deleteRule($id);
         } catch (GetResponseRepositoryException $e) {
             $this->messageManager->addErrorMessage('Incorrect rule');
+
             return $resultRedirect;
         }
 
         $this->messageManager->addSuccessMessage('Rule deleted');
+
         return $resultRedirect;
     }
 }

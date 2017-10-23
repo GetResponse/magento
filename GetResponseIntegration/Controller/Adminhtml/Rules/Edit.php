@@ -37,8 +37,7 @@ class Edit extends Action
         PageFactory $resultPageFactory,
         AccessValidator $accessValidator,
         Repository $repository
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
@@ -63,6 +62,7 @@ class Edit extends Action
             $this->messageManager->addErrorMessage('Incorrect rule');
             $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath(self::AUTOMATION_URL);
+
             return $resultRedirect;
         }
 
@@ -72,6 +72,7 @@ class Edit extends Action
             $this->messageManager->addErrorMessage('Incorrect rule');
             $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath(self::AUTOMATION_URL);
+
             return $resultRedirect;
         }
 
@@ -82,6 +83,7 @@ class Edit extends Action
         if (empty($data)) {
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
@@ -91,15 +93,18 @@ class Edit extends Action
             $this->messageManager->addErrorMessage($error);
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
-        $rule = RuleFactory::buildFromPayload($data);
+        $data['id'] = uniqid();
+        $rule = RuleFactory::createFromArray($data);
         $this->repository->updateRule($id, $rule);
 
         $this->messageManager->addSuccessMessage('Rule has been updated');
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::AUTOMATION_URL);
+
         return $resultRedirect;
     }
 }

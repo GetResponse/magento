@@ -35,8 +35,7 @@ class SaveShop extends Action
         TypeListInterface $cache,
         Repository $repository,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
@@ -63,6 +62,7 @@ class SaveShop extends Action
 
             if (empty($data['shop_id'])) {
                 $this->messageManager->addErrorMessage('You need to choose a store');
+
                 return $resultRedirect;
             }
 

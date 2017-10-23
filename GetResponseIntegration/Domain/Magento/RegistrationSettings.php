@@ -38,15 +38,15 @@ class RegistrationSettings
      */
     public function isEnabled()
     {
-        return (1 === (int) $this->status) ? true : false;
+        return (1 === (int)$this->status) ? true : false;
     }
 
     /**
      * @return bool
      */
-    public function isCustomFieldsModiefied()
+    public function isCustomFieldsModified()
     {
-        return (1 === (int) $this->customFieldsStatus) ? true : false;
+        return 1 === (int) $this->customFieldsStatus;
     }
 
     /**
@@ -77,6 +77,4 @@ class RegistrationSettings
     {
         return $this->cycleDay;
     }
-
-
 }

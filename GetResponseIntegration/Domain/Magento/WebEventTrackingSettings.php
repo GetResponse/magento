@@ -5,7 +5,7 @@ namespace GetResponse\GetResponseIntegration\Domain\Magento;
  * Class WebEventTracking
  * @package GetResponse\GetResponseIntegration\Domain\GetResponse
  */
-class WebEventTracking
+class WebEventTrackingSettings
 {
     /** @var bool */
     private $isEnabled;
@@ -23,8 +23,8 @@ class WebEventTracking
      */
     public function __construct($isEnabled, $isFeatureTrackingEnabled, $codeSnippet)
     {
-        $this->isEnabled = (bool) $isEnabled;
-        $this->isFeatureTrackingEnabled = (bool) $isFeatureTrackingEnabled;
+        $this->isEnabled = (bool)$isEnabled;
+        $this->isFeatureTrackingEnabled = (bool)$isFeatureTrackingEnabled;
         $this->codeSnippet = $codeSnippet;
     }
 
@@ -33,7 +33,7 @@ class WebEventTracking
      */
     public function isEnabled()
     {
-        return (bool) $this->isEnabled;
+        return $this->isEnabled;
     }
 
     /**
@@ -50,8 +50,8 @@ class WebEventTracking
     public function toArray()
     {
         return [
-            'isEnabled' => (int) $this->isEnabled,
-            'isFeatureTrackingEnabled' => (int) $this->isFeatureTrackingEnabled,
+            'isEnabled' => (int)$this->isEnabled,
+            'isFeatureTrackingEnabled' => (int)$this->isFeatureTrackingEnabled,
             'codeSnippet' => $this->codeSnippet
         ];
     }

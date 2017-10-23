@@ -6,7 +6,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\DefaultCustomFieldsFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Cache\Manager;
@@ -57,8 +57,7 @@ class Save extends Action
         Repository $repository,
         AccessValidator $accessValidator,
         Manager $cacheManager
-    )
-    {
+    ) {
         parent::__construct($context);
 
         $this->resultPageFactory = $resultPageFactory;
@@ -80,6 +79,7 @@ class Save extends Action
         if (empty($data)) {
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
@@ -96,13 +96,14 @@ class Save extends Action
             $domain = !empty($data['getresponse_api_domain']) ? $data['getresponse_api_domain'] : null;
         }
 
-        $grRepository = $this->repositoryFactory->createRepository($apiKey, $apiUrl, $domain);
-        $account = AccountFactory::buildFromApiResponse($grRepository->getAccountDetails());
+        $grRepository = $this->repositoryFactory->createNewRepository($apiKey, $apiUrl, $domain);
+        $account = AccountFactory::createFromArray($grRepository->getAccountDetails());
 
         if (empty($account->getAccountId())) {
             $this->messageManager->addErrorMessage(self::API_ERROR_MESSAGE);
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
@@ -111,28 +112,41 @@ class Save extends Action
         if ($features instanceof \stdClass && $features->feature_tracking == 1) {
             $featureTracking = true;
 
-            $trackingCode = (array) $grRepository->getTrackingCode();
+            $trackingCode = (array)$grRepository->getTrackingCode();
 
             if (!empty($trackingCode) && is_object($trackingCode[0]) && 0 < strlen($trackingCode[0]->snippet)) {
                 $trackingCodeSnippet = $trackingCode[0]->snippet;
             }
         }
 
+        $payload = [
+            'apiKey' => $apiKey,
+            'url' => $apiUrl,
+            'domain' => $domain
+        ];
+
         $this->repository->saveConnectionSettings(
-            ConnectionSettingsFactory::buildFromUserPayload($apiKey, $apiUrl, $domain)
+            ConnectionSettingsFactory::createFromArray($payload)
         );
 
+        $params = [
+            'isEnabled' => false,
+            'isFeatureTrackingEnabled' => $featureTracking,
+            'codeSnippet' => $trackingCodeSnippet
+        ];
+
         $this->repository->saveWebEventTracking(
-            WebEventTrackingFactory::buildFromParams(false, $featureTracking, $trackingCodeSnippet)
+            WebEventTrackingSettingsFactory::createFromArray($params)
         );
         $this->repository->saveAccountDetails($account);
 
-        $this->repository->setCustomsOnInit(DefaultCustomFieldsFactory::buildDefaultCustomsMap());
+        $this->repository->setCustomsOnInit(DefaultCustomFieldsFactory::createDefaultCustomsMap());
 
         $this->messageManager->addSuccessMessage('GetResponse account connected');
 
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::BACK_URL);
+
         return $resultRedirect;
     }
 }

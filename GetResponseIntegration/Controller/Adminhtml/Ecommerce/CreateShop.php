@@ -40,8 +40,7 @@ class CreateShop extends Action
         Repository $repository,
         JsonFactory $resultJsonFactory,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
@@ -49,7 +48,7 @@ class CreateShop extends Action
         }
 
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
         $this->resultJsonFactory = $resultJsonFactory;
     }
 
@@ -63,7 +62,7 @@ class CreateShop extends Action
         $data = $request->getPostValue();
 
         if (!isset($data['shop_name']) || strlen($data['shop_name']) === 0) {
-            return  $this->resultJsonFactory->create()->setData(['error' => 'Incorrect shop name']);
+            return $this->resultJsonFactory->create()->setData(['error' => 'Incorrect shop name']);
         }
 
         $countryCode = $this->repository->getMagentoCountryCode();
@@ -71,6 +70,7 @@ class CreateShop extends Action
         $currency = $this->repository->getMagentoCurrencyCode();
 
         $result = $this->grRepository->createShop($data['shop_name'], $lang, $currency);
+
         return $this->resultJsonFactory->create()->setData($result);
     }
 }

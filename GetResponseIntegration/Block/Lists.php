@@ -31,11 +31,10 @@ class Lists extends Template
         ObjectManagerInterface $objectManager,
         Repository $repository,
         RepositoryFactory $repositoryFactory
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
     }
 
     /**
@@ -53,6 +52,7 @@ class Lists extends Template
     {
         $countryCode = $this->repository->getMagentoCountryCode();
         $lang = substr($countryCode, 0, 2);
+
         return $this->grRepository->getSubscriptionConfirmationsSubject($lang);
     }
 
@@ -63,6 +63,7 @@ class Lists extends Template
     {
         $countryCode = $this->repository->getMagentoCountryCode();
         $lang = substr($countryCode, 0, 2);
+
         return $this->grRepository->getSubscriptionConfirmationsBody($lang);
     }
 
@@ -78,7 +79,7 @@ class Lists extends Template
      */
     private function createBackUrl($back)
     {
-        switch($back) {
+        switch ($back) {
             case 'export':
                 return 'getresponseintegration/export/index';
                 break;

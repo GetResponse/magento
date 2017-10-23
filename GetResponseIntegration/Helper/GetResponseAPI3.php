@@ -317,7 +317,7 @@ class GetResponseAPI3
         }
 
         $params = json_encode($params);
-        $url = $this->api_url  . '/' .  $api_method;
+        $url = $this->api_url . '/' . $api_method;
 
         $headers = [
             'X-Auth-Token: api-key ' . $this->api_key,
@@ -356,6 +356,7 @@ class GetResponseAPI3
         $this->http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
+
         return (object)$response;
     }
 
@@ -372,6 +373,7 @@ class GetResponseAPI3
                 $result[$key] = $value;
             }
         }
+
         return http_build_query($result);
     }
 
@@ -384,11 +386,11 @@ class GetResponseAPI3
      */
     public function createShop($shopName, $locale, $currency)
     {
-        $params = array(
+        $params = [
             'name' => $shopName,
             'locale' => $locale,
             'currency' => $currency
-        );
+        ];
 
         return $this->call('shops', 'POST', $params);
     }
@@ -430,7 +432,7 @@ class GetResponseAPI3
      */
     public function updateCart($shopId, $cartId, $params)
     {
-        return $this->call('shops/' . $shopId . '/carts/'.$cartId, 'POST', $params);
+        return $this->call('shops/' . $shopId . '/carts/' . $cartId, 'POST', $params);
     }
 
     /**
@@ -441,7 +443,7 @@ class GetResponseAPI3
      */
     public function deleteCart($shopId, $cartId)
     {
-        return $this->call('shops/' . $shopId . '/carts/'.$cartId, 'DELETE');
+        return $this->call('shops/' . $shopId . '/carts/' . $cartId, 'DELETE');
     }
 
     /**
@@ -452,7 +454,7 @@ class GetResponseAPI3
      */
     public function addProduct($shopId, $params)
     {
-        return $this->call('shops/'.$shopId.'/products', 'POST', $params);
+        return $this->call('shops/' . $shopId . '/products', 'POST', $params);
     }
 
     /**
@@ -463,7 +465,7 @@ class GetResponseAPI3
      */
     public function addCart($shopId, $params)
     {
-        return $this->call('shops/'.$shopId.'/carts', 'POST', $params);
+        return $this->call('shops/' . $shopId . '/carts', 'POST', $params);
     }
 
     /**
@@ -474,7 +476,7 @@ class GetResponseAPI3
      */
     public function createOrder($shopId, $params)
     {
-        return $this->call('shops/'.$shopId.'/orders', 'POST', $params);
+        return $this->call('shops/' . $shopId . '/orders', 'POST', $params);
     }
 
     /**
@@ -486,7 +488,7 @@ class GetResponseAPI3
      */
     public function getOrder($shopId, $orderId, $params = [])
     {
-        return $this->call('shops/'.$shopId.'/orders/'.$orderId, 'GET', $params);
+        return $this->call('shops/' . $shopId . '/orders/' . $orderId, 'GET', $params);
     }
 
     /**
@@ -498,7 +500,7 @@ class GetResponseAPI3
      */
     public function updateOrder($shopId, $orderId, $params)
     {
-        return $this->call('shops/'.$shopId.'/orders/'.$orderId, 'POST', $params);
+        return $this->call('shops/' . $shopId . '/orders/' . $orderId, 'POST', $params);
     }
 
     /**
@@ -508,7 +510,8 @@ class GetResponseAPI3
      */
     public function getCustomFieldByName($name)
     {
-        $result = (array) $this->call('custom-fields?query[name]=' . $name);
+        $result = (array)$this->call('custom-fields?query[name]=' . $name);
+
         return reset($result);
     }
 }

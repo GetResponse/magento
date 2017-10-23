@@ -24,7 +24,10 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
     /** @var ScopeConfigInterface */
     private $scopeConfig;
 
-    private $orderFactory;
+    /** @var Order */
+    private $order;
+
+    /** @var QuoteFactory */
     private $quoteFactory;
 
     /** @var GrRepository */
@@ -55,13 +58,14 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
         RepositoryFactory $repositoryFactory,
         Repository $repository
     ) {
-        $this->orderFactory = $orderFactory;
+        $this->order = $orderFactory;
         $this->quoteFactory = $quoteFactory;
         $this->scopeConfig = $scopeConfig;
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
         $this->repository = $repository;
 
-        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory, $repository);
+        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory,
+            $repository);
     }
 
     /**
@@ -105,6 +109,7 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
         }
 
         $order = $this->grRepository->getOrder($shopId, $getresponseOrderId);
+
         return isset($order->cartId) ? $order->cartId : null;
     }
 }

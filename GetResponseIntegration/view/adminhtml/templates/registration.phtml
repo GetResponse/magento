@@ -158,7 +158,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                     name="gr_sync_order_data"
                                     id="gr_sync_order_data"
                                     value="1"
-                                    <?php if ($registrationSettings->isCustomFieldsModiefied()): ?> checked="checked" <?php endif ?>
+                                    <?php if ($registrationSettings->isCustomFieldsModified()): ?> checked="checked" <?php endif ?>
                                 />
                                 <label class="admin__field-label" for="gr_sync_order_data">Update contact info</label>
                                 <div class="note admin__field-note" id="gr_sync_order_data-note">
@@ -168,7 +168,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                         </div>
                     </div>
                     <div>
-                        <div class="config admin__scope-old updateforms <?php if (!$registrationSettings->isCustomFieldsModiefied()):?>hidden<?php endif ?>">
+                        <div class="config admin__scope-old updateforms <?php if (!$registrationSettings->isCustomFieldsModified()):?>hidden<?php endif ?>">
                             <?php include 'customs_grid.phtml'; ?>
                             <div class="note admin__field-note">You can use lowercase English alphabet characters, numbers, and underscore ("_"). Maximum 32 characters</div>
                         </div>

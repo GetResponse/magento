@@ -21,8 +21,7 @@ class Index extends Action
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory
-    )
-    {
+    ) {
         parent::__construct($context);
 
         $this->resultPageFactory = $resultPageFactory;
@@ -35,6 +34,7 @@ class Index extends Action
     {
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend('GetResponse Account');
+
         return $resultPage;
     }
 }

@@ -12,6 +12,9 @@ class AccessValidator
     /** @var Repository */
     private $repository;
 
+    /**
+     * @param Repository $repository
+     */
     public function __construct(Repository $repository)
     {
         $this->repository = $repository;

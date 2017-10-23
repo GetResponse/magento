@@ -1,7 +1,7 @@
 <?php
 /** @var GetResponse\GetResponseIntegration\Block\Rules $block */
 /** @var \GetResponse\GetResponseIntegration\Domain\GetResponse\Rule $rule */
-$rule = $block->getRuleById();
+$rule = $block->getCurrentRule();
 $categories = $block->getStoreCategories();
 $campaigns = $block->getCampaigns();
 $jsAutoresponders = $block->getAutorespondersForFrontend();
@@ -82,7 +82,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                             <span>Into the contact list</span>
                         </label>
                         <div class="admin__field-control _with-tooltip">
-                            <select name="campaign_id" id="campaign_id" class="admin__control-select">
+                            <select name="campaign" id="campaign_id" class="admin__control-select">
                                 <option value="">Into the contact list</option>
                                 <?php if (count($campaigns) > 0): ?>
                                     <?php foreach ($campaigns as $campaign): ?>

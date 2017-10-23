@@ -26,8 +26,7 @@ class Automation extends Action
         Context $context,
         PageFactory $resultPageFactory,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
@@ -44,6 +43,7 @@ class Automation extends Action
     {
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend('Contact List Rules');
+
         return $resultPage;
     }
 }

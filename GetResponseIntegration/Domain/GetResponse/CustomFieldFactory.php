@@ -12,7 +12,7 @@ class CustomFieldFactory
      *
      * @return array
      */
-    public static function buildFromUserPayload($data)
+    public static function createFromArray(array $data)
     {
         if (!isset($data['custom']) || empty($data['custom'])) {
             return [];

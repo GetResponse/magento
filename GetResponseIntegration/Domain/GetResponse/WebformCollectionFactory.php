@@ -13,7 +13,7 @@ class WebformCollectionFactory
      *
      * @return WebformsCollection
      */
-    public static function buildFromApiResponse(array $forms, array $webForms)
+    public static function createFromApiResponse(array $forms, array $webForms)
     {
         $collection = new WebformsCollection();
 
@@ -24,9 +24,9 @@ class WebformCollectionFactory
         if (count($forms) > 0) {
             foreach ($forms as $row) {
                 $collection->add(new Webform(
-                   $row->formId,
-                   $row->name,
-                   $row->scriptUrl
+                    $row->formId,
+                    $row->name,
+                    $row->scriptUrl
                 ));
             }
         }

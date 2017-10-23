@@ -41,8 +41,7 @@ class Repository
         ScopeConfigInterface $scopeConfig,
         WriterInterface $configWriter,
         Manager $cacheManager
-    )
-    {
+    ) {
         $this->_objectManager = $objectManager;
         $this->_scopeConfig = $scopeConfig;
         $this->configWriter = $configWriter;
@@ -55,6 +54,7 @@ class Repository
     public function getShopId()
     {
         $id = $this->_scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
+
         return strlen($id) > 0 ? $id : '';
     }
 
@@ -64,6 +64,7 @@ class Repository
     public function getShopStatus()
     {
         $status = $this->_scopeConfig->getValue(Config::CONFIG_DATA_SHOP_STATUS);
+
         return 'enabled' === $status ? 'enabled' : 'disabled';
     }
 
@@ -73,6 +74,7 @@ class Repository
     public function getCustomers()
     {
         $customers = $this->_objectManager->get('Magento\Customer\Model\Customer');
+
         return $customers->getCollection()->getData();
     }
 
@@ -83,6 +85,7 @@ class Repository
     public function getCategoryName($category_id)
     {
         $_categoryHelper = $this->_objectManager->get('\Magento\Catalog\Model\Category');
+
         return $_categoryHelper->load($category_id)->getName();
     }
 
@@ -111,7 +114,9 @@ class Repository
             ->joinAttribute('country', 'customer_address/country_id', 'default_billing', null, 'left')
             ->joinAttribute('company', 'customer_address/company', 'default_billing', null, 'left')
             ->joinAttribute('birthday', 'customer/dob', 'entity_id', null, 'left')
-            ->joinTable('newsletter_subscriber', 'customer_id=entity_id', ['subscriber_status'], '{{table}}.subscriber_status=1');
+            ->joinTable('newsletter_subscriber', 'customer_id=entity_id', ['subscriber_status'],
+                '{{table}}.subscriber_status=1');
+
         return $customers;
     }
 
@@ -120,7 +125,7 @@ class Repository
      */
     public function getAccountInfo()
     {
-        return (array) json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_ACCOUNT));
+        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_ACCOUNT));
     }
 
     /**
@@ -137,6 +142,7 @@ class Repository
     public function getMagentoCurrencyCode()
     {
         $storeManager = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface');
+
         return $storeManager->getStore()->getCurrentCurrencyCode();
     }
 
@@ -162,6 +168,7 @@ class Repository
     public function loadOrder($id)
     {
         $order_object = $this->_objectManager->get('Magento\Sales\Model\Order');
+
         return $order_object->load($id);
     }
 
@@ -173,6 +180,7 @@ class Repository
     public function loadCustomer($id)
     {
         $customer_object = $this->_objectManager->get('Magento\Customer\Model\Customer');
+
         return $customer_object->load($id);
     }
 
@@ -184,6 +192,7 @@ class Repository
     public function loadCustomerAddress($id)
     {
         $address_object = $this->_objectManager->get('Magento\Customer\Model\Address');
+
         return $address_object->load($id);
     }
 
@@ -207,7 +216,7 @@ class Repository
      */
     public function getConnectionSettings()
     {
-        return (array) json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_CONNECTION_SETTINGS));
+        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_CONNECTION_SETTINGS));
     }
 
     /**
@@ -264,7 +273,7 @@ class Repository
      */
     public function getRules()
     {
-        return (array) json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_RULES));
+        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_RULES));
     }
 
     /**
@@ -309,10 +318,10 @@ class Repository
         /** @var  $_rule */
         foreach ($rules as $_rule) {
             if ($_rule->id === $id) {
-                $_rule->category =$rule->getCategory();
-                $_rule->action =$rule->getAction();
-                $_rule->campaign =$rule->getCampaign();
-                $_rule->cycle_day =$rule->getAutoresponder();
+                $_rule->category = $rule->getCategory();
+                $_rule->action = $rule->getAction();
+                $_rule->campaign = $rule->getCampaign();
+                $_rule->cycle_day = $rule->getAutoresponder();
             }
         }
 
@@ -327,9 +336,9 @@ class Repository
     }
 
     /**
-     * @param WebEventTracking $webEventTracking
+     * @param WebEventTrackingSettings $webEventTracking
      */
-    public function saveWebEventTracking(WebEventTracking $webEventTracking)
+    public function saveWebEventTracking(WebEventTrackingSettings $webEventTracking)
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_WEB_EVENT_TRACKING,
@@ -346,7 +355,7 @@ class Repository
      */
     public function getWebEventTracking()
     {
-        return (array) json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_WEB_EVENT_TRACKING));
+        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_WEB_EVENT_TRACKING));
     }
 
     /**
@@ -400,7 +409,7 @@ class Repository
      */
     public function getRegistrationSettings()
     {
-        return (array) json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_REGISTRATION_SETTINGS));
+        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_REGISTRATION_SETTINGS));
     }
 
     /**
@@ -422,7 +431,7 @@ class Repository
      */
     public function getCustoms()
     {
-        return (array) json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_REGISTRATION_CUSTOMS));
+        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_REGISTRATION_CUSTOMS));
     }
 
     /**
@@ -553,6 +562,6 @@ class Repository
      */
     public function getWebformSettings()
     {
-        return (array) json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_WEBFORMS));
+        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_WEBFORMS));
     }
 }

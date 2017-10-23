@@ -34,11 +34,10 @@ class Export extends Template
         ObjectManagerInterface $objectManager,
         Repository $repository,
         RepositoryFactory $repositoryFactory
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
     }
 
     /**
@@ -46,7 +45,7 @@ class Export extends Template
      */
     public function getExportSettings()
     {
-        return RegistrationSettingsFactory::createFromRepository(
+        return RegistrationSettingsFactory::createFromArray(
             $this->repository->getRegistrationSettings()
         );
     }
@@ -61,7 +60,7 @@ class Export extends Template
      */
     public function getCustoms()
     {
-        return CustomFieldsCollectionFactory::buildFromRepository($this->repository->getCustoms());
+        return CustomFieldsCollectionFactory::createFromRepository($this->repository->getCustoms());
     }
 
     /**
@@ -118,6 +117,7 @@ class Export extends Template
 
             $result[$id] = $array;
         }
+
         return $result;
     }
 }

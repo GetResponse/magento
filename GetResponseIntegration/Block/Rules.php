@@ -2,9 +2,11 @@
 namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RuleFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollectionFactory;
+use Magento\Framework\Data\Tree\Node;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -34,11 +36,10 @@ class Rules extends Template
         ObjectManagerInterface $objectManager,
         Repository $repository,
         RepositoryFactory $repositoryFactory
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
     }
 
     /**
@@ -57,15 +58,12 @@ class Rules extends Template
         return $this->grRepository->getCampaigns(['sort' => ['name' => 'asc']]);
     }
 
-    public function getRuleById()
+    /**
+     * @return Rule
+     */
+    public function getCurrentRule()
     {
-        $id = $this->_request->getParam('id');
-
-        if (empty($id)) {
-            return null;
-        }
-
-        return RuleFactory::buildFromRepository($this->repository->getRuleById($id));
+        return RuleFactory::createFromArray((array)$this->repository->getRuleById($this->_request->getParam('id')));
     }
 
     /**
@@ -73,7 +71,7 @@ class Rules extends Template
      */
     public function getRulesCollection()
     {
-        return RulesCollectionFactory::buildFromRepository($this->repository->getRules());
+        return RulesCollectionFactory::createFromRepository($this->repository->getRules());
     }
 
     /**
@@ -130,16 +128,17 @@ class Rules extends Template
 
             $result[$id] = $array;
         }
+
         return $result;
     }
 
     /**
-     * @param $category \Magento\Catalog\Helper\Category|\Magento\Catalog\Model\Category
+     * @param Node $node
      */
-    public function getSubcategories($category)
+    public function getSubcategories(Node $node)
     {
-        if ($category->hasChildren()) {
-            $childrenCategories = $category->getChildren();
+        if ($node->hasChildren()) {
+            $childrenCategories = $node->getChildren();
             foreach ($childrenCategories as $childrenCategory) {
                 $string = '';
                 for ($i = $childrenCategory->getLevel(); $i > 2; $i--) {
@@ -153,7 +152,7 @@ class Rules extends Template
     }
 
     /**
-     * @param $action
+     * @param string $action
      *
      * @return string
      */
@@ -162,14 +161,13 @@ class Rules extends Template
         switch ($action) {
             case 'copy':
                 return 'copied';
-                break;
 
             case 'move':
                 return 'moved';
-                break;
-        }
 
-        return '';
+            default:
+                return '';
+        }
     }
 
     /**

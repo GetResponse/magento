@@ -20,6 +20,7 @@ class Create extends Action
     const PAGE_TITLE = 'Create rule';
     const AUTOMATION_URL = 'getresponseintegration/settings/automation';
 
+    /** @var PageFactory */
     private $resultPageFactory;
 
     /** @var Repository */
@@ -36,8 +37,7 @@ class Create extends Action
         PageFactory $resultPageFactory,
         Repository $repository,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
@@ -63,6 +63,7 @@ class Create extends Action
         if (empty($data)) {
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
@@ -72,15 +73,18 @@ class Create extends Action
             $this->messageManager->addErrorMessage($error);
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
-        $rule = RuleFactory::buildFromPayload($data);
+        $data['id'] = uniqid();
+        $rule = RuleFactory::createFromArray($data);
 
         $this->repository->createRule($rule);
         $this->messageManager->addSuccessMessage('Rule added');
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::AUTOMATION_URL);
+
         return $resultRedirect;
     }
 }

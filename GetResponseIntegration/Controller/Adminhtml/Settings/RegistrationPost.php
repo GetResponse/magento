@@ -43,8 +43,7 @@ class RegistrationPost extends Action
         PageFactory $resultPageFactory,
         Repository $repository,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
@@ -75,28 +74,29 @@ class RegistrationPost extends Action
         $isEnabled = isset($data['gr_enabled']) && 1 == $data['gr_enabled'] ? true : false;
 
         if (!$isEnabled) {
-            $registrationSettings = RegistrationSettingsFactory::buildFromPayload(0, 0, '', 0);
-            $this->repository->saveRegistrationSettings($registrationSettings);
+            $this->repository->clearRegistrationSettings();
         } else {
 
             $campaignId = $data['campaign_id'];
 
             if (empty($campaignId)) {
                 $this->messageManager->addErrorMessage('You need to select contact list');
+
                 return $resultRedirect;
             }
 
             if ($updateCustomFields) {
-                $customs = CustomFieldFactory::buildFromUserPayload($data);
+                $customs = CustomFieldFactory::createFromArray($data);
 
                 foreach ($customs as $field => $name) {
                     if (false == preg_match('/^[_a-zA-Z0-9]{2,32}$/m', $name)) {
                         $this->messageManager->addErrorMessage(self::INVALID_CUSTOM_FIELD_MESSAGE);
+
                         return $resultRedirect;
                     }
                 }
 
-                $customs = CustomFieldsCollectionFactory::buildFromUserPayload(
+                $customs = CustomFieldsCollectionFactory::createFromUserPayload(
                     $customs,
                     $this->repository->getCustoms()
                 );
@@ -104,17 +104,18 @@ class RegistrationPost extends Action
                 $this->repository->updateCustoms($customs);
             }
 
-            $registrationSettings = RegistrationSettingsFactory::buildFromPayload(
-                $isEnabled,
-                $updateCustomFields,
-                $campaignId,
-                $cycleDay
-            );
+            $registrationSettings = RegistrationSettingsFactory::createFromArray([
+                'status' => $isEnabled,
+                'customFieldsStatus' => $updateCustomFields,
+                'campaignId' => $campaignId,
+                'cycleDay' => $cycleDay
+            ]);
 
             $this->repository->saveRegistrationSettings($registrationSettings);
         }
 
         $this->messageManager->addSuccessMessage('Settings saved');
+
         return $resultRedirect;
     }
 }

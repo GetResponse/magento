@@ -27,10 +27,10 @@ class Process extends Action
     private $repository;
 
     public $stats = [
-        'count'      => 0,
-        'added'      => 0,
-        'updated'    => 0,
-        'error'      => 0
+        'count' => 0,
+        'added' => 0,
+        'updated' => 0,
+        'error' => 0
     ];
 
     /** @var GrRepository */
@@ -49,8 +49,7 @@ class Process extends Action
         Repository $repository,
         RepositoryFactory $repositoryFactory,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
@@ -58,7 +57,7 @@ class Process extends Action
         }
 
         $this->resultPageFactory = $resultPageFactory;
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
         $this->repository = $repository;
     }
 
@@ -74,6 +73,7 @@ class Process extends Action
         if (empty($data)) {
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
@@ -83,11 +83,12 @@ class Process extends Action
             $this->messageManager->addErrorMessage('You need to select contact list');
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
         if (isset($data['gr_sync_order_data'])) {
-            $customs = CustomFieldFactory::buildFromUserPayload($data);
+            $customs = CustomFieldFactory::createFromArray($data);
         } else {
             $customs = [];
         }
@@ -98,6 +99,7 @@ class Process extends Action
                 must be composed using up to 32 characters, only a-z (lower case), numbers and "_".');
                 $resultPage = $this->resultPageFactory->create();
                 $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
                 return $resultPage;
             }
         }
@@ -115,15 +117,17 @@ class Process extends Action
                 }
             }
             $custom_fields['origin'] = 'magento2';
-            $cycle_day = (isset($data['gr_autoresponder']) && $data['cycle_day'] != '') ? (int) $data['cycle_day'] : 0;
+            $cycle_day = (isset($data['gr_autoresponder']) && $data['cycle_day'] != '') ? (int)$data['cycle_day'] : 0;
 
-            $this->addContact($campaign, $customer['firstname'], $customer['lastname'], $customer['email'], $cycle_day, $custom_fields);
+            $this->addContact($campaign, $customer['firstname'], $customer['lastname'], $customer['email'], $cycle_day,
+                $custom_fields);
         }
 
         $this->messageManager->addSuccessMessage('Customer data exported');
 
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
         return $resultPage;
     }
 
@@ -135,7 +139,7 @@ class Process extends Action
      * @param       $firstname
      * @param       $lastname
      * @param       $email
-     * @param int   $cycle_day
+     * @param int $cycle_day
      * @param array $user_customs
      *
      * @return mixed
@@ -148,14 +152,14 @@ class Process extends Action
         $user_customs['origin'] = 'magento2';
 
         $params = [
-            'name'       => $name,
-            'email'      => $email,
-            'campaign'   => ['campaignId' => $campaign],
-            'ipAddress'  => $_SERVER['REMOTE_ADDR']
+            'name' => $name,
+            'email' => $email,
+            'campaign' => ['campaignId' => $campaign],
+            'ipAddress' => $_SERVER['REMOTE_ADDR']
         ];
 
         if (!empty($cycle_day)) {
-            $params['dayOfCycle'] = (int) $cycle_day;
+            $params['dayOfCycle'] = (int)$cycle_day;
         }
 
         $contact = $this->grRepository->getContactByEmail($email, $campaign);
@@ -173,6 +177,7 @@ class Process extends Action
             } else {
                 $this->stats['updated']++;
             }
+
             return $response;
         } else {
             $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
@@ -184,6 +189,7 @@ class Process extends Action
             } else {
                 $this->stats['added']++;
             }
+
             return $response;
         }
     }

@@ -36,11 +36,10 @@ class Webform extends Template
         ObjectManagerInterface $objectManager,
         Repository $repository,
         RepositoryFactory $repositoryFactory
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
     }
 
     /**
@@ -48,7 +47,7 @@ class Webform extends Template
      */
     public function getWebformSettings()
     {
-        return WebformSettingsFactory::buildFromRepository(
+        return WebformSettingsFactory::createFromArray(
             $this->repository->getWebformSettings()
         );
     }
@@ -58,9 +57,9 @@ class Webform extends Template
      */
     public function getWebFormsCollection()
     {
-        return WebformCollectionFactory::buildFromApiResponse(
-            (array) $this->grRepository->getForms(['query' => ['status' => 'enabled']]),
-            (array) $this->grRepository->getWebForms()
+        return WebformCollectionFactory::createFromApiResponse(
+            (array)$this->grRepository->getForms(['query' => ['status' => 'enabled']]),
+            (array)$this->grRepository->getWebForms()
         );
     }
 }

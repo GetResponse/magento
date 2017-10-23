@@ -26,6 +26,9 @@ class CustomFieldsCollection
         return $this->customs;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         $result = [];

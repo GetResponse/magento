@@ -3,7 +3,7 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
@@ -39,8 +39,7 @@ class WebTrafficTracking extends Action
         PageFactory $resultPageFactory,
         Repository $repository,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
@@ -61,15 +60,17 @@ class WebTrafficTracking extends Action
 
         if (isset($data['updateWebTraffic'])) {
 
-            $webEventTracking = WebEventTrackingFactory::buildFromRepository(
+            $webEventTracking = WebEventTrackingSettingsFactory::createFromArray(
                 $this->repository->getWebEventTracking()
             );
 
-            $newWebEventTracking = WebEventTrackingFactory::buildFromParams(
-                (isset($data['web_traffic']) && 1 === (int) $data['web_traffic']) ? 1 : 0,
-                $webEventTracking->isFeatureTrackingEnabled(),
-                $webEventTracking->getCodeSnippet()
-            );
+            $params = [
+                'isEnabled' => (isset($data['web_traffic']) && 1 === (int)$data['web_traffic']),
+                'isFeatureTrackingEnabled' => $webEventTracking->isFeatureTrackingEnabled(),
+                'codeSnippet' => $webEventTracking->getCodeSnippet()
+            ];
+
+            $newWebEventTracking = WebEventTrackingSettingsFactory::createFromArray($params);
 
             $this->repository->saveWebEventTracking($newWebEventTracking);
 
@@ -78,6 +79,7 @@ class WebTrafficTracking extends Action
 
             $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath(self::BACK_URL);
+
             return $resultRedirect;
         }
 

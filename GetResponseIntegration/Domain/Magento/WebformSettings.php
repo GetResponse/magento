@@ -23,7 +23,7 @@ class WebformSettings
      */
     public function __construct($isEnabled, $url, $webformId, $sidebar)
     {
-        $this->isEnabled = (bool) $isEnabled;
+        $this->isEnabled = (bool)$isEnabled;
         $this->url = $url;
         $this->webformId = $webformId;
         $this->sidebar = $sidebar;
@@ -67,7 +67,7 @@ class WebformSettings
     public function toArray()
     {
         return [
-            'isEnabled' => (int) $this->isEnabled,
+            'isEnabled' => (int)$this->isEnabled,
             'url' => $this->url,
             'webformId' => $this->webformId,
             'sidebar' => $this->sidebar

@@ -149,7 +149,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                         id="gr_sync_order_data"
                                         value="1"
                                     <?php
-                                    if ($settings->isCustomFieldsModiefied()) {
+                                    if ($settings->isCustomFieldsModified()) {
                                         echo ' checked="checked"';
                                     }
                                     ?>
@@ -162,7 +162,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                         </div>
                     </div>
                 </fieldset>
-                <div id="customNameFieldsRow" class="forms config admin__scope-old <?php if (!$settings->isCustomFieldsModiefied()):?>hidden<?php endif ?>">
+                <div id="customNameFieldsRow" class="forms config admin__scope-old <?php if (!$settings->isCustomFieldsModified()):?>hidden<?php endif ?>">
                     <div id="customNameFields">
                         <?php include 'customs_grid.phtml'; ?>
                         <div class="note admin__field-note">You can use lowercase English alphabet characters, numbers, and underscore ("_"). Maximum 32 characters</div>

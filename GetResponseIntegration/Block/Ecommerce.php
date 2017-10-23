@@ -33,11 +33,10 @@ class Ecommerce extends Template
         ObjectManagerInterface $objectManager,
         Repository $repository,
         RepositoryFactory $repositoryFactory
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
     }
 
     /**
@@ -61,7 +60,7 @@ class Ecommerce extends Template
      */
     public function getShops()
     {
-        return (array) $this->grRepository->getShops();
+        return (array)$this->grRepository->getShops();
     }
 
     /**
@@ -69,7 +68,7 @@ class Ecommerce extends Template
      */
     public function getRegistrationSettings()
     {
-        return RegistrationSettingsFactory::createFromRepository(
+        return RegistrationSettingsFactory::createFromArray(
             $this->repository->getRegistrationSettings()
         );
     }

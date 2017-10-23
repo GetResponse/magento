@@ -22,70 +22,70 @@ class InstallSchema implements InstallSchemaInterface
 
         $installer->startSetup();
         $table = $installer->getConnection()
-        ->newTable($installer->getTable('getresponse_settings'))
-        ->addColumn(
-            'id',
-            Table::TYPE_INTEGER,
-            null,
-            ['identity' => true, 'unsigned' => true, 'nullable' => false, 'primary' => true],
-            'Id'
-        )
-        ->addColumn(
-            'id_shop',
-            Table::TYPE_INTEGER,
-            null,
-            ['nullable' => false],
-            'Id shop'
-        )
-        ->addColumn(
-            'api_key',
-            Table::TYPE_TEXT,
-            null,
-            ['nullable' => false],
-            'GR Api Key'
-        )
-        ->addColumn(
-            'api_url',
-            Table::TYPE_TEXT,
-            null,
-            ['nullable' => true],
-            'GR Api Url'
-        )
-        ->addColumn(
-            'api_domain',
-            Table::TYPE_TEXT,
-            null,
-            ['nullable' => true],
-            'GR Api Domain'
-        )
-        ->addColumn(
-            'active_subscription',
-            Table::TYPE_BOOLEAN,
-            null,
-            ['default' => true, 'nullable' => false],
-            'Active subscription'
-        )
-        ->addColumn(
-            'update',
-            Table::TYPE_BOOLEAN,
-            null,
-            ['default' => true, 'nullable' => false],
-            'Update custom fields'
-        )
-        ->addColumn(
-            'cycle_day',
-            Table::TYPE_TEXT,
-            null,
-            ['nullable' => true],
-            'GR campaign cycle day'
-        )
-        ->addColumn(
-            'campaign_id',
-            Table::TYPE_TEXT,
-            null,
-            ['nullable' => false],
-            'GR campaign id'
-        );
+            ->newTable($installer->getTable('getresponse_settings'))
+            ->addColumn(
+                'id',
+                Table::TYPE_INTEGER,
+                null,
+                ['identity' => true, 'unsigned' => true, 'nullable' => false, 'primary' => true],
+                'Id'
+            )
+            ->addColumn(
+                'id_shop',
+                Table::TYPE_INTEGER,
+                null,
+                ['nullable' => false],
+                'Id shop'
+            )
+            ->addColumn(
+                'api_key',
+                Table::TYPE_TEXT,
+                null,
+                ['nullable' => false],
+                'GR Api Key'
+            )
+            ->addColumn(
+                'api_url',
+                Table::TYPE_TEXT,
+                null,
+                ['nullable' => true],
+                'GR Api Url'
+            )
+            ->addColumn(
+                'api_domain',
+                Table::TYPE_TEXT,
+                null,
+                ['nullable' => true],
+                'GR Api Domain'
+            )
+            ->addColumn(
+                'active_subscription',
+                Table::TYPE_BOOLEAN,
+                null,
+                ['default' => true, 'nullable' => false],
+                'Active subscription'
+            )
+            ->addColumn(
+                'update',
+                Table::TYPE_BOOLEAN,
+                null,
+                ['default' => true, 'nullable' => false],
+                'Update custom fields'
+            )
+            ->addColumn(
+                'cycle_day',
+                Table::TYPE_TEXT,
+                null,
+                ['nullable' => true],
+                'GR campaign cycle day'
+            )
+            ->addColumn(
+                'campaign_id',
+                Table::TYPE_TEXT,
+                null,
+                ['nullable' => false],
+                'GR campaign id'
+            );
         $installer->getConnection()->createTable($table);
 
         $table = $installer->getConnection()
@@ -346,15 +346,87 @@ class InstallSchema implements InstallSchemaInterface
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $stores = $objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStores();
         foreach ($stores as $store) {
-            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), ['id'=>1, 'id_shop'=>$store->getId(), 'custom_field'=>'firstname', 'custom_value'=>'firstname', 'custom_name'=>'firstname', 'default'=>1, 'active_custom'=>1]);
-            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), ['id'=>2, 'id_shop'=>$store->getId(), 'custom_field'=>'lastname', 'custom_value'=>'lastname', 'custom_name'=>'lastname', 'default'=>1, 'active_custom'=>1]);
-            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), ['id'=>3, 'id_shop'=>$store->getId(), 'custom_field'=>'email', 'custom_value'=>'email', 'custom_name'=>'email', 'default'=>1, 'active_custom'=>1]);
-            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), ['id'=>4, 'id_shop'=>$store->getId(), 'custom_field'=>'street', 'custom_value'=>'street', 'custom_name'=>'magento_street', 'default'=>0, 'active_custom'=>0]);
-            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), ['id'=>5, 'id_shop'=>$store->getId(), 'custom_field'=>'postcode', 'custom_value'=>'postcode', 'custom_name'=>'magento_postcode', 'default'=>0, 'active_custom'=>0]);
-            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), ['id'=>6, 'id_shop'=>$store->getId(), 'custom_field'=>'city', 'custom_value'=>'city', 'custom_name'=>'magento_city', 'default'=>0, 'active_custom'=>0]);
-            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), ['id'=>7, 'id_shop'=>$store->getId(), 'custom_field'=>'telephone', 'custom_value'=>'telephone', 'custom_name'=>'magento_telephone', 'default'=>0, 'active_custom'=>0]);
-            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), ['id'=>8, 'id_shop'=>$store->getId(), 'custom_field'=>'country', 'custom_value'=>'country', 'custom_name'=>'magento_country', 'default'=>0, 'active_custom'=>0]);
-            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), ['id'=>9, 'id_shop'=>$store->getId(), 'custom_field'=>'birthday', 'custom_value'=>'birthday', 'custom_name'=>'magento_birthday', 'default'=>0, 'active_custom'=>0]);
+            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
+                'id' => 1,
+                'id_shop' => $store->getId(),
+                'custom_field' => 'firstname',
+                'custom_value' => 'firstname',
+                'custom_name' => 'firstname',
+                'default' => 1,
+                'active_custom' => 1
+            ]);
+            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
+                'id' => 2,
+                'id_shop' => $store->getId(),
+                'custom_field' => 'lastname',
+                'custom_value' => 'lastname',
+                'custom_name' => 'lastname',
+                'default' => 1,
+                'active_custom' => 1
+            ]);
+            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
+                'id' => 3,
+                'id_shop' => $store->getId(),
+                'custom_field' => 'email',
+                'custom_value' => 'email',
+                'custom_name' => 'email',
+                'default' => 1,
+                'active_custom' => 1
+            ]);
+            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
+                'id' => 4,
+                'id_shop' => $store->getId(),
+                'custom_field' => 'street',
+                'custom_value' => 'street',
+                'custom_name' => 'magento_street',
+                'default' => 0,
+                'active_custom' => 0
+            ]);
+            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
+                'id' => 5,
+                'id_shop' => $store->getId(),
+                'custom_field' => 'postcode',
+                'custom_value' => 'postcode',
+                'custom_name' => 'magento_postcode',
+                'default' => 0,
+                'active_custom' => 0
+            ]);
+            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
+                'id' => 6,
+                'id_shop' => $store->getId(),
+                'custom_field' => 'city',
+                'custom_value' => 'city',
+                'custom_name' => 'magento_city',
+                'default' => 0,
+                'active_custom' => 0
+            ]);
+            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
+                'id' => 7,
+                'id_shop' => $store->getId(),
+                'custom_field' => 'telephone',
+                'custom_value' => 'telephone',
+                'custom_name' => 'magento_telephone',
+                'default' => 0,
+                'active_custom' => 0
+            ]);
+            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
+                'id' => 8,
+                'id_shop' => $store->getId(),
+                'custom_field' => 'country',
+                'custom_value' => 'country',
+                'custom_name' => 'magento_country',
+                'default' => 0,
+                'active_custom' => 0
+            ]);
+            $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
+                'id' => 9,
+                'id_shop' => $store->getId(),
+                'custom_field' => 'birthday',
+                'custom_value' => 'birthday',
+                'custom_name' => 'magento_birthday',
+                'default' => 0,
+                'active_custom' => 0
+            ]);
         }
 
         $installer->endSetup();

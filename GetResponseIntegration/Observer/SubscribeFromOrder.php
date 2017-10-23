@@ -48,7 +48,7 @@ class SubscribeFromOrder implements ObserverInterface
      */
     public function execute(EventObserver $observer)
     {
-        $registrationSettings = RegistrationSettingsFactory::createFromRepository(
+        $registrationSettings = RegistrationSettingsFactory::createFromArray(
             $this->repository->getRegistrationSettings()
         );
 
@@ -57,7 +57,7 @@ class SubscribeFromOrder implements ObserverInterface
         }
 
         try {
-            $grRepository = $this->repositoryFactory->buildRepository();
+            $grRepository = $this->repositoryFactory->createRepository();
         } catch (GetResponseRepositoryException $e) {
             return $this;
         }
@@ -67,7 +67,7 @@ class SubscribeFromOrder implements ObserverInterface
         $customs = $this->repository->getCustoms();
 
         $order_id = $observer->getOrderIds();
-        $order_id = (int) (is_array($order_id) ? array_pop($order_id) : $order_id);
+        $order_id = (int)(is_array($order_id) ? array_pop($order_id) : $order_id);
 
         if ($order_id < 1) {
             return $this;
@@ -146,9 +146,9 @@ class SubscribeFromOrder implements ObserverInterface
                     }
                 }
                 if ($move_subscriber) {
-                    $results = (array) $grRepository->getContacts([
+                    $results = (array)$grRepository->getContacts([
                         'query' => [
-                            'email'      => $customer->getEmail(),
+                            'email' => $customer->getEmail(),
                             'campaignId' => $registrationSettings->getCampaignId()
                         ]
                     ]);
@@ -175,7 +175,6 @@ class SubscribeFromOrder implements ObserverInterface
     }
 
 
-
     /**
      * Add (or update) contact to gr campaign
      *
@@ -183,7 +182,7 @@ class SubscribeFromOrder implements ObserverInterface
      * @param       $firstname
      * @param       $lastname
      * @param       $email
-     * @param int   $cycle_day
+     * @param int $cycle_day
      * @param array $user_customs
      *
      * @return mixed
@@ -191,7 +190,7 @@ class SubscribeFromOrder implements ObserverInterface
     public function addContact($campaign, $firstname, $lastname, $email, $cycle_day = 0, $user_customs = [])
     {
         try {
-            $grRepository = $this->repositoryFactory->buildRepository();
+            $grRepository = $this->repositoryFactory->createRepository();
         } catch (GetResponseRepositoryException $e) {
             return $this;
         }
@@ -202,19 +201,19 @@ class SubscribeFromOrder implements ObserverInterface
         $user_customs['origin'] = 'magento2';
 
         $params = [
-            'name'       => $name,
-            'email'      => $email,
-            'campaign'   => ['campaignId' => $campaign],
-            'ipAddress'  => $_SERVER['REMOTE_ADDR']
+            'name' => $name,
+            'email' => $email,
+            'campaign' => ['campaignId' => $campaign],
+            'ipAddress' => $_SERVER['REMOTE_ADDR']
         ];
 
         if (!empty($cycle_day)) {
-            $params['dayOfCycle'] = (int) $cycle_day;
+            $params['dayOfCycle'] = (int)$cycle_day;
         }
 
-        $results = (array) $grRepository->getContacts([
+        $results = (array)$grRepository->getContacts([
             'query' => [
-                'email'      => $email,
+                'email' => $email,
                 'campaignId' => $campaign
             ]
         ]);
@@ -229,9 +228,11 @@ class SubscribeFromOrder implements ObserverInterface
             } else {
                 $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
             }
+
             return $grRepository->updateContact($contact->contactId, $params);
         } else {
             $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
+
             return $grRepository->addContact($params);
         }
     }

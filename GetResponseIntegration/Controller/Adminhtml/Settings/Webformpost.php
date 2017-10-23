@@ -41,8 +41,7 @@ class Webformpost extends Action
         PageFactory $resultPageFactory,
         Repository $repository,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
@@ -64,6 +63,7 @@ class Webformpost extends Action
         if (empty($data)) {
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
@@ -73,10 +73,11 @@ class Webformpost extends Action
             $this->messageManager->addErrorMessage($error);
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
-        $webform = WebformSettingsFactory::buildFromUserPayload($data);
+        $webform = WebformSettingsFactory::createFromArray($data);
 
         $this->repository->saveWebformSettings($webform);
 
@@ -84,6 +85,7 @@ class Webformpost extends Action
 
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::BACK_URL);
+
         return $resultRedirect;
     }
 

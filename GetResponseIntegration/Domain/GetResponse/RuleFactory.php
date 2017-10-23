@@ -12,30 +12,14 @@ class RuleFactory
      *
      * @return Rule
      */
-    public static function buildFromPayload(array $data)
+    public static function createFromArray(array $data)
     {
         return new Rule(
-            uniqid(),
+            $data['id'],
             $data['category'],
             $data['action'],
-            $data['campaign_id'],
+            $data['campaign'],
             isset($data['cycle_day']) ? $data['cycle_day'] : ''
-        );
-    }
-
-    /**
-     * @param \stdClass $data
-     *
-     * @return Rule
-     */
-    public static function buildFromRepository(\stdClass $data)
-    {
-       return new Rule(
-            $data->id,
-            $data->category,
-            $data->action,
-            $data->campaign,
-            $data->cycle_day
         );
     }
 }

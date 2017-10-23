@@ -1,5 +1,4 @@
 <?php
-
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
@@ -27,8 +26,7 @@ class Index extends Action
         Context $context,
         PageFactory $resultPageFactory,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {

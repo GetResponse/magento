@@ -22,6 +22,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrReposi
 class Ecommerce
 {
     const CACHE_KEY = 'getresponse_cache';
+
     /** @var Session */
     protected $customerSession;
 
@@ -61,7 +62,7 @@ class Ecommerce
         $this->productMapFactory = $productMapFactory;
         $this->countryFactory = $countryFactory;
 
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
         $this->repository = $repository;
     }
 
@@ -79,6 +80,7 @@ class Ecommerce
         if (!isset($contact->contactId)) {
             return false;
         }
+
         return true;
     }
 
@@ -89,29 +91,31 @@ class Ecommerce
     {
         $cache = $this->objectManager->get('Magento\Framework\App\CacheInterface');
 
-        $settings = RegistrationSettingsFactory::createFromRepository(
+        $settings = RegistrationSettingsFactory::createFromArray(
             $this->repository->getRegistrationSettings()
         );
 
         /** @var Customer $customer */
         $customer = $this->customerSession->getCustomer();
 
-        $cacheKey = md5($customer->getEmail().$settings->getCampaignId());
+        $cacheKey = md5($customer->getEmail() . $settings->getCampaignId());
         $cachedCustomer = $cache->load($cacheKey);
 
         if (false !== $cachedCustomer) {
             return unserialize($cachedCustomer);
         }
 
-        $params = ['query' => [
-            'email' => $customer->getEmail(),
-            'campaignId' => $settings->getCampaignId()
-        ]];
+        $params = [
+            'query' => [
+                'email' => $customer->getEmail(),
+                'campaignId' => $settings->getCampaignId()
+            ]
+        ];
 
-        $response = (array) $this->grRepository->getContacts($params);
+        $response = (array)$this->grRepository->getContacts($params);
         $grCustomer = array_pop($response);
 
-        $cache->save(serialize($grCustomer), $cacheKey, [self::CACHE_KEY], 5*60);
+        $cache->save(serialize($grCustomer), $cacheKey, [self::CACHE_KEY], 5 * 60);
 
         return $grCustomer;
     }
@@ -151,6 +155,7 @@ class Ecommerce
         ]);
 
         $productMap->save();
+
         return $productId;
     }
 
@@ -169,7 +174,7 @@ class Ecommerce
             'variants' => [
                 [
                     'name' => $magentoCartItem->getProduct()->getName(),
-                    'price'=> $magentoCartItem->getProduct()->getPrice(),
+                    'price' => $magentoCartItem->getProduct()->getPrice(),
                     'priceTax' => 0,
                     'quantity' => $magentoCartItem->getProduct()->getQty(),
                     'sku' => $magentoCartItem->getProduct()->getSku(),
@@ -178,6 +183,7 @@ class Ecommerce
         ];
 
         $response = $this->grRepository->addProduct($shopId, $params);
+
         return $this->handleProductResponse($response);
     }
 
@@ -216,7 +222,7 @@ class Ecommerce
             'currency' => $order->getOrderCurrencyCode(),
             'status' => $order->getStatus(),
             'cartId' => 0,
-            'shippingPrice'  => $order->getShippingAmount(),
+            'shippingPrice' => $order->getShippingAmount(),
             'externalId' => $order->getId(),
             'shippingAddress' => [
                 'countryCode' => $shippingCountry->getData('iso3_code'),

@@ -25,8 +25,7 @@ class Webform extends Action
         Context $context,
         PageFactory $resultPageFactory,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
@@ -43,6 +42,7 @@ class Webform extends Action
     {
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend('Add contacts via GetResponse forms');
+
         return $resultPage;
     }
 }

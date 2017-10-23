@@ -42,8 +42,7 @@ class Delete extends Action
         Repository $repository,
         AccessValidator $accessValidator,
         Manager $cacheManager
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
@@ -75,6 +74,7 @@ class Delete extends Action
 
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::BACK_URL);
+
         return $resultRedirect;
     }
 }

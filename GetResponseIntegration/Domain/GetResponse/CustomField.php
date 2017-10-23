@@ -80,7 +80,7 @@ class CustomField
      */
     public function isDefault()
     {
-        return (bool) $this->isDefault;
+        return (bool)$this->isDefault;
     }
 
     /**
@@ -88,7 +88,7 @@ class CustomField
      */
     public function isActive()
     {
-        return (bool) $this->isActive;
+        return (bool)$this->isActive;
     }
 
     /**

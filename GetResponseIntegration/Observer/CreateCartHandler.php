@@ -52,9 +52,10 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
     ) {
         $this->cart = $cart;
         $this->scopeConfig = $scopeConfig;
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
 
-        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory, $repository);
+        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory,
+            $repository);
     }
 
     /**
@@ -121,6 +122,7 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
                 $quote->setData('getresponse_cart_id', '');
                 $quote->save();
             }
+
             return $this;
         }
 
@@ -135,6 +137,7 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
                 $requestToGr
             );
         }
+
         return $this;
     }
 }

@@ -13,10 +13,10 @@ class RegistrationSettingsFactory
      *
      * @return RegistrationSettings
      */
-    public static function createFromRepository(array $data)
+    public static function createFromArray(array $data)
     {
         if (empty($data)) {
-            return new RegistrationSettings(null, null, null, null);
+            return new RegistrationSettings(0, 0, '', 0);
         }
 
         return new RegistrationSettings(
@@ -24,24 +24,6 @@ class RegistrationSettingsFactory
             $data['customFieldsStatus'],
             $data['campaignId'],
             $data['cycleDay']
-        );
-    }
-
-    /**
-     * @param int $status
-     * @param int $customFieldStatus
-     * @param string $campaignId
-     * @param int $cycleDay
-     *
-     * @return RegistrationSettings
-     */
-    public static function buildFromPayload($status, $customFieldStatus, $campaignId, $cycleDay)
-    {
-        return new RegistrationSettings(
-            $status,
-            $customFieldStatus,
-            $campaignId,
-            $cycleDay
         );
     }
 }

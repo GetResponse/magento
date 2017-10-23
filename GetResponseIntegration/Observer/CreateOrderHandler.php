@@ -24,8 +24,10 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
     /** @var ScopeConfigInterface */
     private $scopeConfig;
 
-    private $orderFactory;
+    /** @var Order */
+    private $order;
 
+    /** @var QuoteFactory */
     private $quoteFactory;
 
     /** @var GrRepository */
@@ -53,13 +55,14 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
         RepositoryFactory $repositoryFactory,
         Repository $repository
     ) {
-        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory, $repository);
+        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory,
+            $repository);
 
-        $this->orderFactory = $orderFactory;
+        $this->order = $orderFactory;
         $this->quoteFactory = $quoteFactory;
         $this->countryFactory = $countryFactory;
         $this->scopeConfig = $scopeConfig;
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
     }
 
     /**
@@ -77,7 +80,7 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
         $lastOrderId = $orderIds[0];
 
         /** @var Order $order */
-        $order = $this->orderFactory->load($lastOrderId);
+        $order = $this->order->load($lastOrderId);
 
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->quoteFactory->create()->load($order->getQuoteId());

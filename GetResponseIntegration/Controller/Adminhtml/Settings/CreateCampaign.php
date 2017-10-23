@@ -23,7 +23,7 @@ class CreateCampaign extends Action
     /** @var PageFactory */
     private $resultPageFactory;
 
-    /** @var Http  */
+    /** @var Http */
     private $request;
 
     /** @var Repository */
@@ -50,8 +50,7 @@ class CreateCampaign extends Action
         RepositoryFactory $repositoryFactory,
         JsonFactory $resultJsonFactory,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
@@ -61,7 +60,7 @@ class CreateCampaign extends Action
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
         $this->resultJsonFactory = $resultJsonFactory;
     }
 
@@ -73,7 +72,7 @@ class CreateCampaign extends Action
         $data = $this->request->getPostValue();
         $lang = substr($this->repository->getMagentoCountryCode(), 0, 2);
 
-        $campaign = CampaignFactory::buildFromUserPayload($data);
+        $campaign = CampaignFactory::createFromArray($data);
 
         return $this->resultJsonFactory->create()->setData(
             $this->grRepository->createCampaign($campaign)

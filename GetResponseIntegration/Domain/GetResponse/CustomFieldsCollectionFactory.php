@@ -12,7 +12,7 @@ class CustomFieldsCollectionFactory
      *
      * @return CustomFieldsCollection
      */
-    public static function buildFromRepository(array $data)
+    public static function createFromRepository(array $data)
     {
         $collection = new CustomFieldsCollection();
 
@@ -40,7 +40,7 @@ class CustomFieldsCollectionFactory
      *
      * @return CustomFieldsCollection
      */
-    public static function buildFromUserPayload(array $customs, array $allCustoms)
+    public static function createFromUserPayload(array $customs, array $allCustoms)
     {
         $collection = new CustomFieldsCollection();
 

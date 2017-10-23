@@ -37,8 +37,8 @@ class ApiHelper
 
             if (empty($custom) || !isset($custom->customFieldId)) {
                 $custom = $this->repository->addCustomField([
-                    'name'   => $name,
-                    'type'   => "text",
+                    'name' => $name,
+                    'type' => "text",
                     'hidden' => "false",
                     'values' => [$value],
                 ]);
@@ -50,7 +50,7 @@ class ApiHelper
 
             $custom_fields[] = [
                 'customFieldId' => $custom->customFieldId,
-                'value'         => [$value]
+                'value' => [$value]
             ];
         }
 
@@ -78,7 +78,7 @@ class ApiHelper
 
                 $custom_fields[] = [
                     'customFieldId' => $customs->customFieldId,
-                    'value'         => $value
+                    'value' => $value
                 ];
             }
         }

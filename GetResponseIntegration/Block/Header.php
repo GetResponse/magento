@@ -1,7 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
 use Magento\Framework\View\Element\Template;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Framework\View\Element\Template\Context;
@@ -30,7 +30,7 @@ class Header extends Template
      */
     public function getSnippetCode()
     {
-        $webEventTracking = WebEventTrackingFactory::buildFromRepository(
+        $webEventTracking = WebEventTrackingSettingsFactory::createFromArray(
             $this->repository->getWebEventTracking()
         );
 

@@ -12,7 +12,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
-
 /**
  * Class Registration
  * @package GetResponse\GetResponseIntegration\Block
@@ -37,12 +36,11 @@ class Registration extends Template
         Context $context,
         Repository $repository,
         RepositoryFactory $repositoryFactory
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
     }
 
     /**
@@ -58,7 +56,7 @@ class Registration extends Template
      */
     public function getConnectionSettings()
     {
-        return ConnectionSettingsFactory::buildFromRepository(
+        return ConnectionSettingsFactory::createFromArray(
             $this->repository->getConnectionSettings()
         );
     }
@@ -109,12 +107,13 @@ class Registration extends Template
 
             $result[$id] = $array;
         }
+
         return $result;
     }
 
     public function getCustoms()
     {
-        return CustomFieldsCollectionFactory::buildFromRepository($this->repository->getCustoms());
+        return CustomFieldsCollectionFactory::createFromRepository($this->repository->getCustoms());
     }
 
     /**
@@ -122,7 +121,7 @@ class Registration extends Template
      */
     public function getRegistrationSettings()
     {
-        return RegistrationSettingsFactory::createFromRepository(
+        return RegistrationSettingsFactory::createFromArray(
             $this->repository->getRegistrationSettings()
         );
     }

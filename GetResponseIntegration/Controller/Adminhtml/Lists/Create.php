@@ -2,6 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CampaignFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Getresponse\Repository as GrRepository;
@@ -42,8 +43,7 @@ class Create extends Action
         Repository $repository,
         RepositoryFactory $repositoryFactory,
         AccessValidator $accessValidator
-    )
-    {
+    ) {
         parent::__construct($context);
 
         if (false === $accessValidator->isConnectedToGetResponse()) {
@@ -52,7 +52,7 @@ class Create extends Action
 
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->buildRepository();
+        $this->grRepository = $repositoryFactory->createRepository();
     }
 
     /**
@@ -74,6 +74,7 @@ class Create extends Action
         if (empty($data)) {
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
@@ -84,6 +85,7 @@ class Create extends Action
             $this->messageManager->addErrorMessage($error);
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
@@ -99,17 +101,19 @@ class Create extends Action
             'subscriptionConfirmationSubjectId' => $data['confirmation_subject']
         ];
 
-        $result = $this->grRepository->createCampaign($params);
+        $result = $this->grRepository->createCampaign(CampaignFactory::createFromArray($params));
 
         if (isset($result->httpStatus) && (int)$result->httpStatus >= 400) {
             $this->messageManager->addErrorMessage(isset($result->codeDescription) ? $result->codeDescription . ' - uuid: ' . $result->uuid : 'Something goes wrong');
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         } else {
             $this->messageManager->addSuccessMessage('List created');
             $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath($backUrl);
+
             return $resultRedirect;
         }
     }
