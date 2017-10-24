@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Directory\Model\CountryFactory;
@@ -13,7 +14,6 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\Order;
 use GetResponse\GetResponseIntegration\Model\ProductMapFactory;
 use GetResponse\GetResponseIntegration\Helper\Config;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class UpdateOrderHandler
@@ -30,11 +30,10 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
     /** @var QuoteFactory */
     private $quoteFactory;
 
-    /** @var GrRepository */
-    private $grRepository;
-
     /** @var Repository */
     private $repository;
+
+    private $repositoryFactory;
 
     /**
      * @param ObjectManagerInterface $objectManager
@@ -61,7 +60,7 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
         $this->order = $orderFactory;
         $this->quoteFactory = $quoteFactory;
         $this->scopeConfig = $scopeConfig;
-        $this->grRepository = $repositoryFactory->createRepository();
+        $this->repositoryFactory = $repositoryFactory;
         $this->repository = $repository;
 
         parent::__construct(
@@ -76,6 +75,7 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
 
     /**
      * @param EventObserver $observer
+     * @return null
      */
     public function execute(EventObserver $observer)
     {
@@ -88,22 +88,27 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
         $requestToGr['cartId'] = $this->getGetresponseCartId($order);
 
         if ($order->getGetresponseOrderMd5() == $this->createOrderPayloadHash($requestToGr) || '' == $order->getGetresponseOrderId()) {
-            return;
+            return null;
         }
 
-        $this->grRepository->updateOrder(
-            $shopId,
-            $order->getGetresponseOrderId(),
-            $requestToGr
-        );
-        $order->setGetresponseOrderMd5($this->createOrderPayloadHash($requestToGr));
-        $order->save();
+        try {
+            $grRepository = $this->repositoryFactory->createRepository();
+            $grRepository->updateOrder(
+                $shopId,
+                $order->getGetresponseOrderId(),
+                $requestToGr
+            );
+            $order->setGetresponseOrderMd5($this->createOrderPayloadHash($requestToGr));
+            $order->save();
+        } catch (RepositoryException $e) {
+            return null;
+        }
     }
 
     /**
      * @param Order $order
      *
-     * @return null|string
+     * @return string
      */
     public function getGetresponseCartId(Order $order)
     {
@@ -111,11 +116,15 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
         $getresponseOrderId = $order->getData('getresponse_order_id');
 
         if (empty($getresponseOrderId)) {
-            return null;
+            return '';
         }
 
-        $order = $this->grRepository->getOrder($shopId, $getresponseOrderId);
-
-        return isset($order->cartId) ? $order->cartId : null;
+        try {
+            $grRepository = $this->repositoryFactory->createRepository();
+            $order = $grRepository->getOrder($shopId, $getresponseOrderId);
+            return isset($order->cartId) ? $order->cartId : '';
+        } catch (RepositoryException $e) {
+            return '';
+        }
     }
 }

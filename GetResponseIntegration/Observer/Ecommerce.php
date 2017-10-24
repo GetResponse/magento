@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -14,7 +15,6 @@ use GetResponse\GetResponseIntegration\Model\ResourceModel\ProductMap\Collection
 use Magento\Quote\Model\Quote\Item;
 use Magento\Sales\Model\Order;
 use Magento\Directory\Model\CountryFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class Ecommerce
@@ -34,8 +34,8 @@ class Ecommerce
     /** @var CountryFactory */
     protected $countryFactory;
 
-    /** @var GrRepository */
-    private $grRepository;
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /** @var Repository */
     private $repository;
@@ -60,8 +60,7 @@ class Ecommerce
         $this->customerSession = $customerSession;
         $this->productMapFactory = $productMapFactory;
         $this->countryFactory = $countryFactory;
-
-        $this->grRepository = $repositoryFactory->createRepository();
+        $this->repositoryFactory = $repositoryFactory;
         $this->repository = $repository;
     }
 
@@ -73,14 +72,8 @@ class Ecommerce
         if (false === $this->customerSession->isLoggedIn()) {
             return false;
         }
-
         $contact = $this->getContactFromGetResponse();
-
-        if (!isset($contact->contactId)) {
-            return false;
-        }
-
-        return true;
+        return !isset($contact->contactId) ? false : true;
     }
 
     /**
@@ -111,7 +104,13 @@ class Ecommerce
             ]
         ];
 
-        $response = (array)$this->grRepository->getContacts($params);
+        try {
+            $grRepository = $this->repositoryFactory->createRepository();
+        } catch (RepositoryException $e) {
+            return null;
+        }
+
+        $response = (array)$grRepository->getContacts($params);
         $grCustomer = array_pop($response);
 
         $cache->save(serialize($grCustomer), $cacheKey, [Config::CACHE_KEY], Config::CACHE_TIME);
@@ -181,9 +180,13 @@ class Ecommerce
             ],
         ];
 
-        $response = $this->grRepository->addProduct($shopId, $params);
-
-        return $this->handleProductResponse($response);
+        try {
+            $grRepository = $this->repositoryFactory->createRepository();
+            $response = $grRepository->addProduct($shopId, $params);
+            return $this->handleProductResponse($response);
+        } catch (RepositoryException $e) {
+            return null;
+        }
     }
 
     /**
