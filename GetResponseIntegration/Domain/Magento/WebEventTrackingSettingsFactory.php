@@ -13,6 +13,14 @@ class WebEventTrackingSettingsFactory
      */
     public static function createFromArray(array $data)
     {
+        if (empty($data)) {
+            return new WebEventTrackingSettings(
+                false,
+                false,
+                ''
+            );
+        }
+
         return new WebEventTrackingSettings(
             (bool)$data['isEnabled'],
             (bool)$data['isFeatureTrackingEnabled'],
