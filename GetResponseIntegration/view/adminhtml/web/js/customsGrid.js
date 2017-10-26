@@ -28,10 +28,14 @@ require(['jquery'], function($) {
             '<td>' +
             '<div class="data-grid-cell-content">' +
             '<select name="custom[]">';
+        var currentCustom = null;
         
         customs.forEach(function (custom, index) {
-            if(custom["isDefault"] === 0) {
+            if (custom["isDefault"] === 0) {
                 newCustom += '<option value="' + custom["customField"] + '">' + custom["customValue"] + '</option>';
+                if (currentCustom === null) {
+                    currentCustom = custom;
+                }
             }
         });
         newCustom += '</select>' +
@@ -39,7 +43,7 @@ require(['jquery'], function($) {
             '</td>' +
             '<td>' +
             '<div class="data-grid-cell-content">' +
-            '<input type="text" name="gr_custom[]" value="">' +
+            '<input type="text" name="gr_custom[]" value="' + currentCustom["customValue"] + '">' +
             '</div>' +
             '</td>' +
             '<td>' +
