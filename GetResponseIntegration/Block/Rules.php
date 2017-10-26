@@ -135,9 +135,12 @@ class Rules extends Template
     /**
      * @param Node $node
      * @param $selectedCategory
+     * @return string
      */
     public function getSubcategories(Node $node, $selectedCategory)
     {
+        $result = '';
+
         if ($node->hasChildren()) {
             $childrenCategories = $node->getChildren();
             foreach ($childrenCategories as $childrenCategory) {
@@ -148,11 +151,14 @@ class Rules extends Template
 
                 $selected = $selectedCategory == $childrenCategory->getEntityId() ? 'selected="selected"' : '';
 
-                echo '<option ' . $selected . ' value="' . $childrenCategory->getEntityId() . '"> ' .
+                $result .= '<option ' . $selected . ' value="' . $childrenCategory->getEntityId() . '"> ' .
                     $string . ' ' . $childrenCategory->getName() . '</option>';
-                $this->getSubcategories($childrenCategory, $selectedCategory);
+
+                $result .= $this->getSubcategories($childrenCategory, $selectedCategory);
             }
         }
+
+        return $result;
     }
 
     /**

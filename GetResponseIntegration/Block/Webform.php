@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\WebformCollectionFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\WebformsCollection;
@@ -21,8 +22,8 @@ class Webform extends Template
     /** @var Repository */
     private $repository;
 
-    /** @var GrRepository */
-    private $grRepository;
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /**
      * @param Context $context
@@ -39,7 +40,7 @@ class Webform extends Template
     ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->createRepository();
+        $this->repositoryFactory = $repositoryFactory;
     }
 
     /**
@@ -57,9 +58,14 @@ class Webform extends Template
      */
     public function getWebFormsCollection()
     {
-        return WebformCollectionFactory::createFromApiResponse(
-            (array)$this->grRepository->getForms(['query' => ['status' => 'enabled']]),
-            (array)$this->grRepository->getWebForms()
-        );
+        try {
+            $grRepository = $this->repositoryFactory->createRepository();
+            return WebformCollectionFactory::createFromApiResponse(
+                (array)$grRepository->getForms(['query' => ['status' => 'enabled']]),
+                (array)$grRepository->getWebForms()
+            );
+        } catch (RepositoryException $e) {
+            return new WebformsCollection();
+        }
     }
 }

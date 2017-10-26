@@ -1,16 +1,17 @@
 {
     "name": "getresponse/magento2-module",
     "description": "GetResponse Integration for Magento2",
+    "version": "20.1.1",
     "license": "OSL-3.0",
     "minimum-stability": "stable",
     "type": "magento2-module",
     "require": {},
     "autoload": {
         "files": [
-            "GetResponseIntegration/registration.php"
+            "registration.php"
         ],
         "psr-4": {
-            "GetResponse\\GetResponseIntegration\\": "GetResponseIntegration/"
+            "GetResponse\\GetResponseIntegration\\": ""
         }
     }
 }

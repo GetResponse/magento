@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Directory\Model\CountryFactory;
@@ -13,7 +14,6 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\Order;
 use GetResponse\GetResponseIntegration\Model\ProductMapFactory;
 use GetResponse\GetResponseIntegration\Helper\Config;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class CreateOrderHandler
@@ -30,8 +30,8 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
     /** @var QuoteFactory */
     private $quoteFactory;
 
-    /** @var GrRepository */
-    private $grRepository;
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /**
      * @param ObjectManagerInterface $objectManager
@@ -55,14 +55,20 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
         RepositoryFactory $repositoryFactory,
         Repository $repository
     ) {
-        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory,
-            $repository);
+        parent::__construct(
+            $objectManager,
+            $customerSession,
+            $productMapFactory,
+            $countryFactory,
+            $repositoryFactory,
+            $repository
+        );
 
         $this->order = $orderFactory;
         $this->quoteFactory = $quoteFactory;
         $this->countryFactory = $countryFactory;
         $this->scopeConfig = $scopeConfig;
-        $this->grRepository = $repositoryFactory->createRepository();
+        $this->repositoryFactory = $repositoryFactory;
     }
 
     /**
@@ -89,17 +95,24 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
         $requestToGr['cartId'] = $quote->getGetresponseCartId();
 
 
-        $response = $this->grRepository->createOrder(
-            $shopId,
-            $requestToGr
-        );
+        try {
+            $grRepository = $this->repositoryFactory->createRepository();
 
-        if (isset($response->httpStatus) && $response->httpStatus > 299) {
+            $response = $grRepository->createOrder(
+                $shopId,
+                $requestToGr
+            );
+
+            if (isset($response->httpStatus) && $response->httpStatus > 299) {
+                return;
+            }
+
+            $order->setData('getresponse_order_id', $response->orderId);
+            $order->setData('getresponse_order_md5', $this->createOrderPayloadHash($requestToGr));
+            $order->save();
+
+        } catch(RepositoryException $e) {
             return;
         }
-
-        $order->setData('getresponse_order_id', $response->orderId);
-        $order->setData('getresponse_order_md5', $this->createOrderPayloadHash($requestToGr));
-        $order->save();
     }
 }

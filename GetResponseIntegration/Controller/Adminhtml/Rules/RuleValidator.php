@@ -16,7 +16,7 @@ class RuleValidator
     {
         $category = isset($data['category']) ? $data['category'] : '';
         $action = isset($data['action']) ? $data['action'] : '';
-        $campaignId = isset($data['campaign_id']) ? $data['campaign_id'] : '';
+        $campaignId = isset($data['campaign']) ? $data['campaign'] : '';
 
         if (strlen($category) === 0) {
             return 'You need to select your product category';

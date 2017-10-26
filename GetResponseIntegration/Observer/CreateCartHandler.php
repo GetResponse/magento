@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Checkout\Model\Cart;
@@ -13,7 +14,6 @@ use Magento\Quote\Model\Quote\Item;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Model\ProductMapFactory;
 use Magento\Directory\Model\CountryFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class CreateCartHandler
@@ -27,8 +27,8 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
     /** @var ScopeConfigInterface */
     private $scopeConfig;
 
-    /** @var GrRepository */
-    private $grRepository;
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /**
      * @param ObjectManagerInterface $objectManager
@@ -52,10 +52,16 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
     ) {
         $this->cart = $cart;
         $this->scopeConfig = $scopeConfig;
-        $this->grRepository = $repositoryFactory->createRepository();
+        $this->repositoryFactory = $repositoryFactory;
 
-        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory, $repositoryFactory,
-            $repository);
+        parent::__construct(
+            $objectManager,
+            $customerSession,
+            $productMapFactory,
+            $countryFactory,
+            $repositoryFactory,
+            $repository
+        );
     }
 
     /**
@@ -82,7 +88,6 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
 
         /** @var Item $magentoCartItem */
         foreach ($this->cart->getQuote()->getAllItems() as $magentoCartItem) {
-
             if ('simple' !== $magentoCartItem->getProductType()) {
                 continue;
             }
@@ -111,10 +116,15 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->cart->getQuote();
 
+        try {
+            $grRepository = $this->repositoryFactory->createRepository();
+        } catch (RepositoryException $e) {
+            return $this;
+        }
+
         if (empty($requestToGr['selectedVariants'])) {
             if (!empty($quote->getData('getresponse_cart_id'))) {
-
-                $this->grRepository->deleteCart(
+                $grRepository->deleteCart(
                     $shopId,
                     $quote->getData('getresponse_cart_id')
                 );
@@ -127,11 +137,11 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
         }
 
         if (empty($quote->getData('getresponse_cart_id'))) {
-            $response = $this->grRepository->addCart($shopId, $requestToGr);
+            $response = $grRepository->addCart($shopId, $requestToGr);
             $quote->setData('getresponse_cart_id', $response->cartId);
             $quote->save();
         } else {
-            $this->grRepository->updateCart(
+            $grRepository->updateCart(
                 $shopId,
                 $quote->getData('getresponse_cart_id'),
                 $requestToGr

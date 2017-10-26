@@ -12,7 +12,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
-
 /**
  * Class Registration
  * @package GetResponse\GetResponseIntegration\Block

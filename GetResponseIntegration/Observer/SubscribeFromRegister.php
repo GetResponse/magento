@@ -69,7 +69,6 @@ class SubscribeFromRegister implements ObserverInterface
         $subscriber = $this->repository->loadSubscriberByEmail($customer->getEmail());
 
         if ($subscriber->isSubscribed() == true) {
-
             $params = [];
             $params['campaign'] = ['campaignId' => $registrationSettings->getCampaignId()];
             $params['name'] = $customer->getFirstname() . ' ' . $customer->getLastname();

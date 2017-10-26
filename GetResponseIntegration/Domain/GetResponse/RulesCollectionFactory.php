@@ -17,7 +17,6 @@ class RulesCollectionFactory
         $rules = new RulesCollection();
 
         foreach ($data as $row) {
-
             $rules->add(new Rule(
                 $row->id,
                 $row->category,

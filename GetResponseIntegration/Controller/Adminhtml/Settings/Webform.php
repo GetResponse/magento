@@ -35,7 +35,6 @@ class Webform extends Action
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->repositoryValidator = $repositoryValidator;
-
     }
 
     /**

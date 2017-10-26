@@ -82,7 +82,6 @@ class RegistrationPost extends Action
         if (!$isEnabled) {
             $this->repository->clearRegistrationSettings();
         } else {
-
             $campaignId = $data['campaign_id'];
 
             if (empty($campaignId)) {
