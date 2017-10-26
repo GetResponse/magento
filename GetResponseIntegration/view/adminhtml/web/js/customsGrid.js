@@ -1,4 +1,6 @@
 require(['jquery'], function($) {
+    var CUSTOM_NUM = 3;
+
     var customs = JSON.parse($('#jsCustoms').val());
     var mappedCustomsNumber = $('.data-row').length;
 
@@ -26,16 +28,16 @@ require(['jquery'], function($) {
         var newCustom = '<tr class="data-row ' + isOddRow + '">' +
             '<td>' +
             '<div class="data-grid-cell-content">' +
-            '<select <?php if ($custom['default'] == 1):?>disabled<?php endif?> name="custom[]">' +
-            '<?php foreach (array_slice($customs, $customNum) as $_custom):?>' +
-            '<option <?php if ($_custom['id'] === $custom['id']):?>selected="selected"<?php endif?> value="<?php echo $_custom['custom_field']?>"><?php echo $_custom['custom_value']?></option>' +
-            '<?php endforeach ?>' +
-            '</select>' +
+            '<select name="custom[]">';
+            customs.slice(0, CUSTOM_NUM).forEach(custom, index) {
+                newCustom += '<option value="' + custom["customField"] + '">' + custom["customValue"] + '</option>';
+            }
+            newCustom += '</select>' +
             '</div>' +
             '</td>' +
             '<td>' +
             '<div class="data-grid-cell-content">' +
-            '<input type="text" name="gr_custom[]" value="<?php echo $custom['custom_name']?>">' +
+            '<input type="text" name="gr_custom[]" value="' + customs["customName"] + '">' +
             '</div>' +
             '</td>' +
             '<td>' +

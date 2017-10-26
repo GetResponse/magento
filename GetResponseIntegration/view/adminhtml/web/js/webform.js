@@ -1,14 +1,21 @@
 require(['jquery'], function($) {
-    var sod = $('#publish'), forms = $('.forms'), webform_id = $('#webform_id'),
-        webform_url = $('#webform_url');
+    var container = $('#container'),
+        sod = container.find('#publish'),
+        forms = container.find('.forms'),
+        webformId = container.find('#webform_id'),
+        webformUrl = container.find('#webform_url');
+
     if (sod.prop('checked') === true) {
         forms.removeClass('hidden');
     }
+
     sod.change(function () {
         forms.toggleClass('hidden');
     });
-    webform_url.val(webform_id.find(':selected').attr('data-url'));
-    webform_id.change(function () {
-        webform_url.val(webform_id.find(':selected').attr('data-url'));
+
+    webformUrl.val(webformId.find(':selected').attr('data-url'));
+
+    webformId.change(function () {
+        webformUrl.val(webformId.find(':selected').attr('data-url'));
     });
 });

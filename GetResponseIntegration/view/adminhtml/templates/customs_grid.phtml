@@ -23,17 +23,17 @@ $firstCustom = reset($arr);
 <div class="admin__data-grid-wrap admin__data-grid-wrap-static">
     <table class="data-grid" data-role="grid">
         <thead>
-        <tr>
-            <th class="data-grid-th _draggable">
-                <span class="data-grid-cell-content">Customer details</span>
-            </th>
-            <th class="data-grid-th _draggable _ascend">
-                <span class="data-grid-cell-content">Custom fields in GetResponse</span>
-            </th>
-            <th class="data-grid-th">
-                <span class="data-grid-cell-content">Action</span>
-            </th>
-        </tr>
+            <tr>
+                <th class="data-grid-th _draggable">
+                    <span class="data-grid-cell-content">Customer details</span>
+                </th>
+                <th class="data-grid-th _draggable _ascend">
+                    <span class="data-grid-cell-content">Custom fields in GetResponse</span>
+                </th>
+                <th class="data-grid-th">
+                    <span class="data-grid-cell-content">Action</span>
+                </th>
+            </tr>
         </thead>
         <tbody id="customsDataBody">
         <?php if (count($customsCollection->getCustoms()) > 0): ?>

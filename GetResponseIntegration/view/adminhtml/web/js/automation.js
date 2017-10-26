@@ -1,45 +1,49 @@
 require(['jquery'], function($) {
     var automationTable = $('#automation-table');
-    var campaign_id = automationTable.find('#campaign_id');
-    var campaign_id_edit = automationTable.find('#campaign_id_edit');
-    var cycle_day = automationTable.find('#cycle_day');
-    var cycle_day_edit = automationTable.find('#cycle_day_edit');
-    var gr_autoresponder = automationTable.find('#gr_autoresponder');
+    var campaignId = automationTable.find('#campaign_id');
+    var campaignIdEdit = automationTable.find('#campaign_id_edit');
+    var cycleDay = automationTable.find('#cycle_day');
+    var cycleDayEdit = automationTable.find('#cycle_day_edit');
+    var grAutoresponder = automationTable.find('#gr_autoresponder');
     var autoresponders = JSON.parse($('#jsAutoresponders').val());
     
-    //$('.cycle_day').show();
+    $('.cycle_day').show();
 
-    function populateSelectWithAutoresponders(cycle_day, campaign) {
-        cycle_day.empty();
+    function populateSelectWithAutoresponders(cycleDay, campaign) {
+        cycleDay.empty();
+
         var options = '';
-        var campaign_autoresponders = autoresponders[campaign.val()];
-        if (campaign_autoresponders === undefined) {
-            campaign_autoresponders = autoresponders[campaign.attr('data-value')];
+        var campaignAutoresponders = autoresponders[campaign.val()];
+
+        if (campaignAutoresponders === undefined) {
+            campaignAutoresponders = autoresponders[campaign.attr('data-value')];
         }
-        if (typeof campaign_autoresponders === 'object' && campaign_autoresponders.length > 0) {
-            for (var i = 0; i < campaign_autoresponders.length; i++) {
-                options += '<option value="' + campaign_autoresponders[i]['dayOfCycle']
-                    + '">(Day: ' + campaign_autoresponders[i]['dayOfCycle'] + ') '
-                    + campaign_autoresponders[i]['name']
-                    + ' (Subject: ' + campaign_autoresponders[i]['subject'] + ')</option>';
+
+        if (typeof campaignAutoresponders === 'object' && campaignAutoresponders.length > 0) {
+            for (var i = 0; i < campaignAutoresponders.length; i++) {
+                options += '<option value="' + campaignAutoresponders[i]['dayOfCycle']
+                    + '">(Day: ' + campaignAutoresponders[i]['dayOfCycle'] + ') '
+                    + campaignAutoresponders[i]['name']
+                    + ' (Subject: ' + campaignAutoresponders[i]['subject'] + ')</option>';
             }
-            cycle_day.prop('disabled', false);
-            gr_autoresponder.prop('disabled', false);
+            cycleDay.prop('disabled', false);
+            grAutoresponder.prop('disabled', false);
         } else {
             options = '<option value="">No autoresponders for chosen campaign!</option>';
-            cycle_day.prop('disabled', true);
-            gr_autoresponder.prop('disabled', true).prop('checked', false);
+            cycleDay.prop('disabled', true);
+            grAutoresponder.prop('disabled', true).prop('checked', false);
         }
-        cycle_day.append(options);
+
+        cycleDay.append(options);
     }
 
-    populateSelectWithAutoresponders(cycle_day, campaign_id);
+    populateSelectWithAutoresponders(cycleDay, campaignId);
 
-    campaign_id.change(function () {
-        populateSelectWithAutoresponders(cycle_day, campaign_id);
+    campaignId.change(function () {
+        populateSelectWithAutoresponders(cycleDay, campaignId);
     });
 
-    campaign_id_edit.change(function () {
-        populateSelectWithAutoresponders(cycle_day_edit, campaign_id_edit);
+    campaignIdEdit.change(function () {
+        populateSelectWithAutoresponders(cycleDayEdit, campaignIdEdit);
     });
 });

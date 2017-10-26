@@ -3,10 +3,10 @@ require(['jquery'], function($) {
 
     var createNewListForm = $('#createNewListForm');
     var listName = createNewListForm.find('#campaign_name');
-    var from_field = createNewListForm.find('#from_field');
-    var reply_to_field = createNewListForm.find('#reply_to_field');
-    var confirmation_subject = createNewListForm.find('#confirmation_subject');
-    var confirmation_body = createNewListForm.find('#confirmation_body');
+    var fromField = createNewListForm.find('#from_field');
+    var replyToField = createNewListForm.find('#reply_to_field');
+    var confirmationSubject = createNewListForm.find('#confirmation_subject');
+    var confirmationBody = createNewListForm.find('#confirmation_body');
 
     createNewListForm.submit(function () {
         return isFormValid();
@@ -15,17 +15,17 @@ require(['jquery'], function($) {
     function isFormValid() {
         validateIfEmptyField(listName);
         validateIfAtLeastLongField(listName, LIST_NAME_LENGTH);
-        validateIfEmptyField(from_field);
-        validateIfEmptyField(reply_to_field);
-        validateIfEmptyField(confirmation_subject);
-        validateIfEmptyField(confirmation_body);
+        validateIfEmptyField(fromField);
+        validateIfEmptyField(replyToField);
+        validateIfEmptyField(confirmationSubject);
+        validateIfEmptyField(confirmationBody);
 
         return !!validateIfEmptyField(listName) &&
             !!validateIfAtLeastLongField(listName, LIST_NAME_LENGTH) &&
-            !!validateIfEmptyField(from_field) &&
-            !!validateIfEmptyField(reply_to_field) &&
-            !!validateIfEmptyField(confirmation_subject) &&
-            !!validateIfEmptyField(confirmation_body);
+            !!validateIfEmptyField(fromField) &&
+            !!validateIfEmptyField(replyToField) &&
+            !!validateIfEmptyField(confirmationSubject) &&
+            !!validateIfEmptyField(confirmationBody);
     }
 
     function validateIfEmptyField(field) {

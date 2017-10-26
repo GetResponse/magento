@@ -1,11 +1,13 @@
 require(['jquery'], function($) {
-	var grsod = $('#gr_sync_order_data'), sod = $('#gr_enabled'), forms = $('.forms'),
-        updateforms = $('.updateforms');
-    var campaign_id = $('#campaign_id'), cycle_day = $('#cycle_day'),
-        gr_autoresponder = $('#gr_autoresponder');
-    if (sod.prop('checked') === true) {
-        forms.removeClass('hidden');
-    }
+	var grsod = $('#gr_sync_order_data'),
+        sod = $('#gr_enabled'),
+        forms = $('.forms'),
+        updateforms = $('.updateforms'),
+        campaignId = $('#campaign_id'),
+        cycleDay = $('#cycle_day'),
+        grAutoresponder = $('#gr_autoresponder'),
+        autoresponders = JSON.parse($('#jsAutoresponders').val());
+
     sod.change(function () {
         forms.toggleClass('hidden');
 
@@ -14,33 +16,41 @@ require(['jquery'], function($) {
         }
 
     });
-    if (grsod.prop('checked') === true) {
-        updateforms.removeClass('hidden');
-    }
+
     grsod.change(function () {
         updateforms.toggleClass('hidden');
     });
-	var autoresponders = JSON.parse($('#jsAutoresponders').val());
+
+    if (grsod.prop('checked') === true) {
+        updateforms.removeClass('hidden');
+    }
+
+    if (sod.prop('checked') === true) {
+        forms.removeClass('hidden');
+    }
 
     function populateSelectWithAutoresponders() {
         cycle_day.empty();
+
         var options = '';
-        var campaign_autoresponders = autoresponders[campaign_id.val()];
-        if (typeof campaign_autoresponders == 'object' && campaign_autoresponders.length > 0) {
-            for (var i = 0; i < campaign_autoresponders.length; i++) {
-                options += '<option value="' + campaign_autoresponders[i]['dayOfCycle']
-                    + '">(Day: ' + campaign_autoresponders[i]['dayOfCycle'] + ') '
-                    + campaign_autoresponders[i]['name']
-                    + ' (Subject: ' + campaign_autoresponders[i]['subject'] + ')</option>';
+        var campaignAutoresponders = autoresponders[campaign_id.val()];
+
+        if (typeof campaignAutoresponders == 'object' && campaignAutoresponders.length > 0) {
+            for (var i = 0; i < campaignAutoresponders.length; i++) {
+                options += '<option value="' + campaignAutoresponders[i]['dayOfCycle']
+                    + '">(Day: ' + campaignAutoresponders[i]['dayOfCycle'] + ') '
+                    + campaignAutoresponders[i]['name']
+                    + ' (Subject: ' + campaignAutoresponders[i]['subject'] + ')</option>';
             }
-            cycle_day.prop('disabled', false);
-            gr_autoresponder.prop('disabled', false);
+            cycleDay.prop('disabled', false);
+            grAutoresponder.prop('disabled', false);
         } else {
             options = '<option value="">no autoresponders</option>';
-            cycle_day.prop('disabled', true);
-            gr_autoresponder.prop('disabled', true).prop('checked', false);
+            cycleDay.prop('disabled', true);
+            grAutoresponder.prop('disabled', true).prop('checked', false);
         }
-        cycle_day.append(options);
+
+        cycleDay.append(options);
     }
 
     populateSelectWithAutoresponders();

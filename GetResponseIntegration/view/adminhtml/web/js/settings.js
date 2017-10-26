@@ -1,12 +1,13 @@
 require(['jquery'], function($) {
-    var mx_account = $('#getresponse_360_account'), mx_options = $('#getresponse_360_account_options');
+    var mxAccount = $('#getresponse_360_account'),
+        mxOptions = $('#getresponse_360_account_options');
     
-    if (mx_account.prop('checked') === true) {
-        mx_options.toggleClass('hidden');
+    if (mxAccount.prop('checked') === true) {
+        mxOptions.toggleClass('hidden');
     }
 
-    mx_account.change(function () {
-        mx_options.toggleClass('hidden');
+    mxAccount.change(function () {
+        mxOptions.toggleClass('hidden');
     });
 
     $('#disconnectBtn').on('click', openDisconnectConfirmationModal);
@@ -49,6 +50,4 @@ require(['jquery'], function($) {
             }
         );
     }
-
-
 });
