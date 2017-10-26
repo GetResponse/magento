@@ -3,6 +3,7 @@ require(['jquery'], function($) {
     var storesNumber = $('.data-row').length;
     var ecommerceStatusCheckbox = $('#e_commerce_status');
     var addNewShopRow = $('.addNewShopRow');
+    var addNewStoreBtn = $('#addNewStoreBtn');
 
     ecommerceStatusCheckbox.change(function () {
         addNewShopRow.toggleClass('hidden');
@@ -16,7 +17,7 @@ require(['jquery'], function($) {
         showDeleteStoreConfirm(shopId);
     });
 
-    $('#addNewStoreBtn').on('click', function () {
+    addNewStoreBtn.on('click', function () {
         if (!isAddingStore) {
             addEditableStoreRow();
         }
@@ -33,15 +34,12 @@ require(['jquery'], function($) {
                 shop_name: shopName
             },
             success: function (data) {
-                var json = jQuery.parseJSON(data);
-
-                if (json.error) {
-                    // tutaj trzeba dodać notyfikację dla klienta o błędzie!
+                if (data.error) {
+                    // @TODO: add error notification for customer
                     return false;
                 }
-
                 removeEditStoreRow();
-                addStoreRow(json);
+                addStoreRow(data);
             },
             error: function () {
                 removeEditStoreRow();
@@ -60,9 +58,7 @@ require(['jquery'], function($) {
         var isOddRow = storesNumber % 2 === 0 ? '' : '_odd-row';
         var newStore = '<tr class="data-row ' + isOddRow + '">' +
             '<td>' +
-            '<div class="data-grid-cell-content">' +
-            data.name +
-            '</div>' +
+            '<div class="data-grid-cell-content">' + data.name + '</div>' +
             '</td>' +
             '<td>' +
             '<div class="data-grid-cell-content">' +
@@ -103,9 +99,9 @@ require(['jquery'], function($) {
 
     function toggleDisableAddNewStoreBtn(isAddingStore) {
         if (isAddingStore) {
-            $('#addNewStoreBtn').attr('disabled', 'disabled');
+            addNewStoreBtn.attr('disabled', 'disabled');
         } else {
-            $('#addNewStoreBtn').removeAttr('disabled');
+            addNewStoreBtn.removeAttr('disabled');
         }
     }
 

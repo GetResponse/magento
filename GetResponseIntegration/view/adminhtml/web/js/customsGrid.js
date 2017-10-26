@@ -1,6 +1,4 @@
 require(['jquery'], function($) {
-    var CUSTOM_NUM = 3;
-
     var customs = JSON.parse($('#jsCustoms').val());
     var mappedCustomsNumber = $('.data-row').length;
     var addNewMappingBtn = $('#addNewMappingBtn');
@@ -30,16 +28,18 @@ require(['jquery'], function($) {
             '<td>' +
             '<div class="data-grid-cell-content">' +
             '<select name="custom[]">';
-        customs.slice(0, CUSTOM_NUM);
+        
         customs.forEach(function (custom, index) {
-            newCustom += '<option value="' + custom["customField"] + '">' + custom["customValue"] + '</option>';
+            if(custom["isDefault"] === 0) {
+                newCustom += '<option value="' + custom["customField"] + '">' + custom["customValue"] + '</option>';
+            }
         });
         newCustom += '</select>' +
             '</div>' +
             '</td>' +
             '<td>' +
             '<div class="data-grid-cell-content">' +
-            '<input type="text" name="' + customs[0] + '" value="' + customs[0]["customName"] + '">' +
+            '<input type="text" name="gr_custom[]" value="">' +
             '</div>' +
             '</td>' +
             '<td>' +
