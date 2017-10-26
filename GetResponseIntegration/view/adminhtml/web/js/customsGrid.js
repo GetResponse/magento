@@ -3,6 +3,7 @@ require(['jquery'], function($) {
 
     var customs = JSON.parse($('#jsCustoms').val());
     var mappedCustomsNumber = $('.data-row').length;
+    var addNewMappingBtn = $('#addNewMappingBtn');
 
     $(document).on('click', '.deleteCustomBtn', function (e) {
         e.preventDefault();
@@ -10,7 +11,7 @@ require(['jquery'], function($) {
         removeCustomRow(this);
     });
 
-    $('#addNewMappingBtn').on('click', function (e) {
+    addNewMappingBtn.on('click', function (e) {
         e.preventDefault();
         addCustomRow();
     });
@@ -29,15 +30,16 @@ require(['jquery'], function($) {
             '<td>' +
             '<div class="data-grid-cell-content">' +
             '<select name="custom[]">';
-            customs.slice(0, CUSTOM_NUM).forEach(custom, index) {
-                newCustom += '<option value="' + custom["customField"] + '">' + custom["customValue"] + '</option>';
-            }
-            newCustom += '</select>' +
+        customs.slice(0, CUSTOM_NUM);
+        customs.forEach(function (custom, index) {
+            newCustom += '<option value="' + custom["customField"] + '">' + custom["customValue"] + '</option>';
+        });
+        newCustom += '</select>' +
             '</div>' +
             '</td>' +
             '<td>' +
             '<div class="data-grid-cell-content">' +
-            '<input type="text" name="gr_custom[]" value="' + customs["customName"] + '">' +
+            '<input type="text" name="' + customs[0] + '" value="' + customs[0]["customName"] + '">' +
             '</div>' +
             '</td>' +
             '<td>' +
@@ -54,9 +56,9 @@ require(['jquery'], function($) {
 
     function isNewMappingAvailable(mappedCustomsNumber) {
         if (customs.length === mappedCustomsNumber) {
-            $('#addNewMappingBtn').attr('disabled', 'disabled');
+            addNewMappingBtn.attr('disabled', 'disabled');
         } else {
-            $('#addNewMappingBtn').removeAttr('disabled');
+            addNewMappingBtn.removeAttr('disabled');
         }
     }
 });

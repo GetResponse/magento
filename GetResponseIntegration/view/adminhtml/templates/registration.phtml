@@ -39,7 +39,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                 <input id="gr_enabled" name="gr_enabled" class="admin__control-checkbox" type="checkbox" value="1"
                                     <?php if($registrationSettings->isEnabled()): ?>checked="checked" <?php endif ?>
                                 >
-                                <label class="admin__field-label" for="publish">Add contacts to GetResponse during registration</label>
+                                <label class="admin__field-label" for="gr_enabled">Add contacts to GetResponse during registration</label>
                             </div>
                         </div>
                     </div>
@@ -84,8 +84,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                             </div>
                         </div>
                     </div>
-                    <div class="admin__field field field-basic_autoresponder forms
-                        <?php if (!$registrationSettings->isEnabled()): ?> hidden<?php endif ?>">
+                    <div id="field-autoresponder" class="admin__field field field-basic_autoresponder hidden">
                         <label class="label admin__field-label" for="cycle_day">
                             <span>Autoresponder day</span>
                         </label>

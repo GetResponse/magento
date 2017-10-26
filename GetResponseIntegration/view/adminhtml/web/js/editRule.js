@@ -1,5 +1,6 @@
 require(['jquery'], function($) {
     var editRuleForm = $('#editRuleForm');
+    var autoresponderDayField = editRuleForm.find('#field-autoresponder');
     var category = editRuleForm.find('#category');
     var action = editRuleForm.find('#action');
     var campaignId = editRuleForm.find('#campaign_id');
@@ -7,6 +8,14 @@ require(['jquery'], function($) {
     var grAutoresponder = editRuleForm.find('#gr_autoresponder');
     var deleteRuleBtn = editRuleForm.find('#deleteRuleBtn');
 	var autoresponders = JSON.parse($('#jsAutoresponders').val());
+
+    if (grAutoresponder.prop('checked') === true) {
+        autoresponderDayField.removeClass('hidden');
+    }
+
+    grAutoresponder.change(function () {
+        autoresponderDayField.toggleClass('hidden');
+    });
 
     editRuleForm.submit(function () {
         return isFormValid();
@@ -58,7 +67,7 @@ require(['jquery'], function($) {
     }
 
     function populateSelectWithAutoresponders() {
-        cycle_day.empty();
+        cycleDay.empty();
 
         var options = '';
         var campaignAutoresponders = autoresponders[campaignId.val()];

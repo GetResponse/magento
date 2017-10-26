@@ -1,11 +1,20 @@
 require(['jquery'], function($) {
     var createRuleForm = $('#createRuleForm');
+    var autoresponderDayField = createRuleForm.find('#field-autoresponder');
     var category = createRuleForm.find('#category');
     var action = createRuleForm.find('#action');
     var campaignId = createRuleForm.find('#campaign_id');
     var cycleDay = createRuleForm.find('#cycle_day');
     var grAutoresponder = createRuleForm.find('#gr_autoresponder');
     var autoresponders = JSON.parse($('#jsAutoresponders').val());
+
+    if (grAutoresponder.prop('checked') === true) {
+        autoresponderDayField.removeClass('hidden');
+    }
+
+    grAutoresponder.change(function () {
+        autoresponderDayField.toggleClass('hidden');
+    });
 
     createRuleForm.submit(function () {
         return isFormValid();
@@ -14,11 +23,11 @@ require(['jquery'], function($) {
     function isFormValid() {
         validateIfEmptyField(category);
         validateIfEmptyField(action);
-        validateIfEmptyField(campaign_id);
+        validateIfEmptyField(campaignId);
 
         return !!validateIfEmptyField(category) &&
             !!validateIfEmptyField(action) &&
-            !!validateIfEmptyField(campaign_id);
+            !!validateIfEmptyField(campaignId);
     }
 
     function validateIfEmptyField(field) {
@@ -59,10 +68,10 @@ require(['jquery'], function($) {
     }
 
     function populateSelectWithAutoresponders() {
-        cycle_day.empty();
+        cycleDay.empty();
 
         var options = '';
-        var campaignAutoresponders = autoresponders[campaign_id.val()];
+        var campaignAutoresponders = autoresponders[campaignId.val()];
 
         if (typeof campaignAutoresponders == 'object' && campaignAutoresponders.length > 0) {
             for (var i = 0; i < campaignAutoresponders.length; i++) {

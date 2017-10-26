@@ -1,12 +1,22 @@
 require(['jquery'], function($) {
-	var grsod = $('#gr_sync_order_data'),
-        sod = $('#gr_enabled'),
-        forms = $('.forms'),
-        updateforms = $('.updateforms'),
-        campaignId = $('#campaign_id'),
-        cycleDay = $('#cycle_day'),
-        grAutoresponder = $('#gr_autoresponder'),
-        autoresponders = JSON.parse($('#jsAutoresponders').val());
+    var container = $('#container');
+    var autoresponderDayField = container.find('#field-autoresponder');
+	var grsod = container.find('#gr_sync_order_data');
+    var sod = container.find('#gr_enabled');
+    var forms = container.find('.forms');
+    var updateforms = container.find('.updateforms');
+    var campaignId = container.find('#campaign_id');
+    var cycleDay = container.find('#cycle_day');
+    var grAutoresponder = container.find('#gr_autoresponder');
+    var autoresponders = JSON.parse($('#jsAutoresponders').val());
+
+    if (grAutoresponder.prop('checked') === true) {
+        autoresponderDayField.removeClass('hidden');
+    }
+
+    grAutoresponder.change(function () {
+        autoresponderDayField.toggleClass('hidden');
+    });
 
     sod.change(function () {
         forms.toggleClass('hidden');
@@ -14,7 +24,6 @@ require(['jquery'], function($) {
         if (grsod.prop('checked') === true) {
             updateforms.toggleClass('hidden');
         }
-
     });
 
     grsod.change(function () {
@@ -30,10 +39,10 @@ require(['jquery'], function($) {
     }
 
     function populateSelectWithAutoresponders() {
-        cycle_day.empty();
+        cycleDay.empty();
 
         var options = '';
-        var campaignAutoresponders = autoresponders[campaign_id.val()];
+        var campaignAutoresponders = autoresponders[campaignId.val()];
 
         if (typeof campaignAutoresponders == 'object' && campaignAutoresponders.length > 0) {
             for (var i = 0; i < campaignAutoresponders.length; i++) {
@@ -55,7 +64,7 @@ require(['jquery'], function($) {
 
     populateSelectWithAutoresponders();
 
-    campaign_id.change(function () {
+    campaignId.change(function () {
         populateSelectWithAutoresponders();
     });
 });
