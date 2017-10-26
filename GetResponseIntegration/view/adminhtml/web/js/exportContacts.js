@@ -1,10 +1,11 @@
 require(['jquery'], function($) {
-    var sod = $('#gr_sync_order_data'),
-        cfprow = $('#customNameFieldsRow'),
-        campaignId = $('#campaign_id'),
-        cycleDay = $('#cycle_day'),
-        grAutoresponder = $('#gr_autoresponder'),
-        autoresponders = JSON.parse($('#jsAutoresponders').val());
+    var container = $('#container');
+    var sod = container.find('#gr_sync_order_data');
+    var cfprow = container.find('#customNameFieldsRow');
+    var campaignId = container.find('#campaign_id');
+    var cycleDay = container.find('#cycle_day');
+    var grAutoresponder = container.find('#gr_autoresponder');
+    var autoresponders = JSON.parse($('#jsAutoresponders').val());
 
     if (sod.prop('checked') === true) {
         cfprow.removeClass('hidden');
@@ -15,10 +16,10 @@ require(['jquery'], function($) {
     });
 
     function populateSelectWithAutoresponders() {
-        cycle_day.empty();
+        cycleDay.empty();
 
         var options = '';
-        var campaignAutoresponders = autoresponders[campaign_id.val()];
+        var campaignAutoresponders = autoresponders[campaignId.val()];
 
         if (typeof campaignAutoresponders == 'object' && campaignAutoresponders.length > 0) {
             for (var i = 0; i < campaignAutoresponders.length; i++) {
