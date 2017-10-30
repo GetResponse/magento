@@ -57,7 +57,7 @@ class WebTrafficTracking extends Action
     public function execute()
     {
         if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
 
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }

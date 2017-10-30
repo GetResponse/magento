@@ -91,6 +91,7 @@ class Save extends Action
 
         if (empty($data['getresponse_api_key'])) {
             $this->messageManager->addErrorMessage(self::API_EMPTY_VALUE_MESSAGE);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
         $apiKey = $data['getresponse_api_key'];
@@ -104,8 +105,7 @@ class Save extends Action
 
         $grRepository = $this->repositoryFactory->createNewRepository($apiKey, $apiUrl, $domain);
         if (false === $this->repositoryValidator->validateGrRepository($grRepository)) {
-            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESOONSE_MESSAGE);
-
+            $this->messageManager->addErrorMessage(self::API_ERROR_MESSAGE);
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
@@ -113,10 +113,7 @@ class Save extends Action
 
         if (empty($account->getAccountId())) {
             $this->messageManager->addErrorMessage(self::API_ERROR_MESSAGE);
-            $resultPage = $this->resultPageFactory->create();
-            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-
-            return $resultPage;
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
         $features = $grRepository->getFeatures();

@@ -221,7 +221,7 @@ class UpgradeData implements UpgradeDataInterface
             );
 
             $this->configWriter->save(
-                Config::CONFIG_DATA_WEBFORMS,
+                Config::CONFIG_DATA_WEBFORMS_SETTINGS,
                 json_encode($webform->toArray()),
                 ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
                 Store::DEFAULT_STORE_ID

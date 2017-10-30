@@ -491,7 +491,7 @@ class Repository
     public function clearWebforms()
     {
         $this->configWriter->save(
-            Config::CONFIG_DATA_WEBFORMS,
+            Config::CONFIG_DATA_WEBFORMS_SETTINGS,
             null,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
@@ -554,11 +554,13 @@ class Repository
     public function saveWebformSettings(WebformSettings $webform)
     {
         $this->configWriter->save(
-            Config::CONFIG_DATA_WEBFORMS,
+            Config::CONFIG_DATA_WEBFORMS_SETTINGS,
             json_encode($webform->toArray()),
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+
+        $this->cacheManager->clean(['config']);
     }
 
     /**
@@ -566,7 +568,7 @@ class Repository
      */
     public function getWebformSettings()
     {
-        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_WEBFORMS));
+        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_WEBFORMS_SETTINGS));
     }
 
     /**
