@@ -95,9 +95,7 @@ class Repository
     public function getStoreCategories()
     {
         $_categoryHelper = $this->_objectManager->get('\Magento\Catalog\Helper\Category');
-        $categories = $_categoryHelper->getStoreCategories(true, false, true);
-
-        return $categories;
+        return $_categoryHelper->getStoreCategories(true, false, true);
     }
 
     /**
