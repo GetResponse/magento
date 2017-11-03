@@ -166,16 +166,16 @@ class Ecommerce
     private function createProductInGetResponse($shopId, $magentoCartItem)
     {
         $params = [
-            'name' => $magentoCartItem->getProduct()->getName(),
+            'name' => (string) $magentoCartItem->getProduct()->getName(),
             'categories' => [],
-            'externalId' => $magentoCartItem->getProduct()->getId(),
+            'externalId' => (string) $magentoCartItem->getProduct()->getId(),
             'variants' => [
                 [
-                    'name' => $magentoCartItem->getProduct()->getName(),
-                    'price' => $magentoCartItem->getProduct()->getPrice(),
+                    'name' => (string) $magentoCartItem->getProduct()->getName(),
+                    'price' => (float) $magentoCartItem->getProduct()->getPrice(),
                     'priceTax' => 0,
-                    'quantity' => $magentoCartItem->getProduct()->getQty(),
-                    'sku' => $magentoCartItem->getProduct()->getSku(),
+                    'quantity' => (int) $magentoCartItem->getProduct()->getQty(),
+                    'sku' => (string) $magentoCartItem->getProduct()->getSku(),
                 ],
             ],
         ];
