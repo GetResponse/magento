@@ -82,11 +82,11 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
         }
 
         $requestToGr = [
-            'externalId' => $this->cart->getQuote()->getId(),
-            'contactId' => $this->getContactFromGetResponse()->contactId,
-            'currency' => $this->cart->getQuote()->getQuoteCurrencyCode(),
-            'totalPrice' => $totalPrice,
-            'totalTaxPrice' => $totalTaxPrice,
+            'externalId' => (string) $this->cart->getQuote()->getId(),
+            'contactId' => (string) $this->getContactFromGetResponse()->contactId,
+            'currency' => (string) $this->cart->getQuote()->getQuoteCurrencyCode(),
+            'totalPrice' => (float) $totalPrice,
+            'totalTaxPrice' => (float) $totalTaxPrice,
             'selectedVariants' => []
         ];
 
@@ -104,18 +104,18 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
             }
 
             $requestToGr['selectedVariants'][] = [
-                'variantId' => $grProductId,
-                'price' => $magentoCartItem->getPrice(),
-                'priceTax' => $magentoCartItem->getPriceInclTax(),
-                'quantity' => $magentoCartItem->getQty(),
+                'variantId' => (string) $grProductId,
+                'price' => (float) $magentoCartItem->getPrice(),
+                'priceTax' => (float) $magentoCartItem->getPriceInclTax(),
+                'quantity' => (integer) $magentoCartItem->getQty(),
             ];
 
             $totalPrice += ($magentoCartItem->getPrice() * $magentoCartItem->getQty());
             $totalTaxPrice += ($magentoCartItem->getPriceInclTax() * $magentoCartItem->getQty());
         }
 
-        $requestToGr['totalPrice'] = $totalPrice;
-        $requestToGr['totalTaxPrice'] = $totalTaxPrice;
+        $requestToGr['totalPrice'] = (float) $totalPrice;
+        $requestToGr['totalTaxPrice'] = (float) $totalTaxPrice;
 
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->cart->getQuote();

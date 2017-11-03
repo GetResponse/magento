@@ -218,29 +218,29 @@ class Ecommerce
         $billingCountry = $this->countryFactory->create()->loadByCode($billingAddress->getCountryId());
 
         $requestToGr = [
-            'contactId' => $this->getContactFromGetResponse()->contactId,
-            'totalPriceTax' => $order->getTaxAmount(),
-            'totalPrice' => $order->getBaseSubtotal(),
-            'currency' => $order->getOrderCurrencyCode(),
-            'status' => $order->getStatus(),
+            'contactId' => (string) $this->getContactFromGetResponse()->contactId,
+            'totalPriceTax' => (float) $order->getTaxAmount(),
+            'totalPrice' => (float) $order->getBaseSubtotal(),
+            'currency' => (string) $order->getOrderCurrencyCode(),
+            'status' => (string) $order->getStatus(),
             'cartId' => 0,
-            'shippingPrice' => $order->getShippingAmount(),
-            'externalId' => $order->getId(),
+            'shippingPrice' => (float) $order->getShippingAmount(),
+            'externalId' => (string) $order->getId(),
             'shippingAddress' => [
-                'countryCode' => $shippingCountry->getData('iso3_code'),
-                'name' => $shippingAddress->getData('street'),
-                'firstName' => $shippingAddress->getFirstname(),
-                'lastName' => $shippingAddress->getLastname(),
-                'city' => $shippingAddress->getCity(),
-                'zip' => $shippingAddress->getPostcode(),
+                'countryCode' => (string) $shippingCountry->getData('iso3_code'),
+                'name' => (string) $shippingAddress->getData('street'),
+                'firstName' => (string) $shippingAddress->getFirstname(),
+                'lastName' => (string) $shippingAddress->getLastname(),
+                'city' => (string) $shippingAddress->getCity(),
+                'zip' => (string) $shippingAddress->getPostcode(),
             ],
             'billingAddress' => [
-                'countryCode' => $billingCountry->getData('iso3_code'),
-                'name' => $billingAddress->getData('street'),
-                'firstName' => $billingAddress->getFirstname(),
-                'lastName' => $billingAddress->getLastname(),
-                'city' => $billingAddress->getCity(),
-                'zip' => $billingAddress->getPostcode(),
+                'countryCode' => (string) $billingCountry->getData('iso3_code'),
+                'name' => (string) $billingAddress->getData('street'),
+                'firstName' => (string) $billingAddress->getFirstname(),
+                'lastName' => (string) $billingAddress->getLastname(),
+                'city' => (string) $billingAddress->getCity(),
+                'zip' => (string) $billingAddress->getPostcode(),
             ],
         ];
 
@@ -257,14 +257,14 @@ class Ecommerce
             }
 
             $requestToGr['selectedVariants'][] = [
-                'variantId' => $grProductId,
-                'price' => $item->getPrice(),
-                'priceTax' => $item->getTaxAmount(),
-                'quantity' => $item->getQtyOrdered(),
+                'variantId' => (string) $grProductId,
+                'price' => (float) $item->getPrice(),
+                'priceTax' => (float) $item->getTaxAmount(),
+                'quantity' => (int) $item->getQtyOrdered(),
                 'taxes' => [
                     [
                         'name' => 'tax',
-                        'rate' => $item->getTaxPercent(),
+                        'rate' => (float) $item->getTaxPercent(),
                     ]
                 ]
             ];

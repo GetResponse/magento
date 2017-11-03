@@ -96,7 +96,7 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
         $quote = $this->quoteFactory->create()->load($order->getQuoteId());
 
         $requestToGr = $this->createOrderPayload($shopId, $order);
-        $requestToGr['cartId'] = $quote->getGetresponseCartId();
+        $requestToGr['cartId'] = (string) $quote->getGetresponseCartId();
 
 
         try {
