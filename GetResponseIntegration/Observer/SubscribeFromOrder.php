@@ -3,6 +3,7 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollectionFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\ApiHelper;
@@ -62,7 +63,7 @@ class SubscribeFromOrder implements ObserverInterface
             return $this;
         }
 
-        $rules = $this->repository->getRules();
+        $rulesCollection = RulesCollectionFactory::createFromRepository($this->repository->getRules());
 
         $customs = $this->repository->getCustoms();
 
@@ -106,18 +107,17 @@ class SubscribeFromOrder implements ObserverInterface
         if ($subscriber->isSubscribed() == true) {
             $move_subscriber = false;
 
-            if (!empty($rules)) {
+            if (!empty($rulesCollection)) {
                 $category_ids = [];
-                foreach ($rules as $rule) {
-                    if ($rule['active'] == 1) {
-                        $category_ids[$rule['category_id']] = [
-                            'category_id' => $rule['category_id'],
-                            'action' => $rule['action'],
-                            'campaign_id' => $rule['campaign_id'],
-                            'cycle_day' => $rule['cycle_day']
-                        ];
-                    }
+                foreach ($rulesCollection->getRules() as $rule) {
+                    $category_ids[$rule->getCategory()] = [
+                        'category_id' => $rule->getCategory(),
+                        'action' => $rule->getAction(),
+                        'campaign_id' => $rule->getCampaign(),
+                        'cycle_day' => $rule->getAutoresponder()
+                    ];
                 }
+
                 $automations_categories = array_keys($category_ids);
 
                 foreach ($order->getItems() as $item) {

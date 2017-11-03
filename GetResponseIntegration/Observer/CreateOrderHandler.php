@@ -82,6 +82,10 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
 
         $shopId = $this->scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
 
+        if (empty($shopId)) {
+            return;
+        }
+
         $orderIds = $observer->getEvent()->getOrderIds();
         $lastOrderId = $orderIds[0];
 
