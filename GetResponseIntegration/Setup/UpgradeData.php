@@ -60,9 +60,6 @@ class UpgradeData implements UpgradeDataInterface
             $this->ver2011migrateCustomFieldsSettings($setup);
             $this->ver2011migrateWebformSettings($setup);
             $this->ver2011migrateWebEventTrackingSettings($setup);
-
-            $this->ver2011removeUnusedTables($setup);
-
             $this->cacheManager->clean(['config']);
         }
 
@@ -284,17 +281,5 @@ class UpgradeData implements UpgradeDataInterface
                 Store::DEFAULT_STORE_ID
             );
         }
-    }
-
-    /**
-     * @param ModuleDataSetupInterface $setup
-     */
-    private function ver2011removeUnusedTables(ModuleDataSetupInterface $setup)
-    {
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_account'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_automation'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_customs'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_settings'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_webform'));
     }
 }

@@ -25,6 +25,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->upgradeToVersion2010($setup);
         }
 
+        if (version_compare($context->getVersion(), '20.1.2', '==')) {
+            $this->ver2012removeUnusedTables($setup);
+        }
+
         $setup->endSetup();
     }
 
@@ -137,5 +141,17 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 'comment' => 'GetResponse cart id'
             ]
         );
+    }
+
+    /**
+     * @param SchemaSetupInterface $setup
+     */
+    private function ver2012removeUnusedTables(SchemaSetupInterface $setup)
+    {
+        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_account'));
+        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_automation'));
+        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_customs'));
+        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_settings'));
+        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_webform'));
     }
 }
