@@ -1,10 +1,17 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CampaignFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Getresponse\Repository as GrRepository;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\App\Request\Http;
 
 /**
  * Class Create
@@ -12,16 +19,39 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Create extends Action
 {
+    const PAGE_TITLE = 'New Contact List';
+
+    /** @var PageFactory */
     protected $resultPageFactory;
+
+    /** @var Repository */
+    private $repository;
+
+    /** @var GrRepository */
+    private $grRepository;
+
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
 
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
+     * @param Repository $repository
+     * @param RepositoryFactory $repositoryFactory
+     * @param RepositoryValidator $repositoryValidator
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
-    {
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        Repository $repository,
+        RepositoryFactory $repositoryFactory,
+        RepositoryValidator $repositoryValidator
+    ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
+        $this->repository = $repository;
+        $this->grRepository = $repositoryFactory->createRepository();
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -32,51 +62,54 @@ class Create extends Action
      */
     public function execute()
     {
-        $backUrl = $this->getRequest()->getParam('back_url');
-        $backParam = $this->getRequest()->getParam('back');
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::automation');
-        $resultPage->getConfig()->getTitle()->prepend('New Contact List');
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
 
-        $data = $this->getRequest()->getPostValue();
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
+        $backUrl = $this->getRequest()->getParam('back_url');
+        $resultPage = $this->resultPageFactory->create();
+        $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
+        /** @var Http $request */
+        $request = $this->getRequest();
+        $data = $request->getPostValue();
 
         if (empty($data)) {
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
             return $resultPage;
         }
 
+        // validator
         $error = $this->validateNewListParams($data);
-
-        $resultRedirect = $this->resultRedirectFactory->create();
 
         if (!empty($error)) {
             $this->messageManager->addErrorMessage($error);
-            $resultRedirect->setPath('getresponseintegration/lists/create/back/' . $backParam);
-            return $resultRedirect;
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
+            return $resultPage;
         }
 
-        $block = $this->_objectManager->create('GetResponse\GetResponseIntegration\Block\Lists');
-
-        $lang = substr($block->getStoreLanguage(), 0, 2);
-
-        $params = [];
-        $params['name'] = $data['campaign_name'];
-        $params['languageCode'] = (isset($lang)) ? $lang : 'EN';
-        $params['confirmation'] = [
-            'fromField' => ['fromFieldId' => $data['from_field']],
-            'replyTo' => ['fromFieldId' => $data['reply_to_field']],
-            'subscriptionConfirmationBodyId' => $data['confirmation_body'],
-            'subscriptionConfirmationSubjectId' => $data['confirmation_subject']
-        ];
-
-        $result = $block->getClient()->createCampaign($params);
+        $data['lang'] = substr($this->repository->getMagentoCountryCode(), 0, 2);
+        $result = $this->grRepository->createCampaign(
+            CampaignFactory::createFromArray($data)
+        );
 
         if (isset($result->httpStatus) && (int)$result->httpStatus >= 400) {
             $this->messageManager->addErrorMessage(isset($result->codeDescription) ? $result->codeDescription . ' - uuid: ' . $result->uuid : 'Something goes wrong');
-            $resultRedirect->setPath('getresponseintegration/lists/create/back/' . $backParam);
-            return $resultRedirect;
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
+            return $resultPage;
         } else {
             $this->messageManager->addSuccessMessage('List created');
+            $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath($backUrl);
+
             return $resultRedirect;
         }
     }
@@ -106,5 +139,7 @@ class Create extends Action
         if (strlen($data['confirmation_body']) === 0) {
             return 'Confirmation body is a required field';
         }
+
+        return '';
     }
 }

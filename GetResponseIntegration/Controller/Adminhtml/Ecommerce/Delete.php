@@ -2,10 +2,14 @@
 
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\View\Result\Page;
-use Magento\Framework\View\Result\PageFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Redirect;
 
 /**
  * Class Delete
@@ -13,38 +17,52 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Delete extends Action
 {
-    /** @var PageFactory */
-    protected $resultPageFactory;
+    const BACK_URL = 'getresponseintegration/ecommerce/index';
+
+    /** @var GrRepository */
+    private $grRepository;
+
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
 
     /**
      * @param Context $context
-     * @param PageFactory $resultPageFactory
+     * @param RepositoryFactory $repositoryFactory
+     * @param RepositoryValidator $repositoryValidator
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
-    {
+    public function __construct(
+        Context $context,
+        RepositoryFactory $repositoryFactory,
+        RepositoryValidator $repositoryValidator
+    ) {
         parent::__construct($context);
-        $this->resultPageFactory = $resultPageFactory;
+        $this->grRepository = $repositoryFactory->createRepository();
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
-     * @return \Magento\Framework\Controller\Result\Redirect
+     * @return ResponseInterface|Redirect
      */
     public function execute()
     {
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
+
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $resultRedirect = $this->resultRedirectFactory->create();
 
         $id = $this->getRequest()->getParam('id');
 
         if (empty($id)) {
             $this->messageManager->addErrorMessage('Incorrect shop');
-            $resultRedirect->setPath('getresponseintegration/ecommerce/index');
+            $resultRedirect->setPath(self::BACK_URL);
+
             return $resultRedirect;
         }
 
-        $block = $this->_objectManager->create('GetResponse\GetResponseIntegration\Block\Ecommerce');
-
-        $client = $block->getClient();
-        $response = $client->deleteShop($id);
+        $response = $this->grRepository->deleteShop($id);
 
         if (isset($response->httpStatus) && $response->httpStatus > 204) {
             $this->messageManager->addErrorMessage($response->codeDescription . ' - uuid: ' . $response->uuid);
@@ -52,7 +70,8 @@ class Delete extends Action
             $this->messageManager->addSuccessMessage('Store removed');
         }
 
-        $resultRedirect->setPath('getresponseintegration/ecommerce/index');
+        $resultRedirect->setPath(self::BACK_URL);
+
         return $resultRedirect;
     }
 }

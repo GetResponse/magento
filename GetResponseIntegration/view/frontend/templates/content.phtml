@@ -1,4 +1,4 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Settings */?>
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Webform */?>
 <style>
     .grwf2-wrapper {
         text-align:center;
@@ -8,7 +8,7 @@
 <?php
 $webform = $block->getWebformSettings();
 
-if (isset($webform['active_subscription']) && $webform['active_subscription'] == 1 && $webform['sidebar'] == 'content') {
-    echo '<script type="text/javascript" src="' . $webform['url'] .'"></script>';
+if ($webform->isEnabled() && $webform->getSidebar() == 'content') {
+    echo '<script type="text/javascript" src="' . $webform->getUrl() .'"></script>';
 }
 ?>

@@ -1,60 +1,9 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */?>
-
-<?php
-if (!$block->checkApiKey()) {
-    return;
-}
-
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Rules */
 $categories = $block->getStoreCategories();
 $campaigns = $block->getCampaigns();
 $autoresponders = $block->getAutoresponders();
-$automations = $block->getAutomations()->getData();
-
+$rules = $block->getRulesCollection()->getRules();
 ?>
-
-<style>
-    .label {
-        font-weight: bold;
-    }
-
-    .label label {
-        display: inline-block;
-    }
-
-    td.label {
-        vertical-align: top;
-    }
-
-    .value input {
-        margin-top: 4px;
-        width: 100%;
-    }
-
-    .note {
-        color: #303030;
-        font-size: 12px;
-        margin-top: 5px;
-    }
-
-    .admin__scope-old input[type="checkbox"] {
-        -moz-appearance: checkbox;
-    }
-
-    .page-main-hint {
-        float: left;
-    }
-
-    .page-main-hint span {
-        display: inline-block;
-        margin-top: 1rem;
-    }
-
-    td.no-data {
-        text-align: center;
-        padding: 4rem;
-    }
-
-</style>
 
 <div class="page-main-actions">
     <div class="page-main-hint">
@@ -75,8 +24,8 @@ $automations = $block->getAutomations()->getData();
 <div id="page:main-container" class="page-columns">
     <div class="admin__old">
         <div id="container" class="main-col">
-            <div id="automations-table" class="admin__data-grid-wrap" data-role="grid-wrapper">
-                <table class="data-grid" id="automation_table">
+            <div id="automation-table-wrap" class="admin__data-grid-wrap" data-role="grid-wrapper">
+                <table class="data-grid" id="automation-table">
                     <thead>
                         <tr>
                             <th class="data-grid-th">
@@ -104,44 +53,44 @@ $automations = $block->getAutomations()->getData();
                         </tr>
                     </thead>
                     <tbody>
-                    <?php if (empty($automations)): ?>
+                    <?php if (empty($rules)): ?>
                         <tr>
                             <td colspan="6" class="no-data">
                                 We couldn't find any records
                             </td>
                         </tr>
                         <?php else: ?>
-                        <?php foreach ($automations as $automation): ?>
+                        <?php foreach ($rules as $rule): ?>
                             <tr class="data-row" data-role="data-grid-bulk-row">
 
                                 <td class="category">
-                                    <?php echo $block->getCategoryName($automation['category_id']); ?>
+                                    <?php echo $block->getCategoryName($rule->getCategory()); ?>
                                 </td>
 
                                 <td class="action">
-                                    <?php echo $block->getAction($automation['action']); ?>
+                                    <?php echo $block->getAction($rule->getAction()); ?>
                                 </td>
 
                                 <td class="campaign">
-                                    <?php $campaign = $block->getCampaign($automation['campaign_id']); ?>
+                                    <?php $campaign = $block->getCampaign($rule->getCampaign()); ?>
                                     <?php echo isset($campaign->name) ? $campaign->name : ''; ?>
                                 </td>
 
                                 <td>
                                     <input type="checkbox" disabled="disabled"
-                                           <?php echo (null !== $automation['cycle_day']) ? 'checked="checked"' : '' ?> />
+                                           <?php echo !empty($rule->getAutoresponder()) ? 'checked="checked"' : '' ?> />
                                 </td>
 
                                 <td class="cycle_day_edit">
-                                    <?php if (isset($automation['cycle_day']) and $automation['cycle_day'] != ''):?>
+                                    <?php if (!empty($rule->getAutoresponder())):?>
 
-                                    (Day: <?php echo $automation['cycle_day'] ?>)
-                                    <?php  echo isset($autoresponders[$automation['campaign_id']][$automation['cycle_day']]) ? $autoresponders[$automation['campaign_id']][$automation['cycle_day']]['name'] : '' ?>
+                                    (Day: <?php echo $rule->getAutoresponder() ?>)
+                                    <?php  echo isset($autoresponders[$rule->getCampaign()][$rule->getAutoresponder()]) ? $autoresponders[$rule->getCampaign()][$rule->getAutoresponder()]['name'] : '' ?>
                             <?php endif ?>
                                 </td>
 
                                 <td>
-                                    <a href="<?php echo $block->getUrl('getresponseintegration/rules/edit/', array('id' => $automation['id'])); ?>">Edit</a>
+                                    <a href="<?php echo $block->getUrl('getresponseintegration/rules/edit/', array('id' => $rule->getId())); ?>">Edit</a>
                                 </td>
 
                             </tr>
@@ -153,49 +102,7 @@ $automations = $block->getAutomations()->getData();
         </div>
     </div>
 </div>
-
+<input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($autoresponders); ?>'/>
 <script>
-    require(['jquery'],function($) {
-        var campaign_id = $('#campaign_id'), campaign_id_edit = $('#campaign_id_edit');
-        var cycle_day = $('#cycle_day'), cycle_day_edit = $('#cycle_day_edit'),
-            gr_autoresponder = $('#gr_autoresponder');
-
-        var autoresponders = <?php echo json_encode($autoresponders); ?>;
-        $('.cycle_day').show();
-
-        function populateSelectWithAutoresponders(cycle_day, campaign) {
-            cycle_day.empty();
-            var options = '';
-            var campaign_autoresponders = autoresponders[campaign.val()];
-            if (campaign_autoresponders === undefined) {
-                campaign_autoresponders = autoresponders[campaign.attr('data-value')];
-            }
-            if (typeof campaign_autoresponders === 'object' && campaign_autoresponders.length > 0) {
-                for (var i = 0; i < campaign_autoresponders.length; i++) {
-                    options += '<option value="' + campaign_autoresponders[i]['dayOfCycle']
-                        + '">(Day: ' + campaign_autoresponders[i]['dayOfCycle'] + ') '
-                        + campaign_autoresponders[i]['name']
-                        + ' (Subject: ' + campaign_autoresponders[i]['subject'] + ')</option>';
-                }
-                cycle_day.prop('disabled', false);
-                gr_autoresponder.prop('disabled', false);
-            } else {
-                options = '<option value="">No autoresponders for chosen campaign!</option>';
-                cycle_day.prop('disabled', true);
-                gr_autoresponder.prop('disabled', true).prop('checked', false);
-            }
-            cycle_day.append(options);
-        }
-
-        populateSelectWithAutoresponders(cycle_day, campaign_id);
-
-        campaign_id.change(function () {
-            populateSelectWithAutoresponders(cycle_day, campaign_id);
-        });
-
-        campaign_id_edit.change(function () {
-            populateSelectWithAutoresponders(cycle_day_edit, campaign_id_edit);
-        });
-    });
-
+    require(['automation']);
 </script>

@@ -1,21 +1,23 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Helper;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository;
+
 /**
  * Class ApiHelper
  * @package GetResponse\GetResponseIntegration\Helper
  */
 class ApiHelper
 {
-    /** @var GetResponseAPI3 */
-    public $grApi;
+    /** @var Repository */
+    public $repository;
 
-    /** @var array */
-    private $allUserCustoms = [];
-
-    public function __construct(GetResponseAPI3 $grApi)
+    /**
+     * @param Repository $repository
+     */
+    public function __construct(Repository $repository)
     {
-        $this->grApi = $grApi;
+        $this->repository = $repository;
     }
 
     /**
@@ -31,12 +33,12 @@ class ApiHelper
         }
 
         foreach ($user_customs as $name => $value) {
-            $custom = $this->grApi->getCustomFieldByName($name);
+            $custom = $this->repository->getCustomFieldByName($name);
 
             if (empty($custom) || !isset($custom->customFieldId)) {
-                $custom = $this->grApi->addCustomField([
-                    'name'   => $name,
-                    'type'   => "text",
+                $custom = $this->repository->addCustomField([
+                    'name' => $name,
+                    'type' => "text",
                     'hidden' => "false",
                     'values' => [$value],
                 ]);
@@ -48,7 +50,7 @@ class ApiHelper
 
             $custom_fields[] = [
                 'customFieldId' => $custom->customFieldId,
-                'value'         => [$value]
+                'value' => [$value]
             ];
         }
 
@@ -76,7 +78,7 @@ class ApiHelper
 
                 $custom_fields[] = [
                     'customFieldId' => $customs->customFieldId,
-                    'value'         => $value
+                    'value' => $value
                 ];
             }
         }

@@ -1,11 +1,18 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomsFactory;
-use GetResponse\GetResponseIntegration\Model\Customs as ModelCustoms;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\App\Request\Http;
 
 /**
  * Class RegistrationPost
@@ -13,106 +20,107 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class RegistrationPost extends Action
 {
-    /**
-     * @var PageFactory
-     */
+    const BACK_URL = 'getresponseintegration/settings/registration';
+
+    const INVALID_CUSTOM_FIELD_MESSAGE = 'There is a problem with one of your custom field name! Field name must be composed using up to 32 characters, only a-z (lower case), numbers and "_".';
+
+    /** @var PageFactory */
     protected $resultPageFactory;
 
+    /** @var Http */
+    private $request;
+
+    /** @var Repository */
+    private $repository;
+
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
-     * RegistrationPost constructor.
      * @param Context $context
      * @param PageFactory $resultPageFactory
+     * @param Repository $repository
+     * @param RepositoryValidator $repositoryValidator
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
-    {
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        Repository $repository,
+        RepositoryValidator $repositoryValidator
+    ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
+        $this->request = $this->getRequest();
+        $this->repository = $repository;
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
-     * @return \Magento\Framework\View\Result\Page
+     * @return ResponseInterface|Redirect
      */
     public function execute()
     {
-        $data = $this->getRequest()->getPostValue();
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
 
-        if (!empty($data)) {
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
 
-            $update = (isset($data['gr_sync_order_data'])) ? $data['gr_sync_order_data'] : 0;
-            $cycle_day = (isset($data['gr_autoresponder']) && $data['gr_autoresponder'] == 1) ? $data['cycle_day'] : '';
-            $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-            $settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
+        $resultRedirect = $this->resultRedirectFactory->create();
+        $resultRedirect->setPath(self::BACK_URL);
 
-            if (!isset($data['gr_enabled']) || 1 != $data['gr_enabled']) {
-                $settings->load($storeId, 'id_shop')
-                    ->setCampaignId(null)
-                    ->setActiveSubscription(0)
-                    ->setUpdate(0)
-                    ->setCycleDay(0)
-                    ->save();
-            } else {
-                if (isset($data['gr_sync_order_data'])) {
-                    $customs = CustomsFactory::buildFromFormPayload($data);
+        $data = $this->request->getPostValue();
 
-                    foreach ($customs as $field => $name) {
-                        if (false == preg_match('/^[_a-zA-Z0-9]{2,32}$/m', $name)) {
-                            $this->messageManager->addErrorMessage('There is a problem with one of your custom field name! Field name
-                        must be composed using up to 32 characters, only a-z (lower case), numbers and "_".');
-                            $resultPage = $this->resultPageFactory->create();
-                            $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::settings');
-                            $resultPage->getConfig()->getTitle()->prepend('Add Contacts During Registrations');
+        if (empty($data)) {
+            return $resultRedirect;
+        }
 
-                            return $resultPage;
-                        }
+        $updateCustomFields = (isset($data['gr_sync_order_data'])) ? $data['gr_sync_order_data'] : 0;
+        $cycleDay = (isset($data['gr_autoresponder']) && $data['gr_autoresponder'] == 1) ? $data['cycle_day'] : '';
+        $isEnabled = isset($data['gr_enabled']) && 1 == $data['gr_enabled'] ? true : false;
+
+        if (!$isEnabled) {
+            $this->repository->clearRegistrationSettings();
+        } else {
+            $campaignId = $data['campaign_id'];
+
+            if (empty($campaignId)) {
+                $this->messageManager->addErrorMessage('You need to select contact list');
+
+                return $resultRedirect;
+            }
+
+            if ($updateCustomFields) {
+                $customs = CustomFieldFactory::createFromArray($data);
+
+                foreach ($customs as $field => $name) {
+                    if (false == preg_match('/^[_a-zA-Z0-9]{2,32}$/m', $name)) {
+                        $this->messageManager->addErrorMessage(self::INVALID_CUSTOM_FIELD_MESSAGE);
+
+                        return $resultRedirect;
                     }
                 }
-                $campaign_id = $data['campaign_id'];
-                if (empty($campaign_id)) {
-                    $this->messageManager->addErrorMessage('You need to select contact list');
-                    $resultPage = $this->resultPageFactory->create();
-                    $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::settings');
-                    $resultPage->getConfig()->getTitle()->prepend('Add Contacts During Registrations');
 
-                    return $resultPage;
-                }
-                $settings->load($storeId, 'id_shop')
-                    ->setCampaignId($campaign_id)
-                    ->setActiveSubscription($data['gr_enabled'])
-                    ->setUpdate($update)
-                    ->setCycleDay($cycle_day)
-                    ->save();
+                $customs = CustomFieldsCollectionFactory::createFromUserPayload(
+                    $customs,
+                    $this->repository->getCustoms()
+                );
 
-                if ($update == 1) {
-                    $this->updateCustoms($customs);
-                }
+                $this->repository->updateCustoms($customs);
             }
 
-            $this->messageManager->addSuccessMessage('Settings saved');
+            $registrationSettings = RegistrationSettingsFactory::createFromArray([
+                'status' => $isEnabled,
+                'customFieldsStatus' => $updateCustomFields,
+                'campaignId' => $campaignId,
+                'cycleDay' => $cycleDay
+            ]);
+
+            $this->repository->saveRegistrationSettings($registrationSettings);
         }
 
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::settings');
-        $resultPage->getConfig()->getTitle()->prepend('Add Contacts During Registrations');
+        $this->messageManager->addSuccessMessage('Settings saved');
 
-        return $resultPage;
-    }
-
-    /**
-     * @param $customs
-     */
-    public function updateCustoms($customs)
-    {
-        if (is_array($customs)) {
-            /** @var ModelCustoms $model */
-            $model = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Customs');
-            $all_customs = $model->getCollection()->addFieldToFilter('default', false);
-            foreach ($all_customs as $custom) {
-                if (isset($customs[$custom->getCustomField()])) {
-                    $custom->setCustomName($customs[$custom->getCustomField()])->setActiveCustom(1)->save();
-                } else {
-                    $custom->setActiveCustom('0')->save();
-                }
-            }
-        }
+        return $resultRedirect;
     }
 }

@@ -1,6 +1,9 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Checkout\Model\Cart;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -24,6 +27,9 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
     /** @var ScopeConfigInterface */
     private $scopeConfig;
 
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
+
     /**
      * @param ObjectManagerInterface $objectManager
      * @param Cart $cart
@@ -31,6 +37,8 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
      * @param Session $customerSession
      * @param ProductMapFactory $productMapFactory
      * @param CountryFactory $countryFactory
+     * @param RepositoryFactory $repositoryFactory
+     * @param Repository $repository
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
@@ -38,12 +46,22 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
         ScopeConfigInterface $scopeConfig,
         Session $customerSession,
         ProductMapFactory $productMapFactory,
-        CountryFactory $countryFactory
+        CountryFactory $countryFactory,
+        RepositoryFactory $repositoryFactory,
+        Repository $repository
     ) {
         $this->cart = $cart;
         $this->scopeConfig = $scopeConfig;
+        $this->repositoryFactory = $repositoryFactory;
 
-        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory);
+        parent::__construct(
+            $objectManager,
+            $customerSession,
+            $productMapFactory,
+            $countryFactory,
+            $repositoryFactory,
+            $repository
+        );
     }
 
     /**
@@ -57,19 +75,23 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
         }
 
         $totalPrice = $totalTaxPrice = 0;
-        $shopId = $this->scopeConfig->getValue(Config::SHOP_ID);
+        $shopId = $this->scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
+
+        if (empty($shopId)) {
+            return $this;
+        }
 
         $requestToGr = [
-            'contactId' => $this->getContactFromGetResponse()->contactId,
-            'currency' => $this->cart->getQuote()->getQuoteCurrencyCode(),
-            'totalPrice' => $totalPrice,
-            'totalTaxPrice' => $totalTaxPrice,
+            'externalId' => (string) $this->cart->getQuote()->getId(),
+            'contactId' => (string) $this->getContactFromGetResponse()->contactId,
+            'currency' => (string) $this->cart->getQuote()->getQuoteCurrencyCode(),
+            'totalPrice' => (float) $totalPrice,
+            'totalTaxPrice' => (float) $totalTaxPrice,
             'selectedVariants' => []
         ];
 
         /** @var Item $magentoCartItem */
         foreach ($this->cart->getQuote()->getAllItems() as $magentoCartItem) {
-
             if ('simple' !== $magentoCartItem->getProductType()) {
                 continue;
             }
@@ -82,25 +104,31 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
             }
 
             $requestToGr['selectedVariants'][] = [
-                'variantId' => $grProductId,
-                'price' => $magentoCartItem->getPrice(),
-                'priceTax' => $magentoCartItem->getPriceInclTax(),
-                'quantity' => $magentoCartItem->getQty(),
+                'variantId' => (string) $grProductId,
+                'price' => (float) $magentoCartItem->getPrice(),
+                'priceTax' => (float) $magentoCartItem->getPriceInclTax(),
+                'quantity' => (integer) $magentoCartItem->getQty(),
             ];
 
             $totalPrice += ($magentoCartItem->getPrice() * $magentoCartItem->getQty());
             $totalTaxPrice += ($magentoCartItem->getPriceInclTax() * $magentoCartItem->getQty());
         }
 
-        $requestToGr['totalPrice'] = $totalPrice;
-        $requestToGr['totalTaxPrice'] = $totalTaxPrice;
+        $requestToGr['totalPrice'] = (float) $totalPrice;
+        $requestToGr['totalTaxPrice'] = (float) $totalTaxPrice;
 
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->cart->getQuote();
 
+        try {
+            $grRepository = $this->repositoryFactory->createRepository();
+        } catch (RepositoryException $e) {
+            return $this;
+        }
+
         if (empty($requestToGr['selectedVariants'])) {
             if (!empty($quote->getData('getresponse_cart_id'))) {
-                $this->apiClient->deleteCart(
+                $grRepository->deleteCart(
                     $shopId,
                     $quote->getData('getresponse_cart_id')
                 );
@@ -108,20 +136,22 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
                 $quote->setData('getresponse_cart_id', '');
                 $quote->save();
             }
+
             return $this;
         }
 
         if (empty($quote->getData('getresponse_cart_id'))) {
-            $response = $this->apiClient->addCart($shopId, $requestToGr);
+            $response = $grRepository->addCart($shopId, $requestToGr);
             $quote->setData('getresponse_cart_id', $response->cartId);
             $quote->save();
         } else {
-            $this->apiClient->updateCart(
+            $grRepository->updateCart(
                 $shopId,
                 $quote->getData('getresponse_cart_id'),
                 $requestToGr
             );
         }
+
         return $this;
     }
 }

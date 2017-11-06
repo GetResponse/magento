@@ -1,6 +1,9 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Directory\Model\CountryFactory;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer as EventObserver;
@@ -21,8 +24,16 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
     /** @var ScopeConfigInterface */
     private $scopeConfig;
 
-    private $orderFactory;
+    /** @var Order */
+    private $order;
+
+    /** @var QuoteFactory */
     private $quoteFactory;
+
+    /** @var Repository */
+    private $repository;
+
+    private $repositoryFactory;
 
     /**
      * @param ObjectManagerInterface $objectManager
@@ -32,6 +43,8 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
      * @param ProductMapFactory $productMapFactory
      * @param CountryFactory $countryFactory
      * @param ScopeConfigInterface $scopeConfig
+     * @param RepositoryFactory $repositoryFactory
+     * @param Repository $repository
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
@@ -40,21 +53,33 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
         Order $orderFactory,
         ProductMapFactory $productMapFactory,
         CountryFactory $countryFactory,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        RepositoryFactory $repositoryFactory,
+        Repository $repository
     ) {
-        $this->orderFactory = $orderFactory;
+        $this->order = $orderFactory;
         $this->quoteFactory = $quoteFactory;
         $this->scopeConfig = $scopeConfig;
+        $this->repositoryFactory = $repositoryFactory;
+        $this->repository = $repository;
 
-        parent::__construct($objectManager, $customerSession, $productMapFactory, $countryFactory);
+        parent::__construct(
+            $objectManager,
+            $customerSession,
+            $productMapFactory,
+            $countryFactory,
+            $repositoryFactory,
+            $repository
+        );
     }
 
     /**
      * @param EventObserver $observer
+     * @return null
      */
     public function execute(EventObserver $observer)
     {
-        $shopId = $this->scopeConfig->getValue(Config::SHOP_ID);
+        $shopId = $this->scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
 
         /** @var \Magento\Sales\Model\Order $order */
         $order = $observer->getEvent()->getOrder();
@@ -63,34 +88,43 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
         $requestToGr['cartId'] = $this->getGetresponseCartId($order);
 
         if ($order->getGetresponseOrderMd5() == $this->createOrderPayloadHash($requestToGr) || '' == $order->getGetresponseOrderId()) {
-            return;
+            return null;
         }
 
-        $this->apiClient->updateOrder(
-            $shopId,
-            $order->getGetresponseOrderId(),
-            $requestToGr
-        );
-        $order->setGetresponseOrderMd5($this->createOrderPayloadHash($requestToGr));
-        $order->save();
+        try {
+            $grRepository = $this->repositoryFactory->createRepository();
+            $grRepository->updateOrder(
+                $shopId,
+                $order->getGetresponseOrderId(),
+                $requestToGr
+            );
+            $order->setGetresponseOrderMd5($this->createOrderPayloadHash($requestToGr));
+            $order->save();
+        } catch (RepositoryException $e) {
+            return null;
+        }
     }
 
     /**
      * @param Order $order
      *
-     * @return null|string
+     * @return string
      */
     public function getGetresponseCartId(Order $order)
     {
-        $shopId = $this->scopeConfig->getValue(Config::SHOP_ID);
+        $shopId = $this->repository->getShopId();
         $getresponseOrderId = $order->getData('getresponse_order_id');
 
         if (empty($getresponseOrderId)) {
-            return null;
+            return '';
         }
 
-        $order = $this->apiClient->getOrder($shopId, $getresponseOrderId);
-
-        return isset($order->cartId) ? $order->cartId : null;
+        try {
+            $grRepository = $this->repositoryFactory->createRepository();
+            $order = $grRepository->getOrder($shopId, $getresponseOrderId);
+            return isset($order->cartId) ? $order->cartId : '';
+        } catch (RepositoryException $e) {
+            return '';
+        }
     }
 }

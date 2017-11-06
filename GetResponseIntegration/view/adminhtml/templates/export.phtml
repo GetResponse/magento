@@ -1,66 +1,9 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */?>
-
-<?php
-if (!$block->checkApiKey()) {
-    return;
-}
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */
 $campaigns = $block->getCampaigns();
 $customers = $block->getCustomers();
-$customs = $block->getDefaultCustoms()->getData();
-$settings = $block->getSettings();
-$autoresponders = $block->getAutoresponders();
+$settings = $block->getExportSettings();
 $jsAutoresponders = $block->getAutorespondersForFrontend();
 ?>
-<style>
-    .label {
-        font-weight: bold;
-    }
-
-    .label label {
-        display: inline-block;
-    }
-
-    td.label {
-        vertical-align: top;
-    }
-
-    .value input {
-        margin-top: 4px;
-        width: 100%;
-    }
-
-    .note {
-        color: #303030;
-        font-size: 12px;
-        margin-top: 5px;
-    }
-
-    .admin__scope-old input[type="checkbox"] {
-        -moz-appearance: checkbox;
-    }
-
-    tr {
-        margin-bottom: 5px;
-    }
-
-    .button-margin {
-        margin-top: 10px;
-    }
-
-    .page-main-hint {
-        float: left;
-    }
-
-    .page-main-hint span {
-        display: inline-block;
-        margin-top: 1rem;
-    }
-
-    .hidden {
-        display: none
-    }
-
-</style>
 
 <form method="post" action="<?php echo $block->getUrl('getresponseintegration/export/process'); ?>" style="margin-top: 20px;">
     <?php echo $block->getBlockHtml('formkey'); ?>
@@ -127,7 +70,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                        id="gr_autoresponder"
                                        value="1"
                                     <?php
-                                    if (isset($settings['cycle_day']) && $settings['cycle_day'] != '0') {
+                                    if ($settings->getCycleDay()) {
                                         echo ' checked="checked"';
                                     }
                                     ?>
@@ -136,7 +79,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                             </div>
                         </div>
                     </div>
-                    <div class="admin__field field field-basic_autoresponder forms">
+                    <div class="admin__field field field-basic_autoresponder forms hidden" id="field-autoresponder">
                         <label class="label admin__field-label" for="cycle_day">
                             <span>Autoresponder day</span>
                         </label>
@@ -156,7 +99,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                         id="gr_sync_order_data"
                                         value="1"
                                     <?php
-                                    if (isset($settings['update']) && $settings['update'] == 1) {
+                                    if ($settings->isCustomFieldsModified()) {
                                         echo ' checked="checked"';
                                     }
                                     ?>
@@ -169,56 +112,17 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                         </div>
                     </div>
                 </fieldset>
-                <div id="customNameFieldsRow" class="forms config admin__scope-old <?php if (!isset($settings['update']) || (int) $settings['update'] === 0):?>hidden<?php endif ?>">
+                <div id="customNameFieldsRow" class="forms config admin__scope-old <?php if (!$settings->isCustomFieldsModified()):?>hidden<?php endif ?>">
                     <div id="customNameFields">
                         <?php include 'customs_grid.phtml'; ?>
                         <div class="note admin__field-note">You can use lowercase English alphabet characters, numbers, and underscore ("_"). Maximum 32 characters</div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
 </form>
-
-<?php include 'new_campaign.phtml'; ?>
-
-<script type="text/javascript">
-    require(['jquery'],function($) {
-        var sod = $('#gr_sync_order_data'), cfp = $('#customNameFields'),
-            cfprow = $('#customNameFieldsRow');
-        var campaign_id = $('#campaign_id'), cycle_day = $('#cycle_day'),
-            gr_autoresponder = $('#gr_autoresponder');
-        if (sod.prop('checked') === true) {
-            cfprow.removeClass('hidden');
-        }
-        sod.change(function () {
-            cfprow.toggleClass('hidden');
-        });
-
-        var autoresponders = <?php echo json_encode($jsAutoresponders); ?>;
-
-        function populateSelectWithAutoresponders() {
-            cycle_day.empty();
-            var options = '';
-            var campaign_autoresponders = autoresponders[campaign_id.val()];
-            if (typeof campaign_autoresponders == 'object' && campaign_autoresponders.length > 0) {
-                for (var i = 0; i < campaign_autoresponders.length; i++) {
-                    options += '<option value="' + campaign_autoresponders[i]['dayOfCycle']
-                        + '">(Day: ' + campaign_autoresponders[i]['dayOfCycle'] + ') '
-                        + campaign_autoresponders[i]['name']
-                        + ' (Subject: ' + campaign_autoresponders[i]['subject'] + ')</option>';
-                }
-                cycle_day.prop('disabled', false);
-                gr_autoresponder.prop('disabled', false);
-            } else {
-                options = '<option value="">no autoresponders</option>';
-                cycle_day.prop('disabled', true);
-                gr_autoresponder.prop('disabled', true).prop('checked', false);
-            }
-            cycle_day.append(options);
-        }
-
-        populateSelectWithAutoresponders();
-
-        campaign_id.change(function () {
-            populateSelectWithAutoresponders();
-        });
-    });
+<input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($jsAutoresponders); ?>'/>
+<script>
+    require(['exportContacts']);
 </script>
