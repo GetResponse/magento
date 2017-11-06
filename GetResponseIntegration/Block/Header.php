@@ -1,7 +1,10 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
 use Magento\Framework\View\Element\Template;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use Magento\Framework\View\Element\Template\Context;
 
 /**
  * Class Header
@@ -9,19 +12,17 @@ use Magento\Framework\View\Element\Template;
  */
 class Header extends Template
 {
-    /** @var \Magento\Framework\ObjectManagerInterface */
-    protected $_objectManager;
+    /** @var Repository */
+    private $repository;
 
     /**
-     * @param \Magento\Framework\View\Element\Template\Context $context
-     * @param \Magento\Framework\ObjectManagerInterface $objectManager
+     * @param Context $context
+     * @param Repository $repository
      */
-    public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Framework\ObjectManagerInterface $objectManager)
+    public function __construct(Context $context, Repository $repository)
     {
         parent::__construct($context);
-        $this->_objectManager = $objectManager;
+        $this->repository = $repository;
     }
 
     /**
@@ -29,12 +30,14 @@ class Header extends Template
      */
     public function getSnippetCode()
     {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
-        $data = $settings->load($storeId, 'id_shop')->getData();
+        $webEventTracking = WebEventTrackingSettingsFactory::createFromArray(
+            $this->repository->getWebEventTracking()
+        );
 
-        if (isset($data['web_traffic']) && isset($data['tracking_code_snippet']) && 'disabled' !== $data['web_traffic']) {
-            return $data['tracking_code_snippet'];
+        if ($webEventTracking->isEnabled()) {
+            return $webEventTracking->getCodeSnippet();
         }
+
+        return '';
     }
 }

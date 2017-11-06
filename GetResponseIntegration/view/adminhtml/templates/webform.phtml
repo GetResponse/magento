@@ -1,60 +1,7 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Settings */?>
-
-<?php
-if (!$block->checkApiKey()) {
-    return;
-}
-
-$forms = $block->getAllFormsFromGr();
-$settings = $block->getWebformSettings();
-
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Webform */
+$formsCollection = $block->getWebFormsCollection();
+$webformSettings = $block->getWebformSettings();
 ?>
-<style>
-    .label {
-        font-weight: bold;
-    }
-
-    .label label {
-        display: inline-block;
-    }
-
-    td.label {
-        vertical-align: top;
-    }
-
-    .value input {
-        margin-top: 4px;
-        width: 100%;
-    }
-
-    .note {
-        color: #303030;
-        font-size: 12px;
-        margin-top: 5px;
-    }
-
-    .admin__scope-old input[type="checkbox"] {
-        -moz-appearance: checkbox;
-    }
-
-    tr {
-        margin-bottom: 5px;
-    }
-
-    .page-main-hint {
-        float: left;
-    }
-
-    .page-main-hint span {
-        display: inline-block;
-        margin-top: 1rem;
-    }
-
-    .hidden {
-        display: none
-    }
-
-</style>
 
 <form method="post" action="<?php echo $block->getUrl('getresponseintegration/settings/webformpost'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
@@ -83,8 +30,8 @@ $settings = $block->getWebformSettings();
                         <label class="label admin__field-label" for="publish"></label>
                         <div class="admin__field-control control">
                             <div class="admin__field admin__field-option publish__field">
-                                <input id="publish" name="publish" class="admin__control-checkbox" type="checkbox" value="1"
-                                    <?php if (isset($settings['active_subscription']) && $settings['active_subscription'] == 1):?>
+                                <input id="publish" name="isEnabled" class="admin__control-checkbox" type="checkbox" value="1"
+                                    <?php if ($webformSettings->isEnabled()):?>
                                         checked="checked"
                                     <?php endif ?>
                                 >
@@ -92,48 +39,33 @@ $settings = $block->getWebformSettings();
                             </div>
                         </div>
                     </div>
-                    <div class="admin__field field field-basic_webform required _required forms <?php if (!isset($settings['update']) || (int) $settings['update'] === 0):?>hidden<?php endif ?>">
+                    <div class="admin__field field field-basic_webform required _required forms <?php if (!$webformSettings->isEnabled()):?>hidden<?php endif ?>">
                         <label class="label admin__field-label" for="webform_id">
                             <span>Form</span>
                         </label>
                         <div class="admin__field-control control">
                             <div class="admin__field">
-                                <select name="webform_id" id="webform_id" class="select admin__control-select" aria-required="true">
+                                <select name="webformId" id="webform_id" class="select admin__control-select" aria-required="true">
                                     <option value="">Select a form you want to display</option>
-                                    <?php if (!empty($forms['forms']) || !empty($forms['webforms'])):?>
-                                        <?php if (isset($forms['forms']) && count($forms['forms']) > 0): ?>
-                                            <?php foreach ($forms['forms'] as $form): ?>
-                                                <option
-                                                    value="<?php echo $form->webformId?>"
-                                                    data-url="<?php echo $form->scriptUrl?>"
-                                                    <?php if(isset($settings['webform_id']) && $settings['webform_id'] == $form->webformId):?>
-                                                        selected="selected"
-                                                    <?php endif ?>
-                                                ><?php echo $form->name ?></option>
-                                            <?php endforeach ?>
-                                        <?php endif ?>
-
-                                        <?php if (!empty($forms['webforms'])): ?>
-                                            <option value="" disabled="disabled">Old Web Forms:</option>
-                                            <?php foreach ($forms['webforms'] as $form): ?>
-                                                <option
-                                                    value="<?php echo $form->webformId?>"
-                                                    data-url="<?php echo $form->scriptUrl?>"
-                                                    <?php if(isset($settings['webform_id']) && $settings['webform_id'] == $form->webformId):?>
-                                                        selected="selected"
-                                                    <?php endif ?>
-                                                ><?php echo $form->name ?></option>
-                                            <?php endforeach ?>
-                                        <?php endif ?>
+                                    <?php if (!empty($formsCollection->getWebforms())):?>
+                                        <?php foreach ($formsCollection->getWebforms() as $form): ?>
+                                            <option
+                                                value="<?php echo $form->getId()?>"
+                                                data-url="<?php echo $form->getUrl()?>"
+                                                <?php if($webformSettings->getWebformId() == $form->getId()):?>
+                                                    selected="selected"
+                                                <?php endif ?>
+                                            ><?php echo $form->getName() ?></option>
+                                        <?php endforeach ?>
                                     <?php else: ?>
                                         <option value="" disabled="disabled">No forms</option>
                                     <?php endif ?>
                                 </select>
-                                <input type="hidden" value="" name="webform_url" id="webform_url" />
+                                <input type="hidden" value="" name="url" id="webform_url" />
                             </div>
                         </div>
                     </div>
-                    <div class="admin__field field field-basic_sidebar required _required forms <?php if (!isset($settings['update']) || (int) $settings['update'] === 0):?>hidden<?php endif ?>">
+                    <div class="admin__field field field-basic_sidebar required _required forms <?php if (!$webformSettings->isEnabled()):?>hidden<?php endif ?>">
                         <label class="label admin__field-label" for="sidebar">
                             <span>Block position</span>
                         </label>
@@ -145,7 +77,7 @@ $settings = $block->getWebformSettings();
                                     foreach ($positions as $position => $name):?>
                                         <option
                                             value="<?php echo $position ?>"
-                                            <?php if (isset($settings['sidebar']) && $position == $settings['sidebar']): ?>
+                                            <?php if ($webformSettings->getSidebar() === $position): ?>
                                                 selected="selected"
                                             <?php endif ?>
                                         ><?php echo $name ?></option>
@@ -161,18 +93,5 @@ $settings = $block->getWebformSettings();
 </form>
 
 <script>
-    require(['jquery'],function($) {
-        var sod = $('#publish'), forms = $('.forms'), webform_id = $('#webform_id'),
-            webform_url = $('#webform_url');
-        if (sod.prop('checked') === true) {
-            forms.removeClass('hidden');
-        }
-        sod.change(function () {
-            forms.toggleClass('hidden');
-        });
-        webform_url.val(webform_id.find(':selected').attr('data-url'));
-        webform_id.change(function () {
-            webform_url.val(webform_id.find(':selected').attr('data-url'));
-        });
-    });
+    require(['webform']);
 </script>

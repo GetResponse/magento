@@ -11,19 +11,19 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Index extends Action
 {
-    /**
-     * @var PageFactory
-     */
+    /** @var PageFactory */
     protected $resultPageFactory;
 
     /**
-     * Index constructor.
      * @param Context $context
      * @param PageFactory $resultPageFactory
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
-    {
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory
+    ) {
         parent::__construct($context);
+
         $this->resultPageFactory = $resultPageFactory;
     }
 
@@ -33,10 +33,8 @@ class Index extends Action
     public function execute()
     {
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::settings');
         $resultPage->getConfig()->getTitle()->prepend('GetResponse Account');
 
         return $resultPage;
     }
-
 }

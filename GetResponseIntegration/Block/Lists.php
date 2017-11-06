@@ -1,33 +1,40 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
-use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+use Magento\Framework\View\Element\Template;
 
 /**
  * Class Lists
  * @package GetResponse\GetResponseIntegration\Block
  */
-class Lists extends GetResponse
+class Lists extends Template
 {
-    /** @var ObjectManagerInterface */
-    protected $_objectManager;
+    /** @var Repository */
+    private $repository;
 
-    /** @var ScopeConfigInterface  */
-    private $scopeConfig;
+    /** @var GrRepository */
+    private $grRepository;
 
     /**
      * @param Context $context
      * @param ObjectManagerInterface $objectManager
+     * @param Repository $repository
+     * @param RepositoryFactory $repositoryFactory
      */
-    public function __construct(Context $context, ObjectManagerInterface $objectManager)
-    {
-        parent::__construct($context, $objectManager);
-
-        $this->_objectManager = $objectManager;
-        $this->scopeConfig = $context->getScopeConfig();
+    public function __construct(
+        Context $context,
+        ObjectManagerInterface $objectManager,
+        Repository $repository,
+        RepositoryFactory $repositoryFactory
+    ) {
+        parent::__construct($context);
+        $this->repository = $repository;
+        $this->grRepository = $repositoryFactory->createRepository();
     }
 
     /**
@@ -35,25 +42,29 @@ class Lists extends GetResponse
      */
     public function getAccountFromFields()
     {
-        return $this->getClient()->getAccountFromFields();
+        return $this->grRepository->getAccountFromFields();
     }
 
     /**
-     * @param $lang
      * @return mixed
      */
-    public function getSubscriptionConfirmationsSubject($lang)
+    public function getSubscriptionConfirmationsSubject()
     {
-        return $this->getClient()->getSubscriptionConfirmationsSubject($lang);
+        $countryCode = $this->repository->getMagentoCountryCode();
+        $lang = substr($countryCode, 0, 2);
+
+        return $this->grRepository->getSubscriptionConfirmationsSubject($lang);
     }
 
     /**
-     * @param $lang
      * @return mixed
      */
-    public function getSubscriptionConfirmationsBody($lang)
+    public function getSubscriptionConfirmationsBody()
     {
-        return $this->getClient()->getSubscriptionConfirmationsBody($lang);
+        $countryCode = $this->repository->getMagentoCountryCode();
+        $lang = substr($countryCode, 0, 2);
+
+        return $this->grRepository->getSubscriptionConfirmationsBody($lang);
     }
 
     public function getBackUrl()
@@ -68,7 +79,7 @@ class Lists extends GetResponse
      */
     private function createBackUrl($back)
     {
-        switch($back) {
+        switch ($back) {
             case 'export':
                 return 'getresponseintegration/export/index';
                 break;

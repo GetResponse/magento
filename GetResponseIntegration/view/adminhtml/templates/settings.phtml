@@ -1,92 +1,14 @@
 <?php
-/** @var $block \GetResponse\GetResponseIntegration\Block\Settings */
-$isApiActive = $block->checkApiKey();
+use GetResponse\GetResponseIntegration\Block\Settings;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
+/** @var $block Settings */
+$isApiActive = $block->isConnectedToGetResponse();
+
+if ($isApiActive) {
+    /** @var Account $account */
+    $account = $block->getAccountInfo();
+}
 ?>
-<style>
-    .label {
-        font-weight: bold;
-    }
-
-    .label label {
-        margin-top: 7px;
-        display: inline-block;
-    }
-
-    .value input {
-        width: 100%;
-    }
-
-    .note {
-        color: #303030;
-        font-size: 12px;
-        margin: 5px 0;
-    }
-
-    .accordion table {
-        width: auto !important;
-    }
-
-    .accordion table tr td {
-        width: auto !important;
-    }
-
-    .page-main-hint {
-        float: left;
-    }
-
-    .page-main-hint span {
-        display: inline-block;
-        margin-top: 1rem;
-    }
-
-    .getresponse_360_account__field {
-        padding-top: 2.4rem;
-    }
-
-    .title {
-        padding-bottom: 10px;
-        border-bottom: 1px solid #ccc;
-        margin-bottom: 20px;
-    }
-
-    .title span {
-        font-size: 11pt;
-        color: #41362f;
-    }
-
-    .account_data {
-        width: 100%;
-    }
-
-    .account_data tr:nth-child(even) {
-        background: #fff;
-    }
-
-    .account_data td {
-        padding: .75rem 1.5rem;
-    }
-
-    .account_data td:nth-child(1) {
-        width: 127px;
-    }
-
-    .account_data td:nth-child(2) {
-        width: auto;
-    }
-
-    .account_data tr:nth-child(odd) {
-        background: #f8f8f8;
-    }
-
-    .account_data .status-connected {
-        color: #00CC66
-    }
-
-    .hidden {
-        display: none;
-    }
-
-</style>
 
 <form method="post" action="<?php echo $block->getUrl('getresponseintegration/settings/save'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
@@ -99,13 +21,13 @@ $isApiActive = $block->checkApiKey();
             <div class="page-actions-inner">
                 <div class="page-actions-buttons">
                     <?php if (!$isApiActive) : ?>
-                        <button id="save" title="Connect" type="submit" class="action-default scalable connect primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
+                        <button id="saveBtn" title="Connect" type="submit" class="action-default scalable connect primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
                             <span class="ui-button-text">
                                 <span>Connect</span>
                             </span>
                         </button>
                         <?php else : ?>
-                        <button id="save" data-bind="click: confirmationOpened" title="disconnect" class="action-default scalable disconnect primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
+                        <button id="disconnectBtn" title="disconnect" class="action-default scalable disconnect primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
                             <span class="ui-button-text">
                                 <span>Disconnect</span>
                             </span>
@@ -190,9 +112,7 @@ $isApiActive = $block->checkApiKey();
                         </tr>
                         <?php endif; ?>
                             <?php
-                            if ($isApiActive) :
-                                $account = $block->getAccountInfo();
-                            ?>
+                            if ($isApiActive) : ?>
                         <tr>
                             <td>Name:</td>
                             <td><?php echo $account->getFirstName() . ' ' . $account->getLastName(); ?></td>
@@ -228,51 +148,10 @@ $isApiActive = $block->checkApiKey();
     <div>When you disconnect you won't be able to get new contacts via forms, comments, or during account registration.</div>
 </div>
 
+<input type="hidden" id="jsDeleteUrl" value="<?php echo $block->getUrl("getresponseintegration/settings/delete"); ?>" />
+
 <script>
-    require(['jquery'],function($) {
-        var mx_account = $('#getresponse_360_account'), mx_options = $('#getresponse_360_account_options');
-        if (mx_account.prop('checked') === true) {
-            mx_options.toggleClass('hidden');
-        }
-        mx_account.change(function () {
-            mx_options.toggleClass('hidden');
-        });
-    });
 
-    function confirmationOpened() {
-        require(
-            [
-                'jquery',
-                'Magento_Ui/js/modal/modal'
-            ],
-            function ($, modal) {
-                var url = '<?php echo $block->getUrl('getresponseintegration/settings/delete'); ?>';
-                var options = {
-                    type: 'popup',
-                    responsive: true,
-                    innerScroll: true,
-                    title: 'Disconnect from GetResponse?',
-                    buttons: [
-                        {
-                            text: $.mage.__('Stay connected'),
-                            class: 'action-secondary action-dismiss',
-                            click: function () {
-                                this.closeModal();
-                            }
-                        }, {
-                            text: $.mage.__('Disconnect'),
-                            class: 'action-primary action-accept',
-                            click: function () {
-                                window.location.href = url;
-                                return false;
-                            }
-                        },
-                    ]
-                };
-
-                var popup = modal(options, $('#popup-modal'));
-                $('#popup-modal').modal('openModal');
-            }
-        );
-    }
+    require(['settings']);
+    
 </script>

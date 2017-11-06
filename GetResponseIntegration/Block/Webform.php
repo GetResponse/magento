@@ -1,40 +1,71 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\WebformCollectionFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\WebformsCollection;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettingsFactory;
 use Magento\Framework\ObjectManagerInterface;
-use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+use Magento\Framework\View\Element\Template;
 
 /**
  * Class Webform
  * @package GetResponse\GetResponseIntegration\Block
  */
-class Webform extends GetResponse
+class Webform extends Template
 {
-    /**
-     * @var ObjectManagerInterface
-     */
-    protected $_objectManager;
+    /** @var Repository */
+    private $repository;
+
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /**
-     * Webform constructor.
      * @param Context $context
-     * @param array $data
      * @param ObjectManagerInterface $objectManager
+     * @param Repository $repository
+     * @param RepositoryFactory $repositoryFactory
+     * @internal param GrRepository $grRepository
      */
-    public function __construct(Context $context, ObjectManagerInterface $objectManager)
-    {
-        parent::__construct($context, $objectManager);
-        $this->_objectManager = $objectManager;
+    public function __construct(
+        Context $context,
+        ObjectManagerInterface $objectManager,
+        Repository $repository,
+        RepositoryFactory $repositoryFactory
+    ) {
+        parent::__construct($context);
+        $this->repository = $repository;
+        $this->repositoryFactory = $repositoryFactory;
     }
 
     /**
-     * @return mixed
+     * @return WebformSettings
      */
     public function getWebformSettings()
     {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $webform_settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Webform');
-        return $webform_settings->load($storeId, 'id_shop')->getData();
+        return WebformSettingsFactory::createFromArray(
+            $this->repository->getWebformSettings()
+        );
+    }
+
+    /**
+     * @return WebformsCollection
+     */
+    public function getWebFormsCollection()
+    {
+        try {
+            $grRepository = $this->repositoryFactory->createRepository();
+            return WebformCollectionFactory::createFromApiResponse(
+                (array)$grRepository->getForms(['query' => ['status' => 'enabled']]),
+                (array)$grRepository->getWebForms()
+            );
+        } catch (RepositoryException $e) {
+            return new WebformsCollection();
+        }
     }
 }

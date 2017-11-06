@@ -1,9 +1,12 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
-use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Customer\Model\Session;
-use Magento\Framework\App\Cache\Proxy;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Customer\Model\Customer;
 use GetResponse\GetResponseIntegration\Model\ProductMap;
@@ -19,15 +22,11 @@ use Magento\Directory\Model\CountryFactory;
  */
 class Ecommerce
 {
-    const CACHE_KEY = 'getresponse_cache';
     /** @var Session */
     protected $customerSession;
 
     /** @var ObjectManagerInterface */
     protected $objectManager;
-
-    /** @var GetResponseAPI3 */
-    protected $apiClient;
 
     /** @var ProductMapFactory */
     protected $productMapFactory;
@@ -35,29 +34,34 @@ class Ecommerce
     /** @var CountryFactory */
     protected $countryFactory;
 
-    /** @var Proxy */
-    protected $cache;
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
+
+    /** @var Repository */
+    private $repository;
 
     /**
      * @param ObjectManagerInterface $objectManager
      * @param Session $customerSession
      * @param ProductMapFactory $productMapFactory
      * @param CountryFactory $countryFactory
+     * @param RepositoryFactory $repositoryFactory
+     * @param Repository $repository
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
         Session $customerSession,
         ProductMapFactory $productMapFactory,
-        CountryFactory $countryFactory
+        CountryFactory $countryFactory,
+        RepositoryFactory $repositoryFactory,
+        Repository $repository
     ) {
         $this->objectManager = $objectManager;
         $this->customerSession = $customerSession;
         $this->productMapFactory = $productMapFactory;
         $this->countryFactory = $countryFactory;
-
-        $block = $objectManager->create('GetResponse\GetResponseIntegration\Block\Settings');
-        $this->cache = $objectManager->get('Magento\Framework\App\CacheInterface');
-        $this->apiClient = $block->getClient();
+        $this->repositoryFactory = $repositoryFactory;
+        $this->repository = $repository;
     }
 
     /**
@@ -68,13 +72,8 @@ class Ecommerce
         if (false === $this->customerSession->isLoggedIn()) {
             return false;
         }
-
         $contact = $this->getContactFromGetResponse();
-
-        if (!isset($contact->contactId)) {
-            return false;
-        }
-        return true;
+        return !isset($contact->contactId) ? false : true;
     }
 
     /**
@@ -82,30 +81,39 @@ class Ecommerce
      */
     protected function getContactFromGetResponse()
     {
-        $block = $this->objectManager->create('GetResponse\GetResponseIntegration\Block\Settings');
-        $settings = $block->getSettings();
+        $cache = $this->objectManager->get('Magento\Framework\App\CacheInterface');
+
+        $settings = RegistrationSettingsFactory::createFromArray(
+            $this->repository->getRegistrationSettings()
+        );
 
         /** @var Customer $customer */
         $customer = $this->customerSession->getCustomer();
 
-        $cacheKey = md5($customer->getEmail().$settings['campaign_id']);
-        $cachedCustomer = $this->cache->load($cacheKey);
+        $cacheKey = md5($customer->getEmail() . $settings->getCampaignId());
+        $cachedCustomer = $cache->load($cacheKey);
 
         if (false !== $cachedCustomer) {
             return unserialize($cachedCustomer);
         }
 
-        $params = array('query' =>
-            array(
+        $params = [
+            'query' => [
                 'email' => $customer->getEmail(),
-                'campaignId' => $settings['campaign_id']
-            )
-        );
+                'campaignId' => $settings->getCampaignId()
+            ]
+        ];
 
-        $response = (array) $this->apiClient->getContacts($params);
+        try {
+            $grRepository = $this->repositoryFactory->createRepository();
+        } catch (RepositoryException $e) {
+            return null;
+        }
+
+        $response = (array)$grRepository->getContacts($params);
         $grCustomer = array_pop($response);
 
-        $this->cache->save(serialize($grCustomer), $cacheKey, [self::CACHE_KEY], 5*60);
+        $cache->save(serialize($grCustomer), $cacheKey, [Config::CACHE_KEY], Config::CACHE_TIME);
 
         return $grCustomer;
     }
@@ -145,6 +153,7 @@ class Ecommerce
         ]);
 
         $productMap->save();
+
         return $productId;
     }
 
@@ -157,22 +166,27 @@ class Ecommerce
     private function createProductInGetResponse($shopId, $magentoCartItem)
     {
         $params = [
-            'name' => $magentoCartItem->getProduct()->getName(),
+            'name' => (string) $magentoCartItem->getProduct()->getName(),
             'categories' => [],
-            'externalId' => $magentoCartItem->getProduct()->getId(),
+            'externalId' => (string) $magentoCartItem->getProduct()->getId(),
             'variants' => [
                 [
-                    'name' => $magentoCartItem->getProduct()->getName(),
-                    'price'=> $magentoCartItem->getProduct()->getPrice(),
+                    'name' => (string) $magentoCartItem->getProduct()->getName(),
+                    'price' => (float) $magentoCartItem->getProduct()->getPrice(),
                     'priceTax' => 0,
-                    'quantity' => $magentoCartItem->getProduct()->getQty(),
-                    'sku' => $magentoCartItem->getProduct()->getSku(),
+                    'quantity' => (int) $magentoCartItem->getProduct()->getQty(),
+                    'sku' => (string) $magentoCartItem->getProduct()->getSku(),
                 ],
             ],
         ];
 
-        $response = $this->apiClient->addProduct($shopId, $params);
-        return $this->handleProductResponse($response);
+        try {
+            $grRepository = $this->repositoryFactory->createRepository();
+            $response = $grRepository->addProduct($shopId, $params);
+            return $this->handleProductResponse($response);
+        } catch (RepositoryException $e) {
+            return null;
+        }
     }
 
     /**
@@ -204,35 +218,34 @@ class Ecommerce
         $billingCountry = $this->countryFactory->create()->loadByCode($billingAddress->getCountryId());
 
         $requestToGr = [
-            'contactId' => $this->getContactFromGetResponse()->contactId,
-            'totalPriceTax' => $order->getTaxAmount(),
-            'totalPrice' => $order->getBaseSubtotal(),
-            'currency' => $order->getOrderCurrencyCode(),
-            'status' => $order->getStatus(),
+            'contactId' => (string) $this->getContactFromGetResponse()->contactId,
+            'totalPriceTax' => (float) $order->getTaxAmount(),
+            'totalPrice' => (float) $order->getBaseSubtotal(),
+            'currency' => (string) $order->getOrderCurrencyCode(),
+            'status' => (string) $order->getStatus(),
             'cartId' => 0,
-            'shippingPrice'  => $order->getShippingAmount(),
-            'externalId' => $order->getId(),
+            'shippingPrice' => (float) $order->getShippingAmount(),
+            'externalId' => (string) $order->getId(),
             'shippingAddress' => [
-                'countryCode' => $shippingCountry->getData('iso3_code'),
-                'name' => $shippingAddress->getData('street'),
-                'firstName' => $shippingAddress->getFirstname(),
-                'lastName' => $shippingAddress->getLastname(),
-                'city' => $shippingAddress->getCity(),
-                'zip' => $shippingAddress->getPostcode(),
+                'countryCode' => (string) $shippingCountry->getData('iso3_code'),
+                'name' => (string) $shippingAddress->getData('street'),
+                'firstName' => (string) $shippingAddress->getFirstname(),
+                'lastName' => (string) $shippingAddress->getLastname(),
+                'city' => (string) $shippingAddress->getCity(),
+                'zip' => (string) $shippingAddress->getPostcode(),
             ],
             'billingAddress' => [
-                'countryCode' => $billingCountry->getData('iso3_code'),
-                'name' => $billingAddress->getData('street'),
-                'firstName' => $billingAddress->getFirstname(),
-                'lastName' => $billingAddress->getLastname(),
-                'city' => $billingAddress->getCity(),
-                'zip' => $billingAddress->getPostcode(),
+                'countryCode' => (string) $billingCountry->getData('iso3_code'),
+                'name' => (string) $billingAddress->getData('street'),
+                'firstName' => (string) $billingAddress->getFirstname(),
+                'lastName' => (string) $billingAddress->getLastname(),
+                'city' => (string) $billingAddress->getCity(),
+                'zip' => (string) $billingAddress->getPostcode(),
             ],
         ];
 
         /** @var Item $item */
         foreach ($order->getAllItems() as $item) {
-
             if ('simple' !== $item->getProductType()) {
                 false;
             }
@@ -244,14 +257,14 @@ class Ecommerce
             }
 
             $requestToGr['selectedVariants'][] = [
-                'variantId' => $grProductId,
-                'price' => $item->getPrice(),
-                'priceTax' => $item->getTaxAmount(),
-                'quantity' => $item->getQtyOrdered(),
+                'variantId' => (string) $grProductId,
+                'price' => (float) $item->getPrice(),
+                'priceTax' => (float) $item->getTaxAmount(),
+                'quantity' => (int) $item->getQtyOrdered(),
                 'taxes' => [
                     [
                         'name' => 'tax',
-                        'rate' => $item->getTaxPercent(),
+                        'rate' => (float) $item->getTaxPercent(),
                     ]
                 ]
             ];

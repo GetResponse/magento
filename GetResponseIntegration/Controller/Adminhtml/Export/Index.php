@@ -1,10 +1,13 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Export;
 
-use GetResponse\GetResponseIntegration\Block\Export;
-use Magento\Backend\App\Action;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Backend\App\Action;
 
 /**
  * Class Index
@@ -12,40 +15,39 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Index extends Action
 {
-    /**
-     * @var PageFactory
-     */
+    /** @var PageFactory */
     protected $resultPageFactory;
 
-    public $grApi;
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
 
     /**
-     * Index constructor.
      * @param Context $context
      * @param PageFactory $resultPageFactory
+     * @param RepositoryValidator $repositoryValidator
      */
-    public function __construct(Context $context, PageFactory $resultPageFactory)
-    {
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        RepositoryValidator $repositoryValidator
+    ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
-     * @return \Magento\Framework\View\Result\Page
+     * @return ResponseInterface|Page
      */
     public function execute()
     {
-        /** @var Export $block */
-        $block = $this->_objectManager->create('GetResponse\GetResponseIntegration\Block\Export');
-        $checkApiKey = $block->checkApiKey();
-        if ($checkApiKey === false) {
-            $this->messageManager->addWarningMessage('Your API key is not valid! Please update your settings.');
-        } elseif ($checkApiKey === 0) {
-            $this->messageManager->addWarningMessage('Your API key is empty. In order to use this function you need to save your API key');
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
+
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('GetResponse_GetResponseIntegration::export');
         $resultPage->getConfig()->getTitle()->prepend('Export Customer Data on Demand');
 
         return $resultPage;

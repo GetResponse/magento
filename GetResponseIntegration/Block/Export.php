@@ -1,40 +1,66 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
+use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Framework\View\Element\Template;
+
 /**
  * Class Export
  * @package GetResponse\GetResponseIntegration\Block
  */
-class Export extends GetResponse
+class Export extends Template
 {
-    public $stats;
+    /** @var Repository */
+    private $repository;
+
+    /** @var GrRepository */
+    private $grRepository;
 
     /**
-     * @return mixed
+     * @param Context $context
+     * @param ObjectManagerInterface $objectManager
+     * @param Repository $repository
+     * @param RepositoryFactory $repositoryFactory
      */
+    public function __construct(
+        Context $context,
+        ObjectManagerInterface $objectManager,
+        Repository $repository,
+        RepositoryFactory $repositoryFactory
+    ) {
+        parent::__construct($context);
+        $this->repository = $repository;
+        $this->grRepository = $repositoryFactory->createRepository();
+    }
+
+    /**
+     * @return RegistrationSettings
+     */
+    public function getExportSettings()
+    {
+        return RegistrationSettingsFactory::createFromArray(
+            $this->repository->getRegistrationSettings()
+        );
+    }
+
     public function getCustomers()
     {
-        $customers = $this->_objectManager->get('Magento\Customer\Model\Customer');
-        return $customers->getCollection();
+        return $this->repository->getCustomers();
     }
 
     /**
      * @return mixed
      */
-    public function getActiveCustoms()
+    public function getCustoms()
     {
-        $customs = $this->_objectManager->get('GetResponse\GetResponseIntegration\Model\Customs');
-        return $customs->getCollection()->addFieldToFilter('active_custom', true);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDefaultCustoms()
-    {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $customs = $this->_objectManager->get('GetResponse\GetResponseIntegration\Model\Customs');
-        return $customs->getCollection($storeId, 'id_shop');
+        return CustomFieldsCollectionFactory::createFromRepository($this->repository->getCustoms());
     }
 
     /**
@@ -42,93 +68,7 @@ class Export extends GetResponse
      */
     public function getCampaigns()
     {
-        return $this->getClient()->getCampaigns(['sort' => ['name' => 'asc']]);
-    }
-
-    /**
-     * @param $id
-     * @return mixed
-     */
-    public function getCampaign($id)
-    {
-        return $this->getClient()->getCampaign($id);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getAccountFromFields()
-    {
-        return $this->getClient()->getAccountFromFields();
-    }
-
-    /**
-     * @param $lang
-     * @return mixed
-     */
-    public function getSubscriptionConfirmationsSubject($lang)
-    {
-        return $this->getClient()->getSubscriptionConfirmationsSubject($lang);
-    }
-
-    /**
-     * @param $lang
-     * @return mixed
-     */
-    public function getSubscriptionConfirmationsBody($lang)
-    {
-        return $this->getClient()->getSubscriptionConfirmationsBody($lang);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getAutomations()
-    {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $settings = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Automation');
-        return $settings->getCollection()
-            ->addFieldToFilter('id_shop', $storeId);
-    }
-
-    /**
-     * @param $category_id
-     * @return mixed
-     */
-    public function getCategoryName($category_id)
-    {
-        $_categoryHelper = $this->_objectManager->get('\Magento\Catalog\Model\Category');
-        return $_categoryHelper->load($category_id)->getName();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getStoreCategories()
-    {
-        $_categoryHelper = $this->_objectManager->get('\Magento\Catalog\Helper\Category');
-        $categories = $_categoryHelper->getStoreCategories(true, false, true);
-
-        return $categories;
-    }
-
-    /**
-     * @param $category \Magento\Catalog\Helper\Category|\Magento\Catalog\Model\Category
-     */
-    public function getSubcategories($category)
-    {
-        if ($category->hasChildren()) {
-            $childrenCategories = $category->getChildren();
-            foreach ($childrenCategories as $childrenCategory) {
-                $string = '';
-                for ($i = $childrenCategory->getLevel(); $i > 2; $i--) {
-                    $string .= '-';
-                }
-                echo '<option value="' . $childrenCategory->getEntityId() . '"> ' .
-                    $string . ' ' . $childrenCategory->getName() . '</option>';
-                $this->getSubcategories($childrenCategory);
-            }
-        }
+        return $this->grRepository->getCampaigns(['sort' => ['name' => 'asc']]);
     }
 
     /**
@@ -137,7 +77,8 @@ class Export extends GetResponse
     public function getAutoresponders()
     {
         $params = ['query' => ['triggerType' => 'onday', 'status' => 'active']];
-        $result = $this->getClient()->getAutoresponders($params);
+
+        $result = $this->grRepository->getAutoresponders($params);
         $autoresponders = [];
 
         if (!empty($result)) {
@@ -153,52 +94,6 @@ class Export extends GetResponse
         }
 
         return $autoresponders;
-    }
-
-    /**
-     * @return bool|int
-     */
-    public function checkApiKey()
-    {
-        if (empty($this->getApiKey())) {
-            return 0;
-        }
-
-        $response = $this->getClient()->ping();
-
-        if (isset($response->accountId)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getApiKey()
-    {
-        $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
-        $model = $this->_objectManager->create('GetResponse\GetResponseIntegration\Model\Settings');
-        return $model->load($storeId, 'id_shop')->getApiKey();
-    }
-
-    /**
-     * @param $action
-     *
-     * @return string
-     */
-    public function getAction($action)
-    {
-        switch ($action) {
-            case 'copy':
-                return 'copied';
-                break;
-
-            case 'move':
-                return 'moved';
-                break;
-        }
     }
 
     /**
@@ -222,6 +117,7 @@ class Export extends GetResponse
 
             $result[$id] = $array;
         }
+
         return $result;
     }
 }
