@@ -94,7 +94,7 @@ class RegistrationPost extends Action
 
                 foreach ($customs as $field => $name) {
                     if (false == preg_match('/^[_a-zA-Z0-9]{2,32}$/m', $name)) {
-                        $this->messageManager->addErrorMessage(printf(Message::INVALID_CUSTOM_FIELD_VALUE, $name));
+                        $this->messageManager->addErrorMessage(sprintf(Message::INVALID_CUSTOM_FIELD_VALUE, $name));
 
                         return $resultRedirect;
                     }

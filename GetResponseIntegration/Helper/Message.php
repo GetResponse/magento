@@ -42,6 +42,7 @@ class Message
     const LIST_CREATED = 'List created';
 
     const CANNOT_DELETE_LIST = 'We couldn\'t delete the list. Please try again. If the problem persists, please contact the GetResponse dev team';
+    const CANNOT_CREATE_LIST = 'We couldn\'t create the list. Please try again. If the problem persists, please contact the GetResponse dev team';
 
     const LIST_VALIDATION_CAMPAIGN_NAME_ERROR = 'You need to enter a name that\'s at least 3 characters long';
 

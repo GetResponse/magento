@@ -76,7 +76,7 @@ class Webformpost extends Action
             return $resultPage;
         }
 
-        $error = $this->validateWebformData($data);
+        $error = $data['isEnabled'] ? $this->validateWebformData($data) : '';
 
         if (!empty($error)) {
             $this->messageManager->addErrorMessage($error);

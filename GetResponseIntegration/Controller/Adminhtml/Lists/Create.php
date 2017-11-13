@@ -101,7 +101,7 @@ class Create extends Action
         );
 
         if (isset($result->httpStatus) && (int)$result->httpStatus >= 400) {
-            $this->messageManager->addErrorMessage(Message::CANNOT_DELETE_LIST . ' - uuid: ' . $result->uuid);
+            $this->messageManager->addErrorMessage(Message::CANNOT_CREATE_LIST . ' - uuid: ' . $result->uuid);
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 
