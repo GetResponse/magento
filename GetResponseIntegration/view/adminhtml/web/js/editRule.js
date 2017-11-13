@@ -44,7 +44,7 @@ require(['jquery'], function($) {
 
         switch (field.attr('id')) {
             case 'category':
-                errorMessage = 'You need to select your product category';
+                errorMessage = 'You need to select a product category';
                 break;
             case 'action':
                 errorMessage = 'You need to select what to do with the customer';

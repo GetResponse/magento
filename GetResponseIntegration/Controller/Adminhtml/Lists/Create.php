@@ -2,6 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CampaignFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
@@ -63,7 +64,7 @@ class Create extends Action
     public function execute()
     {
         if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
+            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
 
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
@@ -100,13 +101,13 @@ class Create extends Action
         );
 
         if (isset($result->httpStatus) && (int)$result->httpStatus >= 400) {
-            $this->messageManager->addErrorMessage(isset($result->codeDescription) ? $result->codeDescription . ' - uuid: ' . $result->uuid : 'Something goes wrong');
+            $this->messageManager->addErrorMessage(Message::CANNOT_DELETE_LIST . ' - uuid: ' . $result->uuid);
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 
             return $resultPage;
         } else {
-            $this->messageManager->addSuccessMessage('List created');
+            $this->messageManager->addSuccessMessage(Message::LIST_CREATED);
             $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath($backUrl);
 
@@ -121,23 +122,23 @@ class Create extends Action
     private function validateNewListParams($data)
     {
         if (strlen($data['campaign_name']) < 3) {
-            return 'You need to enter a name that\'s at least 3 characters long';
+            return Message::LIST_VALIDATION_CAMPAIGN_NAME_ERROR;
         }
 
         if (strlen($data['from_field']) === 0) {
-            return 'You need to select a sender email address';
+            return Message::LIST_VALIDATION_FROM_FIELD_ERROR;
         }
 
         if (strlen($data['reply_to_field']) === 0) {
-            return 'Reply-To is a required field';
+            return Message::LIST_VALIDATION_REPLY_TO_ERROR;
         }
 
         if (strlen($data['confirmation_subject']) === 0) {
-            return 'Confirmation subject is a required field';
+            return Message::LIST_VALIDATION_CONFIRMATION_SUBJECT_ERROR;
         }
 
         if (strlen($data['confirmation_body']) === 0) {
-            return 'Confirmation body is a required field';
+            return Message::LIST_VALIDATION_CONFIRMATION_BODY;
         }
 
         return '';

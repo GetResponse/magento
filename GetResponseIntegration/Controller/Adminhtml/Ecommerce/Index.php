@@ -2,6 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use Magento\Backend\App\Action\Context;
@@ -15,6 +16,8 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Index extends Action
 {
+    const PAGE_TITLE = 'GetResponse Ecommerce';
+
     /** @var PageFactory */
     protected $resultPageFactory;
 
@@ -42,13 +45,13 @@ class Index extends Action
     public function execute()
     {
         if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
+            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
 
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend('GetResponse Ecommerce');
+        $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 
         return $resultPage;
     }

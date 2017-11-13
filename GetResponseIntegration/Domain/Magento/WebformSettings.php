@@ -1,6 +1,10 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
+/**
+ * Class WebformSettings
+ * @package GetResponse\GetResponseIntegration\Domain\Magento
+ */
 class WebformSettings
 {
     /** @var bool */

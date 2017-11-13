@@ -5,6 +5,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\ResponseInterface;
@@ -19,6 +20,8 @@ use Magento\Backend\App\Action;
  */
 class WebTrafficTracking extends Action
 {
+    const PAGE_TITLE = 'Web Event Tracking';
+
     const BACK_URL = 'getresponseintegration/settings/webtraffictracking';
     /** @var PageFactory */
     private $resultPageFactory;
@@ -57,7 +60,7 @@ class WebTrafficTracking extends Action
     public function execute()
     {
         if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
+            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
 
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
@@ -79,7 +82,7 @@ class WebTrafficTracking extends Action
 
             $this->repository->saveWebEventTracking($newWebEventTracking);
 
-            $message = ($newWebEventTracking->isEnabled()) ? 'Web event traffic tracking enabled' : 'Web event traffic tracking disabled';
+            $message = ($newWebEventTracking->isEnabled()) ? Message::WEB_EVENT_TRAFFIC_ENABLED : Message::WEB_EVENT_TRAFFIC_DISABLED;
             $this->messageManager->addSuccessMessage($message);
 
             $resultRedirect = $this->resultRedirectFactory->create();
@@ -89,7 +92,7 @@ class WebTrafficTracking extends Action
         }
 
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend('Web Event Tracking');
+        $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 
         return $resultPage;
     }

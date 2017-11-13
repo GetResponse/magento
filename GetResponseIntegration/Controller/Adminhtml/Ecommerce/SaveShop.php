@@ -4,6 +4,7 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\ResponseInterface;
@@ -52,7 +53,7 @@ class SaveShop extends Action
     public function execute()
     {
         if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
+            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
 
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
@@ -66,7 +67,7 @@ class SaveShop extends Action
 
         if (isset($data['e_commerce_status']) && '1' === $data['e_commerce_status']) {
             if (empty($data['shop_id'])) {
-                $this->messageManager->addErrorMessage('You need to choose a store');
+                $this->messageManager->addErrorMessage(Message::STORE_CHOOSE);
 
                 return $resultRedirect;
             }
@@ -81,7 +82,7 @@ class SaveShop extends Action
         }
 
         $this->cache->cleanType('config');
-        $this->messageManager->addSuccessMessage('Ecommerce settings saved');
+        $this->messageManager->addSuccessMessage(Message::ECOMMERCE_SAVED);
 
         return $resultRedirect;
     }

@@ -2,6 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Export;
 
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
@@ -67,7 +68,7 @@ class Process extends Action
     public function execute()
     {
         if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
+            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
 
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
@@ -86,7 +87,7 @@ class Process extends Action
         $campaign = $data['campaign_id'];
 
         if (empty($campaign)) {
-            $this->messageManager->addErrorMessage('You need to select contact list');
+            $this->messageManager->addErrorMessage(Message::SELECT_CONTACT_LIST);
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 
@@ -101,8 +102,7 @@ class Process extends Action
 
         foreach ($customs as $field => $name) {
             if (false == preg_match('/^[_a-zA-Z0-9]{2,32}$/m', $name)) {
-                $this->messageManager->addErrorMessage('There is a problem with one of your custom field name! Field name
-                must be composed using up to 32 characters, only a-z (lower case), numbers and "_".');
+                $this->messageManager->addErrorMessage(printf(Message::INVALID_CUSTOM_FIELD_VALUE, $name));
                 $resultPage = $this->resultPageFactory->create();
                 $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 
@@ -135,7 +135,7 @@ class Process extends Action
             );
         }
 
-        $this->messageManager->addSuccessMessage('Customer data exported');
+        $this->messageManager->addSuccessMessage(Message::DATA_EXPORTED);
 
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
