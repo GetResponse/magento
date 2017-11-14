@@ -23,7 +23,6 @@ class Config
     const UNAUTHORIZED_RESPONSE_CODES = [1014, 1018, 1017];
     const DISCONNECT_DELAY = 60 * 60 * 24;
 
-    const INCORRECT_API_RESPONSE_MESSAGE = 'Incorrect API response';
     const CACHE_KEY = 'getresponse_cache';
     const CACHE_TIME = 600; // 10 minutes of cache time
 }

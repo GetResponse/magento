@@ -2,6 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -60,7 +61,7 @@ class Webformpost extends Action
     public function execute()
     {
         if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
+            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
 
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
@@ -75,7 +76,7 @@ class Webformpost extends Action
             return $resultPage;
         }
 
-        $error = $this->validateWebformData($data);
+        $error = $data['isEnabled'] ? $this->validateWebformData($data) : '';
 
         if (!empty($error)) {
             $this->messageManager->addErrorMessage($error);
@@ -89,7 +90,7 @@ class Webformpost extends Action
 
         $this->repository->saveWebformSettings($webform);
 
-        $this->messageManager->addSuccessMessage($webform->isEnabled() ? 'Form published' : 'Form unpublished');
+        $this->messageManager->addSuccessMessage($webform->isEnabled() ? Message::FORM_PUBLISHED : Message::FORM_UNPUBLISHED);
 
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::BACK_URL);
@@ -108,15 +109,15 @@ class Webformpost extends Action
         $position = isset($data['sidebar']) ? $data['sidebar'] : '';
 
         if (strlen($webformId) === 0 && strlen($position) === 0) {
-            return 'You need to select a form and its placement';
+            return Message::SELECT_FORM_POSITION_AND_PLACEMENT;
         }
 
         if (strlen($webformId) === 0) {
-            return 'You need to select form';
+            return Message::SELECT_FORM;
         }
 
         if (strlen($position) === 0) {
-            return 'You need to select positioning of the form';
+            return Message::SELECT_FORM_POSITION;
         }
 
         return '';

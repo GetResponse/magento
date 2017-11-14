@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -53,7 +54,7 @@ class CreateShop extends Action
         $data = $request->getPostValue();
 
         if (!isset($data['shop_name']) || strlen($data['shop_name']) === 0) {
-            return $this->resultJsonFactory->create()->setData(['error' => 'Incorrect shop name']);
+            return $this->resultJsonFactory->create()->setData(['error' => Message::INCORRECT_SHOP_NAME]);
         }
 
         $countryCode = $this->repository->getMagentoCountryCode();
