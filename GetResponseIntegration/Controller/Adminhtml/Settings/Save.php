@@ -2,6 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\DefaultCustomFieldsFactory;
@@ -90,7 +91,7 @@ class Save extends Action
         }
 
         if (empty($data['getresponse_api_key'])) {
-            $this->messageManager->addErrorMessage(self::API_EMPTY_VALUE_MESSAGE);
+            $this->messageManager->addErrorMessage(Message::EMPTY_API_KEY);
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
@@ -151,7 +152,7 @@ class Save extends Action
 
         $this->repository->setCustomsOnInit(DefaultCustomFieldsFactory::createDefaultCustomsMap());
 
-        $this->messageManager->addSuccessMessage('GetResponse account connected');
+        $this->messageManager->addSuccessMessage(Message::ACCOUNT_CONNECTED);
 
         return $this->_redirect(self::BACK_URL);
     }

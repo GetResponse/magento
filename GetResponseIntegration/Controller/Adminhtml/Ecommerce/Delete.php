@@ -3,6 +3,7 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
@@ -46,7 +47,7 @@ class Delete extends Action
     public function execute()
     {
         if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
+            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
 
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
@@ -56,7 +57,7 @@ class Delete extends Action
         $id = $this->getRequest()->getParam('id');
 
         if (empty($id)) {
-            $this->messageManager->addErrorMessage('Incorrect shop');
+            $this->messageManager->addErrorMessage(Message::INCORRECT_SHOP);
             $resultRedirect->setPath(self::BACK_URL);
 
             return $resultRedirect;
@@ -65,9 +66,9 @@ class Delete extends Action
         $response = $this->grRepository->deleteShop($id);
 
         if (isset($response->httpStatus) && $response->httpStatus > 204) {
-            $this->messageManager->addErrorMessage($response->codeDescription . ' - uuid: ' . $response->uuid);
+            $this->messageManager->addErrorMessage(Message::DELETE_SHOP_ERROR . ' - uuid: ' . $response->uuid);
         } else {
-            $this->messageManager->addSuccessMessage('Store removed');
+            $this->messageManager->addSuccessMessage(Message::STORE_REMOVED);
         }
 
         $resultRedirect->setPath(self::BACK_URL);

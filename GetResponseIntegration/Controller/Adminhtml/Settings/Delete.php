@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Backend\App\Action\Context;
@@ -54,7 +55,7 @@ class Delete extends Action
         $this->repository->clearDatabase();
         $this->cacheManager->clean(['config']);
 
-        $this->messageManager->addSuccessMessage('GetResponse account disconnected');
+        $this->messageManager->addSuccessMessage(Message::ACCOUNT_DISCONNECTED);
 
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::BACK_URL);
