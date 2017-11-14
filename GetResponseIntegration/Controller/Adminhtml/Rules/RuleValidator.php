@@ -1,6 +1,8 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules;
 
+use GetResponse\GetResponseIntegration\Helper\Message;
+
 /**
  * Class RuleValidator
  * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules
@@ -19,15 +21,15 @@ class RuleValidator
         $campaignId = isset($data['campaign']) ? $data['campaign'] : '';
 
         if (strlen($category) === 0) {
-            return 'You need to select your product category';
+            return Message::SELECT_RULE_CATEGORY;
         }
 
         if (strlen($action) === 0) {
-            return 'You need to select what to do with the customer';
+            return Message::SELECT_RULE_ACTION;
         }
 
         if (strlen($campaignId) === 0) {
-            return 'You need to select a target list';
+            return Message::SELECT_RULE_TARGET_LIST;
         }
 
         return '';

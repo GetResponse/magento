@@ -2,6 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
@@ -21,8 +22,6 @@ use Magento\Framework\App\Request\Http;
 class RegistrationPost extends Action
 {
     const BACK_URL = 'getresponseintegration/settings/registration';
-
-    const INVALID_CUSTOM_FIELD_MESSAGE = 'There is a problem with one of your custom field name! Field name must be composed using up to 32 characters, only a-z (lower case), numbers and "_".';
 
     /** @var PageFactory */
     protected $resultPageFactory;
@@ -61,7 +60,7 @@ class RegistrationPost extends Action
     public function execute()
     {
         if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
+            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
 
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
@@ -85,7 +84,7 @@ class RegistrationPost extends Action
             $campaignId = $data['campaign_id'];
 
             if (empty($campaignId)) {
-                $this->messageManager->addErrorMessage('You need to select contact list');
+                $this->messageManager->addErrorMessage(Message::SELECT_CONTACT_LIST);
 
                 return $resultRedirect;
             }
@@ -95,7 +94,7 @@ class RegistrationPost extends Action
 
                 foreach ($customs as $field => $name) {
                     if (false == preg_match('/^[_a-zA-Z0-9]{2,32}$/m', $name)) {
-                        $this->messageManager->addErrorMessage(self::INVALID_CUSTOM_FIELD_MESSAGE);
+                        $this->messageManager->addErrorMessage(sprintf(Message::INVALID_CUSTOM_FIELD_VALUE, $name));
 
                         return $resultRedirect;
                     }
@@ -119,7 +118,7 @@ class RegistrationPost extends Action
             $this->repository->saveRegistrationSettings($registrationSettings);
         }
 
-        $this->messageManager->addSuccessMessage('Settings saved');
+        $this->messageManager->addSuccessMessage(Message::SETTINGS_SAVED);
 
         return $resultRedirect;
     }

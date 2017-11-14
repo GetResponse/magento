@@ -11,6 +11,8 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class Index extends Action
 {
+    const PAGE_TITLE = 'GetResponse Account';
+
     /** @var PageFactory */
     protected $resultPageFactory;
 
@@ -33,7 +35,7 @@ class Index extends Action
     public function execute()
     {
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend('GetResponse Account');
+        $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 
         return $resultPage;
     }

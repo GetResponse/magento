@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
@@ -47,7 +48,7 @@ class RepositoryFactory
         $settings = $this->repository->getConnectionSettings();
 
         if (empty($settings)) {
-            throw \GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException::buildForInvalidApiKey();
+            throw RepositoryException::buildForInvalidApiKey();
         }
 
         return RepositoryFactory::createFromConnectionSettings(

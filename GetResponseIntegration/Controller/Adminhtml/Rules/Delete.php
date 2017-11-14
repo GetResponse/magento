@@ -2,6 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules;
 
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
@@ -52,7 +53,7 @@ class Delete extends Action
     public function execute()
     {
         if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
+            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
 
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
@@ -65,12 +66,12 @@ class Delete extends Action
         try {
             $this->repository->deleteRule($id);
         } catch (RepositoryException $e) {
-            $this->messageManager->addErrorMessage('Incorrect rule');
+            $this->messageManager->addErrorMessage(Message::CANNOT_DELETE_RULE);
 
             return $resultRedirect;
         }
 
-        $this->messageManager->addSuccessMessage('Rule deleted');
+        $this->messageManager->addSuccessMessage(Message::RULE_DELETED);
 
         return $resultRedirect;
     }

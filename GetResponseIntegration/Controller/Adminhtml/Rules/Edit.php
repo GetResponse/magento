@@ -2,6 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules;
 
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RuleFactory;
@@ -56,7 +57,7 @@ class Edit extends Action
     public function execute()
     {
         if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
+            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
 
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
@@ -64,7 +65,7 @@ class Edit extends Action
         $id = $this->getRequest()->getParam('id');
 
         if (empty($id)) {
-            $this->messageManager->addErrorMessage('Incorrect rule');
+            $this->messageManager->addErrorMessage(Message::CANNOT_EDIT_RULE);
             $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath(self::AUTOMATION_URL);
 
@@ -74,7 +75,7 @@ class Edit extends Action
         $rule = $this->repository->getRuleById($id);
 
         if (empty($rule)) {
-            $this->messageManager->addErrorMessage('Incorrect rule');
+            $this->messageManager->addErrorMessage(Message::CANNOT_EDIT_RULE);
             $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath(self::AUTOMATION_URL);
 
@@ -106,7 +107,7 @@ class Edit extends Action
         $rule = RuleFactory::createFromArray($data);
         $this->repository->updateRule($id, $rule);
 
-        $this->messageManager->addSuccessMessage('Rule has been updated');
+        $this->messageManager->addSuccessMessage(Message::RULE_UPDATED);
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::AUTOMATION_URL);
 

@@ -3,6 +3,7 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Export;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\View\Result\Page;
@@ -15,6 +16,8 @@ use Magento\Backend\App\Action;
  */
 class Index extends Action
 {
+    const PAGE_TITLE = 'Export Customer Data on Demand';
+
     /** @var PageFactory */
     protected $resultPageFactory;
 
@@ -42,13 +45,13 @@ class Index extends Action
     public function execute()
     {
         if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Config::INCORRECT_API_RESPONSE_MESSAGE);
+            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
 
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend('Export Customer Data on Demand');
+        $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 
         return $resultPage;
     }
