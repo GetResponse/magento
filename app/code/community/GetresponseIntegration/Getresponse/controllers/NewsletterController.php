@@ -39,9 +39,9 @@ class GetresponseIntegration_Getresponse_NewsletterController extends Getrespons
 
         if (0 === $isEnabled) {
             $newsletterCampaignId = '';
-            $newsletterCycleDay = 0;
+            $newsletterCycleDay = NULL;
         } else {
-            $newsletterCycleDay = 0 === $isAutoresponderEnabled ? 0 : $newsletterCycleDay;
+            $newsletterCycleDay = 0 === $isAutoresponderEnabled ? NULL : $newsletterCycleDay;
         }
 
         Mage::getModel('getresponse/settings')->updateSettings(

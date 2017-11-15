@@ -50,24 +50,7 @@
                         <td colspan="2"></td>
                     </tr>
 
-                    <tr>
-                        <td class="label"></td>
-                        <td class="value">
-                            <input type="checkbox" disabled name="gr_autoresponder" id="gr_autoresponder" value="1" />
-                            <label for="gr_autoresponder" class="inactive">Add to autoresponder cycle</label>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="label">
-                            <label for="autoresponder">Autoresponder day</label>
-                        </td>
-                        <td class="value">
-                            <select id="cycle_day" class="inactive" name="cycle_day">
-                                <option value="">no autresponders</option>
-                            </select>
-                        </td>
-                    </tr>
+                    <?=$autoresponder_block?>
 
                     <tr class="empty-space details">
                         <td colspan="2"></td>
@@ -187,17 +170,5 @@ Clear this option to keep existing data intact</p>
         });
     }
     switchHandler();
-
-    available_cycles = jQuery.parseJSON('<?php echo isset($campaign_days) ? addslashes(json_encode($campaign_days)) : "{}"; ?>');
-
-    var cycles1 = cycles.init(
-        available_cycles,
-        jQuery('#campaign_id'),
-        jQuery('#cycle_day'),
-        jQuery('#gr_autoresponder'),
-        jQuery('label[for="gr_autoresponder"]'),
-        ''
-    );
-
 
 </script>

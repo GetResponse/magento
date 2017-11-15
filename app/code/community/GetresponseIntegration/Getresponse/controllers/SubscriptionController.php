@@ -14,13 +14,23 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
         $this->_initAction();
         $this->_title($this->__('Subscription via registration page'))->_title($this->__('GetResponse'));
 
+        /** @var Mage_Core_Block_Abstract $autoresponderBlock */
+        $autoresponderBlock = $this->getLayout()->createBlock(
+            'GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder',
+            'autoresponder',
+            array(
+                'campaign_days' => $this->api->getCampaignDays(),
+                'selected_day' => $this->settings->api['cycle_day']
+            )
+        );
+
         $this->_addContent($this->getLayout()
             ->createBlock('Mage_Core_Block_Template', 'getresponse_content')
             ->setTemplate('getresponse/viapage.phtml')
-            ->assign('campaign_days', $this->api->getCampaignDays())
             ->assign('campaigns', $this->api->getGrCampaigns())
             ->assign('customs', $this->prepareCustomsForMapping())
             ->assign('settings', $this->settings)
+            ->assign('autoresponder_block', $autoresponderBlock->toHtml())
         );
 
         $this->renderLayout();
@@ -37,8 +47,8 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
         $activeSubscription = $this->getRequest()->getParam('active_subscription', 0);
         $syncOrderData = $this->getRequest()->getParam('gr_sync_order_data', 0);
         $subscriptionOnCheckout = $this->getRequest()->getParam('subscription_on_checkout', 0);
-        $autoresponder = $this->getRequest()->getParam('gr_autoresponder', 0);
-        $cycleDay = $this->getRequest()->getParam('cycle_day', 0);
+        $autoresponder = (int)$this->getRequest()->getParam('gr_autoresponder', 0);
+        $cycleDay = $this->getRequest()->getParam('cycle_day', NULL);
 
         $params = $this->getRequest()->getParams();
 
@@ -59,7 +69,7 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
         }
 
         if (1 !== $autoresponder) {
-            $cycleDay = 0;
+            $cycleDay = NULL;
         }
 
         Mage::getModel('getresponse/settings')->updateSettings(

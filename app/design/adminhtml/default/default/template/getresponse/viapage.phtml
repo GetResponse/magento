@@ -72,22 +72,7 @@
                                 <td colspan="2"></td>
                             </tr>
 
-                            <tr class="details">
-                                <td class="label"></td>
-                                <td class="value">
-                                    <input type="checkbox" name="gr_autoresponder" id="gr_autoresponder" value="1" />
-                                    <label for="gr_autoresponder" class="inactive">Add to autoresponder sequence</label>
-                                </td>
-                            </tr>
-
-                            <tr class="details">
-                                <td class="label"><label>Autoresponder day</label></td>
-                                <td class="value">
-                                    <select class="inactive" title="Autoresponder" name="cycle_day" id="cycle_day">
-                                        <option value="">no autresponders</option>
-                                    </select>
-                                </td>
-                            </tr>
+                            <?=$autoresponder_block?>
 
                             <tr class="empty-space details">
                                 <td colspan="2"></td>
@@ -214,8 +199,6 @@
 <script>
     (function($) {
 
-        var available_cycles = $.parseJSON('<?php echo isset($campaign_days) ? addslashes(json_encode($campaign_days)) : "{}"; ?>');
-
         $('#active_subscription').click(function() {
             $('.details').toggle('slow');
 
@@ -259,15 +242,6 @@
         $('.add-new-mapping').on('click', function() {
             GetresponseMapping(customs, custom_values);
         });
-
-        var cycles1 = cycles.init(
-            available_cycles,
-            $('#campaign_id'),
-            $('#cycle_day'),
-            $('#gr_autoresponder'),
-            $('label[for="gr_autoresponder"]'),
-            <?php echo isset($settings->api['cycle_day']) ? $settings->api['cycle_day'] : ''; ?>
-        );
 
     })(jQuery);
 </script>

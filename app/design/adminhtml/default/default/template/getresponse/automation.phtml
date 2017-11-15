@@ -73,14 +73,14 @@
                                         type="checkbox"
                                         onclick="return false;"
                                         value="1"
-                                        <?php if ($automation['cycle_day'] == 1) : echo "checked"; endif ?>
+                                        <?php if ($automation['cycle_day'] != NULL) : echo "checked"; endif ?>
                                     >
                                 </td>
                                 <td>
                                     <?php if (isset($campaign_days[$automation['campaign_id']]) && 1 == $automation['active']): ?>
                                         <?php foreach ($campaign_days[$automation['campaign_id']] as $campaign): ?>
                                             <?php if ($campaign['day'] == $automation['cycle_day']): ?>
-                                            <?php echo "(Day: " . $campaign['day'] . ") " .  $campaign['name'] ?>
+                                            <?php echo "Day: " . $campaign['day']; break;?>
                                                 <?php endif ?>
                                         <?php endforeach ?>
                                     <?php endif ?>
