@@ -6,6 +6,10 @@ class GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder extends M
     protected $campaignDays = array();
     protected $selectedDay = '';
 
+    /**
+     * GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder constructor.
+     * @param string[] $args - autoresponder details (campaign_days, selected_day)
+     */
     public function __construct(array $args = array())
     {
         parent::__construct($args);
@@ -15,6 +19,9 @@ class GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder extends M
             $this->selectedDay = $args['selected_day'];
     }
 
+    /**
+     * @return string - autoresponder html/js block
+     */
     protected function _toHtml()
     {
         $html = '

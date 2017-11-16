@@ -118,9 +118,9 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
         $params = $this->getRequest()->getParams();
 
         $isAutoresponderOn = $this->getRequest()->getParam('gr_autoresponder', 0);
-        $cycleDay = $this->getRequest()->getParam('cycle_day', NULL);
+        $cycleDay = $this->getRequest()->getParam('cycle_day', null);
         if (0 === $isAutoresponderOn) {
-            $cycleDay = NULL;
+            $cycleDay = null;
         }
 
         $add = Mage::getModel('getresponse/automations')->createAutomation([
@@ -160,9 +160,9 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
         $params = $this->getRequest()->getParams();
 
         $isAutoresponderOn = $this->getRequest()->getParam('gr_autoresponder', 0);
-        $cycleDay = $this->getRequest()->getParam('cycle_day', NULL);
+        $cycleDay = $this->getRequest()->getParam('cycle_day', null);
         if (0 === $isAutoresponderOn) {
-            $cycleDay = NULL;
+            $cycleDay = null;
         }
 
         $add = Mage::getModel('getresponse/automations')->updateAutomation($id, [
