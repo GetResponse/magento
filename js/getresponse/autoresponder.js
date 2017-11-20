@@ -38,7 +38,7 @@
 
         set_initial_cycle_day: function(day) {
 
-            if (day !== parseInt(day) || day === 0) {
+            if (day !== parseInt(day) || day === null) {
                 return;
             }
 

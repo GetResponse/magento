@@ -16,12 +16,22 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
 
         $this->prepareCustomsForMapping();
 
+        /** @var Mage_Core_Block_Abstract $autoresponderBlock */
+        $autoresponderBlock = $this->getLayout()->createBlock(
+            'GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder',
+            'autoresponder',
+            array(
+                'campaign_days' => $this->api->getCampaignDays()
+            )
+        );
+
         $this->_addContent($this->getLayout()
             ->createBlock('Mage_Core_Block_Template', 'getresponse_content')
             ->setTemplate('getresponse/export.phtml')
             ->assign('campaign_days', $this->api->getCampaignDays())
             ->assign('campaigns', $this->api->getGrCampaigns())
             ->assign('customs', $this->prepareCustomsForMapping())
+            ->assign('autoresponder_block', $autoresponderBlock->toHtml())
         );
 
         $this->renderLayout();

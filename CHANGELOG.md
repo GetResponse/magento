@@ -1,4 +1,13 @@
 # Changelog
+## 19.1.2
+*(2017-11-15)*
+
+#### Refactoring
+* Zero day support for autoresponders
+
+---
+
+
 ## 19.1.1
 *(2017-10-23)*
 

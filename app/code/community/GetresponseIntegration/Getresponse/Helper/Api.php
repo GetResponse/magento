@@ -366,10 +366,10 @@ class GetresponseIntegration_Getresponse_Helper_Api
                     continue;
                 }
 
-                $campaignDays[$autoresponder->triggerSettings->subscribedCampaign->campaignId][$autoresponder->triggerSettings->dayOfCycle] =
+                $campaignDays[$autoresponder->triggerSettings->subscribedCampaign->campaignId][$autoresponder->autoresponderId] =
                     [
                         'day' => $autoresponder->triggerSettings->dayOfCycle,
-                        'name' => $autoresponder->subject,
+                        'name' => $autoresponder->name,
                         'status' => $autoresponder->status,
                     ];
             }

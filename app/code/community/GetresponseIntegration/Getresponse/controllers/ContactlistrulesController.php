@@ -42,6 +42,16 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
         $this->_initAction();
         $this->_title($this->__('New Rule'))->_title($this->__('GetResponse'));
 
+        /** @var Mage_Core_Block_Abstract $autoresponderBlock */
+        $autoresponderBlock = $this->getLayout()->createBlock(
+            'GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder',
+            'autoresponder',
+            array(
+                'campaign_days' => $this->api->getCampaignDays(),
+                'selected_day' => $this->settings->api['cycle_day']
+            )
+        );
+
         $this->_addContent($this->getLayout()
             ->createBlock('Mage_Core_Block_Template', 'getresponse_content')
             ->setTemplate('getresponse/add_contact_list_rule.phtml')
@@ -49,7 +59,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
             ->assign('categories_tree', $this->getTreeCategoriesHTML(1, false))
             ->assign('actions', $this->actions)
             ->assign('campaigns', $this->api->getGrCampaigns())
-            ->assign('campaign_days', Mage::helper('getresponse/api')->getCampaignDays())
+            ->assign('autoresponder_block', $autoresponderBlock->toHtml())
         );
 
         $this->renderLayout();
@@ -62,6 +72,16 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
     {
         $this->_initAction();
         $this->_title($this->__('New Rule'))->_title($this->__('GetResponse'));
+
+        /** @var Mage_Core_Block_Abstract $autoresponderBlock */
+        $autoresponderBlock = $this->getLayout()->createBlock(
+            'GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder',
+            'autoresponder',
+            array(
+                'campaign_days' => $this->api->getCampaignDays(),
+                'selected_day' => $this->settings->api['cycle_day']
+            )
+        );
 
         $id = $this->getRequest()->getParam('id');
 
@@ -82,7 +102,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
             ->assign('automation', $automation)
             ->assign('actions', $this->actions)
             ->assign('campaigns', $this->api->getGrCampaigns())
-            ->assign('campaign_days', Mage::helper('getresponse/api')->getCampaignDays())
+            ->assign('autoresponder_block', $autoresponderBlock->toHtml())
         );
 
         $this->renderLayout();
@@ -98,9 +118,9 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
         $params = $this->getRequest()->getParams();
 
         $isAutoresponderOn = $this->getRequest()->getParam('gr_autoresponder', 0);
-        $cycleDay = $this->getRequest()->getParam('cycle_day', '');
+        $cycleDay = $this->getRequest()->getParam('cycle_day', null);
         if (0 === $isAutoresponderOn) {
-            $cycleDay = 0;
+            $cycleDay = null;
         }
 
         $add = Mage::getModel('getresponse/automations')->createAutomation([
@@ -140,9 +160,9 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
         $params = $this->getRequest()->getParams();
 
         $isAutoresponderOn = $this->getRequest()->getParam('gr_autoresponder', 0);
-        $cycleDay = $this->getRequest()->getParam('cycle_day', '');
+        $cycleDay = $this->getRequest()->getParam('cycle_day', null);
         if (0 === $isAutoresponderOn) {
-            $cycleDay = 0;
+            $cycleDay = null;
         }
 
         $add = Mage::getModel('getresponse/automations')->updateAutomation($id, [
