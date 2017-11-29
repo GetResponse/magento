@@ -199,6 +199,12 @@
         }
 
         setType(jQuery('#selector_webform_id'));
+
+        jQuery('#selector_webform_id > option').text(function(i, text) {
+            if (text.length > 200) {
+                return text.substr(0, 200) + '...';
+            }
+        });
     </script>
 
 </form>

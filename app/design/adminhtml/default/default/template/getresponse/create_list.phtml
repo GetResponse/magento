@@ -174,6 +174,12 @@
                 return false;
             }
         });
+
+        jQuery('#form_confirmation_body > option').text(function(i, text) {
+            if (text.length > 200) {
+                return text.substr(0, 200) + '...';
+            }
+        });
     </script>
 
     <input name="form_key" type="hidden" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>"/>

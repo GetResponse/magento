@@ -70,7 +70,8 @@ class GetresponseIntegration_Getresponse_Helper_Api
                     [
                         'email' => $email,
                         'campaignId' => $campaign
-                    ]
+                    ],
+                'additionalFlags' => 'forceCustoms'
             ]
         );
 
@@ -106,18 +107,13 @@ class GetresponseIntegration_Getresponse_Helper_Api
 
         // If contact already exists in gr account.
         if (!empty($contact) && isset($contact->contactId)) {
-
-            $results = $this->grapi()->get_contact($contact->contactId);
-            if (!empty($results->customFieldValues) || !empty($user_customs)) {
-                $params['customFieldValues'] = $this->mergeUserCustoms($results->customFieldValues, $user_customs);
+            if (!empty($contact->customFieldValues) || !empty($user_customs)) {
+                $params['customFieldValues'] = $this->mergeUserCustoms($contact->customFieldValues, $user_customs);
             }
-
             $response = $this->grapi()->update_contact($contact->contactId, $params);
-
             if (isset($response->codeDescription)) {
                 return self::CONTACT_ERROR;
             }
-
             return self::CONTACT_UPDATED;
 
         } else {
@@ -131,7 +127,6 @@ class GetresponseIntegration_Getresponse_Helper_Api
 
             return self::CONTACT_CREATED;
         }
-
     }
 
     /**
@@ -607,4 +602,86 @@ class GetresponseIntegration_Getresponse_Helper_Api
         return $apiResponse;
     }
 
+    public function addCustomField($name)
+    {
+        $custom = $this->grapi()->add_custom_field([
+            'name' => $name,
+            'type' => "text",
+            'hidden' => "false",
+            'values' => [],
+        ]);
+
+        return $custom;
+    }
+
+    /**
+     * Set customs.
+     *
+     * * @param $user_customs
+     *
+     * @return array
+     */
+    public function setCustomsRef($user_customs, $GrCustomFields)
+    {
+        $custom_fields = [];
+        $custom = '';
+
+        if (empty($user_customs)) {
+            return $custom_fields;
+        }
+        foreach ($user_customs as $name => $value) {
+            foreach ($GrCustomFields as $grCustomName => $grCustomId) {
+                if ($grCustomName === $name) {
+                    $custom->customFieldId = $grCustomId;
+                }
+            }
+            $custom_fields[] = [
+                'customFieldId' => $custom->customFieldId,
+                'value' => is_array($value) ? $value : [$value]
+            ];
+        }
+        return $custom_fields;
+    }
+
+    public function addContactRef($campaign, $name, $email, $cycle_day = '', $user_customs = [], $GrCustomFields)
+    {
+        $params = [
+            'email' => $email,
+            'campaign' => ['campaignId' => $campaign],
+            'ipAddress' => $_SERVER['REMOTE_ADDR'],
+        ];
+
+        if (!empty(trim($name))) {
+            $params['name'] = trim($name);
+        }
+
+        if (is_numeric($cycle_day) && $cycle_day >= 0) {
+            $params['dayOfCycle'] = $cycle_day;
+        }
+
+        $contact = $this->getContact($email, $campaign);
+
+        // If contact already exists in gr account.
+        if (!empty($contact) && isset($contact->contactId)) {
+            if (!empty($contact->customFieldValues) || !empty($user_customs)) {
+                $params['customFieldValues'] = $this->mergeUserCustoms($contact->customFieldValues, $user_customs);
+            }
+            $response = $this->grapi()->update_contact($contact->contactId, $params);
+            if (isset($response->codeDescription)) {
+                return self::CONTACT_ERROR;
+            }
+            return self::CONTACT_UPDATED;
+
+        } else {
+            $user_customs['origin'] = self::ORIGIN_NAME;
+            $params['customFieldValues'] = $this->setCustomsRef($user_customs, $GrCustomFields);
+            $response = $this->grapi()->add_contact($params);
+
+            if (isset($response->codeDescription)) {
+                return self::CONTACT_ERROR;
+            }
+
+            return self::CONTACT_CREATED;
+        }
+    }
 }
