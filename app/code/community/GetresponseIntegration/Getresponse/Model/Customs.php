@@ -87,7 +87,7 @@ class GetresponseIntegration_Getresponse_Model_Customs extends Mage_Core_Model_A
     public static function mapExportCustoms($params, $customer)
     {
         $fields = array();
-        if ( !empty($params) && !empty($customer)) {
+        if (!empty($params) && !empty($customer)) {
 
             $customer_data = $customer->getData();
 
