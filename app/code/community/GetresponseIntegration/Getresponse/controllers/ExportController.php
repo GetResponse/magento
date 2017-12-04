@@ -63,9 +63,9 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
      */
     protected function exportCustomers($campaign_id, $params)
     {
-        $subscribers = Mage::helper('getresponse')->getNewsletterSubscribersCollection();
         $cycleDay = '';
         $accountCustomFields = array_flip(Mage::helper('getresponse/api')->getCustomFields());
+        $grCustomFields = array_flip($accountCustomFields);
         $customFieldsToBeAdded = array_diff($params['gr_custom_field'], $accountCustomFields);
         $failedCustomFields = [];
 
@@ -81,8 +81,9 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
         if (!empty($customFieldsToBeAdded)) {
             foreach ($customFieldsToBeAdded as $field_key => $field_value) {
                 $custom = Mage::helper('getresponse/api')->addCustomField($field_value);
+                $grCustomFields[$custom->name] = $custom->customFieldId;
                 if (!isset($custom->customFieldId)) {
-                    $failedCustomFields[sizeof($failedCustomFields)] = $field_value;
+                    $failedCustomFields[] = $field_value;
                 }
             }
             if (!empty($failedCustomFields)) {
@@ -91,7 +92,7 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
             }
         }
 
-        $GrCustomFields = Mage::helper('getresponse/api')->getCustomFields();
+        $subscribers = Mage::helper('getresponse')->getNewsletterSubscribersCollection();
         $reports = [
             'created' => 0,
             'updated' => 0,
@@ -120,13 +121,13 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
                 } else {
                     $name = null;
                 }
-                $result = Mage::helper('getresponse/api')->addContactRef(
+                $result = Mage::helper('getresponse/api')->addContact(
                     $campaign_id,
                     $name,
                     $subscriber->getEmail(),
                     $cycleDay,
                     Mage::getModel('getresponse/customs')->mapExportCustoms(array_flip($custom_fields), $customer),
-                    $GrCustomFields
+                    $grCustomFields
                 );
 
                 if (GetresponseIntegration_Getresponse_Helper_Api::CONTACT_CREATED === $result) {
