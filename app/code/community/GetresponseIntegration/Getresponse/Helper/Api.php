@@ -70,68 +70,12 @@ class GetresponseIntegration_Getresponse_Helper_Api
                     [
                         'email' => $email,
                         'campaignId' => $campaign
-                    ]
+                    ],
+                'additionalFlags' => 'forceCustoms'
             ]
         );
 
         return array_pop($results);
-    }
-
-    /**
-     * @param        $campaign
-     * @param        $name
-     * @param        $email
-     * @param string $cycle_day
-     * @param array $user_customs
-     *
-     * @return int
-     */
-    public function addContact($campaign, $name, $email, $cycle_day = '', $user_customs = [])
-    {
-        $params = [
-            'email' => $email,
-            'campaign' => ['campaignId' => $campaign],
-            'ipAddress' => $_SERVER['REMOTE_ADDR'],
-        ];
-
-        if (!empty(trim($name))) {
-            $params['name'] = trim($name);
-        }
-
-        if (is_numeric($cycle_day) && $cycle_day >= 0) {
-            $params['dayOfCycle'] = $cycle_day;
-        }
-
-        $contact = $this->getContact($email, $campaign);
-
-        // If contact already exists in gr account.
-        if (!empty($contact) && isset($contact->contactId)) {
-
-            $results = $this->grapi()->get_contact($contact->contactId);
-            if (!empty($results->customFieldValues) || !empty($user_customs)) {
-                $params['customFieldValues'] = $this->mergeUserCustoms($results->customFieldValues, $user_customs);
-            }
-
-            $response = $this->grapi()->update_contact($contact->contactId, $params);
-
-            if (isset($response->codeDescription)) {
-                return self::CONTACT_ERROR;
-            }
-
-            return self::CONTACT_UPDATED;
-
-        } else {
-            $user_customs['origin'] = self::ORIGIN_NAME;
-            $params['customFieldValues'] = $this->setCustoms($user_customs);
-            $response = $this->grapi()->add_contact($params);
-
-            if (isset($response->codeDescription)) {
-                return self::CONTACT_ERROR;
-            }
-
-            return self::CONTACT_CREATED;
-        }
-
     }
 
     /**
@@ -607,4 +551,100 @@ class GetresponseIntegration_Getresponse_Helper_Api
         return $apiResponse;
     }
 
+    public function addCustomField($name)
+    {
+        $custom = $this->grapi()->add_custom_field([
+            'name' => $name,
+            'type' => "text",
+            'hidden' => "false",
+            'values' => [],
+        ]);
+
+        return $custom;
+    }
+
+    /**
+     * Merges magento and getresponse custom fields.
+     *
+     * @param array $userCustoms - magento custom fields
+     * @param array $grCustomFields - getresponse custom fields
+     * @return array - merged custom fields
+     */
+    private function setExportCustoms($userCustoms, $grCustomFields)
+    {
+        $custom_fields = [];
+        $custom = '';
+
+        if (empty($userCustoms)) {
+            return $custom_fields;
+        }
+        foreach ($userCustoms as $name => $value) {
+            foreach ($grCustomFields as $grCustomName => $grCustomId) {
+                if ($grCustomName === $name) {
+                    $custom->customFieldId = $grCustomId;
+                }
+            }
+            $custom_fields[] = [
+                'customFieldId' => $custom->customFieldId,
+                'value' => is_array($value) ? $value : [$value]
+            ];
+        }
+        return $custom_fields;
+    }
+
+    /**
+     * Creates or updates GR user.
+     *
+     * @param string $campaign
+     * @param string $name
+     * @param string $email
+     * @param string $cycleDay
+     * @param array $user_customs
+     * @param array $GrCustomFields
+     * @return int
+     */
+    public function addContact($campaign, $name, $email, $cycleDay = '', $userCustoms = [], $grCustomFields = [])
+    {
+        $params = [
+            'email' => $email,
+            'campaign' => ['campaignId' => $campaign],
+            'ipAddress' => $_SERVER['REMOTE_ADDR'],
+        ];
+
+        if (!empty(trim($name))) {
+            $params['name'] = trim($name);
+        }
+
+        if (is_numeric($cycleDay) && $cycleDay >= 0) {
+            $params['dayOfCycle'] = $cycleDay;
+        }
+
+        $contact = $this->getContact($email, $campaign);
+
+        // If contact already exists in gr account.
+        if (!empty($contact) && isset($contact->contactId)) {
+            if (!empty($contact->customFieldValues) || !empty($userCustoms)) {
+                $params['customFieldValues'] = $this->mergeUserCustoms($contact->customFieldValues, $userCustoms);
+            }
+            $response = $this->grapi()->update_contact($contact->contactId, $params);
+            if (isset($response->codeDescription)) {
+                return self::CONTACT_ERROR;
+            }
+            return self::CONTACT_UPDATED;
+
+        } else {
+            $userCustoms['origin'] = self::ORIGIN_NAME;
+            if (empty($grCustomFields)) {
+                $params['customFieldValues'] = $this->setCustoms($userCustoms);
+            } else {
+                $this->setExportCustoms($userCustoms, $grCustomFields);
+            }
+            $response = $this->grapi()->add_contact($params);
+            if (isset($response->codeDescription)) {
+                return self::CONTACT_ERROR;
+            }
+
+            return self::CONTACT_CREATED;
+        }
+    }
 }

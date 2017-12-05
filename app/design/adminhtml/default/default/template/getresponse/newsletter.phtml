@@ -57,7 +57,7 @@
                                 <label for="campaign_id">Contact list <span class="required">*</span></label>
                             </td>
                             <td class="value">
-                                <select id="newsletter_campaign_id" name="newsletter_campaign_id" class=" select">
+                                <select id="campaign_id" name="newsletter_campaign_id" class=" select">
                                     <option value="">Select a list</option>
                                     <?php
                                     foreach ($campaigns as $id => $name) {
@@ -71,24 +71,7 @@
                         <tr class="empty-space details">
                             <td colspan="2"></td>
                         </tr>
-
-                        <tr class="details">
-                            <td class="label"></td>
-                            <td class="value">
-                                <input type="checkbox" name="newsletter_autoresponder" id="newsletter_autoresponder" value="1" />
-                                <label for="newsletter_autoresponder" class="inactive">Add to autoresponder sequence</label>
-                            </td>
-                        </tr>
-
-                        <tr class="details">
-                            <td class="label"><label>Autoresponder day</label></td>
-                            <td class="value">
-                                <select class="inactive" title="Autoresponder" name="newsletter_cycle_day" id="newsletter_cycle_day">
-                                    <option value="">no autresponders</option>
-                                </select>
-                            </td>
-                        </tr>
-
+                        <?=$autoresponder_block?>
                         </tbody>
                     </table>
                 </div>
@@ -105,28 +88,19 @@
 <script>
     (function($) {
 
-        var available_cycles = $.parseJSON('<?php echo isset($campaign_days) ? addslashes(json_encode($campaign_days)) : "{}"; ?>');
-
         $('#newsletter_subscription').click(function() {
             $('.details').toggle('slow');
         });
 
-        if (!$('#newsletter_subscription').is(':checked')) {
+        if ($('#newsletter_subscription').is(':checked')) {
+            $('.details').show();
+        } else {
             $('.details').hide();
         }
 
         $('#gr-save-button').on('click', function(){
             $('#getresponse-newsletter').submit();
         });
-
-        var cycles1 = cycles.init(
-            available_cycles,
-            $('#newsletter_campaign_id'),
-            $('#newsletter_cycle_day'),
-            $('#newsletter_autoresponder'),
-            $('label[for="newsletter_autoresponder"]'),
-            <?php echo isset($settings->api['newsletter_cycle_day']) ? $settings->api['newsletter_cycle_day'] : ''; ?>
-        );
 
     })(jQuery);
 </script>

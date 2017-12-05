@@ -1,4 +1,13 @@
 # Changelog
+
+## 19.1.3
+*(2017-12-05)*
+
+#### Refactoring
+* Single export refactoring
+
+---
+
 ## 19.1.2
 *(2017-11-15)*
 

@@ -29,25 +29,25 @@ function GetresponseMapping(customs, custom_values, select_custom) {
     var td3 = document.createElement('td');
 
     var select = document.createElement('select');
-    select.setAttribute('name', 'gr_custom_field['+custom.id_custom+']');
+    select.setAttribute('name', 'custom_field['+custom.id_custom+']');
 
     custom_values.map(function(element) {
         var option = document.createElement('option');
         option.setAttribute('value', element);
         option.text = element;
-        select.append(option);
+        select.appendChild(option);
     });
 
     select.value = custom.custom_field;
 
     var input = document.createElement('input');
-    input.setAttribute('name', 'custom_field[' + custom.id_custom+']');
+    input.setAttribute('name', 'gr_custom_field[' + custom.id_custom+']');
     input.setAttribute('class', 'input-text');
     input.setAttribute('type', 'text');
     input.setAttribute('value', custom.custom_value);
 
-    td1.append(select);
-    td2.append(input);
+    td1.appendChild(select);
+    td2.appendChild(input);
 
     var link = document.createElement('a');
     link.setAttribute('href', 'javascript:void(0)');
@@ -74,11 +74,11 @@ function GetresponseMapping(customs, custom_values, select_custom) {
         this.parentNode.parentNode.remove(this.parentNode);
     });
 
-    td3.append(link);
+    td3.appendChild(link);
 
-    tr.append(td1);
-    tr.append(td2);
-    tr.append(td3);
+    tr.appendChild(td1);
+    tr.appendChild(td2);
+    tr.appendChild(td3);
 
     jQuery('.customs-table > tbody').append(tr);
 

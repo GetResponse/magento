@@ -56,16 +56,19 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
     }
 
     /**
-     * @param $campaign_id
+     * @param $campaignId
      * @param $params
      *
      * @return bool
      */
-    protected function exportCustomers($campaign_id, $params)
+    protected function exportCustomers($campaignId, $params)
     {
-        $subscribers = Mage::helper('getresponse')->getNewsletterSubscribersCollection();
-
         $cycleDay = '';
+        $accountCustomFields = array_flip(Mage::helper('getresponse/api')->getCustomFields());
+        $grCustomFields = array_flip($accountCustomFields);
+        $customFieldsToBeAdded = array_diff($params['gr_custom_field'], $accountCustomFields);
+        $failedCustomFields = [];
+
         if (isset($params['gr_autoresponder']) && 1 == $params['gr_autoresponder']) {
             $cycleDay = (int)$params['cycleDay'];
         }
@@ -75,15 +78,21 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
             isset($params['custom_field']) ? $params['custom_field'] : []
         );
 
-        if (!empty($params['gr_custom_field'])) {
-            foreach ($params['gr_custom_field'] as $field_key => $field_value) {
-                if (false == preg_match('/^[_a-zA-Z0-9]{2,32}$/m', ($field_value))) {
-                    $this->_getSession()->addError('Incorrect field name: ' . $field_key . '.');
-                    return false;
+        if (!empty($customFieldsToBeAdded)) {
+            foreach ($customFieldsToBeAdded as $field_key => $field_value) {
+                $custom = Mage::helper('getresponse/api')->addCustomField($field_value);
+                $grCustomFields[$custom->name] = $custom->customFieldId;
+                if (!isset($custom->customFieldId)) {
+                    $failedCustomFields[] = $field_value;
                 }
+            }
+            if (!empty($failedCustomFields)) {
+                $this->_getSession()->addError('Incorrect field name: ' . implode(', ', $failedCustomFields) . '.');
+                return false;
             }
         }
 
+        $subscribers = Mage::helper('getresponse')->getNewsletterSubscribersCollection();
         $reports = [
             'created' => 0,
             'updated' => 0,
@@ -113,11 +122,12 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
                     $name = null;
                 }
                 $result = Mage::helper('getresponse/api')->addContact(
-                    $campaign_id,
+                    $campaignId,
                     $name,
                     $subscriber->getEmail(),
                     $cycleDay,
-                    Mage::getModel('getresponse/customs')->mapExportCustoms($custom_fields, $customer)
+                    Mage::getModel('getresponse/customs')->mapExportCustoms(array_flip($custom_fields), $customer),
+                    $grCustomFields
                 );
 
                 if (GetresponseIntegration_Getresponse_Helper_Api::CONTACT_CREATED === $result) {

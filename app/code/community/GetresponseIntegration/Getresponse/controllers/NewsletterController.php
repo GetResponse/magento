@@ -14,12 +14,22 @@ class GetresponseIntegration_Getresponse_NewsletterController extends Getrespons
         $this->_initAction();
         $this->_title($this->__('Subscription via newsletter'))->_title($this->__('GetResponse'));
 
+        /** @var Mage_Core_Block_Abstract $autoresponderBlock */
+        $autoresponderBlock = $this->getLayout()->createBlock(
+            'GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder',
+            'autoresponder',
+            array(
+                'campaign_days' => $this->api->getCampaignDays(),
+                'selected_day' => $this->settings->api['cycle_day']
+            )
+        );
+
         $this->_addContent($this->getLayout()
             ->createBlock('Mage_Core_Block_Template', 'getresponse_content')
             ->setTemplate('getresponse/newsletter.phtml')
             ->assign('settings', $this->settings)
-            ->assign('campaign_days', $this->api->getCampaignDays())
             ->assign('campaigns', $this->api->getGrCampaigns())
+            ->assign('autoresponder_block', $autoresponderBlock->toHtml())
         );
 
         $this->renderLayout();
