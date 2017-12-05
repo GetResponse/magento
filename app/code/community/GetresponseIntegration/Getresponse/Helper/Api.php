@@ -566,20 +566,20 @@ class GetresponseIntegration_Getresponse_Helper_Api
     /**
      * Merges magento and getresponse custom fields.
      *
-     * @param array $user_customs - magento custom fields
-     * @param array $GrCustomFields - getresponse custom fields
+     * @param array $userCustoms - magento custom fields
+     * @param array $grCustomFields - getresponse custom fields
      * @return array - merged custom fields
      */
-    private function setExportCustoms($user_customs, $GrCustomFields)
+    private function setExportCustoms($userCustoms, $grCustomFields)
     {
         $custom_fields = [];
         $custom = '';
 
-        if (empty($user_customs)) {
+        if (empty($userCustoms)) {
             return $custom_fields;
         }
-        foreach ($user_customs as $name => $value) {
-            foreach ($GrCustomFields as $grCustomName => $grCustomId) {
+        foreach ($userCustoms as $name => $value) {
+            foreach ($grCustomFields as $grCustomName => $grCustomId) {
                 if ($grCustomName === $name) {
                     $custom->customFieldId = $grCustomId;
                 }
@@ -598,12 +598,12 @@ class GetresponseIntegration_Getresponse_Helper_Api
      * @param string $campaign
      * @param string $name
      * @param string $email
-     * @param string $cycle_day
+     * @param string $cycleDay
      * @param array $user_customs
      * @param array $GrCustomFields
      * @return int
      */
-    public function addContact($campaign, $name, $email, $cycle_day = '', $userCustoms = [], $grCustomFields = [])
+    public function addContact($campaign, $name, $email, $cycleDay = '', $userCustoms = [], $grCustomFields = [])
     {
         $params = [
             'email' => $email,
@@ -615,8 +615,8 @@ class GetresponseIntegration_Getresponse_Helper_Api
             $params['name'] = trim($name);
         }
 
-        if (is_numeric($cycle_day) && $cycle_day >= 0) {
-            $params['dayOfCycle'] = $cycle_day;
+        if (is_numeric($cycleDay) && $cycleDay >= 0) {
+            $params['dayOfCycle'] = $cycleDay;
         }
 
         $contact = $this->getContact($email, $campaign);

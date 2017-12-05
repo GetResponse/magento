@@ -56,12 +56,12 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
     }
 
     /**
-     * @param $campaign_id
+     * @param $campaignId
      * @param $params
      *
      * @return bool
      */
-    protected function exportCustomers($campaign_id, $params)
+    protected function exportCustomers($campaignId, $params)
     {
         $cycleDay = '';
         $accountCustomFields = array_flip(Mage::helper('getresponse/api')->getCustomFields());
@@ -122,7 +122,7 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
                     $name = null;
                 }
                 $result = Mage::helper('getresponse/api')->addContact(
-                    $campaign_id,
+                    $campaignId,
                     $name,
                     $subscriber->getEmail(),
                     $cycleDay,
