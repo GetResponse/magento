@@ -46,6 +46,7 @@ class RepositoryValidator
 
     /**
      * @return bool
+     * @throws RepositoryException
      */
     public function validate()
     {

@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
@@ -40,6 +41,7 @@ class Create extends Action
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
      * @param RepositoryValidator $repositoryValidator
+     * @throws RepositoryException
      */
     public function __construct(
         Context $context,
@@ -59,7 +61,6 @@ class Create extends Action
      * Dispatch request
      *
      * @return \Magento\Framework\Controller\ResultInterface|ResponseInterface
-     * @throws \Magento\Framework\Exception\NotFoundException
      */
     public function execute()
     {

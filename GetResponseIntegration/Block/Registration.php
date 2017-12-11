@@ -1,7 +1,9 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
@@ -31,6 +33,7 @@ class Registration extends Template
      * @param Context $context
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
+     * @throws RepositoryException
      */
     public function __construct(
         Context $context,
@@ -111,6 +114,9 @@ class Registration extends Template
         return $result;
     }
 
+    /**
+     * @return CustomFieldsCollection
+     */
     public function getCustoms()
     {
         return CustomFieldsCollectionFactory::createFromRepository($this->repository->getCustoms());

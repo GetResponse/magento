@@ -2,6 +2,7 @@
 
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
@@ -30,6 +31,7 @@ class Delete extends Action
      * @param Context $context
      * @param RepositoryFactory $repositoryFactory
      * @param RepositoryValidator $repositoryValidator
+     * @throws RepositoryException
      */
     public function __construct(
         Context $context,

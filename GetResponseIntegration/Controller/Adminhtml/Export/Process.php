@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Export;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
@@ -47,6 +48,7 @@ class Process extends Action
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
      * @param RepositoryValidator $repositoryValidator
+     * @throws RepositoryException
      */
     public function __construct(
         Context $context,
@@ -147,19 +149,19 @@ class Process extends Action
     /**
      * Add (or update) contact to gr campaign
      *
-     * @param       $campaign
-     * @param       $firstname
-     * @param       $lastname
-     * @param       $email
-     * @param int $cycle_day
+     * @param string $campaign
+     * @param string $firstName
+     * @param string $lastName
+     * @param string $email
+     * @param int $cycleDay
      * @param array $user_customs
      *
      * @return mixed
      */
-    public function addContact($campaign, $firstname, $lastname, $email, $cycle_day = 0, $user_customs = [])
+    public function addContact($campaign, $firstName, $lastName, $email, $cycleDay = 0, $user_customs = [])
     {
         $apiHelper = new ApiHelper($this->grRepository);
-        $name = trim($firstname) . ' ' . trim($lastname);
+        $name = trim($firstName) . ' ' . trim($lastName);
 
         $user_customs['origin'] = 'magento2';
 
@@ -170,8 +172,8 @@ class Process extends Action
             'ipAddress' => $_SERVER['REMOTE_ADDR']
         ];
 
-        if (!empty($cycle_day)) {
-            $params['dayOfCycle'] = (int)$cycle_day;
+        if (!empty($cycleDay)) {
+            $params['dayOfCycle'] = (int)$cycleDay;
         }
 
         $contact = $this->grRepository->getContactByEmail($email, $campaign);

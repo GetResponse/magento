@@ -1,5 +1,5 @@
 <?php
-namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
+namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Account;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
 use GetResponse\GetResponseIntegration\Helper\Message;
@@ -24,7 +24,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
  */
 class Save extends Action
 {
-    const BACK_URL = 'getresponseintegration/settings/index';
+    const BACK_URL = 'getresponseintegration/account/index';
 
     const PAGE_TITLE = 'GetResponse account';
 
@@ -149,9 +149,7 @@ class Save extends Action
             WebEventTrackingSettingsFactory::createFromArray($params)
         );
         $this->repository->saveAccountDetails($account);
-
         $this->repository->setCustomsOnInit(DefaultCustomFieldsFactory::createDefaultCustomsMap());
-
         $this->messageManager->addSuccessMessage(Message::ACCOUNT_CONNECTED);
 
         return $this->_redirect(self::BACK_URL);

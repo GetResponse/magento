@@ -3,6 +3,7 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AccessValidator;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CampaignFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Getresponse\Repository as GrRepository;
@@ -42,6 +43,7 @@ class CreateCampaign extends Action
      * @param RepositoryFactory $repositoryFactory
      * @param JsonFactory $resultJsonFactory
      * @param AccessValidator $accessValidator
+     * @throws RepositoryException
      */
     public function __construct(
         Context $context,

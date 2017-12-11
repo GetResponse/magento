@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
@@ -31,6 +32,7 @@ class CreateShop extends Action
      * @param RepositoryFactory $repositoryFactory
      * @param Repository $repository
      * @param JsonFactory $resultJsonFactory
+     * @throws RepositoryException
      */
     public function __construct(
         Context $context,
@@ -60,7 +62,6 @@ class CreateShop extends Action
         $countryCode = $this->repository->getMagentoCountryCode();
         $lang = substr($countryCode, 0, 2);
         $currency = $this->repository->getMagentoCurrencyCode();
-
         $result = $this->grRepository->createShop($data['shop_name'], $lang, $currency);
 
         return $this->resultJsonFactory->create()->setData($result);

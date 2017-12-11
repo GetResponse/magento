@@ -15,7 +15,7 @@ use Magento\Framework\App\Cache\Manager;
  */
 class Delete extends Action
 {
-    const BACK_URL = 'getresponseintegration/settings/index';
+    const BACK_URL = 'getresponseintegration/account/index';
 
     /** @var Repository */
     private $repository;

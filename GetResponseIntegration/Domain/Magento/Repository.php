@@ -3,7 +3,6 @@ namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
@@ -64,7 +63,6 @@ class Repository
     public function getShopStatus()
     {
         $status = $this->_scopeConfig->getValue(Config::CONFIG_DATA_SHOP_STATUS);
-
         return 'enabled' === $status ? 'enabled' : 'disabled';
     }
 
@@ -74,7 +72,6 @@ class Repository
     public function getCustomers()
     {
         $customers = $this->_objectManager->get('Magento\Customer\Model\Customer');
-
         return $customers->getCollection()->getData();
     }
 
@@ -85,7 +82,6 @@ class Repository
     public function getCategoryName($category_id)
     {
         $_categoryHelper = $this->_objectManager->get('\Magento\Catalog\Model\Category');
-
         return $_categoryHelper->load($category_id)->getName();
     }
 
@@ -307,7 +303,6 @@ class Repository
     /**
      * @param int $id
      * @param Rule $rule
-     * @throws RepositoryException
      */
     public function updateRule($id, Rule $rule)
     {

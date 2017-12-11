@@ -2,6 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
@@ -28,6 +29,7 @@ class Export extends Template
      * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
+     * @throws RepositoryException
      */
     public function __construct(
         Context $context,
@@ -50,6 +52,9 @@ class Export extends Template
         );
     }
 
+    /**
+     * @return mixed
+     */
     public function getCustomers()
     {
         return $this->repository->getCustomers();

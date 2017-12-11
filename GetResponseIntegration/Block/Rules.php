@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RuleFactory;
@@ -30,6 +31,7 @@ class Rules extends Template
      * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
+     * @throws RepositoryException
      */
     public function __construct(
         Context $context,
@@ -75,12 +77,12 @@ class Rules extends Template
     }
 
     /**
-     * @param $category_id
+     * @param $id
      * @return mixed
      */
-    public function getCategoryName($category_id)
+    public function getCategoryName($id)
     {
-        return $this->repository->getCategoryName($category_id);
+        return $this->repository->getCategoryName($id);
     }
 
     /**
