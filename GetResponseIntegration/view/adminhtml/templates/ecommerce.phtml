@@ -6,7 +6,7 @@ $currentShopId = $block->getCurrentShopId();
 $settings = $block->getRegistrationSettings();
 ?>
 
-<form method="post" action="<?php echo $block->getUrl('getresponseintegration/ecommerce/saveshop'); ?>">
+<form method="post" action="<?php echo $block->getUrl('getresponse/ecommerce/saveshop'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
 
     <div class="page-main-actions">
@@ -132,8 +132,8 @@ $settings = $block->getRegistrationSettings();
 <div id="popup-modal" style="display:none">
     <div>Please confirm that you want to delete this store.</div>
 </div>
-<input type="hidden" id="jsCreateShopUrl" value="<?php echo $block->getUrl('getresponseintegration/ecommerce/createshop'); ?>"/>
-<input type="hidden" id="jsDeleteShopUrl" value="<?php echo $block->getUrl('getresponseintegration/ecommerce/delete'); ?>"/>
+<input type="hidden" id="jsCreateShopUrl" value="<?php echo $block->getUrl('getresponse/ecommerce/createshop'); ?>"/>
+<input type="hidden" id="jsDeleteShopUrl" value="<?php echo $block->getUrl('getresponse/ecommerce/delete'); ?>"/>
 <script>
     require(['ecommerce']);
 </script>

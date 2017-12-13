@@ -18,7 +18,7 @@ use Magento\Backend\App\Action;
  */
 class SaveShop extends Action
 {
-    const BACK_URL = 'getresponseintegration/ecommerce/index';
+    const BACK_URL = 'getresponse/ecommerce/index';
 
     /** @var TypeListInterface */
     private $cache;

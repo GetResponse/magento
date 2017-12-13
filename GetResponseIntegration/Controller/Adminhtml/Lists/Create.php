@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\ListValidator;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\Message;
@@ -64,9 +65,12 @@ class Create extends Action
      */
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
-
+        try {
+            if (!$this->repositoryValidator->validate()) {
+                $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
+                return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+            }
+        } catch (RepositoryException $e) {
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
@@ -85,8 +89,7 @@ class Create extends Action
             return $resultPage;
         }
 
-        // validator
-        $error = $this->validateNewListParams($data);
+        $error = ListValidator::validateNewListParams($data);
 
         if (!empty($error)) {
             $this->messageManager->addErrorMessage($error);
@@ -114,34 +117,5 @@ class Create extends Action
 
             return $resultRedirect;
         }
-    }
-
-    /**
-     * @param array $data
-     * @return string
-     */
-    private function validateNewListParams($data)
-    {
-        if (strlen($data['campaign_name']) < 3) {
-            return Message::LIST_VALIDATION_CAMPAIGN_NAME_ERROR;
-        }
-
-        if (strlen($data['from_field']) === 0) {
-            return Message::LIST_VALIDATION_FROM_FIELD_ERROR;
-        }
-
-        if (strlen($data['reply_to_field']) === 0) {
-            return Message::LIST_VALIDATION_REPLY_TO_ERROR;
-        }
-
-        if (strlen($data['confirmation_subject']) === 0) {
-            return Message::LIST_VALIDATION_CONFIRMATION_SUBJECT_ERROR;
-        }
-
-        if (strlen($data['confirmation_body']) === 0) {
-            return Message::LIST_VALIDATION_CONFIRMATION_BODY;
-        }
-
-        return '';
     }
 }

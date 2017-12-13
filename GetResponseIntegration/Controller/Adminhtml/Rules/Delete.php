@@ -21,7 +21,7 @@ class Delete extends Action
     /** @var PageFactory */
     private $resultPageFactory;
 
-    const AUTOMATION_URL = 'getresponseintegration/settings/automation';
+    const AUTOMATION_URL = 'getresponse/lists/rules';
 
     /** @var Repository */
     private $repository;

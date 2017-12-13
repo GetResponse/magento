@@ -83,11 +83,11 @@ class Lists extends Template
     {
         switch ($back) {
             case 'export':
-                return 'getresponseintegration/export/index';
+                return 'getresponse/export/index';
                 break;
 
             case 'registration':
-                return 'getresponseintegration/settings/registration';
+                return 'getresponse/registration/index';
                 break;
         }
 

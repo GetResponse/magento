@@ -463,82 +463,90 @@ class Repository
 
     public function clearAccount()
     {
-        $this->configWriter->save(
+        $this->configWriter->delete(
             Config::CONFIG_DATA_ACCOUNT,
-            null,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+
+        $this->cacheManager->clean(['config']);
     }
 
     public function clearWebEventTracking()
     {
-        $this->configWriter->save(
+        $this->configWriter->delete(
             Config::CONFIG_DATA_WEB_EVENT_TRACKING,
-            null,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+
+        $this->cacheManager->clean(['config']);
     }
 
     public function clearWebforms()
     {
-        $this->configWriter->save(
+        $this->configWriter->delete(
             Config::CONFIG_DATA_WEBFORMS_SETTINGS,
-            null,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+
+        $this->cacheManager->clean(['config']);
     }
 
     public function clearConnectionSettings()
     {
-        $this->configWriter->save(
+        $this->configWriter->delete(
             Config::CONFIG_DATA_CONNECTION_SETTINGS,
-            '',
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+
+        $this->cacheManager->clean(['config']);
     }
 
     public function clearRules()
     {
-        $this->configWriter->save(
+        $this->configWriter->delete(
             Config::CONFIG_DATA_RULES,
-            '',
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+
+        $this->cacheManager->clean(['config']);
     }
 
     public function clearAccountDetails()
     {
-        $this->configWriter->save(
+        $this->configWriter->delete(
             Config::CONFIG_DATA_ACCOUNT,
-            null,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+
+        $this->cacheManager->clean(['config']);
     }
 
     public function clearRegistrationSettings()
     {
-        $this->configWriter->save(
+        $this->configWriter->delete(
             Config::CONFIG_DATA_REGISTRATION_SETTINGS,
-            null,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+
+        $this->cacheManager->clean(['config']);
     }
 
     public function clearCustoms()
     {
-        $this->configWriter->save(
+        $this->configWriter->delete(
             Config::CONFIG_DATA_REGISTRATION_CUSTOMS,
-            null,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+
+        $this->cacheManager->clean(['config']);
     }
 
     /**

@@ -10,7 +10,7 @@ if ($isApiActive) {
 }
 ?>
 
-<form method="post" action="<?php echo $block->getUrl('getresponseintegration/account/save'); ?>">
+<form method="post" action="<?php echo $block->getUrl('getresponse/account/save'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
 
     <div class="page-main-actions">
@@ -96,7 +96,7 @@ if ($isApiActive) {
                     <table class="account_data">
                         <tr>
                             <td>
-                                <label for="getresponse_getresponseintegration_general_api_key">Status:</label>
+                                <label for="getresponse_getresponse_general_api_key">Status:</label>
                             </td>
                             <td>
                                 <div><span class="status-connected">CONNECTED</span></div>
@@ -148,7 +148,7 @@ if ($isApiActive) {
     <div>When you disconnect you won't be able to get new contacts via forms, comments, or during account registration.</div>
 </div>
 
-<input type="hidden" id="jsDeleteUrl" value="<?php echo $block->getUrl("getresponseintegration/account/delete"); ?>" />
+<input type="hidden" id="jsDeleteUrl" value="<?php echo $block->getUrl("getresponse/account/delete"); ?>" />
 
 <script>
 

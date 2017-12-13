@@ -3,18 +3,18 @@
     <menu>
         <add id="GetResponse_GetResponseIntegration" title="GetResponse" module="GetResponse_GetResponseIntegration" sortOrder="100" resource="GetResponse_GetResponseIntegration::settings"/>
 
-        <add id="GetResponse_GetResponseIntegration::settings" title="GetResponse Account" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponseintegration/account" resource="GetResponse_GetResponseIntegration::account"/>
+        <add id="GetResponse_GetResponseIntegration::settings" title="GetResponse Account" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/account" resource="GetResponse_GetResponseIntegration::account"/>
 
-        <add id="GetResponse_GetResponseIntegration::export" title="Export Customer Data on Demand" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponseintegration/export" resource="GetResponse_GetResponseIntegration::settings"/>
+        <add id="GetResponse_GetResponseIntegration::export" title="Export Customer Data on Demand" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/export" resource="GetResponse_GetResponseIntegration::settings"/>
 
-        <add id="GetResponse_GetResponseIntegration::registration" title="Add Contacts During Registrations" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponseintegration/settings/registration" resource="GetResponse_GetResponseIntegration::settings"/>
+        <add id="GetResponse_GetResponseIntegration::registration" title="Add Contacts During Registrations" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/registration/index" resource="GetResponse_GetResponseIntegration::settings"/>
 
-        <add id="GetResponse_GetResponseIntegration::webform" title="Add contacts via GetResponse forms" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponseintegration/settings/webform" resource="GetResponse_GetResponseIntegration::settings"/>
+        <add id="GetResponse_GetResponseIntegration::webform" title="Add contacts via GetResponse forms" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/webform/index" resource="GetResponse_GetResponseIntegration::settings"/>
 
-        <add id="GetResponse_GetResponseIntegration::automation" title="Contact List Rules" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponseintegration/settings/automation" resource="GetResponse_GetResponseIntegration::settings"/>
+        <add id="GetResponse_GetResponseIntegration::automation" title="Contact List Rules" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/lists/rules" resource="GetResponse_GetResponseIntegration::settings"/>
 
-        <add id="GetResponse_GetResponseIntegration::web_traffic_tracking" title="Web Event Tracking" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponseintegration/settings/webtraffictracking" resource="GetResponse_GetResponseIntegration::settings"/>
+        <add id="GetResponse_GetResponseIntegration::web_traffic_tracking" title="Web Event Tracking" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/webtraffic/index" resource="GetResponse_GetResponseIntegration::settings"/>
 
-        <add id="GetResponse_GetResponseIntegration::getresponse_e_commerce" title="GetResponse Ecommerce" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponseintegration/ecommerce/index" resource="GetResponse_GetResponseIntegration::ecommerce"/>
+        <add id="GetResponse_GetResponseIntegration::getresponse_e_commerce" title="GetResponse Ecommerce" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/ecommerce/index" resource="GetResponse_GetResponseIntegration::ecommerce"/>
     </menu>
 </config>

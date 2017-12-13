@@ -7,7 +7,7 @@ $confirmation_subjects = $block->getSubscriptionConfirmationsSubject();
 $confirmation_bodies = $block->getSubscriptionConfirmationsBody();
 ?>
 
-<form id="createNewListForm" action="<?php echo $block->getUrl('getresponseintegration/lists/create'); ?>" method="POST">
+<form id="createNewListForm" action="<?php echo $block->getUrl('getresponse/lists/create'); ?>" method="POST">
     <?php echo $block->getBlockHtml('formkey'); ?>
     <input type="hidden" name="back_url" value="<?php echo $block->getBackUrl()?>" />
 

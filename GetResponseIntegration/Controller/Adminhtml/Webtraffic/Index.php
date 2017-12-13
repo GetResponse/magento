@@ -1,6 +1,7 @@
 <?php
-namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
+namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Webtraffic;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
@@ -15,14 +16,14 @@ use Magento\Framework\View\Result\PageFactory;
 use Magento\Backend\App\Action;
 
 /**
- * Class WebTrafficTracking
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings
+ * Class Index
+ * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Webtraffic
  */
-class WebTrafficTracking extends Action
+class Index extends Action
 {
     const PAGE_TITLE = 'Web Event Tracking';
 
-    const BACK_URL = 'getresponseintegration/settings/webtraffictracking';
+    const BACK_URL = 'getresponse/webtraffic/index';
     /** @var PageFactory */
     private $resultPageFactory;
 
@@ -59,9 +60,12 @@ class WebTrafficTracking extends Action
      */
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
-
+        try {
+            if (!$this->repositoryValidator->validate()) {
+                $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
+                return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+            }
+        } catch (RepositoryException $e) {
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 

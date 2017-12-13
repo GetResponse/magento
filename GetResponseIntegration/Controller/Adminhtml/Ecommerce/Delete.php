@@ -19,7 +19,7 @@ use Magento\Framework\Controller\Result\Redirect;
  */
 class Delete extends Action
 {
-    const BACK_URL = 'getresponseintegration/ecommerce/index';
+    const BACK_URL = 'getresponse/ecommerce/index';
 
     /** @var GrRepository */
     private $grRepository;

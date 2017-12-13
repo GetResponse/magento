@@ -71,7 +71,21 @@ class GetResponseAPI3
      */
     public function getCampaigns($params)
     {
-        return $this->call('campaigns?' . $this->setParams($params));
+        $params['page'] = 1;
+        $params['perPage'] = 2;
+
+        $result = [];
+
+        do {
+            $response = (array) $this->call('campaigns?' . $this->setParams($params));
+
+            $result = array_merge($result, $response);
+
+            $params['page']++;
+
+        } while (count($response) > 0);
+
+        return $result;
     }
 
     /**
@@ -303,7 +317,6 @@ class GetResponseAPI3
      * @param string $http_method
      * @param array $params
      * @return mixed
-     * @throws \Exception
      */
     private function call($api_method = null, $http_method = 'GET', $params = [])
     {

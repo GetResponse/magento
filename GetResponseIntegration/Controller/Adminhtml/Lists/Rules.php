@@ -1,6 +1,7 @@
 <?php
-namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
+namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
@@ -11,16 +12,15 @@ use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
 /**
- * Class Webform
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings
+ * Class Automation
+ * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists
  */
-class Webform extends Action
+class Rules extends Action
 {
-    const PAGE_TITLE = 'Add contacts via GetResponse forms';
+    const PAGE_TITLE = 'Contact List Rules';
 
     /** @var PageFactory */
     protected $resultPageFactory;
-    /** @var RepositoryValidator */
 
     /** @var RepositoryValidator */
     private $repositoryValidator;
@@ -45,9 +45,13 @@ class Webform extends Action
      */
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
+        try {
+            if (!$this->repositoryValidator->validate()) {
+                $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
 
+                return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+            }
+        } catch (RepositoryException $e) {
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 

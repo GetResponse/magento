@@ -9,7 +9,7 @@
                  showInStore="1">
             <label>GetResponse account</label>
             <tab>getresponse</tab>
-            <resource>GetResponse_GetResponseIntegrationaa::getresponse_getresponseintegrationaa</resource>
+            <resource>GetResponse_GetResponseIntegrationaa::getresponse_getresponseintegration</resource>
             <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0"
                    showInStore="0">
                 <label>General</label>

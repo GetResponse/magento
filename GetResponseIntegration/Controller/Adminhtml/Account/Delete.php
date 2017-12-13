@@ -1,5 +1,5 @@
 <?php
-namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
+namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Account;
 
 use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action;
@@ -11,11 +11,11 @@ use Magento\Framework\App\Cache\Manager;
 
 /**
  * Class Delete
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings
+ * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Account
  */
 class Delete extends Action
 {
-    const BACK_URL = 'getresponseintegration/account/index';
+    const BACK_URL = 'getresponse/account/index';
 
     /** @var Repository */
     private $repository;

@@ -1,6 +1,7 @@
 <?php
-namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
+namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Registration;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\Message;
@@ -11,10 +12,10 @@ use Magento\Framework\View\Result\PageFactory;
 use Magento\Backend\App\Action;
 
 /**
- * Class Registration
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings
+ * Class Index
+ * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Registration
  */
-class Registration extends Action
+class Index extends Action
 {
     const PAGE_TITLE = 'Add Contacts During Registrations';
 
@@ -44,9 +45,12 @@ class Registration extends Action
      */
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
-
+        try {
+            if (!$this->repositoryValidator->validate()) {
+                $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
+                return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+            }
+        } catch (RepositoryException $e) {
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 

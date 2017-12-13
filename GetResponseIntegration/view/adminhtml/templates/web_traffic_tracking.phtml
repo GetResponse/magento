@@ -7,7 +7,7 @@ $webTrafficTracking = $block->getWebEventTracking();
 
 if ($webTrafficTracking->isFeatureTrackingEnabled()): ?>
 
-<form method="post" action="<?php echo $block->getUrl('getresponseintegration/settings/webtraffictracking'); ?>">
+<form method="post" action="<?php echo $block->getUrl('getresponse/webtraffic/index'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
     <div class="page-main-actions">
         <div class="page-main-hint">

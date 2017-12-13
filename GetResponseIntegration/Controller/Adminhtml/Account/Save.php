@@ -24,7 +24,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
  */
 class Save extends Action
 {
-    const BACK_URL = 'getresponseintegration/account/index';
+    const BACK_URL = 'getresponse/account/index';
 
     const PAGE_TITLE = 'GetResponse account';
 

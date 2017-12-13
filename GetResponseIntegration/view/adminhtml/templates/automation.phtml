@@ -12,7 +12,7 @@ $rules = $block->getRulesCollection()->getRules();
     <div class="page-actions">
         <div class="page-actions-inner">
             <div class="page-actions-buttons">
-                <button id="getresponse_create_new_rule" onclick="location.href='<?php echo $block->getUrl('getresponseintegration/rules/create'); ?>'" title="Add New Rule" class="action-default scalable save primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" type="button" role="button" aria-disabled="false">
+                <button id="getresponse_create_new_rule" onclick="location.href='<?php echo $block->getUrl('getresponse/rules/create'); ?>'" title="Add New Rule" class="action-default scalable save primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" type="button" role="button" aria-disabled="false">
                     <span class="ui-button-text">
                         <span>Add New Rule</span>
                     </span>
@@ -90,7 +90,7 @@ $rules = $block->getRulesCollection()->getRules();
                                 </td>
 
                                 <td>
-                                    <a href="<?php echo $block->getUrl('getresponseintegration/rules/edit/', array('id' => $rule->getId())); ?>">Edit</a>
+                                    <a href="<?php echo $block->getUrl('getresponse/rules/edit/', array('id' => $rule->getId())); ?>">Edit</a>
                                 </td>
 
                             </tr>

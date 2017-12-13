@@ -19,7 +19,7 @@ use Magento\Framework\App\Request\Http;
 class Create extends Action
 {
     const PAGE_TITLE = 'Create rule';
-    const AUTOMATION_URL = 'getresponseintegration/settings/automation';
+    const AUTOMATION_URL = 'getresponse/lists/rules';
 
     /** @var PageFactory */
     private $resultPageFactory;

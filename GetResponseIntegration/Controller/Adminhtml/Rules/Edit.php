@@ -21,7 +21,7 @@ use Magento\Framework\App\Request\Http;
 class Edit extends Action
 {
     const PAGE_TITLE = 'Edit rule';
-    const AUTOMATION_URL = 'getresponseintegration/settings/automation';
+    const AUTOMATION_URL = 'getresponse/lists/rules';
 
     /** @var PageFactory */
     protected $resultPageFactory;
