@@ -37,7 +37,7 @@ class Account extends Template
     }
 
     /**
-     * @return mixed
+     * @return \GetResponse\GetResponseIntegration\Domain\GetResponse\Account
      */
     public function getAccountInfo()
     {
