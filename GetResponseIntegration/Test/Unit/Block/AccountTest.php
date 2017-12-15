@@ -24,6 +24,7 @@ class AccountTest extends TestCase
     /** @var RepositoryFactory|PHPUnit_Framework_MockObject_MockObject $repositoryFactory */
     private $repositoryFactory;
 
+    /** @var AccountBlock accountBlock */
     private $accountBlock;
 
     public function setUp()
