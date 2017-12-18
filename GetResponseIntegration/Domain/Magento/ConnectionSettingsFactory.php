@@ -14,9 +14,9 @@ class ConnectionSettingsFactory
     public static function createFromArray(array $resource)
     {
         return new ConnectionSettings(
-            $resource['apiKey'],
-            $resource['url'],
-            $resource['domain']
+            isset($resource['apiKey']) ? $resource['apiKey'] : '',
+            isset($resource['url']) ? $resource['url'] : '',
+            isset($resource['domain']) ? $resource['domain'] : ''
         );
     }
 }

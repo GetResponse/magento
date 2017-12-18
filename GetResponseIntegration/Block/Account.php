@@ -1,7 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account as AccountBlock;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use Magento\Framework\View\Element\Template;
@@ -21,27 +21,33 @@ class Account extends Template
     /** @var RepositoryFactory */
     private $repositoryFactory;
 
+    /** @var Getresponse */
+    private $getresponseBlock;
+
     /**
      * @param Context $context
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
+     * @param Getresponse $getresponseBlock
      */
     public function __construct(
         Context $context,
         Repository $repository,
-        RepositoryFactory $repositoryFactory
+        RepositoryFactory $repositoryFactory,
+        Getresponse $getresponseBlock
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
+        $this->getresponseBlock = $getresponseBlock;
     }
 
     /**
-     * @return \GetResponse\GetResponseIntegration\Domain\GetResponse\Account
+     * @return AccountBlock
      */
     public function getAccountInfo()
     {
-        return AccountFactory::createFromArray($this->repository->getAccountInfo());
+        return $this->getresponseBlock->getAccountInfo();
     }
 
     /**
