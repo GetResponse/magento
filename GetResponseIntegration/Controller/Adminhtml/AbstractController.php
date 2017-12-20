@@ -35,7 +35,7 @@ abstract class AbstractController extends Action
     public function checkGetResponseConnection()
     {
         if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
+            $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
 
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }

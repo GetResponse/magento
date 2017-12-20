@@ -5,6 +5,8 @@ class Message
 {
     const INCORRECT_API_RESPONSE_MESSAGE = 'Looks like we didn\'t expect this technical problem. If it persists, please contact the GetResponse dev team';
 
+    const CONNECT_TO_GR = 'You need to connect to Get Response';
+
     const INCORRECT_SHOP_NAME = 'You need to enter a store name';
     const INCORRECT_SHOP = 'We couldn\'t delete this store. Please check if you\'ve made any changes to the store ID.';
     const DELETE_SHOP_ERROR = 'We couldn\'t delete this store. If the problem persists, please contact the GetResponse dev team. Be sure to include the error code that starts with ';
