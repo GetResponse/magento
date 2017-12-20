@@ -5,7 +5,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
@@ -21,21 +20,19 @@ class Getresponse
     /** @var Repository */
     private $repository;
 
-    /** @var GrRepository */
-    private $grRepository;
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /**
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
-     *
-     * @throws RepositoryException
      */
     public function __construct(
         Repository $repository,
         RepositoryFactory $repositoryFactory
     ) {
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->createRepository();
+        $this->repositoryFactory = $repositoryFactory;
     }
 
     /**
@@ -43,24 +40,28 @@ class Getresponse
      */
     public function getAutoresponders()
     {
-        $params = ['query' => ['triggerType' => 'onday', 'status' => 'active']];
+        try {
+            $grRepository = $this->repositoryFactory->createRepository();
+            $params = ['query' => ['triggerType' => 'onday', 'status' => 'active']];
+            $result = $grRepository->getAutoresponders($params);
+            $autoresponders = [];
 
-        $result = $this->grRepository->getAutoresponders($params);
-        $autoresponders = [];
-
-        if (!empty($result)) {
-            foreach ($result as $autoresponder) {
-                if (isset($autoresponder->triggerSettings->selectedCampaigns[0])) {
-                    $autoresponders[$autoresponder->triggerSettings->selectedCampaigns[0]][$autoresponder->triggerSettings->dayOfCycle] = [
-                        'name' => $autoresponder->name,
-                        'subject' => $autoresponder->subject,
-                        'dayOfCycle' => $autoresponder->triggerSettings->dayOfCycle
-                    ];
+            if (!empty($result)) {
+                foreach ($result as $autoresponder) {
+                    if (isset($autoresponder->triggerSettings->selectedCampaigns[0])) {
+                        $autoresponders[$autoresponder->triggerSettings->selectedCampaigns[0]][$autoresponder->triggerSettings->dayOfCycle] = [
+                            'name' => $autoresponder->name,
+                            'subject' => $autoresponder->subject,
+                            'dayOfCycle' => $autoresponder->triggerSettings->dayOfCycle
+                        ];
+                    }
                 }
             }
-        }
 
-        return $autoresponders;
+            return $autoresponders;
+        } catch (RepositoryException $e) {
+            return [];
+        }
     }
 
     /**

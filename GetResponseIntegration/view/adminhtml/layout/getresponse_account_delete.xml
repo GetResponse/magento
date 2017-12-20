@@ -8,7 +8,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="content">
-            <block name="getresponse.account" class="GetResponse\GetResponseIntegration\Block\Account" template="account.phtml" />
+            <block name="getresponse.account.delete" class="GetResponse\GetResponseIntegration\Block\Account" template="account.phtml" />
         </referenceContainer>
     </body>
 </page>
