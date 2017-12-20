@@ -1,7 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account as GrAccount;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
@@ -108,7 +108,7 @@ class Getresponse
     }
 
     /**
-     * @return Account
+     * @return GrAccount
      */
     public function getAccountInfo()
     {
