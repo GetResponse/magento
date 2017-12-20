@@ -55,6 +55,13 @@ class Create extends AbstractController
         $request = $this->getRequest();
         $data = $request->getPostValue();
 
+        if (empty($data)) {
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
+            return $resultPage;
+        }
+
         $error = RuleValidator::validateForPostedParams($data);
 
         if (!empty($error)) {
