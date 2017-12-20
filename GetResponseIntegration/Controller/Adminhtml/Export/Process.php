@@ -1,10 +1,9 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Export;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
@@ -20,7 +19,7 @@ use Magento\Framework\App\Request\Http;
  * Class Process
  * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Export
  */
-class Process extends Action
+class Process extends AbstractController
 {
     const PAGE_TITLE = 'Export Customer Data on Demand';
 
@@ -39,9 +38,6 @@ class Process extends Action
     /** @var GrRepository */
     private $grRepository;
 
-    /** @var RepositoryValidator */
-    private $repositoryValidator;
-
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
@@ -57,11 +53,12 @@ class Process extends Action
         RepositoryFactory $repositoryFactory,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context);
+        parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
         $this->grRepository = $repositoryFactory->createRepository();
         $this->repository = $repository;
-        $this->repositoryValidator = $repositoryValidator;
+
+        return $this->checkGetResponseConnection();
     }
 
     /**
@@ -69,12 +66,6 @@ class Process extends Action
      */
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
-
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();

@@ -1,11 +1,10 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\ListValidator;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CampaignFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
@@ -20,7 +19,7 @@ use Magento\Framework\App\Request\Http;
  * Class Create
  * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules
  */
-class Create extends Action
+class Create extends AbstractController
 {
     const PAGE_TITLE = 'New Contact List';
 
@@ -32,9 +31,6 @@ class Create extends Action
 
     /** @var GrRepository */
     private $grRepository;
-
-    /** @var RepositoryValidator */
-    private $repositoryValidator;
 
     /**
      * @param Context $context
@@ -51,11 +47,12 @@ class Create extends Action
         RepositoryFactory $repositoryFactory,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context);
+        parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
         $this->grRepository = $repositoryFactory->createRepository();
-        $this->repositoryValidator = $repositoryValidator;
+
+        return $this->checkGetResponseConnection();
     }
 
     /**
@@ -65,15 +62,6 @@ class Create extends Action
      */
     public function execute()
     {
-        try {
-            if (!$this->repositoryValidator->validate()) {
-                $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
-                return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-            }
-        } catch (RepositoryException $e) {
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $backUrl = $this->getRequest()->getParam('back_url');
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
@@ -81,13 +69,6 @@ class Create extends Action
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();
-
-        if (empty($data)) {
-            $resultPage = $this->resultPageFactory->create();
-            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-
-            return $resultPage;
-        }
 
         $error = ListValidator::validateNewListParams($data);
 

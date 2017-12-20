@@ -19,4 +19,24 @@ class ConnectionSettingsFactory
             isset($resource['domain']) ? $resource['domain'] : ''
         );
     }
+
+    /**
+     * @param array $resource
+     * @return ConnectionSettings
+     */
+    public static function createFromPost(array $resource)
+    {
+        if (isset($resource['is_mx']) && 1 === (int) $resource['is_mx']) {
+            return new ConnectionSettings(
+                isset($resource['apiKey']) ? $resource['apiKey'] : '',
+                isset($resource['url']) ? $resource['url'] : '',
+                isset($resource['domain']) ? $resource['domain'] : ''
+            );
+        }
+        return new ConnectionSettings(
+            isset($resource['apiKey']) ? $resource['apiKey'] : '',
+            null,
+            null
+        );
+    }
 }

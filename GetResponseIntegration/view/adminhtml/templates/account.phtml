@@ -41,31 +41,31 @@ if ($isApiActive) {
         <div class="admin__old">
             <div id="container" class="main-col">
                 <?php if (!$isApiActive) : ?>
-                    <fieldset class="fieldset admin__fieldset no-display" id="api_key_fieldset" style="display: block;">
-                        <div class="admin__field field field-basic_getresponse_api_key required _required with-note">
-                            <label class="label admin__field-label" for="getresponse_api_key">
+                    <fieldset class="fieldset admin__fieldset no-display" id="apiKey_fieldset" style="display: block;">
+                        <div class="admin__field field field-basic_apiKey required _required with-note">
+                            <label class="label admin__field-label" for="apiKey">
                                 <span>API key</span>
                             </label>
                             <div class="admin__field-control control">
-                                <input id="getresponse_api_key" name="getresponse_api_key" value="<?php echo $block->getLastPostedApiKey(); ?>" title="API Key" class="basic_behavior input-text input-text admin__control-text required-entry _required" type="text" aria-required="true">
+                                <input id="apiKey" name="apiKey" value="<?php echo $block->getLastPostedApiKey(); ?>" title="API Key" class="basic_behavior input-text input-text admin__control-text required-entry _required" type="text" aria-required="true">
                                 <div class="note admin__field-note" id="basic_behavior_allowed_error_count-note">
                                     Your API key is part of the settings of your GetResponse account. Log in to GetResponse and go to <a href="https://app.getresponse.com/manage_api.html" target="_blank">My account > API & OAuth</a> to find the key.
                                 </div>
-                                <div class="admin__field admin__field-option getresponse_360_account__field">
-                                    <input id="getresponse_360_account" name="getresponse_360_account" class="admin__control-checkbox" type="checkbox" value="1" <?php if ($block->getLastPostedApiAccount()) { ?>checked="checked"<?php } ?>>
-                                    <label class="admin__field-label" for="getresponse_360_account"><span>I have the Enterprise package</span></label>
+                                <div class="admin__field admin__field-option is_mx__field">
+                                    <input id="is_mx" name="is_mx" class="admin__control-checkbox" type="checkbox" value="1" <?php if ($block->getLastPostedTypeOfAccountCheckboxValue()) { ?>checked="checked"<?php } ?>>
+                                    <label class="admin__field-label" for="is_mx"><span>I have the Enterprise package</span></label>
                                 </div>
                             </div>
                         </div>
                     </fieldset>
-                    <fieldset id="getresponse_360_account_options" class="fieldset admin__fieldset getresponse_360_account_options <?php if (1 != $block->getLastPostedApiAccount()) { ?>hidden<?php } ?>">
-                        <div class="admin__field field field-basic_getresponse_360_account">
-                            <label class="label admin__field-label" for="getresponse_api_url">
+                    <fieldset id="is_mx_options" class="fieldset admin__fieldset is_mx_options <?php if (1 != $block->getLastPostedTypeOfAccountCheckboxValue()) { ?>hidden<?php } ?>">
+                        <div class="admin__field field field-basic_is_mx">
+                            <label class="label admin__field-label" for="api_url">
                                 <span>Account type</span>
                             </label>
                             <div class="admin__field-control control">
                                 <div class="admin__field">
-                                    <select id="getresponse_account_type" name="getresponse_account_type" title="Account Type" class="select admin__control-select" aria-required="true">
+                                    <select id="url" name="url" title="Account Type" class="select admin__control-select" aria-required="true">
                                         <option value="https://api3.getresponse360.pl/v3" <?php if('https://api3.getresponse360.pl/v3' == $block->getLastPostedApiUrl()) { ?> selected="selected"<?php } ?>>GetResponse 360 PL</option>
                                         <option value="https://api3.getresponse360.com/v3" <?php if('https://api3.getresponse360.com/v3' == $block->getLastPostedApiUrl()) { ?> selected="selected"<?php } ?>>GetResponse 360 COM</option>
                                     </select>
@@ -73,12 +73,12 @@ if ($isApiActive) {
                             </div>
                         </div>
                         <div class="admin__field field field-basic_getresponse_api_domain required _required with-note">
-                            <label class="label admin__field-label" for="getresponse_api_domain">
+                            <label class="label admin__field-label" for="domain">
                                 Your domain
                             </label>
                             <div class="admin__field-control control">
                                 <div class="admin__field">
-                                    <input type="text" name="getresponse_api_domain" id="getresponse_api_domain"
+                                    <input type="text" name="domain" id="domain"
                                            value="<?php echo $block->getLastPostedApiDomain();?>"
                                            class="input-text admin__control-text">
                                 </div>
@@ -96,7 +96,7 @@ if ($isApiActive) {
                     <table class="account_data">
                         <tr>
                             <td>
-                                <label for="getresponse_getresponse_general_api_key">Status:</label>
+                                <label for="getresponse_getresponse_general_apiKey">Status:</label>
                             </td>
                             <td>
                                 <div><span class="status-connected">CONNECTED</span></div>
@@ -107,7 +107,7 @@ if ($isApiActive) {
                                 API Key:
                             </td>
                             <td>
-                                <span name="getresponse_api_key" id="getresponse_api_key"><?php echo $block->getHiddenApiKey(); ?></span>
+                                <span name="apiKey" id="apiKey"><?php echo $block->getHiddenApiKey(); ?></span>
                             </td>
                         </tr>
                         <?php endif; ?>

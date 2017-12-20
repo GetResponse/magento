@@ -60,7 +60,7 @@ class Account extends Template
     }
 
     /**
-     * @return bool
+     * @return string
      */
     public function getLastPostedApiKey()
     {
@@ -68,46 +68,46 @@ class Account extends Template
         $request = $this->getRequest();
         $data = $request->getPostValue();
         if (!empty($data)) {
-            if (isset($data['getresponse_api_key'])) {
-                return $data['getresponse_api_key'];
+            if (isset($data['api_key'])) {
+                return $data['api_key'];
             }
         }
 
-        return false;
+        return '';
     }
 
     /**
      * @return int
      */
-    public function getLastPostedApiAccount()
+    public function getLastPostedTypeOfAccountCheckboxValue()
     {
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();
-        if (!empty($data['getresponse_360_account']) && 1 == $data['getresponse_360_account']) {
-            return $data['getresponse_360_account'];
+        if (!empty($data['is_mx']) && 1 == $data['is_mx']) {
+            return 1;
         }
 
         return 0;
     }
 
     /**
-     * @return bool
+     * @return string
      */
     public function getLastPostedApiUrl()
     {
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();
-        if (!empty($data['getresponse_api_url'])) {
-            return $data['getresponse_api_url'];
+        if (!empty($data['api_url'])) {
+            return $data['api_url'];
         }
 
-        return false;
+        return '';
     }
 
     /**
-     * @return bool
+     * @return string
      */
     public function getLastPostedApiDomain()
     {
@@ -118,7 +118,7 @@ class Account extends Template
             return $data['getresponse_api_domain'];
         }
 
-        return false;
+        return '';
     }
 
     /**
@@ -126,21 +126,12 @@ class Account extends Template
      */
     public function getHiddenApiKey()
     {
-        $settings = $this->repository->getConnectionSettings();
+        $connectionSettings = ConnectionSettingsFactory::createFromArray($this->repository->getConnectionSettings());
 
-        if (empty($settings)) {
+        if (0 === strlen($connectionSettings->getApiKey())) {
             return '';
         }
 
-        $settings = ConnectionSettingsFactory::createFromArray($settings);
-
-        if (empty($settings->getApiKey())) {
-            return '';
-        }
-
-        return strlen($settings->getApiKey()) > 0 ? str_repeat(
-                "*",
-                strlen($settings->getApiKey()) - 6
-            ) . substr($settings->getApiKey(), -6) : '';
+        return str_repeat("*", strlen($connectionSettings->getApiKey()) - 6) . substr($connectionSettings->getApiKey(), -6);
     }
 }

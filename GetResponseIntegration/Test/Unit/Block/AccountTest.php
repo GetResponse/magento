@@ -34,8 +34,12 @@ class AccountTest extends TestCase
         $this->repository = $this->createMock(Repository::class);
         $this->repositoryFactory = $this->createMock(RepositoryFactory::class);
         $getresponse = new Getresponse($this->repository, $this->repositoryFactory);
-        $this->accountBlock = new AccountBlock($this->context, $this->repository, $this->repositoryFactory,
-            $getresponse);
+        $this->accountBlock = new AccountBlock(
+            $this->context,
+            $this->repository,
+            $this->repositoryFactory,
+            $getresponse
+        );
     }
 
     /**

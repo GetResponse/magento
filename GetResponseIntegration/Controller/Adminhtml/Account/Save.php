@@ -79,32 +79,16 @@ class Save extends Action
     public function execute()
     {
         $featureTracking = false;
-        $trackingCodeSnippet = '';
+        $trackingCodeSnippet = $apiUrl = $domain = '';
 
-        $data = $this->request->getPostValue();
+        $connectionSettings = ConnectionSettingsFactory::createFromPost($this->request->getPostValue());
 
-        if (empty($data)) {
-            $resultPage = $this->resultPageFactory->create();
-            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-
-            return $resultPage;
-        }
-
-        if (empty($data['getresponse_api_key'])) {
+        if ('' == $connectionSettings->getApiKey()) {
             $this->messageManager->addErrorMessage(Message::EMPTY_API_KEY);
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
-        $apiKey = $data['getresponse_api_key'];
-        $apiUrl = null;
-        $domain = null;
-
-        if (isset($data['getresponse_360_account']) && 1 == $data['getresponse_360_account']) {
-            $apiUrl = !empty($data['getresponse_api_url']) ? $data['getresponse_api_url'] : null;
-            $domain = !empty($data['getresponse_api_domain']) ? $data['getresponse_api_domain'] : null;
-        }
-
-        $grRepository = $this->repositoryFactory->createNewRepository($apiKey, $apiUrl, $domain);
+        $grRepository = $this->repositoryFactory->createFromConnectionSettings($connectionSettings);
         if (false === $this->repositoryValidator->validateGrRepository($grRepository)) {
             $this->messageManager->addErrorMessage(self::API_ERROR_MESSAGE);
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
@@ -129,24 +113,14 @@ class Save extends Action
             }
         }
 
-        $payload = [
-            'apiKey' => $apiKey,
-            'url' => $apiUrl,
-            'domain' => $domain
-        ];
-
-        $this->repository->saveConnectionSettings(
-            ConnectionSettingsFactory::createFromArray($payload)
-        );
-
-        $params = [
-            'isEnabled' => false,
-            'isFeatureTrackingEnabled' => $featureTracking,
-            'codeSnippet' => $trackingCodeSnippet
-        ];
+        $this->repository->saveConnectionSettings($connectionSettings);
 
         $this->repository->saveWebEventTracking(
-            WebEventTrackingSettingsFactory::createFromArray($params)
+            WebEventTrackingSettingsFactory::createFromArray([
+                'isEnabled' => false,
+                'isFeatureTrackingEnabled' => $featureTracking,
+                'codeSnippet' => $trackingCodeSnippet
+            ])
         );
         $this->repository->saveAccountDetails($account);
         $this->repository->setCustomsOnInit(DefaultCustomFieldsFactory::createDefaultCustomsMap());
