@@ -74,7 +74,7 @@ class Lists extends Template
      *
      * @return string
      */
-    public function getBackUrl($backUrl)
+    public function getBackUrl($backUrl = null)
     {
         if (null === $backUrl) {
             $backUrl = $this->getRequest()->getParam('back');
