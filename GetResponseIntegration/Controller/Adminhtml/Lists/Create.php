@@ -70,6 +70,10 @@ class Create extends AbstractController
         $request = $this->getRequest();
         $data = $request->getPostValue();
 
+        if (empty($data)) {
+            return $resultPage;
+        }
+
         $error = ListValidator::validateNewListParams($data);
 
         if (!empty($error)) {
