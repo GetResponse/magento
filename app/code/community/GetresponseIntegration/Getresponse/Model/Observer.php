@@ -1,5 +1,9 @@
 <?php
-
+use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
+use GetresponseIntegration_Getresponse_Domain_WebformRepository as WebformRepository;
+use GetresponseIntegration_Getresponse_Domain_AutomationRuleFactory as AutomationRuleFactory;
+use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionRepository as AutomationRulesCollectionRepository;
+use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionFactory as AutomationRulesCollectionFactory;
 /**
  * Getresponse module observer
  *
@@ -18,10 +22,11 @@ class GetresponseIntegration_Getresponse_Model_Observer
             return $this;
         }
 
-        $shop_id = Mage::helper('getresponse')->getStoreId();
+        $shopId = Mage::helper('getresponse')->getStoreId();
+        $settingsRepository = new SettingsRepository($shopId);
+        $accountSettings = $settingsRepository->getAccount();
 
-        $settings = Mage::getModel('getresponse/settings')->load($shop_id)->getData();
-        if (empty($settings['api_key']) || 0 === (int) $settings['has_active_traffic_module']) {
+        if (empty($accountSettings['apiKey']) || 0 === (int) $accountSettings['hasActiveTrafficModule']) {
             return $this;
         }
 
@@ -31,7 +36,7 @@ class GetresponseIntegration_Getresponse_Model_Observer
 
         if ("head" == $block->getNameInLayout()) {
             $myBlock = $layout->createBlock('core/text');
-            $myBlock->setText($settings['tracking_code_snippet']);
+            $myBlock->setText($accountSettings['trackingCodeSnippet']);
 
             $block->append($myBlock);
         }
@@ -86,35 +91,36 @@ class GetresponseIntegration_Getresponse_Model_Observer
 			return;
 		}
 
-		$shop_id = Mage::helper('getresponse')->getStoreId();
+        $shopId = Mage::helper('getresponse')->getStoreId();
+        $settingsRepository = new SettingsRepository($shopId);
+        $accountSettings = $settingsRepository->getAccount();
+        $webformRepository = new WebformRepository($shopId);
+        $webformSettings = $webformRepository->getWebform();
 
-		$settings = Mage::getModel('getresponse/settings')->load($shop_id)->getData();
-		if (empty($settings['api_key'])) {
+		if (empty($accountSettings['apiKey'])) {
 			return;
 		}
 
-		$webforms = Mage::getModel('getresponse/webforms')->load($shop_id)->getData();
+		if ( !empty($webformSettings) && $webformSettings['activeSubscription'] == 1 && !empty($webformSettings['url'])) {
+			$sub_position = ($webformSettings['blockPosition'] == 'before') ? 'before="-"' : 'after="-"';
 
-		if ( !empty($webforms) && $webforms['active_subscription'] == 1 && !empty($webforms['url'])) {
-			$sub_position = ($webforms['block_position'] == 'before') ? 'before="-"' : 'after="-"';
-
-			$myXml = '<reference name="' . $webforms['layout_position'] . '">';
+			$myXml = '<reference name="' . $webformSettings['layoutPosition'] . '">';
 			$myXml .= '<block type="core/text_list"
-							name="' . $webforms['layout_position'] . '.content"
-							as="getresponse_webform_' . $webforms['layout_position'] . '"
+							name="' . $webformSettings['layoutPosition'] . '.content"
+							as="getresponse_webform_' . $webformSettings['layoutPosition'] . '"
 							translate="label" ' . $sub_position . '>';
 			$myXml .= '<block type="core/template"
-							name="getresponse_webform_' . $webforms['layout_position'] . '"
+							name="getresponse_webform_' . $webforms['layoutPosition'] . '"
 							template="getresponse/webform.phtml">';
 			$myXml .= '<action method="setData">
 							<name>getresponse_active_subscription</name>
-							<value>' . $webforms['active_subscription'] . '</value></action>';
+							<value>' . $webformSettings['activeSubscription'] . '</value></action>';
 			$myXml .= '<action method="setData">
 							<name>getresponse_webform_title</name>
-							<value>' . $webforms['webform_title'] . '</value></action>';
+							<value>' . $webformSettings['webformTitle'] . '</value></action>';
 			$myXml .= '<action method="setData">
 							<name>getresponse_webform_url</name>
-							<value>' . str_replace('&', '&amp;', $webforms['url']) . '</value></action>';
+							<value>' . str_replace('&', '&amp;', $webformSettings['url']) . '</value></action>';
 			$myXml .= '</block></block>';
 			$myXml .= '</reference>';
 			$layout = $observer->getEvent()->getLayout();
@@ -156,10 +162,12 @@ class GetresponseIntegration_Getresponse_Model_Observer
 
 		$event = $observer->getEvent();
 		$customer = $event->getCustomer();
-		$shop_id = Mage::helper('getresponse')->getStoreId();
-		$settings = Mage::getModel('getresponse/settings')->load($shop_id)->getData();
 
-		if (empty($settings['api_key']) || $settings['active_subscription'] != '1' || empty($settings['campaign_id'])) {
+        $shopId = Mage::helper('getresponse')->getStoreId();
+        $settingsRepository = new SettingsRepository($shopId);
+        $accountSettings = $settingsRepository->getAccount();
+
+		if (empty($accountSettings['apiKey']) || $accountSettings['activeSubscription'] != '1' || empty($accountSettings['campaignId'])) {
 			return;
 		}
 
@@ -169,16 +177,16 @@ class GetresponseIntegration_Getresponse_Model_Observer
 		}
 
 		Mage::helper('getresponse/api')->setApiDetails(
-			$settings['api_key'],
-			$settings['api_url'],
-			$settings['api_domain']
+            $accountSettings['apiKey'],
+            $accountSettings['apiUrl'],
+            $accountSettings['apiDomain']
 		);
 
 		Mage::helper('getresponse/api')->addContact(
-			$settings['campaign_id'],
+            $accountSettings['campaignId'],
 			$customer->getName(),
 			$customer->getEmail(),
-			$settings['cycle_day'],
+            $accountSettings['cycleDay'],
 			array()
 		);
 	}
@@ -196,19 +204,21 @@ class GetresponseIntegration_Getresponse_Model_Observer
 
 		$categories = Mage::helper('getresponse')->getCategoriesByOrder($order);
 		$customer = Mage::getModel('customer/customer')->load($order->getCustomerId());
-		$shop_id = Mage::helper('getresponse')->getStoreId();
 
-		$settings = Mage::getModel('getresponse/settings')->load($shop_id)->getData();
-		if (empty($settings['api_key']) || $settings['active_subscription'] != '1' || empty($settings['campaign_id'])) {
+        $shopId = Mage::helper('getresponse')->getStoreId();
+        $settingsRepository = new SettingsRepository($shopId);
+        $accountSettings = $settingsRepository->getAccount();
+
+		if (empty($accountSettings['apiKey']) || $accountSettings['activeSubscription'] != '1' || empty($accountSettings['campaignId'])) {
 			return;
 		}
 
 		$subscriberModel = Mage::getModel('newsletter/subscriber')->loadByEmail($customer->getEmail());
 		if (false === $subscriberModel->isSubscribed()) {
-			return;
+			//return;
 		}
 
-		$customs = Mage::getModel('getresponse/customs')->getCustoms($shop_id);
+		$customs = Mage::getModel('getresponse/customs')->getCustoms($shopId);
 
         $billing = $customer->getPrimaryBillingAddress();
 
@@ -220,20 +230,20 @@ class GetresponseIntegration_Getresponse_Model_Observer
         }
 
 		Mage::helper('getresponse/api')->setApiDetails(
-			$settings['api_key'],
-			$settings['api_url'],
-			$settings['api_domain']
+            $accountSettings['apiKey'],
+            $accountSettings['apiUrl'],
+            $accountSettings['apiDomain']
 		);
 
 		Mage::helper('getresponse/api')->addContact(
-			$settings['campaign_id'],
+            $accountSettings['campaignId'],
 			$customer->getName(),
 			$customer->getEmail(),
-			$settings['cycle_day'],
+            $accountSettings['cycleDay'],
 			Mage::getModel('getresponse/customs')->mapCustoms($user_customs, $customs)
 		);
 
-		$this->automationHandler($categories, $shop_id, $customer, $user_customs, $customs, $settings);
+		$this->automationHandler($categories, $shopId, $customer, $user_customs, $customs, $accountSettings);
 	}
 
 	/**
@@ -246,8 +256,15 @@ class GetresponseIntegration_Getresponse_Model_Observer
 	 */
 	public function automationHandler($categories, $shop_id, $customer, $user_customs, $customs, $settings)
 	{
- 		$automations = Mage::getModel('getresponse/automations')
-			->getActiveAutomationsByCategoriesAndShopId($categories, $shop_id);
+ 		$automations = [];
+        $ruleRepository = new AutomationRulesCollectionRepository($shop_id);
+        $ruleCollectionDb = $ruleRepository->getCollection();
+
+        foreach ($ruleCollectionDb as $rule) {
+            if (false !== array_search($rule['categoryId'], $categories)) {
+                $automations[] = $rule;
+            }
+        }
 
 		if (empty($automations)) {
 			return;
@@ -258,10 +275,10 @@ class GetresponseIntegration_Getresponse_Model_Observer
 		foreach ($automations as $automation) {
 
 			Mage::helper('getresponse/api')->addContact(
-				$automation['campaign_id'],
+				$automation['campaignId'],
 				$customer->getName(),
 				$customer->getEmail(),
-				$automation['cycle_day'],
+				$automation['cycleDay'],
 				Mage::getModel('getresponse/customs')->mapCustoms($user_customs, $customs)
 			);
 
@@ -287,14 +304,15 @@ class GetresponseIntegration_Getresponse_Model_Observer
             return;
         }
 
-        $shop_id = Mage::helper('getresponse')->getStoreId();
-        $settings = Mage::getModel('getresponse/settings')->load($shop_id)->getData();
+        $shopId = Mage::helper('getresponse')->getStoreId();
+        $settingsRepository = new SettingsRepository($shopId);
+        $accountSettings = $settingsRepository->getAccount();
 
-        if (empty($settings['api_key'])) {
+        if (empty($accountSettings['apiKey'])) {
             return;
         }
 
-        Mage::register('_subscription_on_checkout', (bool) $settings['subscription_on_checkout']);
+        Mage::register('_subscription_on_checkout', (bool) $accountSettings['subscriptionOnCheckout']);
     }
 
     /**
@@ -359,30 +377,30 @@ class GetresponseIntegration_Getresponse_Model_Observer
 
         Mage::getModel('newsletter/subscriber')->subscribe($details['email']);
 
-        $shop_id = Mage::helper('getresponse')->getStoreId();
+        $shopId = Mage::helper('getresponse')->getStoreId();
+        $settingsRepository = new SettingsRepository($shopId);
+        $accountSettings = $settingsRepository->getAccount();
 
-        $settings = Mage::getModel('getresponse/settings')->load($shop_id)->getData();
-
-        if (empty($settings['api_key'])) {
+        if (empty($accountSettings['apiKey'])) {
             return;
         }
 
         Mage::helper('getresponse/api')->setApiDetails(
-            $settings['api_key'],
-            $settings['api_url'],
-            $settings['api_domain']
+            $accountSettings['apiKey'],
+            $accountSettings['apiUrl'],
+            $accountSettings['apiDomain']
         );
 
-        $customs = (array) Mage::getModel('getresponse/customs')->getCustoms($shop_id);
+        $customs = (array) Mage::getModel('getresponse/customs')->getCustoms($shopId);
 
         $details['street'] = join(' ', (array) $details['street']);
         $details['country'] = $details['country_id'];
 
         Mage::helper('getresponse/api')->addContact(
-            $settings['campaign_id'],
+            $accountSettings['campaignId'],
             $details['firstname'] . ' ' . $details['lastname'],
             $details['email'],
-            $settings['cycle_day'],
+            $accountSettings['cycleDay'],
             Mage::getModel('getresponse/customs')->mapCustoms($details, $customs)
         );
     }
@@ -396,10 +414,11 @@ class GetresponseIntegration_Getresponse_Model_Observer
             return;
         }
 
-        $shop_id = Mage::helper('getresponse')->getStoreId();
-        $settings = Mage::getModel('getresponse/settings')->load($shop_id)->getData();
+        $shopId = Mage::helper('getresponse')->getStoreId();
+        $settingsRepository = new SettingsRepository($shopId);
+        $accountSettings = $settingsRepository->getAccount();
 
-        if (empty($settings['api_key']) || '1' !== $settings['newsletter_subscription'] || empty($settings['newsletter_campaign_id'])) {
+        if (empty($accountSettings['apiKey']) || '1' !== $accountSettings['newsletterSubscription'] || empty($accountSettings['newsletterCampaignId'])) {
             return;
         }
 
@@ -430,16 +449,16 @@ class GetresponseIntegration_Getresponse_Model_Observer
         }
 
         Mage::helper('getresponse/api')->setApiDetails(
-            $settings['api_key'],
-            $settings['api_url'],
-            $settings['api_domain']
+            $accountSettings['apiKey'],
+            $accountSettings['apiUrl'],
+            $accountSettings['apiDomain']
         );
 
         Mage::helper('getresponse/api')->addContact(
-            $settings['newsletter_campaign_id'],
+            $accountSettings['newsletterCampaignId'],
             $name,
             $email,
-            $settings['cycle_day'],
+            $accountSettings['cycleDay'],
             []
         );
     }

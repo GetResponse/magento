@@ -1,4 +1,6 @@
 <?php
+use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
+use GetresponseIntegration_Getresponse_Domain_SettingsFactory as SettingsFactory;
 
 require_once Mage::getModuleDir('controllers',
         'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
@@ -31,10 +33,13 @@ class GetresponseIntegration_Getresponse_WebtrafficController extends Getrespons
         $this->_initAction();
         $hasActiveTrafficModule = (int)$this->getRequest()->getParam('has_active_traffic_module', 0);
 
-        Mage::getModel('getresponse/settings')->updateSettings(
-            ['has_active_traffic_module' => $hasActiveTrafficModule],
-            $this->currentShopId
+        $settingsRepository = new SettingsRepository($this->currentShopId);
+        $newSettings = SettingsFactory::createFromArray(
+            [
+                'hasActiveTrafficModule' => $hasActiveTrafficModule
+            ]
         );
+        $settingsRepository->update($newSettings);
 
         $message = $hasActiveTrafficModule == 0 ? 'Web event traffic tracking disabled' : 'Web event traffic tracking enabled';
 

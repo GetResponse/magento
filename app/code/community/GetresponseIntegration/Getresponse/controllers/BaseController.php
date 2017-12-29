@@ -1,5 +1,7 @@
 <?php
-
+use GetResponseIntegration_Getresponse_Domain_AccountRepository as AccountRepository;
+use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
+use GetresponseIntegration_Getresponse_Domain_WebformRepository as WebformRepository;
 
 class GetresponseIntegration_Getresponse_BaseController extends Mage_Adminhtml_Controller_Action
 {
@@ -34,7 +36,7 @@ class GetresponseIntegration_Getresponse_BaseController extends Mage_Adminhtml_C
         $this->settingsHandler();
         $this->loadLayout();
 
-        if (empty($this->settings->api['api_key'])) {
+        if (empty($this->settings->api['apiKey'])) {
 
             if ('account' !== $this->getRequest()->getControllerName() || 'index' !== $this->getRequest()
                     ->getActionName()) {
@@ -55,23 +57,27 @@ class GetresponseIntegration_Getresponse_BaseController extends Mage_Adminhtml_C
         $this->settings->main['api_url_360_com'] = 'https://api3.getresponse360.com/v3';
         $this->settings->main['api_url_360_pl'] = 'https://api3.getresponse360.pl/v3';
 
-        $this->settings->api = Mage::getModel('getresponse/settings')->load($this->currentShopId)->getData();
+        $shopId = Mage::helper('getresponse')->getStoreId();
+        $settingsRepository = new SettingsRepository($shopId);
+        $webformRepository = new WebformRepository($shopId);
+
+        $this->settings->api = $settingsRepository->getAccount();
 
         Mage::helper('getresponse/api')->setApiDetails(
-            $this->settings->api['api_key'],
-            $this->settings->api['api_url'],
-            $this->settings->api['api_domain']
+            $this->settings->api['apiKey'],
+            $this->settings->api['apiUrl'],
+            $this->settings->api['apiDomain']
         );
 
-        if (!empty($this->settings->api['api_key'])) {
+        if (!empty($this->settings->api['apiKey'])) {
             $this->settings->api['encrypted_api_key'] = str_repeat("*",
-                    strlen($this->settings->api['api_key']) - 6) . substr($this->settings->api['api_key'], -6);
+                    strlen($this->settings->api['apiKey']) - 6) . substr($this->settings->api['apiKey'], -6);
         }
 
-        $this->settings->account = Mage::getModel('getresponse/account')->load($this->currentShopId)->getData();
+        $accountRepository = new AccountRepository($this->currentShopId);
+        $this->settings->account = $accountRepository->getAccount();
         $this->settings->customs = Mage::getModel('getresponse/customs')->getCustoms($this->currentShopId);
-        $this->settings->webforms_settings =
-            Mage::getModel('getresponse/webforms')->load($this->currentShopId)->getData();
+        $this->settings->webforms_settings = $webformRepository->getWebform();
     }
 
     /**

@@ -244,5 +244,14 @@
         </core_block_abstract_prepare_layout_before>
     </events>
 </adminhtml>
+
+    <default>
+        <getresponse_customs>
+            <fields_mapping>
+                <map_fields>asdadasda</map_fields>
+            </fields_mapping>
+        </getresponse_customs>
+    </default>
+
 </config>
 

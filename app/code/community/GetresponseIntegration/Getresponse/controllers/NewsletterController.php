@@ -1,4 +1,6 @@
 <?php
+use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
+use GetresponseIntegration_Getresponse_Domain_SettingsFactory as SettingsFactory;
 
 require_once Mage::getModuleDir('controllers',
         'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
@@ -54,14 +56,15 @@ class GetresponseIntegration_Getresponse_NewsletterController extends Getrespons
             $newsletterCycleDay = 0 === $isAutoresponderEnabled ? NULL : $newsletterCycleDay;
         }
 
-        Mage::getModel('getresponse/settings')->updateSettings(
+        $settingsRepository = new SettingsRepository($this->currentShopId);
+        $newSettings = SettingsFactory::createFromArray(
             [
-                'newsletter_subscription' => $isEnabled,
-                'newsletter_campaign_id' => $newsletterCampaignId,
-                'newsletter_cycle_day' => $newsletterCycleDay,
-            ],
-            $this->currentShopId
+                'newsletterSubscription' => $isEnabled,
+                'newsletterCampaignId' => $newsletterCampaignId,
+                'newsletterCycleDay' => $newsletterCycleDay,
+            ]
         );
+        $settingsRepository->update($newSettings);
 
         $this->_getSession()->addSuccess('Settings saved');
         $this->_redirect('*/*/index');

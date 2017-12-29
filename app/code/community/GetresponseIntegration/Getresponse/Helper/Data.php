@@ -1,4 +1,8 @@
 <?php
+use GetResponseIntegration_Getresponse_Domain_AccountRepository as AccountRepository;
+use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
+use GetresponseIntegration_Getresponse_Domain_ShopRepository as ShopRepository;
+use GetresponseIntegration_Getresponse_Domain_WebformRepository as WebformRepository;
 
 class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Abstract
 {
@@ -136,12 +140,20 @@ class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Ab
      */
 	public function disconnectIntegration($shopId)
 	{
-		Mage::getModel('getresponse/settings')->disconnect($shopId);
-		Mage::getModel('getresponse/account')->disconnect($shopId);
+        $settingsRepository = new SettingsRepository($shopId);
+        $settingsRepository->delete();
+
+        $accountRepository = new AccountRepository($shopId);
+        $accountRepository->delete();
+
+        $shopRepository = new ShopRepository($shopId);
+        $shopRepository->delete();
+
+        $webformRepository = new WebformRepository($shopId);
+        $webformRepository->delete();
+
 		Mage::getModel('getresponse/customs')->disconnect($shopId);
-		Mage::getModel('getresponse/webforms')->disconnect($shopId);
 		Mage::getModel('getresponse/automations')->disconnect($shopId);
-        Mage::getModel('getresponse/shop')->disconnect($shopId);
 	}
 
 	public function handleUnauthorizedApiCall()

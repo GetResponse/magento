@@ -140,5 +140,4 @@ class GetresponseIntegration_Getresponse_Model_Automations extends Mage_Core_Mod
 			}
 		}
 	}
-
 }

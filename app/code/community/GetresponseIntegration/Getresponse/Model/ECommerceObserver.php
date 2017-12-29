@@ -1,4 +1,6 @@
 <?php
+use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
+use GetresponseIntegration_Getresponse_Domain_ShopRepository as ShopRepository;
 
 /**
  * Class GetresponseIntegration_Getresponse_Model_ECommerceObserver
@@ -18,20 +20,18 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 
     public function __construct()
     {
-        $this->getresponseSettings = Mage::getModel('getresponse/settings')->load(
-            Mage::helper('getresponse')->getStoreId()
-        );
-
-        $this->getresponseShopsSettings = Mage::getModel('getresponse/shop')->load(
-            Mage::helper('getresponse')->getStoreId()
-        );
+        $shopId = Mage::helper('getresponse')->getStoreId();
+        $settingsRepository = new SettingsRepository($shopId);
+        $this->getresponseSettings = $settingsRepository->getAccount();
+        $shopRepository = new ShopRepository($shopId);
+        $this->getresponseShopsSettings = $shopRepository->getShop();
 
         $this->api = Mage::helper('getresponse/api');
 
         $this->api->setApiDetails(
-            $this->getresponseSettings['api_key'],
-            $this->getresponseSettings['api_url'],
-            $this->getresponseSettings['api_domain']
+            $this->getresponseSettings['apiKey'],
+            $this->getresponseSettings['apiUrl'],
+            $this->getresponseSettings['apiDomain']
         );
 
         $this->cache = Mage::app()->getCache();
@@ -64,7 +64,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                 continue;
             }
 
-            $grProductId = $this->getProductId($this->getresponseShopsSettings->getGrShopId(), $magentoCartItem);
+            $grProductId = $this->getProductId($this->getresponseShopsSettings['grShopId'], $magentoCartItem);
             if (false === $grProductId) {
                 continue;
             }
@@ -80,7 +80,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
         if (empty($requestToGr['selectedVariants'])) {
             if (!empty($magentoCart['getresponse_cart_id'])) {
                 $this->api->deleteCart(
-                    $this->getresponseShopsSettings['gr_shop_id'],
+                    $this->getresponseShopsSettings['grShopId'],
                     $magentoCart['getresponse_cart_id']
                 );
                 $magentoCart->setGetresponseCartId('');
@@ -91,12 +91,12 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 
 
         if (empty($magentoCart['getresponse_cart_id'])) {
-            $response = $this->api->addCart($this->getresponseShopsSettings['gr_shop_id'], $requestToGr);
+            $response = $this->api->addCart($this->getresponseShopsSettings['grShopId'], $requestToGr);
             $magentoCart->setGetresponseCartId($response->cartId);
             $magentoCart->save();
         } else {
             $response = $this->api->updateCart(
-                $this->getresponseShopsSettings->getGrShopId(),
+                $this->getresponseShopsSettings['grShopId'],
                 $magentoCart['getresponse_cart_id'],
                 $requestToGr
             );
@@ -182,7 +182,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
         /** @var Mage_Customer_Model_Customer $customer */
         $customer = Mage::getSingleton('customer/session')->getCustomer();
 
-        $cacheKey = md5($customer->getEmail().$this->getresponseSettings['campaign_id']);
+        $cacheKey = md5($customer->getEmail().$this->getresponseSettings['campaignId']);
         $cachedContact = $this->cache->load($cacheKey);
 
         if (false !== $cachedContact) {
@@ -191,7 +191,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 
         $response = $this->api->getContact(
             $customer->getEmail(),
-            $this->getresponseSettings['campaign_id']
+            $this->getresponseSettings['campaignId']
         );
 
         $this->cache->save(serialize($response), $cacheKey, [self::CACHE_KEY], 5*60);
@@ -205,10 +205,11 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             return false;
         }
 
-        $current_shop_id = Mage::helper('getresponse')->getStoreId();
-        $data = Mage::getModel('getresponse/shop')->load($current_shop_id);
+        $shopId = Mage::helper('getresponse')->getStoreId();
+        $shopRepository = new ShopRepository($shopId);
+        $data = $shopRepository->getShop();
 
-        if (1 != $data->is_enabled) {
+        if (1 != $data['isEnabled']) {
             return false;
         }
 
@@ -235,7 +236,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
         $requestToGr['cartId'] = $order->getQuote()->getGetresponseCartId();
 
         $response = $this->api->createOrder(
-            $this->getresponseShopsSettings->getGrShopId(),
+            $this->getresponseShopsSettings['grShopId'],
             $requestToGr
         );
 
@@ -284,7 +285,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                 continue;
             }
 
-            $grProductId = $this->getProductId($this->getresponseShopsSettings->getGrShopId(), $item);
+            $grProductId = $this->getProductId($this->getresponseShopsSettings['grShopId'], $item);
             if (false === $grProductId) {
                 continue;
             }
@@ -347,7 +348,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
         }
 
         $this->api->updateOrder(
-            $this->getresponseShopsSettings->getGrShopId(),
+            $this->getresponseShopsSettings['grShopId'],
             $order->getGetresponseOrderId(),
             $requestToGr
         );
@@ -355,9 +356,5 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
         $order->save();
 
         Mage::log('[Order Details Changed Event] - Important to GR. Request sent.', 1, 'getresponse.log');
-
-
     }
-
-
 }

@@ -1,4 +1,10 @@
 <?php
+use GetResponseIntegration_Getresponse_Domain_AccountRepository as AccountRepository;
+use GetresponseIntegration_Getresponse_Domain_AccountFactory as AccountFactory;
+use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
+use GetresponseIntegration_Getresponse_Domain_SettingsFactory as SettingsFactory;
+use GetresponseIntegration_Getresponse_Domain_CustomFieldsCollectionFactory as CustomFieldsCollectionFactory;
+
 
 require_once Mage::getModuleDir('controllers',
         'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
@@ -19,7 +25,7 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
         $this->_initAction();
         $this->_title($this->__('API Key settings'))->_title($this->__('GetResponse'));
 
-        if ((!empty($this->settings->api['api_key']))) {
+        if ((!empty($this->settings->api['apiKey']))) {
             $this->displayAccountDataPage();
         } else {
             $this->displayConnectPage();
@@ -74,9 +80,14 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
             return;
         }
 
-        Mage::getModel('getresponse/account')->updateAccount($status, $this->currentShopId);
+        $accountRepository = new AccountRepository($this->currentShopId);
+        $account = AccountFactory::createFromArray((array)$status);
+        $accountRepository->create($account);
+
         Mage::register('api_key', $apiKey);
         Mage::getModel('getresponse/customs')->connectCustoms($this->currentShopId);
+
+        $customFieldsCollection = CustomFieldsCollectionFactory::
         $this->_getSession()->addSuccess('GetResponse account connected');
 
         $featureTracking = 0;
@@ -87,11 +98,10 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
         }
 
         $data = [
-            'id_shop' => $this->currentShopId,
-            'api_key' => $apiKey,
-            'api_url' => $apiUrl,
-            'api_domain' => $apiDomain,
-            'has_gr_traffic_feature_enabled' => $featureTracking
+            'apiKey' => $apiKey,
+            'apiUrl' => $apiUrl,
+            'apiDomain' => $apiDomain,
+            'hasGrTrafficFeatureEnabled' => $featureTracking
         ];
 
         // getting tracking code
@@ -101,7 +111,10 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
             $data['tracking_code_snippet'] = $trackingCode[0]->snippet;
         }
 
-        if (false === Mage::getModel('getresponse/settings')->updateSettings($data, $this->currentShopId)) {
+        $settingsRepository = new SettingsRepository($this->currentShopId);
+        $settings = SettingsFactory::createFromArray($data);
+
+        if (false === $settingsRepository->create($settings)) {
             $this->_getSession()->addError('Error during settings details save');
         }
 

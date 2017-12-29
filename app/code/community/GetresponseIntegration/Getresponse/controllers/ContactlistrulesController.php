@@ -1,4 +1,9 @@
 <?php
+use GetresponseIntegration_Getresponse_Domain_AutomationRuleFactory as AutomationRuleFactory;
+use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionRepository as AutomationRulesCollectionRepository;
+use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionFactory as AutomationRulesCollectionFactory;
+use GetresponseIntegration_Getresponse_Domain_AutomationRule as AutomationRule;
+use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollection as AutomationRuleCollection;
 
 require_once Mage::getModuleDir('controllers',
         'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
@@ -21,11 +26,14 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
 
         $this->settings->campaign_days = Mage::helper('getresponse/api')->getCampaignDays();
 
+        $ruleRepository = new AutomationRulesCollectionRepository($this->currentShopId);
+        $ruleCollectionDb = $ruleRepository->getCollection();
+
         $this->_addContent($this->getLayout()
             ->createBlock('Mage_Core_Block_Template', 'getresponse_content')
             ->setTemplate('getresponse/automation.phtml')
             ->assign('settings', $this->settings)
-            ->assign('rules', Mage::getModel('getresponse/automations')->getAutomations($this->currentShopId))
+            ->assign('rules', $ruleCollectionDb)
             ->assign('categories', $this->getCategories())
             ->assign('campaign_days', Mage::helper('getresponse/api')->getCampaignDays())
             ->assign('campaigns', $this->api->getGrCampaigns())
@@ -91,8 +99,14 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
             return;
         }
 
-        $automation = Mage::getModel('getresponse/automations')->getAutomation($id);
-        $automation = reset($automation);
+        $ruleRepository = new AutomationRulesCollectionRepository($this->currentShopId);
+        $ruleCollectionDb = $ruleRepository->getCollection();
+        $automation = [];
+
+        foreach ($ruleCollectionDb as $rule) {
+            if ($rule['id'] === $id)
+                $automation = $rule;
+        }
 
         $this->_addContent($this->getLayout()
             ->createBlock('Mage_Core_Block_Template', 'getresponse_content')
@@ -119,20 +133,27 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
 
         $isAutoresponderOn = $this->getRequest()->getParam('gr_autoresponder', 0);
         $cycleDay = $this->getRequest()->getParam('cycle_day', null);
-        if (0 === $isAutoresponderOn) {
+        if (null === $isAutoresponderOn) {
             $cycleDay = null;
         }
 
-        $add = Mage::getModel('getresponse/automations')->createAutomation([
-            'id_shop' => $this->currentShopId,
-            'category_id' => $params['category_id'],
-            'campaign_id' => $params['campaign_id'],
-            'cycle_day' => $cycleDay,
+        $data = [
+            'id' => substr(md5(time()), 0, 5),
+            'categoryId' => $params['category_id'],
+            'campaignId' => $params['campaign_id'],
+            'cycleDay' => $cycleDay,
             'action' => $params['action'],
             'active' => 1
-        ]);
+        ];
 
-        if ($add) {
+        $ruleRepository = new AutomationRulesCollectionRepository($this->currentShopId);
+        $rule = AutomationRuleFactory::createFromArray($data);
+        $ruleCollectionDb = $ruleRepository->getCollection();
+        $ruleCollectionDb = AutomationRulesCollectionFactory::createFromArray($ruleCollectionDb);
+        $status = $ruleCollectionDb->add($rule);
+
+        if ($status) {
+            $ruleRepository->create($ruleCollectionDb);
             $this->_getSession()->addSuccess('Rule added');
             $this->_redirect('*/*/index');
 
@@ -161,20 +182,34 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
 
         $isAutoresponderOn = $this->getRequest()->getParam('gr_autoresponder', 0);
         $cycleDay = $this->getRequest()->getParam('cycle_day', null);
-        if (0 === $isAutoresponderOn) {
+        if (null === $isAutoresponderOn) {
             $cycleDay = null;
         }
 
-        $add = Mage::getModel('getresponse/automations')->updateAutomation($id, [
-            'id_shop' => $this->currentShopId,
-            'category_id' => $params['category_id'],
-            'campaign_id' => $params['campaign_id'],
-            'cycle_day' => $cycleDay,
+        $data = [
+            'id' => $id,
+            'categoryId' => $params['category_id'],
+            'campaignId' => $params['campaign_id'],
+            'cycleDay' => $cycleDay,
             'action' => $params['action'],
             'active' => 1
-        ]);
+        ];
 
-        if ($add) {
+        $ruleRepository = new AutomationRulesCollectionRepository($this->currentShopId);
+        $editedRule = AutomationRuleFactory::createFromArray($data);
+        $ruleCollectionDb = $ruleRepository->getCollection();
+
+        foreach ($ruleCollectionDb as $key => $rule) {
+            if ($rule['id'] === $id) {
+                unset($ruleCollectionDb[$key]);
+            }
+        }
+
+        $ruleCollectionDb = AutomationRulesCollectionFactory::createFromArray($ruleCollectionDb);
+        $status = $ruleCollectionDb->add($editedRule);
+
+        if ($status) {
+            $ruleRepository->create($ruleCollectionDb);
             $this->_getSession()->addSuccess('Rule saved');
             $this->_redirect('*/*/index');
         } else {
@@ -194,7 +229,18 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
             $this->_redirect('*/*/index');
             return;
         }
-        Mage::getModel('getresponse/automations')->deleteAutomation($id);
+
+        $ruleRepository = new AutomationRulesCollectionRepository($this->currentShopId);
+        $ruleCollectionDb = $ruleRepository->getCollection();
+
+        foreach ($ruleCollectionDb as $key => $rule) {
+            if ($rule['id'] === $id) {
+                unset($ruleCollectionDb[$key]);
+            }
+        }
+
+        $ruleCollectionDb = AutomationRulesCollectionFactory::createFromArray($ruleCollectionDb);
+        $ruleRepository->create($ruleCollectionDb);
         $this->_getSession()->addSuccess('Rule deleted');
         $this->_redirect('*/*/index');
     }

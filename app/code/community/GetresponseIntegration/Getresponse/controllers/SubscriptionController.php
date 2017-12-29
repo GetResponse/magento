@@ -1,4 +1,6 @@
 <?php
+use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
+use GetresponseIntegration_Getresponse_Domain_SettingsFactory as SettingsFactory;
 
 require_once Mage::getModuleDir('controllers',
         'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
@@ -20,7 +22,7 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
             'autoresponder',
             array(
                 'campaign_days' => $this->api->getCampaignDays(),
-                'selected_day' => $this->settings->api['cycle_day']
+                'selected_day' => $this->settings->api['cycleDay']
             )
         );
 
@@ -72,16 +74,19 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
             $cycleDay = NULL;
         }
 
-        Mage::getModel('getresponse/settings')->updateSettings(
+
+        $settingsRepository = new SettingsRepository($this->currentShopId);
+        $newSettings = SettingsFactory::createFromArray(
             [
-                'campaign_id' => $campaignId,
-                'active_subscription' => $activeSubscription,
-                'update_address' => $syncOrderData,
-                'cycle_day' => $cycleDay,
-                'subscription_on_checkout' => $subscriptionOnCheckout
-            ],
-            $this->currentShopId
+                'campaignId' => $campaignId,
+                'activeSubscription' => $activeSubscription,
+                'updateAddress' => $syncOrderData,
+                'cycleDay' => $cycleDay,
+                'subscriptionOnCheckout' => $subscriptionOnCheckout
+            ]
         );
+        $settingsRepository->update($newSettings);
+
 
         if (!empty($params['gr_sync_order_data']) && isset($params['gr_custom_field'])) {
 

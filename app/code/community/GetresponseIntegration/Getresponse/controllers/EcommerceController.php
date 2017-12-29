@@ -1,4 +1,6 @@
 <?php
+use GetresponseIntegration_Getresponse_Domain_ShopRepository as ShopRepository;
+use GetresponseIntegration_Getresponse_Domain_ShopFactory as ShopFactory;
 
 require_once Mage::getModuleDir('controllers',
         'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
@@ -15,16 +17,16 @@ class GetresponseIntegration_Getresponse_EcommerceController extends Getresponse
     {
         $this->_initAction();
         $this->_title($this->__('Shop'))->_title($this->__('GetResponse'));
-
-        $ecommerceSettings = Mage::getModel('getresponse/shop')->load($this->currentShopId)->getData();
+        $shopRepository = new ShopRepository($this->currentShopId);
+        $ecommerceSettings = $shopRepository->getShop();
 
         $this->_addContent($this->getLayout()
             ->createBlock('Mage_Core_Block_Template', 'getresponse_content')
             ->setTemplate('getresponse/shop.phtml')
             ->assign('gr_shops', (array)$this->api->getShops())
-            ->assign('shop_enabled', isset($ecommerceSettings['is_enabled']) ? $ecommerceSettings['is_enabled'] : 0)
+            ->assign('shop_enabled', isset($ecommerceSettings['isEnabled']) ? $ecommerceSettings['isEnabled'] : 0)
             ->assign('current_shop_id',
-                isset($ecommerceSettings['gr_shop_id']) ? $ecommerceSettings['gr_shop_id'] : null)
+                isset($ecommerceSettings['grShopId']) ? $ecommerceSettings['grShopId'] : null)
         );
 
         $this->renderLayout();
@@ -37,6 +39,7 @@ class GetresponseIntegration_Getresponse_EcommerceController extends Getresponse
     {
         $isEnabled = (int)$this->getRequest()->getParam('shop_enabled', 0);
         $shopId = $this->getRequest()->getParam('shop_id');
+        $shopRepository = new ShopRepository($this->currentShopId);
 
         if (empty($shopId)) {
             $this->_getSession()->addError('You first need to select a store you want to send ecommerce data from');
@@ -46,17 +49,14 @@ class GetresponseIntegration_Getresponse_EcommerceController extends Getresponse
 
         if (1 === $isEnabled) {
             $data = [
-                'is_enabled' => 1,
-                'gr_shop_id' => $shopId,
-                'shop_id' => $this->currentShopId,
+                'isEnabled' => 1,
+                'grShopId' => $shopId,
             ];
 
-            Mage::getModel('getresponse/shop')
-                ->load($this->currentShopId)
-                ->setData($data)
-                ->save();
+            $dataToUpdate = ShopFactory::createFromArray($data);
+            $shopRepository->create($dataToUpdate);
         } else {
-            Mage::getModel('getresponse/shop')->disconnect($this->currentShopId);
+            $shopRepository->delete();
         }
 
         $this->_getSession()->addSuccess('Ecommerce settings saved');
