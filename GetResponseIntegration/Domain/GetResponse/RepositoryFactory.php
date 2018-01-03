@@ -1,7 +1,6 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
@@ -73,27 +72,6 @@ class RepositoryFactory
             $this->cache
         );
     }
-
-    /**
-     * @param string $apiKey
-     * @param string $url
-     * @param string $domain
-     *
-     * @return Repository
-     */
-    public function createNewRepository($apiKey, $url, $domain)
-    {
-        return new Repository(
-            new GetResponseAPI3(
-                $apiKey,
-                $url,
-                $domain,
-                $this->getVersion()
-            ),
-            $this->cache
-        );
-    }
-
     /**
      * @return string
      */

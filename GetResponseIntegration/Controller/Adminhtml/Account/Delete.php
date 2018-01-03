@@ -1,21 +1,22 @@
 <?php
-namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
+namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Account;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Action\Action;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Cache\Manager;
 
 /**
  * Class Delete
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings
+ * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Account
  */
 class Delete extends Action
 {
-    const BACK_URL = 'getresponseintegration/settings/index';
+    const BACK_URL = 'getresponse/account/index';
 
     /** @var Repository */
     private $repository;
@@ -33,12 +34,14 @@ class Delete extends Action
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
      * @param Manager $cacheManager
+     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         Repository $repository,
-        Manager $cacheManager
+        Manager $cacheManager,
+        RepositoryValidator $repositoryValidator
     ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;

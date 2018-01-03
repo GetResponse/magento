@@ -5,7 +5,6 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Framework\Controller\ResultFactory;
-use Magento\Framework\Message\ManagerInterface;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
@@ -23,25 +22,19 @@ class RepositoryValidator
     /** @var ResultFactory */
     private $resultFactory;
 
-    /** @var ManagerInterface */
-    private $messageManager;
-
     /**
      * @param RepositoryFactory $repositoryFactory
      * @param Repository $repository
      * @param ResultFactory $resultFactory
-     * @param ManagerInterface $messageManager
      */
     public function __construct(
         RepositoryFactory $repositoryFactory,
         Repository $repository,
-        ResultFactory $resultFactory,
-        ManagerInterface $messageManager
+        ResultFactory $resultFactory
     ) {
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
         $this->resultFactory = $resultFactory;
-        $this->messageManager = $messageManager;
     }
 
     /**
@@ -49,9 +42,11 @@ class RepositoryValidator
      */
     public function validate()
     {
-        return $this->validateGrRepository(
-            $this->repositoryFactory->createRepository()
-        );
+        try {
+            return $this->validateGrRepository($this->repositoryFactory->createRepository());
+        } catch (RepositoryException $e) {
+            return false;
+        }
     }
 
     /**

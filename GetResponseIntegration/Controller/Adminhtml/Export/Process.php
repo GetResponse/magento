@@ -1,9 +1,9 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Export;
 
-use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
@@ -19,7 +19,7 @@ use Magento\Framework\App\Request\Http;
  * Class Process
  * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Export
  */
-class Process extends Action
+class Process extends AbstractController
 {
     const PAGE_TITLE = 'Export Customer Data on Demand';
 
@@ -38,15 +38,13 @@ class Process extends Action
     /** @var GrRepository */
     private $grRepository;
 
-    /** @var RepositoryValidator */
-    private $repositoryValidator;
-
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
      * @param RepositoryValidator $repositoryValidator
+     * @throws RepositoryException
      */
     public function __construct(
         Context $context,
@@ -55,11 +53,12 @@ class Process extends Action
         RepositoryFactory $repositoryFactory,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context);
+        parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
         $this->grRepository = $repositoryFactory->createRepository();
         $this->repository = $repository;
-        $this->repositoryValidator = $repositoryValidator;
+
+        return $this->checkGetResponseConnection();
     }
 
     /**
@@ -67,12 +66,6 @@ class Process extends Action
      */
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
-
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();
@@ -147,19 +140,19 @@ class Process extends Action
     /**
      * Add (or update) contact to gr campaign
      *
-     * @param       $campaign
-     * @param       $firstname
-     * @param       $lastname
-     * @param       $email
-     * @param int $cycle_day
+     * @param string $campaign
+     * @param string $firstName
+     * @param string $lastName
+     * @param string $email
+     * @param int $cycleDay
      * @param array $user_customs
      *
      * @return mixed
      */
-    public function addContact($campaign, $firstname, $lastname, $email, $cycle_day = 0, $user_customs = [])
+    public function addContact($campaign, $firstName, $lastName, $email, $cycleDay = 0, $user_customs = [])
     {
         $apiHelper = new ApiHelper($this->grRepository);
-        $name = trim($firstname) . ' ' . trim($lastname);
+        $name = trim($firstName) . ' ' . trim($lastName);
 
         $user_customs['origin'] = 'magento2';
 
@@ -170,8 +163,8 @@ class Process extends Action
             'ipAddress' => $_SERVER['REMOTE_ADDR']
         ];
 
-        if (!empty($cycle_day)) {
-            $params['dayOfCycle'] = (int)$cycle_day;
+        if (!empty($cycleDay)) {
+            $params['dayOfCycle'] = (int)$cycleDay;
         }
 
         $contact = $this->grRepository->getContactByEmail($email, $campaign);
