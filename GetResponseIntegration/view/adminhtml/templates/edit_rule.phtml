@@ -14,7 +14,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
             <div class="page-actions-inner" data-title="New Customer">
                 <div class="page-actions-buttons">
                     <button id="back" title="Back" type="button" class="action- scalable back"
-                            onclick="location.href = '<?php echo $block->getUrl('getresponseintegration/settings/automation'); ?>'"
+                            onclick="location.href = '<?php echo $block->getUrl('getresponse/lists/rules'); ?>'"
                             data-ui-id="back-button">
                         <span>Back</span>
                     </button>
@@ -138,7 +138,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
     <div>Please confirm that you want to delete this rule.</div>
 </div>
 <input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($jsAutoresponders); ?>'/>
-<input type="hidden" id="ruleUrl" value='<?php echo $block->getUrl('getresponseintegration/rules/delete', ['id' => $rule->getId()]); ?>'/>
+<input type="hidden" id="ruleUrl" value='<?php echo $block->getUrl('getresponse/rules/delete', ['id' => $rule->getId()]); ?>'/>
 <script>
     require(['editRule']);
 </script>

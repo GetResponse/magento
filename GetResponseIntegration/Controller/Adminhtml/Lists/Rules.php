@@ -1,9 +1,7 @@
 <?php
-namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
+namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
-use GetResponse\GetResponseIntegration\Helper\Config;
-use GetResponse\GetResponseIntegration\Helper\Message;
-use Magento\Backend\App\Action;
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
@@ -11,16 +9,15 @@ use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
 /**
- * Class Webform
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings
+ * Class Automation
+ * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists
  */
-class Webform extends Action
+class Rules extends AbstractController
 {
-    const PAGE_TITLE = 'Add contacts via GetResponse forms';
+    const PAGE_TITLE = 'Contact List Rules';
 
     /** @var PageFactory */
     protected $resultPageFactory;
-    /** @var RepositoryValidator */
 
     /** @var RepositoryValidator */
     private $repositoryValidator;
@@ -35,9 +32,11 @@ class Webform extends Action
         PageFactory $resultPageFactory,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context);
+        parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
         $this->repositoryValidator = $repositoryValidator;
+
+        return $this->checkGetResponseConnection();
     }
 
     /**
@@ -45,12 +44,6 @@ class Webform extends Action
      */
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
-
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 

@@ -1,5 +1,5 @@
 <?php
-namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
+namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Account;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;

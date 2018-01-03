@@ -2,9 +2,9 @@
 
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
-use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use Magento\Backend\App\Action\Context;
@@ -16,29 +16,28 @@ use Magento\Framework\Controller\Result\Redirect;
  * Class Delete
  * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce
  */
-class Delete extends Action
+class Delete extends AbstractController
 {
-    const BACK_URL = 'getresponseintegration/ecommerce/index';
+    const BACK_URL = 'getresponse/ecommerce/index';
 
     /** @var GrRepository */
     private $grRepository;
-
-    /** @var RepositoryValidator */
-    private $repositoryValidator;
 
     /**
      * @param Context $context
      * @param RepositoryFactory $repositoryFactory
      * @param RepositoryValidator $repositoryValidator
+     * @throws RepositoryException
      */
     public function __construct(
         Context $context,
         RepositoryFactory $repositoryFactory,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context);
+        parent::__construct($context, $repositoryValidator);
         $this->grRepository = $repositoryFactory->createRepository();
-        $this->repositoryValidator = $repositoryValidator;
+
+        return $this->checkGetResponseConnection();
     }
 
     /**
@@ -46,12 +45,6 @@ class Delete extends Action
      */
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
-
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $resultRedirect = $this->resultRedirectFactory->create();
 
         $id = $this->getRequest()->getParam('id');

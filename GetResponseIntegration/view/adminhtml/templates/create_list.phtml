@@ -7,7 +7,7 @@ $confirmation_subjects = $block->getSubscriptionConfirmationsSubject();
 $confirmation_bodies = $block->getSubscriptionConfirmationsBody();
 ?>
 
-<form id="createNewListForm" action="<?php echo $block->getUrl('getresponseintegration/lists/create'); ?>" method="POST">
+<form id="createNewListForm" action="<?php echo $block->getUrl('getresponse/lists/create'); ?>" method="POST">
     <?php echo $block->getBlockHtml('formkey'); ?>
     <input type="hidden" name="back_url" value="<?php echo $block->getBackUrl()?>" />
 
@@ -36,11 +36,11 @@ $confirmation_bodies = $block->getSubscriptionConfirmationsBody();
 
                 <fieldset class="fieldset admin__fieldset" id="campaign_name_fieldset">
                     <div class="admin__field field field-basic_campaign_name required _required with-note">
-                        <label class="label admin__field-label" for="getresponse_api_key">
+                        <label class="label admin__field-label" for="api_key">
                             <span>List name</span>
                         </label>
                         <div class="admin__field-control control">
-                            <input name="campaign_name" id="campaign_name" value="<?php echo $block->getLastPostedApiKey(); ?>" title="API Key" class="basic_behavior input-text input-text admin__control-text required-entry _required" type="text" aria-required="true">
+                            <input name="campaign_name" id="campaign_name" value="" title="List name" class="basic_behavior input-text input-text admin__control-text required-entry _required" type="text" aria-required="true">
                             <div class="validation-message"></div>
                         </div>
                     </div>

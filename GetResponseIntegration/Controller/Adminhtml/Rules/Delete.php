@@ -1,13 +1,10 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules;
 
-use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use Magento\Backend\App\Action;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use Magento\Framework\App\ResponseInterface;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\View\Result\PageFactory;
@@ -16,18 +13,15 @@ use Magento\Framework\View\Result\PageFactory;
  * Class Delete
  * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules
  */
-class Delete extends Action
+class Delete extends AbstractController
 {
     /** @var PageFactory */
     private $resultPageFactory;
 
-    const AUTOMATION_URL = 'getresponseintegration/settings/automation';
+    const AUTOMATION_URL = 'getresponse/lists/rules';
 
     /** @var Repository */
     private $repository;
-
-    /** @var RepositoryValidator */
-    private $repositoryValidator;
 
     /**
      * @param Context $context
@@ -41,38 +35,24 @@ class Delete extends Action
         Repository $repository,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context);
+        parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
-        $this->repositoryValidator = $repositoryValidator;
+
+        return $this->checkGetResponseConnection();
     }
 
     /**
-     * @return ResultInterface|ResponseInterface
+     * @return ResultInterface
      */
+
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
-
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::AUTOMATION_URL);
 
-        $id = $this->getRequest()->getParam('id');
-
-        try {
-            $this->repository->deleteRule($id);
-        } catch (RepositoryException $e) {
-            $this->messageManager->addErrorMessage(Message::CANNOT_DELETE_RULE);
-
-            return $resultRedirect;
-        }
-
+        $this->repository->deleteRule($this->getRequest()->getParam('id'));
         $this->messageManager->addSuccessMessage(Message::RULE_DELETED);
-
         return $resultRedirect;
     }
 }

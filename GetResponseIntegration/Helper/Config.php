@@ -18,7 +18,7 @@ class Config
     const CONFIG_DATA_WEBFORMS_SETTINGS = 'getresponse/webforms/settings';
     const CONFIG_DATA_UNAUTHORIZED_API_CALL_DATE = 'getresponse/unauthorized-api-call-date';
 
-    const PLUGIN_MAIN_PAGE = 'getresponseintegration/settings/index';
+    const PLUGIN_MAIN_PAGE = 'getresponse/account/index';
 
     const UNAUTHORIZED_RESPONSE_CODES = [1014, 1018, 1017];
     const DISCONNECT_DELAY = 60 * 60 * 24;

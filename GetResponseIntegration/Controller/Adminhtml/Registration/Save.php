@@ -1,9 +1,8 @@
 <?php
-namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
+namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Registration;
 
-use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
@@ -17,11 +16,11 @@ use Magento\Framework\App\Request\Http;
 
 /**
  * Class RegistrationPost
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings
+ * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Registration
  */
-class RegistrationPost extends Action
+class Save extends AbstractController
 {
-    const BACK_URL = 'getresponseintegration/settings/registration';
+    const BACK_URL = 'getresponse/registration/index';
 
     /** @var PageFactory */
     protected $resultPageFactory;
@@ -31,9 +30,6 @@ class RegistrationPost extends Action
 
     /** @var Repository */
     private $repository;
-
-    /** @var RepositoryValidator */
-    private $repositoryValidator;
 
     /**
      * @param Context $context
@@ -47,11 +43,10 @@ class RegistrationPost extends Action
         Repository $repository,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context);
+        parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
-        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -59,20 +54,10 @@ class RegistrationPost extends Action
      */
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
-
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::BACK_URL);
 
         $data = $this->request->getPostValue();
-
-        if (empty($data)) {
-            return $resultRedirect;
-        }
 
         $updateCustomFields = (isset($data['gr_sync_order_data'])) ? $data['gr_sync_order_data'] : 0;
         $cycleDay = (isset($data['gr_autoresponder']) && $data['gr_autoresponder'] == 1) ? $data['cycle_day'] : '';
