@@ -26,7 +26,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->upgradeToVersion2010($setup);
         }
 
-        if (version_compare($context->getVersion(), '20.1.2', '==')) {
+        if (version_compare($context->getVersion(), '20.1.2', '<=')) {
             $this->ver2012removeUnusedTables($setup);
         }
 

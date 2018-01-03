@@ -10,7 +10,6 @@ use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettingsFactory;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use Magento\Framework\View\Element\Template;
 
 /**

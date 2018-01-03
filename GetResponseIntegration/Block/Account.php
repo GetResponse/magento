@@ -1,7 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account as AccountBlock;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use Magento\Framework\View\Element\Template;
@@ -21,27 +21,33 @@ class Account extends Template
     /** @var RepositoryFactory */
     private $repositoryFactory;
 
+    /** @var Getresponse */
+    private $getresponseBlock;
+
     /**
      * @param Context $context
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
+     * @param Getresponse $getresponseBlock
      */
     public function __construct(
         Context $context,
         Repository $repository,
-        RepositoryFactory $repositoryFactory
+        RepositoryFactory $repositoryFactory,
+        Getresponse $getresponseBlock
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
+        $this->getresponseBlock = $getresponseBlock;
     }
 
     /**
-     * @return mixed
+     * @return AccountBlock
      */
     public function getAccountInfo()
     {
-        return AccountFactory::createFromArray($this->repository->getAccountInfo());
+        return $this->getresponseBlock->getAccountInfo();
     }
 
     /**
@@ -54,7 +60,7 @@ class Account extends Template
     }
 
     /**
-     * @return bool
+     * @return string
      */
     public function getLastPostedApiKey()
     {
@@ -62,46 +68,46 @@ class Account extends Template
         $request = $this->getRequest();
         $data = $request->getPostValue();
         if (!empty($data)) {
-            if (isset($data['getresponse_api_key'])) {
-                return $data['getresponse_api_key'];
+            if (isset($data['api_key'])) {
+                return $data['api_key'];
             }
         }
 
-        return false;
+        return '';
     }
 
     /**
      * @return int
      */
-    public function getLastPostedApiAccount()
+    public function getLastPostedTypeOfAccountCheckboxValue()
     {
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();
-        if (!empty($data['getresponse_360_account']) && 1 == $data['getresponse_360_account']) {
-            return $data['getresponse_360_account'];
+        if (!empty($data['is_mx']) && 1 == $data['is_mx']) {
+            return 1;
         }
 
         return 0;
     }
 
     /**
-     * @return bool
+     * @return string
      */
     public function getLastPostedApiUrl()
     {
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();
-        if (!empty($data['getresponse_api_url'])) {
-            return $data['getresponse_api_url'];
+        if (!empty($data['api_url'])) {
+            return $data['api_url'];
         }
 
-        return false;
+        return '';
     }
 
     /**
-     * @return bool
+     * @return string
      */
     public function getLastPostedApiDomain()
     {
@@ -112,7 +118,7 @@ class Account extends Template
             return $data['getresponse_api_domain'];
         }
 
-        return false;
+        return '';
     }
 
     /**
@@ -120,21 +126,12 @@ class Account extends Template
      */
     public function getHiddenApiKey()
     {
-        $settings = $this->repository->getConnectionSettings();
+        $connectionSettings = ConnectionSettingsFactory::createFromArray($this->repository->getConnectionSettings());
 
-        if (empty($settings)) {
+        if (0 === strlen($connectionSettings->getApiKey())) {
             return '';
         }
 
-        $settings = ConnectionSettingsFactory::createFromArray($settings);
-
-        if (empty($settings->getApiKey())) {
-            return '';
-        }
-
-        return strlen($settings->getApiKey()) > 0 ? str_repeat(
-                "*",
-                strlen($settings->getApiKey()) - 6
-            ) . substr($settings->getApiKey(), -6) : '';
+        return str_repeat("*", strlen($connectionSettings->getApiKey()) - 6) . substr($connectionSettings->getApiKey(), -6);
     }
 }

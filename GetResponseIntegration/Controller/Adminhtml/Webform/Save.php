@@ -1,10 +1,9 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Webform;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettingsFactory;
@@ -19,10 +18,9 @@ use Magento\Framework\View\Result\PageFactory;
  * Class Save
  * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Webform
  */
-class Save extends Action
+class Save extends AbstractController
 {
     const BACK_URL = 'getresponse/webform/index';
-
     const PAGE_TITLE = 'Add contacts via GetResponse forms';
 
     /** @var PageFactory */
@@ -33,9 +31,6 @@ class Save extends Action
 
     /** @var Repository */
     private $repository;
-
-    /** @var RepositoryValidator */
-    private $repositoryValidator;
 
     /**
      * @param Context $context
@@ -49,11 +44,10 @@ class Save extends Action
         Repository $repository,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context);
+        parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
-        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -61,37 +55,19 @@ class Save extends Action
      */
     public function execute()
     {
-        try {
-            if (!$this->repositoryValidator->validate()) {
-                $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
+        $webform = WebformSettingsFactory::createFromArray($this->request->getPostValue());
 
-                return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        if ($webform->isEnabled()) {
+            $error = $this->validateWebformData($webform);
+
+            if (!empty($error)) {
+                $this->messageManager->addErrorMessage($error);
+                $resultPage = $this->resultPageFactory->create();
+                $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
+                return $resultPage;
             }
-        } catch (RepositoryException $e) {
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
-
-        $data = $this->request->getPostValue();
-        $data['isEnabled'] = isset($data['isEnabled']) ? $data['isEnabled'] : 0;
-
-        if (empty($data)) {
-            $resultPage = $this->resultPageFactory->create();
-            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-
-            return $resultPage;
-        }
-
-        $error = $data['isEnabled'] ? $this->validateWebformData($data) : '';
-
-        if (!empty($error)) {
-            $this->messageManager->addErrorMessage($error);
-            $resultPage = $this->resultPageFactory->create();
-            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-
-            return $resultPage;
-        }
-
-        $webform = WebformSettingsFactory::createFromArray($data);
 
         $this->repository->saveWebformSettings($webform);
 
@@ -104,24 +80,20 @@ class Save extends Action
     }
 
     /**
-     * @param array $data
-     *
+     * @param WebformSettings $webform
      * @return string
      */
-    private function validateWebformData($data)
+    private function validateWebformData(WebformSettings $webform)
     {
-        $webformId = isset($data['webformId']) ? $data['webformId'] : '';
-        $position = isset($data['sidebar']) ? $data['sidebar'] : '';
-
-        if (strlen($webformId) === 0 && strlen($position) === 0) {
+        if (strlen($webform->getWebformId()) === 0 && strlen($webform->getSidebar()) === 0) {
             return Message::SELECT_FORM_POSITION_AND_PLACEMENT;
         }
 
-        if (strlen($webformId) === 0) {
+        if (strlen($webform->getWebformId()) === 0) {
             return Message::SELECT_FORM;
         }
 
-        if (strlen($position) === 0) {
+        if (strlen($webform->getSidebar()) === 0) {
             return Message::SELECT_FORM_POSITION;
         }
 

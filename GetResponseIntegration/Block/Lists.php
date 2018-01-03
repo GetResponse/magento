@@ -69,9 +69,18 @@ class Lists extends Template
         return $this->grRepository->getSubscriptionConfirmationsBody($lang);
     }
 
-    public function getBackUrl()
+    /**
+     * @param string $backUrl
+     *
+     * @return string
+     */
+    public function getBackUrl($backUrl = null)
     {
-        return $this->createBackUrl($this->getRequest()->getParam('back'));
+        if (null === $backUrl) {
+            $backUrl = $this->getRequest()->getParam('back');
+        }
+
+        return $this->createBackUrl($backUrl);
     }
 
     /**
