@@ -6,7 +6,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
 
 ?>
 
-<form method="post" action="<?php echo $block->getUrl('getresponseintegration/settings/registrationpost'); ?>">
+<form method="post" action="<?php echo $block->getUrl('getresponse/registration/save'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
 
     <div class="page-main-actions">
@@ -16,7 +16,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
         <div class="page-actions">
             <div class="page-actions-inner">
                 <div class="page-actions-buttons">
-                    <button id="getresponse_add_new_campaign" title="Create Contact List" type="button" onclick="location.href='<?php echo $block->getUrl('getresponseintegration/lists/create/back/registration'); ?>'" class="action- scalable action-secondary"  >
+                    <button id="getresponse_add_new_campaign" title="Create Contact List" type="button" onclick="location.href='<?php echo $block->getUrl('getresponse/lists/create/back/registration'); ?>'" class="action- scalable action-secondary"  >
                         <span>Create Contact List</span>
                     </button>
                     <button id="save" title="Save" type="submit" class="action-default scalable save primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">

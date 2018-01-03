@@ -5,7 +5,7 @@ $settings = $block->getExportSettings();
 $jsAutoresponders = $block->getAutorespondersForFrontend();
 ?>
 
-<form method="post" action="<?php echo $block->getUrl('getresponseintegration/export/process'); ?>" style="margin-top: 20px;">
+<form method="post" action="<?php echo $block->getUrl('getresponse/export/process'); ?>" style="margin-top: 20px;">
     <?php echo $block->getBlockHtml('formkey'); ?>
 
     <div class="page-main-actions">
@@ -15,7 +15,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
         <div class="page-actions">
             <div class="page-actions-inner">
                 <div class="page-actions-buttons">
-                    <button id="getresponse_add_new_campaign" title="Create Contact List" type="button" onclick="location.href='<?php echo $block->getUrl('getresponseintegration/lists/create/back/export'); ?>'" class="action- scalable action-secondary"  >
+                    <button id="getresponse_add_new_campaign" title="Create Contact List" type="button" onclick="location.href='<?php echo $block->getUrl('getresponse/lists/create/back/export'); ?>'" class="action- scalable action-secondary"  >
                         <span>Create Contact List</span>
                     </button>
                     <button id="export" title="Export" type="submit" class="action-default scalable save primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">

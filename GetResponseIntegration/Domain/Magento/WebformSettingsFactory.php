@@ -17,7 +17,7 @@ class WebformSettingsFactory
             return new WebformSettings(false, '', '', '');
         }
         return new WebformSettings(
-            (bool)$resource['isEnabled'],
+            isset($resource['isEnabled']) ? $resource['isEnabled'] : 0,
             $resource['url'],
             $resource['webformId'],
             $resource['sidebar']

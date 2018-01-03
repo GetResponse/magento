@@ -16,6 +16,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
      * @param SchemaSetupInterface $setup
      * @param ModuleContextInterface $context
      *
+     * @throws \Zend_Db_Exception
      */
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
@@ -25,7 +26,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->upgradeToVersion2010($setup);
         }
 
-        if (version_compare($context->getVersion(), '20.1.2', '==')) {
+        if (version_compare($context->getVersion(), '20.1.2', '<=')) {
             $this->ver2012removeUnusedTables($setup);
         }
 
@@ -34,6 +35,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
     /**
      * @param SchemaSetupInterface $setup
+     * @throws \Zend_Db_Exception
      */
     private function upgradeToVersion2010(SchemaSetupInterface $setup)
     {

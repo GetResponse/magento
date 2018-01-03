@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
@@ -25,6 +26,7 @@ class Lists extends Template
      * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
+     * @throws RepositoryException
      */
     public function __construct(
         Context $context,
@@ -67,9 +69,18 @@ class Lists extends Template
         return $this->grRepository->getSubscriptionConfirmationsBody($lang);
     }
 
-    public function getBackUrl()
+    /**
+     * @param string $backUrl
+     *
+     * @return string
+     */
+    public function getBackUrl($backUrl = null)
     {
-        return $this->createBackUrl($this->getRequest()->getParam('back'));
+        if (null === $backUrl) {
+            $backUrl = $this->getRequest()->getParam('back');
+        }
+
+        return $this->createBackUrl($backUrl);
     }
 
     /**
@@ -81,11 +92,11 @@ class Lists extends Template
     {
         switch ($back) {
             case 'export':
-                return 'getresponseintegration/export/index';
+                return 'getresponse/export/index';
                 break;
 
             case 'registration':
-                return 'getresponseintegration/settings/registration';
+                return 'getresponse/registration/index';
                 break;
         }
 

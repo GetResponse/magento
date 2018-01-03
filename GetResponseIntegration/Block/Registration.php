@@ -1,11 +1,10 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
-use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use Magento\Framework\View\Element\Template;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
@@ -27,20 +26,27 @@ class Registration extends Template
     /** @var GrRepository */
     private $grRepository;
 
+    /** @var Getresponse */
+    private $getresponseBlock;
+
     /**
      * @param Context $context
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
+     * @param Getresponse $getresponseBlock
+     * @throws RepositoryException
      */
     public function __construct(
         Context $context,
         Repository $repository,
-        RepositoryFactory $repositoryFactory
+        RepositoryFactory $repositoryFactory,
+        Getresponse $getresponseBlock
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
         $this->grRepository = $repositoryFactory->createRepository();
+        $this->getresponseBlock = $getresponseBlock;
     }
 
     /**
@@ -66,24 +72,7 @@ class Registration extends Template
      */
     public function getAutoresponders()
     {
-        $params = ['query' => ['triggerType' => 'onday', 'status' => 'active']];
-
-        $result = $this->grRepository->getAutoresponders($params);
-        $autoresponders = [];
-
-        if (!empty($result)) {
-            foreach ($result as $autoresponder) {
-                if (isset($autoresponder->triggerSettings->selectedCampaigns[0])) {
-                    $autoresponders[$autoresponder->triggerSettings->selectedCampaigns[0]][$autoresponder->triggerSettings->dayOfCycle] = [
-                        'name' => $autoresponder->name,
-                        'subject' => $autoresponder->subject,
-                        'dayOfCycle' => $autoresponder->triggerSettings->dayOfCycle
-                    ];
-                }
-            }
-        }
-
-        return $autoresponders;
+       return $this->getresponseBlock->getAutoresponders();
     }
 
     /**
@@ -91,38 +80,19 @@ class Registration extends Template
      */
     public function getAutorespondersForFrontend()
     {
-        $autoresponders = $this->getAutoresponders();
-
-        if (empty($autoresponders)) {
-            return [];
-        }
-
-        $result = [];
-
-        foreach ($autoresponders as $id => $elements) {
-            $array = [];
-            foreach ($elements as $element) {
-                $array[] = $element;
-            }
-
-            $result[$id] = $array;
-        }
-
-        return $result;
-    }
-
-    public function getCustoms()
-    {
-        return CustomFieldsCollectionFactory::createFromRepository($this->repository->getCustoms());
+        return $this->getresponseBlock->getAutorespondersForFrontend();
     }
 
     /**
-     * @return RegistrationSettings
+     * @return CustomFieldsCollection
      */
+    public function getCustoms()
+    {
+        return $this->getresponseBlock->getCustoms();
+    }
+
     public function getRegistrationSettings()
     {
-        return RegistrationSettingsFactory::createFromArray(
-            $this->repository->getRegistrationSettings()
-        );
+        return $this->getresponseBlock->getRegistrationSettings();
     }
 }
