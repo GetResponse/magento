@@ -1,9 +1,10 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
-use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\ListValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CampaignFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
@@ -18,7 +19,7 @@ use Magento\Framework\App\Request\Http;
  * Class Create
  * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules
  */
-class Create extends Action
+class Create extends AbstractController
 {
     const PAGE_TITLE = 'New Contact List';
 
@@ -31,15 +32,13 @@ class Create extends Action
     /** @var GrRepository */
     private $grRepository;
 
-    /** @var RepositoryValidator */
-    private $repositoryValidator;
-
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
      * @param RepositoryValidator $repositoryValidator
+     * @throws RepositoryException
      */
     public function __construct(
         Context $context,
@@ -48,27 +47,21 @@ class Create extends Action
         RepositoryFactory $repositoryFactory,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context);
+        parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
         $this->grRepository = $repositoryFactory->createRepository();
-        $this->repositoryValidator = $repositoryValidator;
+
+        return $this->checkGetResponseConnection();
     }
 
     /**
      * Dispatch request
      *
      * @return \Magento\Framework\Controller\ResultInterface|ResponseInterface
-     * @throws \Magento\Framework\Exception\NotFoundException
      */
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
-
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $backUrl = $this->getRequest()->getParam('back_url');
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
@@ -78,14 +71,10 @@ class Create extends Action
         $data = $request->getPostValue();
 
         if (empty($data)) {
-            $resultPage = $this->resultPageFactory->create();
-            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-
             return $resultPage;
         }
 
-        // validator
-        $error = $this->validateNewListParams($data);
+        $error = ListValidator::validateNewListParams($data);
 
         if (!empty($error)) {
             $this->messageManager->addErrorMessage($error);
@@ -113,34 +102,5 @@ class Create extends Action
 
             return $resultRedirect;
         }
-    }
-
-    /**
-     * @param array $data
-     * @return string
-     */
-    private function validateNewListParams($data)
-    {
-        if (strlen($data['campaign_name']) < 3) {
-            return Message::LIST_VALIDATION_CAMPAIGN_NAME_ERROR;
-        }
-
-        if (strlen($data['from_field']) === 0) {
-            return Message::LIST_VALIDATION_FROM_FIELD_ERROR;
-        }
-
-        if (strlen($data['reply_to_field']) === 0) {
-            return Message::LIST_VALIDATION_REPLY_TO_ERROR;
-        }
-
-        if (strlen($data['confirmation_subject']) === 0) {
-            return Message::LIST_VALIDATION_CONFIRMATION_SUBJECT_ERROR;
-        }
-
-        if (strlen($data['confirmation_body']) === 0) {
-            return Message::LIST_VALIDATION_CONFIRMATION_BODY;
-        }
-
-        return '';
     }
 }

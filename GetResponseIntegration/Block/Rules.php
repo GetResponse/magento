@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RuleFactory;
@@ -25,21 +26,28 @@ class Rules extends Template
     /** @var GrRepository */
     private $grRepository;
 
+    /** @var Getresponse */
+    private $getresponseBlock;
+
     /**
      * @param Context $context
      * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
+     * @param Getresponse $getresponseBlock
+     * @throws RepositoryException
      */
     public function __construct(
         Context $context,
         ObjectManagerInterface $objectManager,
         Repository $repository,
-        RepositoryFactory $repositoryFactory
+        RepositoryFactory $repositoryFactory,
+        Getresponse $getresponseBlock
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->grRepository = $repositoryFactory->createRepository();
+        $this->getresponseBlock = $getresponseBlock;
     }
 
     /**
@@ -59,11 +67,16 @@ class Rules extends Template
     }
 
     /**
+     * @param int $ruleId
      * @return Rule
      */
-    public function getCurrentRule()
+    public function getCurrentRule($ruleId = 0)
     {
-        return RuleFactory::createFromArray((array)$this->repository->getRuleById($this->_request->getParam('id')));
+        if (0 === $ruleId) {
+            $ruleId = $this->_request->getParam('id');
+        }
+
+        return RuleFactory::createFromArray((array)$this->repository->getRuleById($ruleId));
     }
 
     /**
@@ -75,12 +88,12 @@ class Rules extends Template
     }
 
     /**
-     * @param $category_id
+     * @param $id
      * @return mixed
      */
-    public function getCategoryName($category_id)
+    public function getCategoryName($id)
     {
-        return $this->repository->getCategoryName($category_id);
+        return $this->repository->getCategoryName($id);
     }
 
     /**
@@ -88,23 +101,7 @@ class Rules extends Template
      */
     public function getAutoresponders()
     {
-        $params = ['query' => ['triggerType' => 'onday', 'status' => 'active']];
-        $result = $this->grRepository->getAutoresponders($params);
-        $autoresponders = [];
-
-        if (!empty($result)) {
-            foreach ($result as $autoresponder) {
-                if (isset($autoresponder->triggerSettings->selectedCampaigns[0])) {
-                    $autoresponders[$autoresponder->triggerSettings->selectedCampaigns[0]][$autoresponder->triggerSettings->dayOfCycle] = [
-                        'name' => $autoresponder->name,
-                        'subject' => $autoresponder->subject,
-                        'dayOfCycle' => $autoresponder->triggerSettings->dayOfCycle
-                    ];
-                }
-            }
-        }
-
-        return $autoresponders;
+        return $this->getresponseBlock->getAutoresponders();
     }
 
     /**
@@ -112,24 +109,7 @@ class Rules extends Template
      */
     public function getAutorespondersForFrontend()
     {
-        $autoresponders = $this->getAutoresponders();
-
-        if (empty($autoresponders)) {
-            return [];
-        }
-
-        $result = [];
-
-        foreach ($autoresponders as $id => $elements) {
-            $array = [];
-            foreach ($elements as $element) {
-                $array[] = $element;
-            }
-
-            $result[$id] = $array;
-        }
-
-        return $result;
+        return $this->getresponseBlock->getAutorespondersForFrontend();
     }
 
     /**

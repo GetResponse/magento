@@ -1,28 +1,26 @@
 <?php
-namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings;
+namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Webtraffic;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
-use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
-use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
-use Magento\Backend\App\Action;
 
 /**
- * Class WebTrafficTracking
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings
+ * Class Index
+ * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Webtraffic
  */
-class WebTrafficTracking extends Action
+class Index extends AbstractController
 {
     const PAGE_TITLE = 'Web Event Tracking';
+    const BACK_URL = 'getresponse/webtraffic/index';
 
-    const BACK_URL = 'getresponseintegration/settings/webtraffictracking';
     /** @var PageFactory */
     private $resultPageFactory;
 
@@ -31,9 +29,6 @@ class WebTrafficTracking extends Action
 
     /** @var Repository */
     private $repository;
-
-    /** @var RepositoryValidator */
-    private $repositoryValidator;
 
     /**
      * @param Context $context
@@ -47,24 +42,19 @@ class WebTrafficTracking extends Action
         Repository $repository,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context);
+        parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
-        $this->repositoryValidator = $repositoryValidator;
+
+        return $this->checkGetResponseConnection();
     }
 
     /**
-     * @return ResponseInterface|Redirect|Page
+     * @return Redirect|Page
      */
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::INCORRECT_API_RESPONSE_MESSAGE);
-
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $data = $this->request->getPostValue();
 
         if (isset($data['updateWebTraffic'])) {

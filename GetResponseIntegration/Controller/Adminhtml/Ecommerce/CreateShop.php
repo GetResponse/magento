@@ -1,8 +1,10 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
@@ -15,7 +17,7 @@ use Magento\Framework\Controller\Result\JsonFactory;
  * Class CreateShop
  * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings
  */
-class CreateShop extends Action
+class CreateShop extends AbstractController
 {
     /** @var Repository */
     private $repository;
@@ -31,17 +33,22 @@ class CreateShop extends Action
      * @param RepositoryFactory $repositoryFactory
      * @param Repository $repository
      * @param JsonFactory $resultJsonFactory
+     * @param RepositoryValidator $repositoryValidator
+     * @throws RepositoryException
      */
     public function __construct(
         Context $context,
         RepositoryFactory $repositoryFactory,
         Repository $repository,
-        JsonFactory $resultJsonFactory
+        JsonFactory $resultJsonFactory,
+        RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context);
+        parent::__construct($context, $repositoryValidator);
         $this->repository = $repository;
         $this->grRepository = $repositoryFactory->createRepository();
         $this->resultJsonFactory = $resultJsonFactory;
+
+        return $this->checkGetResponseConnection();
     }
 
     /**
@@ -60,7 +67,6 @@ class CreateShop extends Action
         $countryCode = $this->repository->getMagentoCountryCode();
         $lang = substr($countryCode, 0, 2);
         $currency = $this->repository->getMagentoCurrencyCode();
-
         $result = $this->grRepository->createShop($data['shop_name'], $lang, $currency);
 
         return $this->resultJsonFactory->create()->setData($result);

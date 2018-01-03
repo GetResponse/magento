@@ -15,16 +15,16 @@ class AccountFactory
     public static function createFromArray(array $response)
     {
         return new Account(
-            $response['accountId'],
-            $response['firstName'],
-            $response['lastName'],
-            $response['email'],
-            $response['companyName'],
-            $response['phone'],
-            $response['state'],
-            $response['city'],
-            $response['street'],
-            $response['zipCode'],
+            isset($response['accountId']) ? $response['accountId'] : '',
+            isset($response['firstName']) ? $response['firstName'] : '',
+            isset($response['lastName']) ? $response['lastName'] : '',
+            isset($response['email']) ? $response['email'] : '',
+            isset($response['companyName']) ? $response['companyName'] : '',
+            isset($response['phone']) ? $response['phone'] : '',
+            isset($response['state']) ? $response['state'] : '',
+            isset($response['city']) ? $response['city'] : '',
+            isset($response['street']) ? $response['street'] : '',
+            isset($response['zipCode']) ? $response['zipCode'] : '',
             isset($response['countryCode']->countryCodeId) ? $response['countryCode']->countryCode : ''
         );
     }

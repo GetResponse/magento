@@ -1,6 +1,6 @@
 require(['jquery'], function($) {
-    var mxAccount = $('#getresponse_360_account'),
-        mxOptions = $('#getresponse_360_account_options');
+    var mxAccount = $('#is_mx'),
+        mxOptions = $('#is_mx_options');
     
     if (mxAccount.prop('checked') === true) {
         mxOptions.toggleClass('hidden');
