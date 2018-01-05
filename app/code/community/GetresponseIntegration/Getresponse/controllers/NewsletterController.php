@@ -22,7 +22,7 @@ class GetresponseIntegration_Getresponse_NewsletterController extends Getrespons
             'autoresponder',
             array(
                 'campaign_days' => $this->api->getCampaignDays(),
-                'selected_day' => $this->settings->api['cycle_day']
+                'selected_day' => $this->settings->api['newsletterCycleDay']
             )
         );
 
@@ -45,15 +45,21 @@ class GetresponseIntegration_Getresponse_NewsletterController extends Getrespons
         $this->_initAction();
 
         $isEnabled = (int)$this->getRequest()->getParam('newsletter_subscription', 0);
-        $newsletterCampaignId = $this->getRequest()->getParam('newsletter_campaign_id', '');
-        $newsletterCycleDay = (int)$this->getRequest()->getParam('newsletter_cycle_day', 0);
-        $isAutoresponderEnabled = (int)$this->getRequest()->getParam('newsletter_autoresponder', 0);
+        $newsletterCampaignId = $this->getRequest()->getParam('newsletter_campaign_id', null);
+        $newsletterCycleDay = (int)$this->getRequest()->getParam('cycle_day', null);
+        $isAutoresponderEnabled = (int)$this->getRequest()->getParam('gr_autoresponder', 0);
+
+        if ($isEnabled === 1 && empty($newsletterCampaignId)) {
+            $this->_getSession()->addError('You need to select list');
+            $this->_redirect('*/*/index');
+            return;
+        }
 
         if (0 === $isEnabled) {
-            $newsletterCampaignId = '';
-            $newsletterCycleDay = NULL;
+            $newsletterCampaignId = null;
+            $newsletterCycleDay = null;
         } else {
-            $newsletterCycleDay = 0 === $isAutoresponderEnabled ? NULL : $newsletterCycleDay;
+            $newsletterCycleDay = (0 === $isAutoresponderEnabled) ? NULL : $newsletterCycleDay;
         }
 
         $settingsRepository = new SettingsRepository($this->currentShopId);
@@ -64,6 +70,7 @@ class GetresponseIntegration_Getresponse_NewsletterController extends Getrespons
                 'newsletterCycleDay' => $newsletterCycleDay,
             ]
         );
+
         $settingsRepository->update($newSettings);
 
         $this->_getSession()->addSuccess('Settings saved');

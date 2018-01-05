@@ -7,16 +7,16 @@ use GetresponseIntegration_Getresponse_Domain_CustomField as CustomField;
  * Time: 10:53
  */
 
-class GetresponseIntegration_Getresponse_Domain_CustomField
+class GetresponseIntegration_Getresponse_Domain_CustomFieldFactory
 {
     public static function createFromArray($array)
     {
         return new CustomField(
-            $array('id'),
-            $array('CustomField'),
-            $array('CustomValue'),
-            $array('isDefault'),
-            $array('isActive')
+            $array['id'],
+            $array['customField'],
+            $array['customValue'],
+            $array['isDefault'],
+            $array['isActive']
         );
     }
 }

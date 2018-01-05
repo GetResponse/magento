@@ -44,17 +44,16 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
     public function saveAction()
     {
         $this->_initAction();
-
-        $campaignId = $this->getRequest()->getParam('campaign_id');
+        $campaignId = $this->getRequest()->getParam('campaign_id', null);
         $activeSubscription = $this->getRequest()->getParam('active_subscription', 0);
         $syncOrderData = $this->getRequest()->getParam('gr_sync_order_data', 0);
         $subscriptionOnCheckout = $this->getRequest()->getParam('subscription_on_checkout', 0);
         $autoresponder = (int)$this->getRequest()->getParam('gr_autoresponder', 0);
-        $cycleDay = $this->getRequest()->getParam('cycle_day', NULL);
+        $cycleDay = $this->getRequest()->getParam('cycle_day', null);
 
         $params = $this->getRequest()->getParams();
 
-        if (empty($campaignId)) {
+        if ($activeSubscription === 1 && empty($campaignId)) {
             $this->_getSession()->addError('You need to select list');
             $this->_redirect('*/*/index');
             return;
@@ -87,7 +86,6 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
         );
         $settingsRepository->update($newSettings);
 
-
         if (!empty($params['gr_sync_order_data']) && isset($params['gr_custom_field'])) {
 
             $customMap = [];
@@ -95,26 +93,27 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
             foreach ($params['gr_custom_field'] as $key => $name) {
                 $customMap[$name] = $params['custom_field'][$key];
             }
-
             foreach ($this->settings->customs as $cf) {
                 if (isset($customMap[$cf['custom_field']])) {
-
                     Mage::getModel('getresponse/customs')->updateCustom(
                         $cf['id_custom'],
                         [
                             'custom_value' => $customMap[$cf['custom_field']],
-                            'active_custom' => GetresponseIntegration_Getresponse_Model_Customs::ACTIVE
-                        ]
+                            'custom_active' => GetresponseIntegration_Getresponse_Model_Customs::ACTIVE
+                        ],
+                        $this->currentShopId
                     );
                 } else {
                     Mage::getModel('getresponse/customs')->updateCustom(
                         $cf['id_custom'],
-                        ['active_custom' => GetresponseIntegration_Getresponse_Model_Customs::INACTIVE]
+                        [
+                            'custom_active' => GetresponseIntegration_Getresponse_Model_Customs::INACTIVE
+                        ],
+                        $this->currentShopId
                     );
                 }
             }
         }
-
         $this->_getSession()->addSuccess('Settings saved');
         $this->_redirect('*/*/index');
     }

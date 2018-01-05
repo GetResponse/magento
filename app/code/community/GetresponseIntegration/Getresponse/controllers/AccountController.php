@@ -86,8 +86,7 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
 
         Mage::register('api_key', $apiKey);
         Mage::getModel('getresponse/customs')->connectCustoms($this->currentShopId);
-
-        $customFieldsCollection = CustomFieldsCollectionFactory::
+        
         $this->_getSession()->addSuccess('GetResponse account connected');
 
         $featureTracking = 0;

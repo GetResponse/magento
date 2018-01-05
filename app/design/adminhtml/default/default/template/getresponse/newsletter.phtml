@@ -40,7 +40,7 @@
                         <tr>
                             <td colspan="2">
                                 <input type="checkbox" id="newsletter_subscription" name="newsletter_subscription" value="1"
-                                    <?php if (isset($settings->api['newsletter_subscription']) and $settings->api['newsletter_subscription'] == 1) : ?>
+                                    <?php if (isset($settings->api['newsletterSubscription']) and $settings->api['newsletterSubscription'] == 1) : ?>
                                         checked="checked"
                                     <?php endif; ?>
                                 />
@@ -61,7 +61,7 @@
                                     <option value="">Select a list</option>
                                     <?php
                                     foreach ($campaigns as $id => $name) {
-                                        echo '<option value="' . $id . '"', ($id == $settings->api['newsletter_campaign_id']) ? ' selected="selected"' : '', '>' . $name . '</option>';
+                                        echo '<option value="' . $id . '"', ($id == $settings->api['newsletterCampaignId']) ? ' selected="selected"' : '', '>' . $name . '</option>';
                                     }
                                     ?>
                                 </select>

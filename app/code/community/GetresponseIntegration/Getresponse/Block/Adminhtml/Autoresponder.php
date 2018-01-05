@@ -15,7 +15,7 @@ class GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder extends M
         parent::__construct($args);
 
         $this->campaignDays = $args['campaign_days'];
-        if (isset($args['selected_day']))
+        if ($args['selected_day'] !== null)
             $this->selectedDay = $args['selected_day'];
     }
 
@@ -54,12 +54,21 @@ class GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder extends M
                         $('#cycle_day'),
                         $('#gr_autoresponder'),
                         $('label[for=\"gr_autoresponder\"]')
-                        ".$this->selectedDay."
+                        ";
+        if ($this->selectedDay !== '') {
+            $js = $js . ', ' . $this->selectedDay ."
                     );
                     
             })(jQuery);
             </script>
         ";
+        } else {
+            $js = $js .");
+                    
+            })(jQuery);
+            </script>
+            ";
+        }
 
         return $html . ' ' . $js;
     }

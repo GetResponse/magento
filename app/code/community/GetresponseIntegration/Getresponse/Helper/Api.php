@@ -630,16 +630,16 @@ class GetresponseIntegration_Getresponse_Helper_Api
             if (isset($response->codeDescription)) {
                 return self::CONTACT_ERROR;
             }
-            return self::CONTACT_UPDATED;
 
+            return self::CONTACT_UPDATED;
         } else {
             $userCustoms['origin'] = self::ORIGIN_NAME;
             if (empty($grCustomFields)) {
                 $params['customFieldValues'] = $this->setCustoms($userCustoms);
             } else {
-                $this->setExportCustoms($userCustoms, $grCustomFields);
+                $params['customFieldValues'] = $this->setExportCustoms($userCustoms, $grCustomFields);
             }
-            $response = $this->grapi()->add_contact($params);
+
             if (isset($response->codeDescription)) {
                 return self::CONTACT_ERROR;
             }

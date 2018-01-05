@@ -1,4 +1,7 @@
 <?php
+use GetresponseIntegration_Getresponse_Domain_CustomFieldsCollectionFactory as CustomFieldsCollectionFactory;
+use GetresponseIntegration_Getresponse_Domain_CustomFieldsCollectionRepository as CustomFieldsCollectionRepository;
+use GetresponseIntegration_Getresponse_Domain_CustomFieldFactory as CustomFieldFactory;
 
 /**
  * Class GetresponseIntegration_Getresponse_Model_Customs
@@ -35,29 +38,36 @@ class GetresponseIntegration_Getresponse_Model_Customs extends Mage_Core_Model_A
      */
     public function getCustoms($shopId)
     {
-        return $this->getCollection()->addFieldToFilter('id_shop', $shopId)->getData();
+        $customFieldsCollectionRepository = new CustomFieldsCollectionRepository($shopId);
+        $customFieldsCollection = $customFieldsCollectionRepository->getCollection();
+
+        return $customFieldsCollection;
     }
 
     /**
      * @param int $shopId
      */
-    public function connectCustoms($shopId) {
-
+    public function connectCustoms($shopId)
+    {
         if (!empty($this->getCustoms($shopId))) {
             return;
         }
 
+        $customFieldsCollectionRepository = new CustomFieldsCollectionRepository($shopId);
+        $customFieldsCollection = CustomFieldsCollectionFactory::createFromArray(array());
+
         foreach ($this->fields as $field) {
-            $custom = Mage::getModel('getresponse/customs');
-            $custom->setData(array(
-                'id_shop' => $shopId,
-                'custom_field' => $field['name'],
-                'custom_value' => $field['name'],
-                'default' => $field['value'],
-                'active_custom' => $field['value']
-            ));
-            $custom->save();
+            $custom = CustomFieldFactory::createFromArray(array(
+                'id' => substr(md5(rand()), 0, 5),
+                'customField' => $field['name'],
+                'customValue' => $field['name'],
+                'isDefault' => $field['value'],
+                'isActive' => $field['value']
+                )
+            );
+            $customFieldsCollection->add($custom);
         }
+        $customFieldsCollectionRepository->create($customFieldsCollection);
     }
 
     /**
@@ -66,16 +76,37 @@ class GetresponseIntegration_Getresponse_Model_Customs extends Mage_Core_Model_A
      *
      * @return bool
      */
-    public function updateCustom($id, $data)
+    public function updateCustom($id, $data, $shopId)
     {
-        $model = $this->load($id)->addData($data);
+        $customs = $this->getCustoms($shopId);
+//        $index = array_search($id, array_column($customs, 'id_custom'));
+//        $customs[$index] = array_replace($customs[$index], $data);
+
+        foreach ($customs as $key => $custom) {
+            if ($custom['id_custom'] === $id) {
+                $custom['custom_active'] = $data['custom_active'];
+            }
+        }
+
 
         try {
-            $model->save();
+            $customFieldsCollectionRepository = new CustomFieldsCollectionRepository($shopId);
+            $customFieldsCollection = CustomFieldsCollectionFactory::createFromArray(array());
+            foreach ($customs as $custom) {
+                $customTemp = CustomFieldFactory::createFromArray(array(
+                        'id' => $custom['id_custom'],
+                        'customField' => $custom['custom_field'],
+                        'customValue' => $custom['custom_value'],
+                        'isDefault' => $custom['default'],
+                        'isActive' => $custom['custom_active']
+                    )
+                );
+                $customFieldsCollection->add($customTemp);
+            };
+            $customFieldsCollectionRepository->create($customFieldsCollection);
         } catch (Exception $e) {
             return false;
         }
-
         return true;
     }
 
@@ -90,7 +121,6 @@ class GetresponseIntegration_Getresponse_Model_Customs extends Mage_Core_Model_A
         if (!empty($params) && !empty($customer)) {
 
             $customer_data = $customer->getData();
-
             foreach ($params as $key => $val) {
                 if (in_array($key, array_keys($customer_data)) && !empty($customer_data[$key])) {
                     $fields[$val] = trim(preg_replace('/\s+/', ' ', $customer_data[$key]));
@@ -134,9 +164,9 @@ class GetresponseIntegration_Getresponse_Model_Customs extends Mage_Core_Model_A
             foreach ($customs as $custom) {
                 $data = array(
                     'custom_value' => $custom['custom_field'],
-                    'active_custom' => 0
+                    'custom_active' => 0
                 );
-                $this->updateCustom($custom['id_custom'], $data);
+                $this->updateCustom($custom['id_custom'], $data, $shopId);
             }
         }
     }

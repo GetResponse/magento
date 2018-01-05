@@ -1,7 +1,7 @@
 <?php
 use GetresponseIntegration_Getresponse_Domain_CustomFieldsCollection as CustomFieldsCollection;
 
-class GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionRepository
+class GetresponseIntegration_Getresponse_Domain_CustomFieldsCollectionRepository
 {
     private $configPath = 'getresponse/customFields';
     private $shopId;

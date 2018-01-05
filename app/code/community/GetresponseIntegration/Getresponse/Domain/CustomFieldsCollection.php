@@ -26,11 +26,11 @@ class GetresponseIntegration_Getresponse_Domain_CustomFieldsCollection
     {
         $forJson = [];
         foreach ($this->fields as $key => $field) {
-            $forJson[$key]['id'] = $field->getId();
-            $forJson[$key]['customField'] = $field->getCustomField();
-            $forJson[$key]['customValue'] = $field->getCustomValue();
+            $forJson[$key]['id_custom'] = $field->getId();
+            $forJson[$key]['custom_field'] = $field->getCustomField();
+            $forJson[$key]['custom_value'] = $field->getCustomValue();
             $forJson[$key]['default'] = $field->getIsDefault();
-            $forJson[$key]['active'] = $field->getIsActive();
+            $forJson[$key]['custom_active'] = $field->getIsActive();
         }
 
         return $forJson;

@@ -26,10 +26,14 @@ class GetresponseIntegration_Getresponse_Domain_SettingsRepository
         $settingsDb = json_decode(\Mage::getStoreConfig($this->configPath), true);
 
         foreach ($settings->toArray() as $name => $setting) {
-            if (!empty($setting)) {
+            if ($setting !== '') {
                 $settingsDb[$name] = $setting;
             }
+            if ($setting === null && ($name === 'newsletterCycleDay' || 'cycleDay' || 'newsletterCampaignId' || 'campaignId')) {
+                $settingsDb[$name] = null;
+            }
         }
+
         \Mage::getConfig()->saveConfig($this->configPath, json_encode($settingsDb), 'default', $this->shopId);
     }
 

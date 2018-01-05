@@ -226,7 +226,7 @@
         var custom_values = <?php echo $customs['custom_values']; ?>;
 
         $.each(customs, function (key, val) {
-            if(1 === parseInt(val.active_custom)) {
+            if(1 === parseInt(val.custom_active)) {
                 GetresponseMapping(customs, custom_values, val);
             }
         });
