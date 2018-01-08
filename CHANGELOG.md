@@ -1,5 +1,12 @@
 # Changelog
 
+## 19.1.4
+*(2017-01-09)*
+
+#### Refactoring
+* GetResponse plugin configuration migrated to core_config_data
+* minor bug fixes
+
 ## 19.1.3
 *(2017-12-05)*
 

@@ -71,46 +71,6 @@ class GetresponseIntegration_Getresponse_Model_Customs extends Mage_Core_Model_A
     }
 
     /**
-     * @param $id
-     * @param $data
-     *
-     * @return bool
-     */
-    public function updateCustom($id, $data, $shopId)
-    {
-        $customs = $this->getCustoms($shopId);
-//        $index = array_search($id, array_column($customs, 'id_custom'));
-//        $customs[$index] = array_replace($customs[$index], $data);
-
-        foreach ($customs as $key => $custom) {
-            if ($custom['id_custom'] === $id) {
-                $custom['custom_active'] = $data['custom_active'];
-            }
-        }
-
-
-        try {
-            $customFieldsCollectionRepository = new CustomFieldsCollectionRepository($shopId);
-            $customFieldsCollection = CustomFieldsCollectionFactory::createFromArray(array());
-            foreach ($customs as $custom) {
-                $customTemp = CustomFieldFactory::createFromArray(array(
-                        'id' => $custom['id_custom'],
-                        'customField' => $custom['custom_field'],
-                        'customValue' => $custom['custom_value'],
-                        'isDefault' => $custom['default'],
-                        'isActive' => $custom['custom_active']
-                    )
-                );
-                $customFieldsCollection->add($customTemp);
-            };
-            $customFieldsCollectionRepository->create($customFieldsCollection);
-        } catch (Exception $e) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * @param array $params
      * @param $customer
      * @return array
@@ -159,15 +119,7 @@ class GetresponseIntegration_Getresponse_Model_Customs extends Mage_Core_Model_A
      */
     public function disconnect($shopId)
     {
-        $customs = $this->getCustoms($shopId);
-        if ( !empty($customs)) {
-            foreach ($customs as $custom) {
-                $data = array(
-                    'custom_value' => $custom['custom_field'],
-                    'custom_active' => 0
-                );
-                $this->updateCustom($custom['id_custom'], $data, $shopId);
-            }
-        }
+        $customFieldsCollectionRepository = new CustomFieldsCollectionRepository($shopId);
+        $customFieldsCollectionRepository->delete();
     }
 }

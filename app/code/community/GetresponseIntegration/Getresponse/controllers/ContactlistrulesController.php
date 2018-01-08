@@ -2,8 +2,6 @@
 use GetresponseIntegration_Getresponse_Domain_AutomationRuleFactory as AutomationRuleFactory;
 use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionRepository as AutomationRulesCollectionRepository;
 use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionFactory as AutomationRulesCollectionFactory;
-use GetresponseIntegration_Getresponse_Domain_AutomationRule as AutomationRule;
-use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollection as AutomationRuleCollection;
 
 require_once Mage::getModuleDir('controllers',
         'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';

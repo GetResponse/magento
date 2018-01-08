@@ -1,6 +1,9 @@
 <?php
 use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
 use GetresponseIntegration_Getresponse_Domain_SettingsFactory as SettingsFactory;
+use GetresponseIntegration_Getresponse_Domain_CustomFieldsCollectionFactory as CustomFieldsCollectionFactory;
+use GetresponseIntegration_Getresponse_Domain_CustomFieldsCollectionRepository as CustomFieldsCollectionRepository;
+use GetresponseIntegration_Getresponse_Domain_CustomFieldFactory as CustomFieldFactory;
 
 require_once Mage::getModuleDir('controllers',
         'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
@@ -89,30 +92,35 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
         if (!empty($params['gr_sync_order_data']) && isset($params['gr_custom_field'])) {
 
             $customMap = [];
+            $customsDb = $this->settings->customs;
 
             foreach ($params['gr_custom_field'] as $key => $name) {
-                $customMap[$name] = $params['custom_field'][$key];
+                $customMap[$params['custom_field'][$key]] = $name;
             }
-            foreach ($this->settings->customs as $cf) {
+
+            foreach ($customsDb as $key => $cf) {
                 if (isset($customMap[$cf['custom_field']])) {
-                    Mage::getModel('getresponse/customs')->updateCustom(
-                        $cf['id_custom'],
-                        [
-                            'custom_value' => $customMap[$cf['custom_field']],
-                            'custom_active' => GetresponseIntegration_Getresponse_Model_Customs::ACTIVE
-                        ],
-                        $this->currentShopId
-                    );
+                    $customsDb[$key]['custom_active'] = GetresponseIntegration_Getresponse_Model_Customs::ACTIVE;
+                    $customsDb[$key]['custom_value'] = $customMap[$cf['custom_field']];
                 } else {
-                    Mage::getModel('getresponse/customs')->updateCustom(
-                        $cf['id_custom'],
-                        [
-                            'custom_active' => GetresponseIntegration_Getresponse_Model_Customs::INACTIVE
-                        ],
-                        $this->currentShopId
-                    );
+                    $cf['custom_active'] = GetresponseIntegration_Getresponse_Model_Customs::INACTIVE;
                 }
             }
+
+            $customFieldsCollectionRepository = new CustomFieldsCollectionRepository($this->currentShopId);
+            $customFieldsCollection = CustomFieldsCollectionFactory::createFromArray(array());
+            foreach ($customsDb as $custom) {
+                $customTemp = CustomFieldFactory::createFromArray(array(
+                        'id' => $custom['id_custom'],
+                        'customField' => $custom['custom_field'],
+                        'customValue' => $custom['custom_value'],
+                        'isDefault' => $custom['default'],
+                        'isActive' => $custom['custom_active']
+                    )
+                );
+                $customFieldsCollection->add($customTemp);
+            };
+            $customFieldsCollectionRepository->create($customFieldsCollection);
         }
         $this->_getSession()->addSuccess('Settings saved');
         $this->_redirect('*/*/index');

@@ -3,6 +3,7 @@ use GetResponseIntegration_Getresponse_Domain_AccountRepository as AccountReposi
 use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
 use GetresponseIntegration_Getresponse_Domain_ShopRepository as ShopRepository;
 use GetresponseIntegration_Getresponse_Domain_WebformRepository as WebformRepository;
+use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionRepository as AutomationRulesCollectionRepository;
 
 class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Abstract
 {
@@ -152,8 +153,10 @@ class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Ab
         $webformRepository = new WebformRepository($shopId);
         $webformRepository->delete();
 
+        $automationRulesRepository = new AutomationRulesCollectionRepository($shopId);
+        $automationRulesRepository->delete();
+
 		Mage::getModel('getresponse/customs')->disconnect($shopId);
-		Mage::getModel('getresponse/automations')->disconnect($shopId);
 	}
 
 	public function handleUnauthorizedApiCall()
