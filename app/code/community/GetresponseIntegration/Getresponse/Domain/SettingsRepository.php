@@ -14,11 +14,13 @@ class GetresponseIntegration_Getresponse_Domain_SettingsRepository
     public function delete()
     {
         \Mage::getConfig()->deleteConfig($this->configPath, 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
     public function create(Settings $settings)
     {
         \Mage::getConfig()->saveConfig($this->configPath, json_encode($settings->toArray()), 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
     public function update(Settings $settings)
@@ -29,12 +31,10 @@ class GetresponseIntegration_Getresponse_Domain_SettingsRepository
             if ($setting !== '') {
                 $settingsDb[$name] = $setting;
             }
-            if ($setting === null && ($name === 'newsletterCycleDay' || 'cycleDay' || 'newsletterCampaignId' || 'campaignId')) {
-                $settingsDb[$name] = null;
-            }
         }
 
         \Mage::getConfig()->saveConfig($this->configPath, json_encode($settingsDb), 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
     public function getAccount()

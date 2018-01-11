@@ -14,11 +14,13 @@ class GetresponseIntegration_Getresponse_Domain_CustomFieldsCollectionRepository
     public function delete()
     {
         \Mage::getConfig()->deleteConfig($this->configPath, 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
     public function create(CustomFieldsCollection $customFieldsCollection)
     {
         \Mage::getConfig()->saveConfig($this->configPath, json_encode($customFieldsCollection->toArray()), 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
     public function getCollection()

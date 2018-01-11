@@ -18,7 +18,7 @@ class GetresponseIntegration_Getresponse_EcommerceController extends Getresponse
         $this->_initAction();
         $this->_title($this->__('Shop'))->_title($this->__('GetResponse'));
         $shopRepository = new ShopRepository($this->currentShopId);
-        $ecommerceSettings = $shopRepository->getShop();
+        $ecommerceSettings = $shopRepository->getShop()->toArray();
 
         $this->_addContent($this->getLayout()
             ->createBlock('Mage_Core_Block_Template', 'getresponse_content')

@@ -5,34 +5,50 @@ class GetresponseIntegration_Getresponse_Domain_CustomFieldsCollection
 {
     private $fields;
 
+    /**
+     * @param GetresponseIntegration_Getresponse_Domain_CustomField $field
+     * @return bool
+     */
     public function add(CustomField $field)
     {
         foreach ($this->fields as $data){
-            if ($data->getCustomField() === $field->getCustomField()) {
-                return false;
-            }
+            $this->checkIfCustomFieldExists($data, $field);
         }
         $this->fields[] = $field;
 
         return true;
     }
 
+    /**
+     * @return mixed
+     */
     public function getCustomFields()
     {
         return $this->fields;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         $forJson = [];
         foreach ($this->fields as $key => $field) {
-            $forJson[$key]['id_custom'] = $field->getId();
-            $forJson[$key]['custom_field'] = $field->getCustomField();
-            $forJson[$key]['custom_value'] = $field->getCustomValue();
-            $forJson[$key]['default'] = $field->getIsDefault();
-            $forJson[$key]['custom_active'] = $field->getIsActive();
+            $forJson[$key] = $field->toArray();
         }
 
         return $forJson;
+    }
+
+    /**
+     * @param $data
+     * @param $field
+     * @return bool
+     */
+    private function checkIfCustomFieldExists($data, $field)
+    {
+        if ($data->getCustomField() === $field->getCustomField()) {
+            return false;
+        }
     }
 }

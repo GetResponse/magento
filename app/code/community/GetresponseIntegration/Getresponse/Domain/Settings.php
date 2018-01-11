@@ -184,6 +184,9 @@ class GetresponseIntegration_Getresponse_Domain_Settings
         return $this->newsletterCycleDay;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         return [

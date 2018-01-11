@@ -14,11 +14,13 @@ class GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionReposit
     public function delete()
     {
         \Mage::getConfig()->deleteConfig($this->configPath, 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
     public function create(AutomationRulesCollection $automationRuleCollection)
     {
         \Mage::getConfig()->saveConfig($this->configPath, json_encode($automationRuleCollection->toArray()), 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
     public function getCollection()

@@ -131,7 +131,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
 
         $isAutoresponderOn = $this->getRequest()->getParam('gr_autoresponder', 0);
         $cycleDay = $this->getRequest()->getParam('cycle_day', null);
-        if (null === $isAutoresponderOn) {
+        if (0 === $isAutoresponderOn) {
             $cycleDay = null;
         }
 

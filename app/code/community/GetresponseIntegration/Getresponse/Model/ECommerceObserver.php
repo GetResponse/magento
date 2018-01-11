@@ -21,10 +21,9 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
     public function __construct()
     {
         $shopId = Mage::helper('getresponse')->getStoreId();
-        $settingsRepository = new SettingsRepository($shopId);
-        $this->getresponseSettings = $settingsRepository->getAccount();
+        $this->getresponseSettings = (new SettingsRepository($shopId))->getAccount();
         $shopRepository = new ShopRepository($shopId);
-        $this->getresponseShopsSettings = $shopRepository->getShop();
+        $this->getresponseShopsSettings = $shopRepository->getShop()->toArray();
 
         $this->api = Mage::helper('getresponse/api');
 
@@ -207,7 +206,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 
         $shopId = Mage::helper('getresponse')->getStoreId();
         $shopRepository = new ShopRepository($shopId);
-        $data = $shopRepository->getShop();
+        $data = $shopRepository->getShop()->toArray();
 
         if (1 != $data['isEnabled']) {
             return false;

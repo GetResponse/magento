@@ -3,7 +3,11 @@ use GetresponseIntegration_Getresponse_Domain_Account as Account;
 
 class GetresponseIntegration_Getresponse_Domain_AccountFactory
 {
-    public static function createFromArray(array $response)
+    /**
+     * @param array $response
+     * @return GetresponseIntegration_Getresponse_Domain_Account
+     */
+    public static function createFromArray(array $response = null)
     {
         return new Account(
             $response['accountId'],
@@ -18,8 +22,8 @@ class GetresponseIntegration_Getresponse_Domain_AccountFactory
             isset($response['country']->country) ? $response['country']->country : '',
             isset($response['numberOfEmployees']->numberOfEmployees) ? $response['numberOfEmployees']->numberOfEmployees : '',
             isset($response['timeFormat']->timeFormat) ? $response['timeFormat']->timeFormat : '',
-            isset($response['timeZone_name']->timeZone_name) ? $response['timeZone_name']->timeZone_name : '',
-            isset($response['timeZone_offset']->timeZone_offset) ? $response['timeZone_offset']->timeZone_offset : ''
+            isset($response['timeZoneName']->timeZone_name) ? $response['timeZoneName']->timeZone_name : '',
+            isset($response['timeZoneOffset']->timeZoneOffset) ? $response['timeZoneOffset']->timeZoneOffset : ''
         );
     }
 }

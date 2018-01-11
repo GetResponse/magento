@@ -14,8 +14,8 @@ class GetresponseIntegration_Getresponse_Domain_Account
     private $country;
     private $numberOfEmployees;
     private $timeFormat;
-    private $timeZone_name;
-    private $timeZone_offset;
+    private $timeZoneName;
+    private $timeZoneOffset;
 
     public function __construct(
         $accountId,
@@ -30,8 +30,8 @@ class GetresponseIntegration_Getresponse_Domain_Account
         $country,
         $numberOfEmployees,
         $timeFormat,
-        $timeZone_name,
-        $timeZone_offset
+        $timeZoneName,
+        $timeZoneOffset
     ) {
         $this->accountId = $accountId;
         $this->firstName = $firstName;
@@ -45,8 +45,8 @@ class GetresponseIntegration_Getresponse_Domain_Account
         $this->country = $country;
         $this->numberOfEmployees = $numberOfEmployees;
         $this->timeFormat = $timeFormat;
-        $this->timeZone_name = $timeZone_name;
-        $this->timeZone_offset = $timeZone_offset;
+        $this->timeZoneName = $timeZoneName;
+        $this->timeZoneOffset = $timeZoneOffset;
     }
 
     public function getAccountId()
@@ -109,18 +109,18 @@ class GetresponseIntegration_Getresponse_Domain_Account
         return [
             'accountId' => $this->accountId,
             'firstName' => $this->firstName,
-            'lastName'  => $this->lastName,
-            'email'     => $this->email,
-            'phone'     => $this->phone,
-            'state'     => $this->state,
-            'city'      => $this->city,
-            'street'    => $this->street,
-            'zipCode'   => $this->zipCode,
-            'country'   => $this->country,
+            'lastName' => $this->lastName,
+            'email' => $this->email,
+            'phone' => $this->phone,
+            'state' => $this->state,
+            'city' => $this->city,
+            'street' => $this->street,
+            'zipCode' => $this->zipCode,
+            'country' => $this->country,
             'numberOfEmployees' => $this->numberOfEmployees,
-            'timeFormat'    => $this->timeFormat,
-            'timeZone_name'     => $this->timeZone_name,
-            'timeZone_offset'   => $this->timeZone_offset
+            'timeFormat' => $this->timeFormat,
+            'timeZoneName' => $this->timeZoneName,
+            'timeZoneOffset' => $this->timeZoneOffset
         ];
     }
 }

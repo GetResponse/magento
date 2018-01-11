@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mjaniszewski
- * Date: 12/12/2017
- * Time: 10:06
- */
 
 class GetresponseIntegration_Getresponse_Domain_CustomField
 {
@@ -71,14 +65,17 @@ class GetresponseIntegration_Getresponse_Domain_CustomField
         return $this->isActive;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         return [
-            'id'    => $this->id,
-            'customField'        => $this->customField,
-            'customValue'        => $this->customValue,
-            'isDefault'      => $this->isDefault,
-            'active'        => $this->isActive
+            'id_custom' => $this->id,
+            'custom_field' => $this->customField,
+            'custom_value' => $this->customValue,
+            'default' => $this->isDefault,
+            'custom_active' => $this->isActive
         ];
     }
 }

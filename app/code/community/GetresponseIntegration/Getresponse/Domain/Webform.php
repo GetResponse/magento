@@ -82,6 +82,9 @@ class GetresponseIntegration_Getresponse_Domain_Webform
         return $this->url;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         return [

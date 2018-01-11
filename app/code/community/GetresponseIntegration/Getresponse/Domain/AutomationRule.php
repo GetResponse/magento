@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mjaniszewski
- * Date: 12/12/2017
- * Time: 10:06
- */
 
 class GetresponseIntegration_Getresponse_Domain_AutomationRule
 {
@@ -40,7 +34,7 @@ class GetresponseIntegration_Getresponse_Domain_AutomationRule
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getCategoryId()
     {
@@ -48,7 +42,7 @@ class GetresponseIntegration_Getresponse_Domain_AutomationRule
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getCampaignId()
     {
@@ -56,7 +50,7 @@ class GetresponseIntegration_Getresponse_Domain_AutomationRule
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getAction()
     {
@@ -64,7 +58,7 @@ class GetresponseIntegration_Getresponse_Domain_AutomationRule
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getCycleDay()
     {
@@ -72,7 +66,7 @@ class GetresponseIntegration_Getresponse_Domain_AutomationRule
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getId()
     {
@@ -80,21 +74,25 @@ class GetresponseIntegration_Getresponse_Domain_AutomationRule
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
     public function isActive()
     {
         return $this->active;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         return [
-            'categoryId'    => $this->categoryId,
-            'campaignId'    => $this->campaignId,
-            'action'        => $this->action,
-            'cycleDay'      => $this->cycleDay,
-            'active'        => $this->active
+            'id' => $this->id,
+            'categoryId' => $this->categoryId,
+            'campaignId' => $this->campaignId,
+            'action' => $this->action,
+            'cycleDay' => $this->cycleDay,
+            'active' => $this->active
         ];
     }
 }

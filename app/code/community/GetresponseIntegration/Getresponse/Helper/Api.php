@@ -622,7 +622,7 @@ class GetresponseIntegration_Getresponse_Helper_Api
         $contact = $this->getContact($email, $campaign);
 
         // If contact already exists in gr account.
-        if (!empty($contact) && isset($contact->contactId)) {
+        if ($contact ==! null && isset($contact->contactId)) {
             if (!empty($contact->customFieldValues) || !empty($userCustoms)) {
                 $params['customFieldValues'] = $this->mergeUserCustoms($contact->customFieldValues, $userCustoms);
             }
@@ -640,6 +640,7 @@ class GetresponseIntegration_Getresponse_Helper_Api
                 $params['customFieldValues'] = $this->setExportCustoms($userCustoms, $grCustomFields);
             }
 
+            $response = $this->grapi()->add_contact($params);
             if (isset($response->codeDescription)) {
                 return self::CONTACT_ERROR;
             }
