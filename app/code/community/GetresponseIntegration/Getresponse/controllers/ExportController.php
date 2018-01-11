@@ -70,7 +70,7 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
         $failedCustomFields = [];
 
         if (isset($params['gr_autoresponder']) && 1 == $params['gr_autoresponder']) {
-            $cycleDay = (int)$params['cycleDay'];
+            $cycleDay = (int)$params['cycle_day'];
         }
 
         $custom_fields = $this->prepareCustomFields(

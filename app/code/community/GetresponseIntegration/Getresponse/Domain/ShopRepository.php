@@ -1,5 +1,6 @@
 <?php
 use GetresponseIntegration_Getresponse_Domain_Shop as Shop;
+use GetresponseIntegration_Getresponse_Domain_ShopFactory as ShopFactory;
 
 class GetresponseIntegration_Getresponse_Domain_ShopRepository
 {
@@ -14,11 +15,13 @@ class GetresponseIntegration_Getresponse_Domain_ShopRepository
     public function delete()
     {
         \Mage::getConfig()->deleteConfig($this->configPath, 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
     public function create(Shop $shop)
     {
         \Mage::getConfig()->saveConfig($this->configPath, json_encode($shop->toArray()), 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
     public function update(Shop $shop)
@@ -26,10 +29,11 @@ class GetresponseIntegration_Getresponse_Domain_ShopRepository
         $shopDb = json_decode(\Mage::getStoreConfig($this->configPath), true);
         $shopUpdated = json_encode(array_replace($shopDb, $shop->toArray()));
         \Mage::getConfig()->saveConfig($this->configPath, $shopUpdated, 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
     public function getShop()
     {
-        return json_decode(\Mage::getStoreConfig($this->configPath), true);
+        return ShopFactory::createFromArray(json_decode(\Mage::getStoreConfig($this->configPath), true));
     }
 }

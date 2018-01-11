@@ -5,35 +5,50 @@ class GetresponseIntegration_Getresponse_Domain_AutomationRulesCollection
 {
     private $rules;
 
+    /**
+     * @param GetresponseIntegration_Getresponse_Domain_AutomationRule $rule
+     * @return bool
+     */
     public function add(AutomationRule $rule)
     {
         foreach ($this->rules as $data){
-            if ($data->getCategoryId() === $rule->getCategoryId()) {
-                return false;
-            }
+            $this->checkIfRuleForCampaignIdAlreadyExists($data, $rule);
         }
         $this->rules[] = $rule;
 
         return true;
     }
 
+    /**
+     * @return mixed
+     */
     public function getRules()
     {
         return $this->rules;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         $forJson = [];
         foreach ($this->rules as $key => $rule) {
-            $forJson[$key]['id'] = $rule->getId();
-            $forJson[$key]['categoryId'] = $rule->getCategoryId();
-            $forJson[$key]['campaignId'] = $rule->getCampaignId();
-            $forJson[$key]['action'] = $rule->getAction();
-            $forJson[$key]['cycleDay'] = $rule->getCycleDay();
-            $forJson[$key]['active'] = $rule->isActive();
+            $forJson[$key] = $rule->toArray();
         }
 
         return $forJson;
+    }
+
+    /**
+     * @param $categoryId
+     * @param $addedCategory
+     * @return bool
+     */
+    public function checkIfRuleForCampaignIdAlreadyExists($categoryId, $addedCategory)
+    {
+        if ($categoryId->getCategoryId() === $addedCategory->getCategoryId()) {
+            return false;
+        }
     }
 }

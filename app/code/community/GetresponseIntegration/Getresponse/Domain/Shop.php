@@ -33,6 +33,9 @@ class GetresponseIntegration_Getresponse_Domain_Shop
         return $this->isEnabled;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         return [

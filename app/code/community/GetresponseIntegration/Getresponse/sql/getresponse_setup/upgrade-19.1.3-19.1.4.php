@@ -19,12 +19,12 @@ use GetresponseIntegration_Getresponse_Domain_WebformRepository as WebformReposi
 $installer = $this;
 $installer->startSetup();
 $resource = Mage::getSingleton('core/resource');
-$currentShopId = Mage::app()->getStore();
+$currentShopId = Mage::app()->getStore()->getStoreId();
+
 /**
  * Retrieve the read connection
  */
 $readConnection = $resource->getConnection('core_read');
-echo '<pre>';
 
 $accountDb = $readConnection->fetchAll("SELECT * FROM " . 'getresponse_account');
 $account = AccountFactory::createFromArray($accountDb[0]);

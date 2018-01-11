@@ -47,7 +47,7 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
     public function saveAction()
     {
         $this->_initAction();
-        $campaignId = $this->getRequest()->getParam('campaign_id', null);
+        $campaignId = $this->getRequest()->getParam('campaign_id', 0);
         $activeSubscription = $this->getRequest()->getParam('active_subscription', 0);
         $syncOrderData = $this->getRequest()->getParam('gr_sync_order_data', 0);
         $subscriptionOnCheckout = $this->getRequest()->getParam('subscription_on_checkout', 0);
@@ -72,21 +72,37 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
             }
         }
 
+        $settingsRepository = new SettingsRepository($this->currentShopId);
+        $oldSettings = $settingsRepository->getAccount();
+
         if (1 !== $autoresponder) {
             $cycleDay = NULL;
         }
 
+        if ($activeSubscription === 0) {
+            $newSettings = SettingsFactory::createFromArray(
+                [
+                    'campaignId' => 0,
+                    'activeSubscription' => 0,
+                    'updateAddress' => 0,
+                    'cycleDay' => null,
+                    'subscriptionOnCheckout' => 0,
+                    'newsletterCycleDay' => $oldSettings['newsletterCycleDay']
+                ]
+            );
+        } else {
+            $newSettings = SettingsFactory::createFromArray(
+                [
+                    'campaignId' => $campaignId,
+                    'activeSubscription' => $activeSubscription,
+                    'updateAddress' => $syncOrderData,
+                    'cycleDay' => $cycleDay,
+                    'subscriptionOnCheckout' => $subscriptionOnCheckout,
+                    'newsletterCycleDay' => $oldSettings['newsletterCycleDay']
+                ]
+            );
+        }
 
-        $settingsRepository = new SettingsRepository($this->currentShopId);
-        $newSettings = SettingsFactory::createFromArray(
-            [
-                'campaignId' => $campaignId,
-                'activeSubscription' => $activeSubscription,
-                'updateAddress' => $syncOrderData,
-                'cycleDay' => $cycleDay,
-                'subscriptionOnCheckout' => $subscriptionOnCheckout
-            ]
-        );
         $settingsRepository->update($newSettings);
 
         if (!empty($params['gr_sync_order_data']) && isset($params['gr_custom_field'])) {

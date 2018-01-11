@@ -45,7 +45,7 @@ class GetresponseIntegration_Getresponse_NewsletterController extends Getrespons
         $this->_initAction();
 
         $isEnabled = (int)$this->getRequest()->getParam('newsletter_subscription', 0);
-        $newsletterCampaignId = $this->getRequest()->getParam('newsletter_campaign_id', null);
+        $newsletterCampaignId = $this->getRequest()->getParam('newsletter_campaign_id', 0);
         $newsletterCycleDay = (int)$this->getRequest()->getParam('cycle_day', null);
         $isAutoresponderEnabled = (int)$this->getRequest()->getParam('gr_autoresponder', 0);
 
@@ -56,18 +56,20 @@ class GetresponseIntegration_Getresponse_NewsletterController extends Getrespons
         }
 
         if (0 === $isEnabled) {
-            $newsletterCampaignId = null;
+            $newsletterCampaignId = 0;
             $newsletterCycleDay = null;
         } else {
             $newsletterCycleDay = (0 === $isAutoresponderEnabled) ? NULL : $newsletterCycleDay;
         }
 
         $settingsRepository = new SettingsRepository($this->currentShopId);
+        $oldSettings = $settingsRepository->getAccount();
         $newSettings = SettingsFactory::createFromArray(
             [
                 'newsletterSubscription' => $isEnabled,
                 'newsletterCampaignId' => $newsletterCampaignId,
                 'newsletterCycleDay' => $newsletterCycleDay,
+                'cycleDay' => $oldSettings['cycleDay']
             ]
         );
 

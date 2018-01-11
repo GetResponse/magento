@@ -1,11 +1,16 @@
 <?php
 use GetresponseIntegration_Getresponse_Domain_Account as Account;
+use GetresponseIntegration_Getresponse_Domain_AccountFactory as AccountFactory;
 
 class GetresponseIntegration_Getresponse_Domain_AccountRepository
 {
     private $configPath = 'getresponse/account';
     private $shopId;
 
+    /**
+     * GetresponseIntegration_Getresponse_Domain_AccountRepository constructor.
+     * @param $shopId - shopId
+     */
     public function __construct($shopId)
     {
         $this->shopId = $shopId;
@@ -14,11 +19,13 @@ class GetresponseIntegration_Getresponse_Domain_AccountRepository
     public function delete()
     {
         \Mage::getConfig()->deleteConfig($this->configPath, 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
     public function create(Account $account)
     {
         \Mage::getConfig()->saveConfig($this->configPath, json_encode($account->toArray()), 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
     public function update(Account $account)
@@ -26,10 +33,15 @@ class GetresponseIntegration_Getresponse_Domain_AccountRepository
         $accountDb = json_decode(\Mage::getStoreConfig($this->configPath), true);
         $accountUpdated = json_encode(array_replace($accountDb, $account->toArray()));
         \Mage::getConfig()->saveConfig($this->configPath, $accountUpdated, 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
+    /**
+     * @return GetresponseIntegration_Getresponse_Domain_Account
+     */
     public function getAccount()
     {
-        return json_decode(\Mage::getStoreConfig($this->configPath), true);
+        $account = AccountFactory::createFromArray(json_decode(\Mage::getStoreConfig($this->configPath), true));
+        return $account;
     }
 }

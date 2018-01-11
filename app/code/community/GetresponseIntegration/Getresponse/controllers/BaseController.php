@@ -75,9 +75,9 @@ class GetresponseIntegration_Getresponse_BaseController extends Mage_Adminhtml_C
         }
 
         $accountRepository = new AccountRepository($this->currentShopId);
-        $this->settings->account = $accountRepository->getAccount();
+        $this->settings->account = $accountRepository->getAccount()->toArray();
         $this->settings->customs = Mage::getModel('getresponse/customs')->getCustoms($this->currentShopId);
-        $this->settings->webforms_settings = $webformRepository->getWebform();
+        $this->settings->webforms_settings = $webformRepository->getWebform()->toArray();
     }
 
     /**

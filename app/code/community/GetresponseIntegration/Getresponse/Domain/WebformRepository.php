@@ -1,5 +1,6 @@
 <?php
 use GetresponseIntegration_Getresponse_Domain_Webform as Webform;
+use GetresponseIntegration_Getresponse_Domain_WebformFactory as WebformFactory;
 
 class GetresponseIntegration_Getresponse_Domain_WebformRepository
 {
@@ -14,11 +15,13 @@ class GetresponseIntegration_Getresponse_Domain_WebformRepository
     public function delete()
     {
         \Mage::getConfig()->deleteConfig($this->configPath, 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
     public function create(Webform $webform)
     {
         \Mage::getConfig()->saveConfig($this->configPath, json_encode($webform->toArray()), 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
     public function update(Webform $webform)
@@ -31,10 +34,11 @@ class GetresponseIntegration_Getresponse_Domain_WebformRepository
             }
         }
         \Mage::getConfig()->saveConfig($this->configPath, json_encode($webformDb), 'default', $this->shopId);
+        \Mage::getConfig()->cleanCache();
     }
 
     public function getWebform()
     {
-        return json_decode(\Mage::getStoreConfig($this->configPath), true);
+        return WebformFactory::createFromArray(json_decode(\Mage::getStoreConfig($this->configPath), true));
     }
 }
