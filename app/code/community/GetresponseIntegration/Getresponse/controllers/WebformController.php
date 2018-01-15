@@ -1,4 +1,6 @@
 <?php
+use GetresponseIntegration_Getresponse_Domain_WebformRepository as WebformRepository;
+use GetresponseIntegration_Getresponse_Domain_WebformFactory as WebformFactory;
 
 require_once Mage::getModuleDir('controllers',
         'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
@@ -53,9 +55,11 @@ class GetresponseIntegration_Getresponse_WebformController extends GetresponseIn
 
         $isEnabled = $this->getRequest()->getParam('active_subscription', 0);
         $params = $this->getRequest()->getParams();
+        $webformRepository = new WebformRepository($this->currentShopId);
 
         if (0 === $isEnabled) {
-            Mage::getModel('getresponse/webforms')->disconnect($this->currentShopId);
+            $webformRepository->delete();
+
             $this->_getSession()->addSuccess('Form unpublished');
             $this->_redirect('*/*/index');
             return;
@@ -86,18 +90,16 @@ class GetresponseIntegration_Getresponse_WebformController extends GetresponseIn
         }
 
         if (empty($webforms->codeDescription)) {
-            Mage::getModel('getresponse/webforms')->updateWebforms(
-                [
-                    'webform_id' => $params['webform_id'],
-                    'id_shop' => $this->currentShopId,
-                    'active_subscription' => $isEnabled,
-                    'layout_position' => $params['layout_position'],
-                    'block_position' => $params['block_position'],
-                    'webform_title' => trim($params['webform_title']),
-                    'url' => $webforms->scriptUrl
-                ],
-                $this->currentShopId
-            );
+            $data = [
+                'webformId' => $params['webform_id'],
+                'activeSubscription' => $isEnabled,
+                'layoutPosition' => $params['layout_position'],
+                'blockPosition' => $params['block_position'],
+                'webformTitle' => trim($params['webform_title']),
+                'url' => $webforms->scriptUrl
+            ];
+            $webform = WebformFactory::createFromArray($data);
+            $webformRepository->create($webform);
 
             $this->_getSession()->addSuccess('Form published');
         } else {

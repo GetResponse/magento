@@ -28,7 +28,7 @@
                                         type="text"
                                         id="api_key"
                                         name="api_key"
-                                        value="<?php if (isset($settings->api['api_key'])) : echo $settings->api['api_key']; endif ?>"/>
+                                        value="<?php if (isset($settings->api['apiKey'])) : echo $settings->api['apiKey']; endif ?>"/>
 
                                 <p class="note" id="note_identifier"><span>Your API key is part of the settings of your GetResponse account.<br /> Log in to GetResponse and go to <strong>My profile > Integration & API > API</strong> to find the key.</span></p>
                             </td>
@@ -40,37 +40,37 @@
                                         type="checkbox"
                                         name="getresponse_360_account"
                                         id="getresponse_360_account"
-                                    <?php if (!empty($settings->api['api_domain'])) : ?> checked="checked" <?php endif ?>
+                                    <?php if (!empty($settings->api['apiDomain'])) : ?> checked="checked" <?php endif ?>
                                         value="1">
                                 <label class="GR_label_checkbox" for="getresponse_360_account">I have the Enterprise
                                     package</label>
                             </td>
                         </tr>
 
-                        <tr class="getresponse_360_account_options" <?php if (empty($settings->api['api_domain'])) : ?> style="display: none" <?php endif ?>>
+                        <tr class="getresponse_360_account_options" <?php if (empty($settings->api['apiDomain'])) : ?> style="display: none" <?php endif ?>>
                             <td class="label"><label for="api_key">Account type</label></td>
                             <td class="value">
                                 <select class="" name="api_url" id="api_url">
                                     <option
-                                            value="<?php echo $settings->main['api_url_360_pl']; ?>" <?php if (isset($settings->api['api_url']) && $settings->api['api_url'] == $settings->main['api_url_360_pl']) : ?> selected="selected" <?php endif ?>>
+                                            value="<?php echo $settings->main['api_url_360_pl']; ?>" <?php if (isset($settings->api['apiUrl']) && $settings->api['apiUrl'] == $settings->main['api_url_360_pl']) : ?> selected="selected" <?php endif ?>>
                                         GetResponse360 PL
                                     </option>
                                     <option
-                                            value="<?php echo $settings->main['api_url_360_com']; ?>" <?php if (isset($settings->api['api_url']) && $settings->api['api_url'] == $settings->main['api_url_360_com']) : ?> selected="selected" <?php endif ?>>
+                                            value="<?php echo $settings->main['api_url_360_com']; ?>" <?php if (isset($settings->api['apiUrl']) && $settings->api['apiUrl'] == $settings->main['api_url_360_com']) : ?> selected="selected" <?php endif ?>>
                                         GetResponse360 COM
                                     </option>
                                 </select>
                             </td>
                         </tr>
 
-                        <tr class="getresponse_360_account_options" <?php if (empty($settings->api['api_domain'])) : ?> style="display: none" <?php endif ?>>
+                        <tr class="getresponse_360_account_options" <?php if (empty($settings->api['apiDomain'])) : ?> style="display: none" <?php endif ?>>
                             <td class="label"><label for="api_key">Your domain</label></td>
                             <td class="value">
                                 <input
                                         class="input-text"
                                         type="text"
                                         name="api_domain"
-                                        value="<?php if (isset($settings->api['api_domain'])) : echo $settings->api['api_domain']; endif ?>"/>
+                                        value="<?php if (isset($settings->api['apiDomain'])) : echo $settings->api['apiDomain']; endif ?>"/>
 
                                 <p class="note no-image"><span>Enter your domain without protocol (https://) eg: "example.com"</span>
                                 </p>

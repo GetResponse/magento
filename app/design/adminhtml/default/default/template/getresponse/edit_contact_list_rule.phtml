@@ -30,6 +30,7 @@
                         <td class="value">
                             <?php if ( !empty($categories_tree)): ?>
                                 <select class="GR_input" name="category_id" id="category_id">
+
                                     <?php echo $categories_tree; ?>
                                 </select>
                             <?php else: ?>
@@ -67,7 +68,7 @@
                             <?php if ( !empty($campaigns)): ?>
                                 <select class="GR_input" name="campaign_id" id="campaign_id">
                                     <?php foreach ($campaigns as $id => $name): ?>
-                                        <option <?php if ($id === $automation['campaign_id']) { echo 'selected="selected"'; } ?> value="<?php echo $id ?>"><?php echo $name ?></option>
+                                        <option <?php if ($id === $automation['campaignId']) { echo 'selected="selected"'; } ?> value="<?php echo $id ?>"><?php echo $name ?></option>
                                     <?php endforeach ?>
                                 </select>
                             <?php else: ?>

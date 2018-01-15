@@ -1,4 +1,9 @@
 <?php
+use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
+use GetresponseIntegration_Getresponse_Domain_SettingsFactory as SettingsFactory;
+use GetresponseIntegration_Getresponse_Domain_CustomFieldsCollectionFactory as CustomFieldsCollectionFactory;
+use GetresponseIntegration_Getresponse_Domain_CustomFieldsCollectionRepository as CustomFieldsCollectionRepository;
+use GetresponseIntegration_Getresponse_Domain_CustomFieldFactory as CustomFieldFactory;
 
 require_once Mage::getModuleDir('controllers',
         'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
@@ -20,7 +25,7 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
             'autoresponder',
             array(
                 'campaign_days' => $this->api->getCampaignDays(),
-                'selected_day' => $this->settings->api['cycle_day']
+                'selected_day' => $this->settings->api['cycleDay']
             )
         );
 
@@ -42,17 +47,16 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
     public function saveAction()
     {
         $this->_initAction();
-
-        $campaignId = $this->getRequest()->getParam('campaign_id');
+        $campaignId = $this->getRequest()->getParam('campaign_id', 0);
         $activeSubscription = $this->getRequest()->getParam('active_subscription', 0);
         $syncOrderData = $this->getRequest()->getParam('gr_sync_order_data', 0);
         $subscriptionOnCheckout = $this->getRequest()->getParam('subscription_on_checkout', 0);
         $autoresponder = (int)$this->getRequest()->getParam('gr_autoresponder', 0);
-        $cycleDay = $this->getRequest()->getParam('cycle_day', NULL);
+        $cycleDay = $this->getRequest()->getParam('cycle_day', null);
 
         $params = $this->getRequest()->getParams();
 
-        if (empty($campaignId)) {
+        if ($activeSubscription === 1 && empty($campaignId)) {
             $this->_getSession()->addError('You need to select list');
             $this->_redirect('*/*/index');
             return;
@@ -68,48 +72,72 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
             }
         }
 
+        $settingsRepository = new SettingsRepository($this->currentShopId);
+        $oldSettings = $settingsRepository->getAccount();
+
         if (1 !== $autoresponder) {
             $cycleDay = NULL;
         }
 
-        Mage::getModel('getresponse/settings')->updateSettings(
-            [
-                'campaign_id' => $campaignId,
-                'active_subscription' => $activeSubscription,
-                'update_address' => $syncOrderData,
-                'cycle_day' => $cycleDay,
-                'subscription_on_checkout' => $subscriptionOnCheckout
-            ],
-            $this->currentShopId
-        );
+        if ($activeSubscription === 0) {
+            $newSettings = SettingsFactory::createFromArray(
+                [
+                    'campaignId' => 0,
+                    'activeSubscription' => 0,
+                    'updateAddress' => 0,
+                    'cycleDay' => null,
+                    'subscriptionOnCheckout' => 0,
+                    'newsletterCycleDay' => $oldSettings['newsletterCycleDay']
+                ]
+            );
+        } else {
+            $newSettings = SettingsFactory::createFromArray(
+                [
+                    'campaignId' => $campaignId,
+                    'activeSubscription' => $activeSubscription,
+                    'updateAddress' => $syncOrderData,
+                    'cycleDay' => $cycleDay,
+                    'subscriptionOnCheckout' => $subscriptionOnCheckout,
+                    'newsletterCycleDay' => $oldSettings['newsletterCycleDay']
+                ]
+            );
+        }
+
+        $settingsRepository->update($newSettings);
 
         if (!empty($params['gr_sync_order_data']) && isset($params['gr_custom_field'])) {
 
             $customMap = [];
+            $customsDb = $this->settings->customs;
 
             foreach ($params['gr_custom_field'] as $key => $name) {
-                $customMap[$name] = $params['custom_field'][$key];
+                $customMap[$params['custom_field'][$key]] = $name;
             }
 
-            foreach ($this->settings->customs as $cf) {
+            foreach ($customsDb as $key => $cf) {
                 if (isset($customMap[$cf['custom_field']])) {
-
-                    Mage::getModel('getresponse/customs')->updateCustom(
-                        $cf['id_custom'],
-                        [
-                            'custom_value' => $customMap[$cf['custom_field']],
-                            'active_custom' => GetresponseIntegration_Getresponse_Model_Customs::ACTIVE
-                        ]
-                    );
+                    $customsDb[$key]['custom_active'] = GetresponseIntegration_Getresponse_Model_Customs::ACTIVE;
+                    $customsDb[$key]['custom_value'] = $customMap[$cf['custom_field']];
                 } else {
-                    Mage::getModel('getresponse/customs')->updateCustom(
-                        $cf['id_custom'],
-                        ['active_custom' => GetresponseIntegration_Getresponse_Model_Customs::INACTIVE]
-                    );
+                    $cf['custom_active'] = GetresponseIntegration_Getresponse_Model_Customs::INACTIVE;
                 }
             }
-        }
 
+            $customFieldsCollectionRepository = new CustomFieldsCollectionRepository($this->currentShopId);
+            $customFieldsCollection = CustomFieldsCollectionFactory::createFromArray(array());
+            foreach ($customsDb as $custom) {
+                $customTemp = CustomFieldFactory::createFromArray(array(
+                        'id' => $custom['id_custom'],
+                        'customField' => $custom['custom_field'],
+                        'customValue' => $custom['custom_value'],
+                        'isDefault' => $custom['default'],
+                        'isActive' => $custom['custom_active']
+                    )
+                );
+                $customFieldsCollection->add($customTemp);
+            };
+            $customFieldsCollectionRepository->create($customFieldsCollection);
+        }
         $this->_getSession()->addSuccess('Settings saved');
         $this->_redirect('*/*/index');
     }

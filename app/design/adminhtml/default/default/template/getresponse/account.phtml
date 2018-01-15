@@ -7,7 +7,7 @@
         </p>
 	</div>
 
-    <?php if ( !empty($settings->api['api_key']) && isset($settings->account['firstName']) ) : ?>
+    <?php if ( !empty($settings->api['apiKey']) && isset($settings->account['firstName']) ) : ?>
     <div class="grid">
         <div class="hor-scroll">
 
@@ -31,7 +31,7 @@
                 </tr>
                 <tr>
                     <td>API Key:</td>
-                    <td><?php if ( !empty($settings->api['api_key'])) : echo $settings->api['encrypted_api_key']; endif ?></td>
+                    <td><?php if ( !empty($settings->api['apiKey'])) : echo $settings->api['encrypted_api_key']; endif ?></td>
                 </tr>
                 <tr class="even">
                     <td>Name:</td>

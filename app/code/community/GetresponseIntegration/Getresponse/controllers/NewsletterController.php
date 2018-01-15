@@ -1,4 +1,6 @@
 <?php
+use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
+use GetresponseIntegration_Getresponse_Domain_SettingsFactory as SettingsFactory;
 
 require_once Mage::getModuleDir('controllers',
         'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
@@ -20,7 +22,7 @@ class GetresponseIntegration_Getresponse_NewsletterController extends Getrespons
             'autoresponder',
             array(
                 'campaign_days' => $this->api->getCampaignDays(),
-                'selected_day' => $this->settings->api['cycle_day']
+                'selected_day' => $this->settings->api['newsletterCycleDay']
             )
         );
 
@@ -43,25 +45,35 @@ class GetresponseIntegration_Getresponse_NewsletterController extends Getrespons
         $this->_initAction();
 
         $isEnabled = (int)$this->getRequest()->getParam('newsletter_subscription', 0);
-        $newsletterCampaignId = $this->getRequest()->getParam('newsletter_campaign_id', '');
-        $newsletterCycleDay = (int)$this->getRequest()->getParam('newsletter_cycle_day', 0);
-        $isAutoresponderEnabled = (int)$this->getRequest()->getParam('newsletter_autoresponder', 0);
+        $newsletterCampaignId = $this->getRequest()->getParam('newsletter_campaign_id', 0);
+        $newsletterCycleDay = (int)$this->getRequest()->getParam('cycle_day', null);
+        $isAutoresponderEnabled = (int)$this->getRequest()->getParam('gr_autoresponder', 0);
 
-        if (0 === $isEnabled) {
-            $newsletterCampaignId = '';
-            $newsletterCycleDay = NULL;
-        } else {
-            $newsletterCycleDay = 0 === $isAutoresponderEnabled ? NULL : $newsletterCycleDay;
+        if ($isEnabled === 1 && empty($newsletterCampaignId)) {
+            $this->_getSession()->addError('You need to select list');
+            $this->_redirect('*/*/index');
+            return;
         }
 
-        Mage::getModel('getresponse/settings')->updateSettings(
+        if (0 === $isEnabled) {
+            $newsletterCampaignId = 0;
+            $newsletterCycleDay = null;
+        } else {
+            $newsletterCycleDay = (0 === $isAutoresponderEnabled) ? NULL : $newsletterCycleDay;
+        }
+
+        $settingsRepository = new SettingsRepository($this->currentShopId);
+        $oldSettings = $settingsRepository->getAccount();
+        $newSettings = SettingsFactory::createFromArray(
             [
-                'newsletter_subscription' => $isEnabled,
-                'newsletter_campaign_id' => $newsletterCampaignId,
-                'newsletter_cycle_day' => $newsletterCycleDay,
-            ],
-            $this->currentShopId
+                'newsletterSubscription' => $isEnabled,
+                'newsletterCampaignId' => $newsletterCampaignId,
+                'newsletterCycleDay' => $newsletterCycleDay,
+                'cycleDay' => $oldSettings['cycleDay']
+            ]
         );
+
+        $settingsRepository->update($newSettings);
 
         $this->_getSession()->addSuccess('Settings saved');
         $this->_redirect('*/*/index');

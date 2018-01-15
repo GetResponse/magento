@@ -40,7 +40,7 @@
                             <tr>
                                 <td colspan="2">
                                     <input type="checkbox" id="active_subscription" name="active_subscription" value="1"
-                                        <?php if (isset($settings->api['active_subscription']) and $settings->api['active_subscription'] == 1) : ?>
+                                        <?php if (isset($settings->api['activeSubscription']) and $settings->api['activeSubscription'] == 1) : ?>
                                             checked="checked"
                                         <?php endif; ?>
                                     />
@@ -61,7 +61,7 @@
                                         <option value="">Select a list</option>
                                         <?php
                                         foreach ($campaigns as $id => $name) {
-                                            echo '<option value="' . $id . '"', ($id == $settings->api['campaign_id']) ? ' selected="selected"' : '', '>' . $name . '</option>';
+                                            echo '<option value="' . $id . '"', ($id == $settings->api['campaignId']) ? ' selected="selected"' : '', '>' . $name . '</option>';
                                         }
                                         ?>
                                     </select>
@@ -82,7 +82,7 @@
                                 <td class="label"><label>Sing-up option</label></td>
                                 <td class="value">
                                     <input type="checkbox" id="subscription_on_checkout" name="subscription_on_checkout" value="1"
-                                        <?php if (isset($settings->api['subscription_on_checkout']) and $settings->api['subscription_on_checkout'] == 1) : ?>
+                                        <?php if (isset($settings->api['subscriptionOnCheckout']) and $settings->api['subscriptionOnCheckout'] == 1) : ?>
                                             checked="checked"
                                         <?php endif; ?>
                                     />
@@ -99,7 +99,7 @@
                                 <td class="label"><label>Contact info</label></td>
                                 <td class="value">
                                     <input type="checkbox" id="gr_sync_order_data" name="gr_sync_order_data" value="1"
-                                        <?php if (isset($settings->api['update_address']) and $settings->api['update_address'] == 1) : ?>
+                                        <?php if (isset($settings->api['updateAddress']) and $settings->api['updateAddress'] == 1) : ?>
                                             checked="checked"
                                         <?php endif; ?>
                                     />
@@ -226,7 +226,7 @@
         var custom_values = <?php echo $customs['custom_values']; ?>;
 
         $.each(customs, function (key, val) {
-            if(1 === parseInt(val.active_custom)) {
+            if(1 === parseInt(val.custom_active)) {
                 GetresponseMapping(customs, custom_values, val);
             }
         });

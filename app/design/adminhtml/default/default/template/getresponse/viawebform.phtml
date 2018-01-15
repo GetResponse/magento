@@ -32,7 +32,7 @@
                         name="active_subscription"
                         id="active_subscription"
                         value="1"
-                    <?php if (isset($settings->webforms_settings['active_subscription']) and $settings->webforms_settings['active_subscription'] == 1) : ?>
+                    <?php if (isset($settings->webforms_settings['activeSubscription']) and $settings->webforms_settings['activeSubscription'] == 1) : ?>
                         checked="checked"
                         <?php endif; ?>
                     />
@@ -65,7 +65,7 @@
                                             <?php } ?>
                                             <?php
                                             foreach ($forms as $form) {
-                                                $selected = ($form->formId == $settings->webforms_settings['webform_id']) ? 'selected="selected"' : '';
+                                                $selected = ($form->formId == $settings->webforms_settings['webformId']) ? 'selected="selected"' : '';
                                                 echo '<option ' . $selected . ' data-version="new" value="' . $form->formId . '">' . $form->name . ' (' . $form->campaign->name . ')</option>';
                                             }
                                             ?>
@@ -75,7 +75,7 @@
                                             <?php } ?>
                                             <?php
                                             foreach ($webforms as $webform) {
-                                                $selected = ($webform->webformId == $settings->webforms_settings['webform_id']) ? 'selected="selected"' : '';
+                                                $selected = ($webform->webformId == $settings->webforms_settings['webformId']) ? 'selected="selected"' : '';
                                                 echo '<option ' . $selected . ' data-version="old" value="' . $webform->webformId . '">' . $webform->name . ' (' . $webform->campaign->name . ')</option>';
                                             }
                                             ?>
@@ -108,7 +108,7 @@
                                         <option value="">Select where to place the form</option>
                                         <?php
                                         foreach ($layout_positions as $id => $name) {
-                                            $selected = ($id == $settings->webforms_settings['layout_position']) ? 'selected="selected"' : '';
+                                            $selected = ($id == $settings->webforms_settings['layoutPosition']) ? 'selected="selected"' : '';
                                             echo '<option ' . $selected . ' value="' . $id . '">' . $name . '</option>';
                                         }
                                         ?>
@@ -137,7 +137,7 @@
                                         <option value="">Select where to place the form</option>
                                         <?php
                                         foreach ($block_positions as $id => $name) {
-                                            $selected = ($id == $settings->webforms_settings['block_position']) ? 'selected="selected"' : '';
+                                            $selected = ($id == $settings->webforms_settings['blockPosition']) ? 'selected="selected"' : '';
                                             echo '<option ' . $selected . ' value="' . $id . '">' . $name . '</option>';
                                         }
                                         ?>
@@ -160,7 +160,7 @@
                             <td class="label"><label>Name <span class="required">*</span></label></td>
                             <td class="value">
                                 <input class="input-text" type="text" name="webform_title" placeholder="Enter a form name"
-                                       value="<?php if (isset($settings->webforms_settings['webform_title'])) : echo $settings->webforms_settings['webform_title']; endif ?>"/>
+                                       value="<?php if (isset($settings->webforms_settings['webformTitle'])) : echo $settings->webforms_settings['webformTitle']; endif ?>"/>
                             </td>
                         </tr>
                         </tbody>
