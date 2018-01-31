@@ -6,7 +6,7 @@
             <ul>
                 <li>
                     <span>
-<?php if (1 == $settings->api['has_gr_traffic_feature_enabled']) :?>
+<?php if (1 == $settings->api['hasGrTrafficFeatureEnabled']) :?>
     Plan a customer journey based on their visits to your store and purchases they make.<br />
     Web event traffic tracking is a marketing automation feature available in Max and Pro accounts.
 <?php else: ?>
@@ -21,7 +21,7 @@
 
     <div class="content-header">
         <h3>Web Event Traffic</h3>
-        <?php if (1 == $settings->api['has_gr_traffic_feature_enabled']) :?>
+        <?php if (1 == $settings->api['hasGrTrafficFeatureEnabled']) :?>
         <p class="form-buttons">
             <button type="submit" name="Submit" class="scalable save" onclick="getresponsewebtrafic.submit();"><span>Save</span></button>
         </p>
@@ -33,16 +33,16 @@
         <div class="fieldset fieldset-wide">
             <div class="hor-scroll">
 
-                <?php if (1 == $settings->api['has_gr_traffic_feature_enabled']) : ?>
+                <?php if (1 == $settings->api['hasGrTrafficFeatureEnabled']) : ?>
 
                     <span class="switch_active_subscription">
-                    <input type="checkbox" name="has_active_traffic_module" id="has_active_traffic_module" value="1"
-                    <?php if (isset($settings->api['has_active_traffic_module']) and $settings->api['has_active_traffic_module'] == 1) : ?>
+                    <input type="checkbox" name="hasGrTrafficFeatureEnabled" id="hasGrTrafficFeatureEnabled" value="1"
+                    <?php if (isset($settings->api['hasGrTrafficFeatureEnabled']) and $settings->api['hasGrTrafficFeatureEnabled'] == 1) : ?>
                         checked="checked"
                     <?php endif; ?>
                 />
 		        	</span>
-                    <label for="has_active_traffic_module">Send web event data to GetResponse</label>
+                    <label for="hasGrTrafficFeatureEnabled">Send web event data to GetResponse</label>
                 <?php else: ?>
 
                     <p>

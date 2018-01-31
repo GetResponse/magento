@@ -10,7 +10,7 @@ class GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionFactory
      */
     public static function createFromArray($data)
     {
-        $rules = new AutomationRulesCollection;
+        $rules = new AutomationRulesCollection();
 
         foreach ($data as $automationRule) {
             $rules->add(AutomationRuleFactory::createFromArray(array(

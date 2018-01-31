@@ -28,7 +28,7 @@ class GetresponseIntegration_Getresponse_Model_Observer
         $settingsRepository = new SettingsRepository($shopId);
         $accountSettings = $settingsRepository->getAccount();
 
-        if (empty($accountSettings['apiKey']) || 0 === (int)$accountSettings['hasActiveTrafficModule']) {
+        if (empty($accountSettings['apiKey']) || 0 === (int)$accountSettings['hasGrTrafficFeatureEnabled']) {
             return $this;
         }
 

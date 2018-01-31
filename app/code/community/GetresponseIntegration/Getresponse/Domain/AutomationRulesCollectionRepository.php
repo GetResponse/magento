@@ -25,6 +25,7 @@ class GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionReposit
 
     public function getCollection()
     {
-        return json_decode(\Mage::getStoreConfig($this->configPath), true);
+        $data = json_decode(\Mage::getStoreConfig($this->configPath), true);
+        return is_array($data) ? $data : array();
     }
 }

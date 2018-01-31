@@ -15,7 +15,7 @@ class GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder extends M
         parent::__construct($args);
 
         $this->campaignDays = $args['campaign_days'];
-        if ($args['selected_day'] !== null)
+        if (isset($args['selected_day']) && null != $args['selected_day'])
             $this->selectedDay = $args['selected_day'];
     }
 

@@ -31,7 +31,7 @@ class GetresponseIntegration_Getresponse_WebtrafficController extends Getrespons
     public function saveAction()
     {
         $this->_initAction();
-        $hasActiveTrafficModule = (int)$this->getRequest()->getParam('has_active_traffic_module', 0);
+        $hasActiveTrafficModule = (int)$this->getRequest()->getParam('hasGrTrafficFeatureEnabled', 0);
 
         $settingsRepository = new SettingsRepository($this->currentShopId);
         $newSettings = SettingsFactory::createFromArray(

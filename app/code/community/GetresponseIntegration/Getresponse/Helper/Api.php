@@ -573,15 +573,17 @@ class GetresponseIntegration_Getresponse_Helper_Api
     private function setExportCustoms($userCustoms, $grCustomFields)
     {
         $custom_fields = [];
-        $custom = '';
 
         if (empty($userCustoms)) {
             return $custom_fields;
         }
+
         foreach ($userCustoms as $name => $value) {
+            $custom = new stdClass();
             foreach ($grCustomFields as $grCustomName => $grCustomId) {
                 if ($grCustomName === $name) {
                     $custom->customFieldId = $grCustomId;
+                    break;
                 }
             }
             $custom_fields[] = [
@@ -589,6 +591,7 @@ class GetresponseIntegration_Getresponse_Helper_Api
                 'value' => is_array($value) ? $value : [$value]
             ];
         }
+
         return $custom_fields;
     }
 

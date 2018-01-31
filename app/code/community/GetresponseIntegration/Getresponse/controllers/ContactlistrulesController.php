@@ -54,7 +54,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
             'autoresponder',
             array(
                 'campaign_days' => $this->api->getCampaignDays(),
-                'selected_day' => $this->settings->api['cycle_day']
+                'selected_day' => isset($this->settings->api['cycle_day']) ? $this->settings->api['cycle_day'] : '',
             )
         );
 
@@ -79,16 +79,6 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
         $this->_initAction();
         $this->_title($this->__('New Rule'))->_title($this->__('GetResponse'));
 
-        /** @var Mage_Core_Block_Abstract $autoresponderBlock */
-        $autoresponderBlock = $this->getLayout()->createBlock(
-            'GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder',
-            'autoresponder',
-            array(
-                'campaign_days' => $this->api->getCampaignDays(),
-                'selected_day' => $this->settings->api['cycle_day']
-            )
-        );
-
         $id = $this->getRequest()->getParam('id');
 
         if (!isset($id) || empty($id)) {
@@ -106,11 +96,21 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
                 $automation = $rule;
         }
 
+        /** @var Mage_Core_Block_Abstract $autoresponderBlock */
+        $autoresponderBlock = $this->getLayout()->createBlock(
+            'GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder',
+            'autoresponder',
+            array(
+                'campaign_days' => $this->api->getCampaignDays(),
+                'selected_day' => $automation['cycleDay']
+            )
+        );
+
         $this->_addContent($this->getLayout()
             ->createBlock('Mage_Core_Block_Template', 'getresponse_content')
             ->setTemplate('getresponse/edit_contact_list_rule.phtml')
             ->assign('settings', $this->settings)
-            ->assign('categories_tree', $this->getTreeCategoriesHTML(1, false))
+            ->assign('categories_tree', $this->getTreeCategoriesHTML(1, false, '', $automation['categoryId']))
             ->assign('automation', $automation)
             ->assign('actions', $this->actions)
             ->assign('campaigns', $this->api->getGrCampaigns())
@@ -147,6 +147,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
         $ruleRepository = new AutomationRulesCollectionRepository($this->currentShopId);
         $rule = AutomationRuleFactory::createFromArray($data);
         $ruleCollectionDb = $ruleRepository->getCollection();
+
         $ruleCollectionDb = AutomationRulesCollectionFactory::createFromArray($ruleCollectionDb);
         $status = $ruleCollectionDb->add($rule);
 
@@ -180,7 +181,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
 
         $isAutoresponderOn = $this->getRequest()->getParam('gr_autoresponder', 0);
         $cycleDay = $this->getRequest()->getParam('cycle_day', null);
-        if (null === $isAutoresponderOn) {
+        if (0 === $isAutoresponderOn) {
             $cycleDay = null;
         }
 
