@@ -1,5 +1,11 @@
 # Changelog
 
+## 19.1.5
+*(2018-01-31)*
+
+#### Bug fixes
+* Few minors bugs fixed
+
 ## 19.1.4
 *(2017-01-09)*
 
