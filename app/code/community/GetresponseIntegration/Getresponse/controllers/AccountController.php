@@ -107,7 +107,7 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
         $trackingCode = (array)$this->grapi()->get_tracking_code();
 
         if (!empty($trackingCode) && is_object($trackingCode[0]) && 0 < strlen($trackingCode[0]->snippet)) {
-            $data['tracking_code_snippet'] = $trackingCode[0]->snippet;
+            $data['trackingCodeSnippet'] = $trackingCode[0]->snippet;
         }
 
         $settingsRepository = new SettingsRepository($this->currentShopId);

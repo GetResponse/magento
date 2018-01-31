@@ -572,24 +572,28 @@ class GetresponseIntegration_Getresponse_Helper_Api
      */
     private function setExportCustoms($userCustoms, $grCustomFields)
     {
-        $custom_fields = [];
-        $custom = '';
+        $customsHashMap = [];
 
         if (empty($userCustoms)) {
-            return $custom_fields;
+            return $customsHashMap;
         }
+
         foreach ($userCustoms as $name => $value) {
+
             foreach ($grCustomFields as $grCustomName => $grCustomId) {
                 if ($grCustomName === $name) {
-                    $custom->customFieldId = $grCustomId;
+
+                    $customsHashMap[] = [
+                        'customFieldId' => $grCustomId,
+                        'value' => is_array($value) ? $value : [$value]
+                    ];
+                    break;
                 }
             }
-            $custom_fields[] = [
-                'customFieldId' => $custom->customFieldId,
-                'value' => is_array($value) ? $value : [$value]
-            ];
+
         }
-        return $custom_fields;
+
+        return $customsHashMap;
     }
 
     /**

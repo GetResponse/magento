@@ -45,6 +45,7 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
         $this->_initAction();
 
         $campaign_id = $this->getRequest()->getParam('campaign_id');
+
         if (empty($campaign_id)) {
             $this->_getSession()->addError('List can\'t be empty');
             $this->_redirect('*/*/index');

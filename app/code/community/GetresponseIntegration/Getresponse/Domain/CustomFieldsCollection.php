@@ -3,7 +3,8 @@ use GetresponseIntegration_Getresponse_Domain_CustomField as CustomField;
 
 class GetresponseIntegration_Getresponse_Domain_CustomFieldsCollection
 {
-    private $fields;
+    /** @var array  */
+    private $fields = [];
 
     /**
      * @param GetresponseIntegration_Getresponse_Domain_CustomField $field

@@ -3,7 +3,8 @@ use GetresponseIntegration_Getresponse_Domain_AutomationRule as AutomationRule;
 
 class GetresponseIntegration_Getresponse_Domain_AutomationRulesCollection
 {
-    private $rules;
+    /** @var array */
+    private $rules = [];
 
     /**
      * @param GetresponseIntegration_Getresponse_Domain_AutomationRule $rule
@@ -20,7 +21,7 @@ class GetresponseIntegration_Getresponse_Domain_AutomationRulesCollection
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getRules()
     {
