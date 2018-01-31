@@ -112,7 +112,7 @@ class GetresponseIntegration_Getresponse_Model_Observer
 							as="getresponse_webform_' . $webformSettings['layoutPosition'] . '"
 							translate="label" ' . $sub_position . '>';
             $myXml .= '<block type="core/template"
-							name="getresponse_webform_' . $webforms['layoutPosition'] . '"
+							name="getresponse_webform_' . $webformSettings['layoutPosition'] . '"
 							template="getresponse/webform.phtml">';
             $myXml .= '<action method="setData">
 							<name>getresponse_active_subscription</name>
