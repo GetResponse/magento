@@ -1,5 +1,11 @@
 # Changelog
 
+## 19.1.6
+*(2018-02-01)*
+
+#### Bug fixes
+* Remove expression from constant. Support for php version below 5.6
+
 ## 19.1.5
 *(2018-01-31)*
 

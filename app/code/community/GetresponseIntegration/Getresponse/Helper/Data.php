@@ -13,7 +13,7 @@ class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Ab
 	const NAME_DIR_JS = 'getresponse/';
 
 	const UNAUTHORIZED_API_CALL_CONFIG_PATH = 'getresponse/unauthorized_calls/date';
-	const DISCONNECT_DELAY = 60*60*24; // one day
+	const DISCONNECT_DELAY = 86400; //
 
 	/**
 	 * List files for include.
