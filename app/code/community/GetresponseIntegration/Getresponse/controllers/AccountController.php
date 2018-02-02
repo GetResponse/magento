@@ -1,5 +1,5 @@
 <?php
-use GetResponseIntegration_Getresponse_Domain_AccountRepository as AccountRepository;
+use GetresponseIntegration_Getresponse_Domain_AccountRepository as AccountRepository;
 use GetresponseIntegration_Getresponse_Domain_AccountFactory as AccountFactory;
 use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
 use GetresponseIntegration_Getresponse_Domain_SettingsFactory as SettingsFactory;

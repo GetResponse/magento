@@ -1,5 +1,11 @@
 # Changelog
 
+## 19.1.8
+*(2018-02-02)*
+
+#### Bug fixes
+* Fix in namespaces
+
 ## 19.1.7
 *(2018-02-02)*
 
