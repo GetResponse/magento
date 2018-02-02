@@ -1,5 +1,11 @@
 # Changelog
 
+## 19.1.7
+*(2018-02-02)*
+
+#### Bug fixes
+* Backward compatibility with php 5.4
+
 ## 19.1.6
 *(2018-02-01)*
 

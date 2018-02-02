@@ -615,7 +615,8 @@ class GetresponseIntegration_Getresponse_Helper_Api
             'ipAddress' => $_SERVER['REMOTE_ADDR'],
         ];
 
-        if (!empty(trim($name))) {
+        $trimName = trim($name);
+        if (!empty($trimName)) {
             $params['name'] = trim($name);
         }
 
