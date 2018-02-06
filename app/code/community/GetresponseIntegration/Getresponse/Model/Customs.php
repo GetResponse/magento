@@ -11,7 +11,7 @@ class GetresponseIntegration_Getresponse_Model_Customs extends Mage_Core_Model_A
     const ACTIVE = 1;
     const INACTIVE = 0;
 
-    const RESERVED_CUSTOM_FIELDS = array('firstname', 'lastname', 'email');
+    private static $reservedCustoms = array('firstname', 'lastname', 'email');
 
     public $fields = array(
         array('name' => 'firstname', 'value' => self::ACTIVE),
@@ -105,7 +105,7 @@ class GetresponseIntegration_Getresponse_Model_Customs extends Mage_Core_Model_A
                 if (
                     in_array($cf['custom_field'], array_keys($userCustoms))
                     && !empty($userCustoms[$cf['custom_field']])
-                    && !in_array($cf['custom_field'], self::RESERVED_CUSTOM_FIELDS)
+                    && !in_array($cf['custom_field'], self::$reservedCustoms)
                 ) {
                     $fields[$cf['custom_value']] = trim(preg_replace('/\s+/', ' ', $userCustoms[$cf['custom_field']]));
                 }
