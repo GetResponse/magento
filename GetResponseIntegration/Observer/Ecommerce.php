@@ -6,7 +6,10 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
+use Magento\Catalog\Model\Category\Interceptor;
+use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory;
 use Magento\Customer\Model\Session;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Customer\Model\Customer;
 use GetResponse\GetResponseIntegration\Model\ProductMap;
@@ -15,6 +18,7 @@ use GetResponse\GetResponseIntegration\Model\ResourceModel\ProductMap\Collection
 use Magento\Quote\Model\Quote\Item;
 use Magento\Sales\Model\Order;
 use Magento\Directory\Model\CountryFactory;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Ecommerce
@@ -40,6 +44,12 @@ class Ecommerce
     /** @var Repository */
     private $repository;
 
+    /** @var CollectionFactory */
+    private $categoryCollection;
+
+    /** @var StoreManagerInterface */
+    private $storeManager;
+
     /**
      * @param ObjectManagerInterface $objectManager
      * @param Session $customerSession
@@ -47,6 +57,8 @@ class Ecommerce
      * @param CountryFactory $countryFactory
      * @param RepositoryFactory $repositoryFactory
      * @param Repository $repository
+     * @param CollectionFactory $categoryCollection
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
@@ -54,7 +66,9 @@ class Ecommerce
         ProductMapFactory $productMapFactory,
         CountryFactory $countryFactory,
         RepositoryFactory $repositoryFactory,
-        Repository $repository
+        Repository $repository,
+        CollectionFactory $categoryCollection,
+        StoreManagerInterface $storeManager
     ) {
         $this->objectManager = $objectManager;
         $this->customerSession = $customerSession;
@@ -62,6 +76,8 @@ class Ecommerce
         $this->countryFactory = $countryFactory;
         $this->repositoryFactory = $repositoryFactory;
         $this->repository = $repository;
+        $this->categoryCollection = $categoryCollection;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -165,17 +181,59 @@ class Ecommerce
      */
     private function createProductInGetResponse($shopId, $magentoCartItem)
     {
+        $grCategories = $grImages = [];
+
+        /** @var \Magento\Catalog\Model\Product\Interceptor $product */
+        $product = $magentoCartItem->getProduct();
+        $this->objectManager->get("Magento\Catalog\Model\Product\Gallery\ReadHandler")->execute($product);
+
+        try {
+            $categories = $this->categoryCollection->create()
+                ->addAttributeToSelect('*')
+                ->setStore($this->storeManager->getStore())
+                ->addAttributeToFilter('is_active', '1');
+        } catch (LocalizedException $e) {
+            $categories = [];
+        }
+
+        /** @var Interceptor $category */
+        foreach ($categories as $category) {
+
+            if (!in_array($category->getId(), $product->getCategoryIds())) {
+                continue;
+            }
+
+            $grCategories[] = [
+                'name' => $category->getName(),
+                'url' => $category->getUrl(),
+                'externalId' => $category->getId(),
+                'isDefault' => false
+            ];
+        }
+
+        $images = $product->getMediaGalleryImages();
+
+        foreach ($images as $image) {
+            $grImages[] = [
+                'src' => $image['url'],
+                'position' => $image['position']
+            ];
+        }
+
         $params = [
-            'name' => (string) $magentoCartItem->getProduct()->getName(),
-            'categories' => [],
-            'externalId' => (string) $magentoCartItem->getProduct()->getId(),
+            'name' => (string) $product->getName(),
+            'url' => $product->getProductUrl(),
+            'categories' => $grCategories,
+            'externalId' => (string) $product->getId(),
             'variants' => [
                 [
-                    'name' => (string) $magentoCartItem->getProduct()->getName(),
-                    'price' => (float) $magentoCartItem->getProduct()->getPrice(),
-                    'priceTax' => 0,
-                    'quantity' => (int) $magentoCartItem->getProduct()->getQty(),
-                    'sku' => (string) $magentoCartItem->getProduct()->getSku(),
+                    'name' => (string) $product->getName(),
+                    'url' => $product->getProductUrl(),
+                    'price' => (float) $product->getPrice(),
+                    'priceTax' =>  $product->getFinalPrice(),
+                    'quantity' => (int) $product->getQty(),
+                    'sku' => (string) $product->getSku(),
+                    'images' => $grImages
                 ],
             ],
         ];
