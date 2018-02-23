@@ -198,7 +198,6 @@ class Ecommerce
 
         /** @var Interceptor $category */
         foreach ($categories as $category) {
-
             if (!in_array($category->getId(), $product->getCategoryIds())) {
                 continue;
             }
