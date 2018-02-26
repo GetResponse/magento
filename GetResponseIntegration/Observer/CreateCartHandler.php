@@ -14,6 +14,8 @@ use Magento\Quote\Model\Quote\Item;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Model\ProductMapFactory;
 use Magento\Directory\Model\CountryFactory;
+use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class CreateCartHandler
@@ -39,6 +41,8 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
      * @param CountryFactory $countryFactory
      * @param RepositoryFactory $repositoryFactory
      * @param Repository $repository
+     * @param CollectionFactory $categoryCollection
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
@@ -48,7 +52,9 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
         ProductMapFactory $productMapFactory,
         CountryFactory $countryFactory,
         RepositoryFactory $repositoryFactory,
-        Repository $repository
+        Repository $repository,
+        CollectionFactory $categoryCollection,
+        StoreManagerInterface $storeManager
     ) {
         $this->cart = $cart;
         $this->scopeConfig = $scopeConfig;
@@ -60,7 +66,9 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
             $productMapFactory,
             $countryFactory,
             $repositoryFactory,
-            $repository
+            $repository,
+            $categoryCollection,
+            $storeManager
         );
     }
 
