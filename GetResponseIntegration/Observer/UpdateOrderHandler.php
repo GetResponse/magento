@@ -14,6 +14,8 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\Order;
 use GetResponse\GetResponseIntegration\Model\ProductMapFactory;
 use GetResponse\GetResponseIntegration\Helper\Config;
+use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class UpdateOrderHandler
@@ -45,6 +47,8 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
      * @param ScopeConfigInterface $scopeConfig
      * @param RepositoryFactory $repositoryFactory
      * @param Repository $repository
+     * @param CollectionFactory $categoryCollection
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
@@ -55,7 +59,9 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
         CountryFactory $countryFactory,
         ScopeConfigInterface $scopeConfig,
         RepositoryFactory $repositoryFactory,
-        Repository $repository
+        Repository $repository,
+        CollectionFactory $categoryCollection,
+        StoreManagerInterface $storeManager
     ) {
         $this->order = $orderFactory;
         $this->quoteFactory = $quoteFactory;
@@ -69,7 +75,9 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
             $productMapFactory,
             $countryFactory,
             $repositoryFactory,
-            $repository
+            $repository,
+            $categoryCollection,
+            $storeManager
         );
     }
 
