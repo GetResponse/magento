@@ -348,7 +348,6 @@ class InstallSchema implements InstallSchemaInterface
         $stores = $objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStores();
         foreach ($stores as $store) {
             $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
-                'id' => 1,
                 'id_shop' => $store->getId(),
                 'custom_field' => 'firstname',
                 'custom_value' => 'firstname',
@@ -357,7 +356,6 @@ class InstallSchema implements InstallSchemaInterface
                 'active_custom' => 1
             ]);
             $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
-                'id' => 2,
                 'id_shop' => $store->getId(),
                 'custom_field' => 'lastname',
                 'custom_value' => 'lastname',
@@ -366,7 +364,6 @@ class InstallSchema implements InstallSchemaInterface
                 'active_custom' => 1
             ]);
             $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
-                'id' => 3,
                 'id_shop' => $store->getId(),
                 'custom_field' => 'email',
                 'custom_value' => 'email',
@@ -375,7 +372,6 @@ class InstallSchema implements InstallSchemaInterface
                 'active_custom' => 1
             ]);
             $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
-                'id' => 4,
                 'id_shop' => $store->getId(),
                 'custom_field' => 'street',
                 'custom_value' => 'street',
@@ -384,7 +380,6 @@ class InstallSchema implements InstallSchemaInterface
                 'active_custom' => 0
             ]);
             $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
-                'id' => 5,
                 'id_shop' => $store->getId(),
                 'custom_field' => 'postcode',
                 'custom_value' => 'postcode',
@@ -393,7 +388,6 @@ class InstallSchema implements InstallSchemaInterface
                 'active_custom' => 0
             ]);
             $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
-                'id' => 6,
                 'id_shop' => $store->getId(),
                 'custom_field' => 'city',
                 'custom_value' => 'city',
@@ -402,7 +396,6 @@ class InstallSchema implements InstallSchemaInterface
                 'active_custom' => 0
             ]);
             $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
-                'id' => 7,
                 'id_shop' => $store->getId(),
                 'custom_field' => 'telephone',
                 'custom_value' => 'telephone',
@@ -411,7 +404,6 @@ class InstallSchema implements InstallSchemaInterface
                 'active_custom' => 0
             ]);
             $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
-                'id' => 8,
                 'id_shop' => $store->getId(),
                 'custom_field' => 'country',
                 'custom_value' => 'country',
@@ -420,7 +412,6 @@ class InstallSchema implements InstallSchemaInterface
                 'active_custom' => 0
             ]);
             $installer->getConnection()->insertMultiple($installer->getTable('getresponse_customs'), [
-                'id' => 9,
                 'id_shop' => $store->getId(),
                 'custom_field' => 'birthday',
                 'custom_value' => 'birthday',
