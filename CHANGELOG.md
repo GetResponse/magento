@@ -1,5 +1,11 @@
 # Changelog
 
+## 19.1.10
+*(2018-03-06)*
+
+#### Bug fixes
+* Bug fix in installation script
+
 ## 19.1.9
 *(2018-02-06)*
 
