@@ -11,7 +11,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 
     /** @var GetresponseIntegration_Getresponse_Helper_Api */
     protected $api;
-    /** @var GetresponseIntegration_Getresponse_Model_Settings */
+    /** @var SettingsRepository */
     protected $getresponseSettings;
     /** @var Mage_Core_Model_Abstract  */
     protected $getresponseShopsSettings;
@@ -175,6 +175,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 
     /**
      * @return mixed
+     * @throws Zend_Cache_Exception
      */
     protected function getContactFromGetResponse()
     {
@@ -198,6 +199,10 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
         return $response;
     }
 
+    /**
+     * @return bool
+     * @throws Zend_Cache_Exception
+     */
     protected function canHandleECommerceEvent()
     {
         if (!Mage::getSingleton('customer/session')->isLoggedIn()) {
@@ -222,6 +227,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 
     /**
      * @param Varien_Event_Observer $observer
+     * @throws Exception
      */
     public function createOrderHandler($observer)
     {
@@ -230,31 +236,36 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
         }
 
         /** @var Mage_Sales_Model_Order $order */
-        $order = $observer->getEvent()->getOrder();
-        $requestToGr = $this->createOrderPayload($order);
-        $requestToGr['cartId'] = $order->getQuote()->getGetresponseCartId();
+        $order = $observer->getEvent()->getData('order');
+        $orderPayload = $this->createOrderPayload($order);
 
         $response = $this->api->createOrder(
             $this->getresponseShopsSettings['grShopId'],
-            $requestToGr
+            $orderPayload
         );
 
+        Mage::log('Add new order to GetResponse - ' . $response->orderId, 1, 'getresponse.log');
+
         $order->setGetresponseOrderId($response->orderId);
-        $order->setGetresponseOrderMd5($this->createOrderPayloadHash($requestToGr));
+        $order->setGetresponseOrderMd5($this->createOrderPayloadHash($orderPayload));
         $order->save();
     }
 
     /**
      * @param Mage_Sales_Model_Order $order
      * @return array
+     * @throws Zend_Cache_Exception
      */
     protected function createOrderPayload(Mage_Sales_Model_Order $order)
     {
+        $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
+        $getresponseCartId = $quote->getData('getresponse_cart_id');
+
         $requestToGr = [
             'contactId' => $this->getContactFromGetResponse()->contactId,
             'totalPrice' => $order->getGrandTotal(),
             'totalPriceTax' => $order->getTaxAmount(),
-            'cartId' => $order->getQuote()->getGetresponseCartId(),
+            'cartId' => $getresponseCartId,
             'currency' => $order->getOrderCurrencyCode(),
             'status' => $order->getStatus(),
             'shippingPrice'  => $order->getShippingAmount(),
@@ -299,8 +310,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 
         }
 
-        //echo "<pre>"; print_r($requestToGr); die;
-
         return $requestToGr;
     }
 
@@ -311,12 +320,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
     protected function _isProductTypeSupported($productType)
     {
         return true;
-        /*
-        if ('simple' !== $productType) {
-            return false;
-        }
-        return true;
-        */
     }
 
     /**
@@ -339,9 +342,9 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 
         /** @var Mage_Sales_Model_Order $order */
         $order = $observer->getEvent()->getOrder();
-        $requestToGr = $this->createOrderPayload($order);
+        $orderPayload = $this->createOrderPayload($order);
 
-        if ($order->getGetresponseOrderMd5() == $this->createOrderPayloadHash($requestToGr) || '' == $order->getGetresponseOrderId()) {
+        if ($order->getGetresponseOrderMd5() == $this->createOrderPayloadHash($orderPayload) || '' == $order->getGetresponseOrderId()) {
             Mage::log('[Order Details Changed Event] - Nothing important to GR', 1, 'getresponse.log');
             return;
         }
@@ -349,9 +352,9 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
         $this->api->updateOrder(
             $this->getresponseShopsSettings['grShopId'],
             $order->getGetresponseOrderId(),
-            $requestToGr
+            $orderPayload
         );
-        $order->setGetresponseOrderMd5($this->createOrderPayloadHash($requestToGr));
+        $order->setGetresponseOrderMd5($this->createOrderPayloadHash($orderPayload));
         $order->save();
 
         Mage::log('[Order Details Changed Event] - Important to GR. Request sent.', 1, 'getresponse.log');
