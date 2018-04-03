@@ -3,6 +3,13 @@
 require_once Mage::getModuleDir('controllers',
         'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
 
+use GetresponseIntegration_Getresponse_Domain_GetresponseOrderBuilder as GrOrderBuilder;
+use GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder as GrCartBuilder;
+use GetresponseIntegration_Getresponse_Domain_GetresponseProductBuilder as GrProductBuilder;
+
+/**
+ * Class GetresponseIntegration_Getresponse_ExportController
+ */
 class GetresponseIntegration_Getresponse_ExportController extends GetresponseIntegration_Getresponse_BaseController
 {
 
@@ -30,6 +37,7 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
             ->setTemplate('getresponse/export.phtml')
             ->assign('campaign_days', $this->api->getCampaignDays())
             ->assign('campaigns', $this->api->getGrCampaigns())
+            ->assign('gr_shops', (array)$this->api->getShops())
             ->assign('customs', $this->prepareCustomsForMapping())
             ->assign('autoresponder_block', $autoresponderBlock->toHtml())
         );
@@ -69,9 +77,16 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
         $grCustomFields = array_flip($accountCustomFields);
         $customFieldsToBeAdded = array_diff($params['gr_custom_field'], $accountCustomFields);
         $failedCustomFields = [];
+        $export_ecommerce = false;
+        $export_store_id = '';
 
         if (isset($params['gr_autoresponder']) && 1 == $params['gr_autoresponder']) {
             $cycleDay = (int)$params['cycle_day'];
+        }
+
+        if (isset($params['gr_export_ecommerce_details']) && 1 === (int) $params['gr_export_ecommerce_details']) {
+            $export_ecommerce = true;
+            $export_store_id = $params['ecommerce_store'];
         }
 
         $custom_fields = $this->prepareCustomFields(
@@ -131,6 +146,13 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
                     $grCustomFields
                 );
 
+                if ((GetresponseIntegration_Getresponse_Helper_Api::CONTACT_CREATED === $result
+                    || GetresponseIntegration_Getresponse_Helper_Api::CONTACT_UPDATED == $result)
+                && $export_ecommerce
+                ) {
+                    $this->exportSubscriberEcommerceDetails($subscriber, $campaignId, $export_store_id);
+                }
+
                 if (GetresponseIntegration_Getresponse_Helper_Api::CONTACT_CREATED === $result) {
                     $reports['created']++;
                 } elseif (GetresponseIntegration_Getresponse_Helper_Api::CONTACT_UPDATED == $result) {
@@ -146,6 +168,79 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
         $this->_getSession()->addSuccess($flashMessage);
 
         return true;
+    }
+
+    /**
+     * @param Mage_Newsletter_Model_Subscriber $subscriber
+     * @param string $campaignId
+     * @param string $store_id
+     */
+    private function exportSubscriberEcommerceDetails(Mage_Newsletter_Model_Subscriber $subscriber, $campaignId, $store_id)
+    {
+        $orderBuilder = new GrOrderBuilder($this->api, $store_id);
+        $cartBuilder = new GrCartBuilder($this->api, $store_id);
+        $productBuilder = new GrProductBuilder($this->api, $store_id);
+
+        /** @var Mage_Sales_Model_Resource_Order_Collection $orders */
+        $orders = $this->getCustomerOrderCollection($subscriber->getId());
+
+        if (0 === $orders->count()) {
+            return;
+        }
+
+        $subscriber = $this->api->getContact(
+            $subscriber->getEmail(),
+            $campaignId
+        );
+
+        if (!isset($subscriber->contactId)) {
+            Mage::log('Subscriber not found during export - ' . $subscriber->email);
+            return;
+        }
+
+        /** @var Mage_Sales_Model_Order $order */
+        foreach ($orders as $order) {
+
+            $gr_products = [];
+
+            /** @var Mage_Sales_Model_Order_Item $product */
+            foreach ($order->getAllItems() as $product) {
+                $gr_products[$product->getProduct()->getId()] = $productBuilder->createGetresponseProduct($product);
+            }
+
+            $gr_cart = $cartBuilder->buildGetresponseCart(
+                $subscriber->contactId,
+                $order,
+                $gr_products
+            );
+
+            if (!isset($gr_cart['cartId'])) {
+                Mage::log('Cart not created', 1, 'getresponse.log');
+                continue;
+            }
+
+            $orderBuilder->createGetresponseOrder(
+                $subscriber->contactId,
+                $order,
+                $gr_cart['cartId'],
+                $gr_products
+            );
+        }
+    }
+
+    /**
+     * @param int  $customerId
+     *
+     * @return Mage_Sales_Model_Resource_Order_Collection
+     */
+    public function getCustomerOrderCollection($customerId)
+    {
+        $orderCollection = Mage::getResourceModel('sales/order_collection')
+            ->addFieldToSelect('*')
+            ->addFieldToFilter('customer_id', $customerId)
+            ->setOrder('created_at', 'desc');
+
+        return $orderCollection;
     }
 
     private function prepareCustomFields($grCustomFields, $customFields)

@@ -477,6 +477,17 @@ class GetresponseIntegration_Getresponse_Helper_Api
         return $this->grapi()->get_products($shopId, $filter);
     }
 
+    /**
+     * @param string $shopId
+     * @param string $productId
+     *
+     * @return mixed
+     */
+    public function getProductById($shopId, $productId)
+    {
+        return $this->grapi()->get_product_by_id($shopId, $productId);
+    }
+
     public function addProduct($shopId, $params)
     {
         return $this->grapi()->add_product($shopId, $params);

@@ -468,6 +468,18 @@ class GetresponseIntegration_Getresponse_Helper_GrApi
         return $this->call('shops/'.$shopId.'/products?'.$this->setParams($filter));
     }
 
+    /**
+     * @param string $shopId
+     * @param string $product_id
+     *
+     * @return object
+     * @throws Exception
+     */
+    public function get_product_by_id($shopId, $product_id)
+    {
+        return $this->call('shops/'.$shopId.'/products/' . $product_id);
+    }
+
     public function add_product($shopId, $params)
     {
         return $this->call('shops/'.$shopId.'/products', 'POST', $params);

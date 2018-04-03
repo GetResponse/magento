@@ -330,6 +330,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 
     /**
      * @param Varien_Event_Observer $observer
+     * @throws Exception
      */
     public function orderDetailsChangedHandler(Varien_Event_Observer $observer)
     {

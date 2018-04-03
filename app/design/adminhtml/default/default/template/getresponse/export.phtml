@@ -57,6 +57,41 @@
                     </tr>
 
                     <tr>
+                        <td class="label">Ecommerce data</td>
+                        <td class="value">
+                            <input type="checkbox" name="gr_export_ecommerce_details" id="gr_export_ecommerce_details" value="1"/>
+                            <label for="gr_export_ecommerce_details">Include ecommerce data in this export</label>
+                        </td>
+                    </tr>
+
+                    <tr id="ecommerce_store" style="display: none;">
+                        <td class="label">Store</td>
+                        <td class="value">
+                            <select name="ecommerce_store" id="">
+                                <option value="">Select a store</option>
+                                <?php foreach ($gr_shops as $shop):?>
+                                    <option
+                                        <?php if($current_shop_id == $shop->shopId): ?>selected="selected"<?php endif ?>
+                                        value="<?php echo $shop->shopId ?>">
+                                        <?php echo $shop->name ?>
+                                    </option>';
+                                <?php endforeach ?>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="label">Performance optimization</td>
+                        <td class="value">
+                            <input type="checkbox" name="gr_export_schedule" id="gr_export_schedule" value="1"/>
+                            <label for="gr_export_ecommerce_details">Use a time-based job scheduler for this export</label>
+                            <br />
+                            <p class="note">To use this option, you need to have crontab access and root-level (administrative) access to the server. For help with running scheduled events, please contact our
+                                <a href="https://www.getresponse.com/features/support">Support Team</a></p>
+                        </td>
+                    </tr>
+
+                    <tr>
                         <td class="label">Contact info</td>
                         <td class="value">
                             <input type="checkbox" name="gr_sync_order_data" id="gr_sync_order_data" value="1"/>
@@ -157,6 +192,15 @@ Clear this option to keep existing data intact</p>
     jQuery('.add-new-mapping').on('click', function() {
         GetresponseMapping(customs, custom_values);
         return false;
+    });
+
+    var ecommerce = jQuery('#gr_export_ecommerce_details'), ecommerce_store = jQuery('#ecommerce_store');
+    if (ecommerce.prop('checked') === true) {
+        ecommerce.show();
+    }
+
+    ecommerce.on('click', function() {
+        ecommerce_store.toggle('slow');
     });
 
     var sod = jQuery('#gr_sync_order_data'), cfp = jQuery('#customNameFields');
