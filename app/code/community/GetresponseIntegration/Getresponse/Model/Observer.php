@@ -2,9 +2,9 @@
 
 use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
 use GetresponseIntegration_Getresponse_Domain_WebformRepository as WebformRepository;
-use GetresponseIntegration_Getresponse_Domain_AutomationRuleFactory as AutomationRuleFactory;
 use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionRepository as AutomationRulesCollectionRepository;
-use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionFactory as AutomationRulesCollectionFactory;
+use GetresponseIntegration_Getresponse_Domain_Scheduler as Scheduler;
+
 
 /**
  * Getresponse module observer
@@ -464,5 +464,36 @@ class GetresponseIntegration_Getresponse_Model_Observer
             $accountSettings['newsletterCycleDay'],
             []
         );
+    }
+
+    public function export_jobs_to_getresponse()
+    {
+        $scheduler = new Scheduler();
+        $createCustomerHandler = new GetresponseIntegration_Getresponse_Domain_CreateCustomerHandler();
+        /** @var array $jobs */
+        $jobs = $scheduler->getAllJobs();
+
+        /** @var GetresponseIntegration_Getresponse_Model_ScheduleJobsQueue $job */
+        foreach ($jobs as $job) {
+            switch ($job->getData('type')) {
+                case Scheduler::CREATE_CUSTOMER:
+
+                    $payload = json_decode($job->getData('payload'), true);
+
+                    $createCustomerHandler->sendCustomerToGetResponse(
+                        $payload['campaign_id'],
+                        $payload['cycle_day'],
+                        $payload['gr_custom_fields'],
+                        $payload['export_ecommerce'],
+                        $payload['custom_fields'],
+                        $payload['subscriber_email'],
+                        $payload['subscriber_id']
+                    );
+
+                    break;
+            }
+
+
+        }
     }
 }

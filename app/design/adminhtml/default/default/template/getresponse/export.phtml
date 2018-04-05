@@ -70,9 +70,7 @@
                             <select name="ecommerce_store" id="">
                                 <option value="">Select a store</option>
                                 <?php foreach ($gr_shops as $shop):?>
-                                    <option
-                                        <?php if($current_shop_id == $shop->shopId): ?>selected="selected"<?php endif ?>
-                                        value="<?php echo $shop->shopId ?>">
+                                    <option value="<?php echo $shop->shopId ?>">
                                         <?php echo $shop->name ?>
                                     </option>';
                                 <?php endforeach ?>
@@ -84,7 +82,7 @@
                         <td class="label">Performance optimization</td>
                         <td class="value">
                             <input type="checkbox" name="gr_export_schedule" id="gr_export_schedule" value="1"/>
-                            <label for="gr_export_ecommerce_details">Use a time-based job scheduler for this export</label>
+                            <label for="gr_export_schedule">Use a time-based job scheduler for this export</label>
                             <br />
                             <p class="note">To use this option, you need to have crontab access and root-level (administrative) access to the server. For help with running scheduled events, please contact our
                                 <a href="https://www.getresponse.com/features/support">Support Team</a></p>

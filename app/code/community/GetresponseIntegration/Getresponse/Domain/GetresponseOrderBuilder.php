@@ -27,17 +27,15 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderBuilder
      * @param string $subscriber_id
      * @param Mage_Sales_Model_Order $order
      * @param $cart_id
-     * @param array $gr_products
      * @return array
      * @throws Exception
      */
     public function createGetresponseOrder(
         $subscriber_id,
         Mage_Sales_Model_Order $order,
-        $cart_id,
-        $gr_products
+        $cart_id
     ) {
-        $params = [
+        return [
             'contactId' => $subscriber_id,
             'totalPrice' => $order->getGrandTotal(),
             'totalPriceTax' => $order->getGrandTotal(),
@@ -63,45 +61,5 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderBuilder
                 'zip' => $order->getBillingAddress()->getPostcode(),
             ],
         ];
-
-        /** @var Mage_Sales_Model_Order_Item $product */
-        foreach ($order->getAllItems() as $product) {
-
-            $grProduct = $gr_products[$product->getProduct()->getId()];
-
-            $variant = (array) reset($grProduct['variants']);
-
-            $params['selectedVariants'][] = [
-                'variantId' => $variant['variantId'],
-                'price' => (float) $product->getProduct()->getPrice(),
-                'priceTax' => (float) $product->getProduct()->getFinalPrice() ,
-                'quantity' => (int) $product->getQtyOrdered(),
-                'type' => $product->getProductType(),
-            ];
-        }
-
-        $response = (array) $this->api->createOrder(
-            $this->shopId,
-            $params
-        );
-
-        if (!isset($response['orderId'])) {
-            return [];
-        }
-
-        $order->setData('getresponse_order_id', $response['orderId']);
-        $order->setData('getresponse_order_md5', $this->createOrderPayloadHash($params));
-        $order->save();
-
-        return $response;
-    }
-
-    /**
-     * @param array $orderPayload
-     * @return string
-     */
-    protected function createOrderPayloadHash(array $orderPayload)
-    {
-        return md5(json_encode($orderPayload));
     }
 }

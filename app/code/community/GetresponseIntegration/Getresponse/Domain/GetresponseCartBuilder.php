@@ -59,16 +59,6 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder
             'totalTaxPrice' => (float) $order->getGrandTotal()
         ];
 
-        $response = (array) $this->api->addCart($this->shopId, $params);
-
-        if (!isset($response['cartId'])) {
-            return [];
-        }
-
-        $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
-        $quote->setData('getresponse_cart_id', $response['cartId']);
-        $quote->save();
-
-        return $response;
+        return $params;
     }
 }

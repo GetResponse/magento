@@ -3,9 +3,9 @@
 use GetresponseIntegration_Getresponse_Helper_Api as ApiHelper;
 
 /**
- * Class GetresponseIntegration_Getresponse_Domain_GetresponseProductBuilder
+ * Class GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler
  */
-class GetresponseIntegration_Getresponse_Domain_GetresponseProductBuilder
+class GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler
 {
     /** @var ApiHelper */
     private $api;
@@ -39,18 +39,18 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseProductBuilder
             ->getFirstItem();
 
         if ($productMap->isEmpty()) {
-            $gr_product = $this->createProductInGetResponse($product);
+            $grProduct = $this->createProductInGetResponse($product);
 
-            if (null !== $gr_product['productId']) {
-                $productMap->setData([
+            if (null !== $grProduct['productId']) {
+                $productMap->setData(array(
                     'gr_shop_id' => $this->shopId,
                     'entity_id' => $product->getProduct()->getId(),
-                    'gr_product_id' => $gr_product['productId']
-                ]);
+                    'gr_product_id' => $grProduct['productId']
+                ));
 
                 $productMap->save();
             }
-            return $gr_product;
+            return $grProduct;
         }
 
         return (array) $this->api->getProductById(
@@ -109,7 +109,6 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseProductBuilder
         );
 
         $response = (array) $this->api->addProduct($this->shopId, $params);
-
-        return isset($response['productId']) ? $response : [];
+        return isset($response['productId']) ? $response : array();
     }
 }
