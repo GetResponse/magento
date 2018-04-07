@@ -79,7 +79,7 @@ class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Ab
 
 	public function getNewsletterSubscribersCollection()
     {
-        return Mage::getModel('newsletter/subscriber')->getResourceCollection();
+        return Mage::getModel('newsletter/subscriber')->getCollection();
             //->addFieldToSelect('email');
     }
 

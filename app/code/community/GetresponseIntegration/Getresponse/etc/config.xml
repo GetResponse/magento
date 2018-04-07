@@ -10,7 +10,7 @@
             <GetresponseIntegration_Getresponse>
                 <schedule><cron_expr>*/1 * * * *</cron_expr></schedule>
                 <run>
-                    <model>getresponse/observer::export_jobs_to_getresponse</model>
+                    <model>getresponse/ecommerceobserver::export_jobs_to_getresponse</model>
                 </run>
             </GetresponseIntegration_Getresponse>
         </jobs>
@@ -54,6 +54,15 @@
                     </getresponse_sales_quote_address_save_after>
                 </observers>
             </sales_quote_address_save_after>
+            <customer_save_after>
+                <observers>
+                    <getresponse_customer_save_after>
+                        <class>GetresponseIntegration_Getresponse_Model_Observer</class>
+                        <method>customerSaveAfter</method>
+                        <type>singleton</type>
+                    </getresponse_customer_save_after>
+                </observers>
+            </customer_save_after>
             <customer_register_success>
                 <observers>
                     <getresponse_create_account>
@@ -153,7 +162,7 @@
                 <observers>
                     <getresponse2_add_to_cart_shop_webhook>
                         <class>GetresponseIntegration_Getresponse_Model_ECommerceObserver</class>
-                        <method>addProductToCartHandler</method>
+                        <method>updateCartHandler</method>
                         <type>singleton</type>
                     </getresponse2_add_to_cart_shop_webhook>
                 </observers>

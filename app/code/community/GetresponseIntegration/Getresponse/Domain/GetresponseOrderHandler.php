@@ -11,9 +11,6 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
     /** @var GetresponseIntegration_Getresponse_Helper_Api */
     private $api;
 
-    /** @var string */
-    private $shopId;
-
     /** @var GrProductHandler */
     private $productHandler;
 
@@ -21,30 +18,31 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
     private $orderBuilder;
 
     /**
-     * @param string $shopId
+     * @param GetresponseIntegration_Getresponse_Helper_Api $api
      */
-    public function __construct($shopId)
+    public function __construct(GetresponseIntegration_Getresponse_Helper_Api $api)
     {
-        $this->api = Mage::helper('getresponse/api');
-        $this->shopId = $shopId;
-        $this->productHandler = new GrProductHandler($this->api, $shopId);
-        $this->orderBuilder = new GrOrderBuilder($this->api, $shopId);
+        $this->api = $api;
+        $this->productHandler = new GrProductHandler($this->api);
+        $this->orderBuilder = new GrOrderBuilder($this->api);
     }
 
     /**
      * @param Mage_Sales_Model_Order $order
-     * @param string $email
-     * @param string $campaignId
-     * @param string $cartId
+     * @param string                 $email
+     * @param string                 $campaignId
+     * @param string                 $grCartId
+     * @param string                 $storeId
+     *
      * @throws Exception
      */
     public function sendOrderToGetresponse(
         Mage_Sales_Model_Order $order,
         $email,
         $campaignId,
-        $cartId
+        $grCartId,
+        $storeId
     ) {
-        $grProducts = array();
         $subscriber = $this->api->getContact(
             $email,
             $campaignId
@@ -55,22 +53,16 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
             return;
         }
 
-        /** @var Mage_Sales_Model_Order_Item $product */
-        foreach ($order->getAllItems() as $product) {
-            $grProducts[$product->getProduct()->getId()] = $this->productHandler->createGetresponseProduct($product);
-        }
-
         $params = $this->orderBuilder->createGetresponseOrder(
             $subscriber->contactId,
             $order,
-            $cartId
+            $grCartId
         );
 
         /** @var Mage_Sales_Model_Order_Item $product */
         foreach ($order->getAllItems() as $product) {
 
-            $grProduct = $grProducts[$product->getProduct()->getId()];
-
+            $grProduct = $this->productHandler->upsertGetresponseProduct($product->getProduct(), $storeId);
             $variant = (array) reset($grProduct['variants']);
 
             $params['selectedVariants'][] = array(
@@ -86,13 +78,13 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
 
         if ( !empty($grOrderId) ) {
             $response = (array) $this->api->updateOrder(
-                $this->shopId,
+                $storeId,
                 $grOrderId,
                 $params
             );
         } else {
             $response = (array) $this->api->createOrder(
-                $this->shopId,
+                $storeId,
                 $params
             );
         }

@@ -10,105 +10,114 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler
     /** @var ApiHelper */
     private $api;
 
-    /** @var string */
-    private $shopId;
-
     /**
      * @param ApiHelper $api
-     * @param string $shopId
      */
-    public function __construct(ApiHelper $api, $shopId)
+    public function __construct(ApiHelper $api)
     {
         $this->api = $api;
-        $this->shopId = $shopId;
     }
 
     /**
-     * @param Mage_Sales_Model_Order_Item $product
+     * @param Mage_Catalog_Model_Product $product
+     * @param string                     $storeId
+     *
      * @return array
      * @throws Exception
      */
-    public function createGetresponseProduct(Mage_Sales_Model_Order_Item $product)
-    {
-        $productMapCollection = Mage::getModel('getresponse/ProductMap')->getCollection();
+    public function upsertGetresponseProduct(Mage_Catalog_Model_Product $product,
+        $storeId
+    ) {
+        $productMapCollection = Mage::getModel('getresponse/ProductMap')
+            ->getCollection();
 
         /** @var GetresponseIntegration_Getresponse_Model_ProductMap $productMap */
         $productMap = $productMapCollection
-            ->addFieldToFilter('entity_id', $product->getProduct()->getId())
-            ->addFieldToFilter('gr_shop_id', $this->shopId)
+            ->addFieldToFilter('entity_id', $product->getId())
+            ->addFieldToFilter('gr_shop_id', $storeId)
             ->getFirstItem();
 
         if ($productMap->isEmpty()) {
-            $grProduct = $this->createProductInGetResponse($product);
+            $grProduct = $this->createProductInGetResponse($product, $storeId);
 
             if (null !== $grProduct['productId']) {
-                $productMap->setData(array(
-                    'gr_shop_id' => $this->shopId,
-                    'entity_id' => $product->getProduct()->getId(),
-                    'gr_product_id' => $grProduct['productId']
-                ));
+                $productMap->setData(
+                    array(
+                        'gr_shop_id'    => $storeId,
+                        'entity_id'     => $product->getId(),
+                        'gr_product_id' => $grProduct['productId']
+                    )
+                );
 
                 $productMap->save();
             }
+
             return $grProduct;
         }
 
-        return (array) $this->api->getProductById(
-            $this->shopId,
+        return $this->api->getProductById(
+            $storeId,
             $productMap->getData('gr_product_id')
         );
     }
 
     /**
-     * @param Mage_Sales_Model_Order_Item $product
+     * @param Mage_Catalog_Model_Product $product
+     * @param string                     $storeId
+     *
      * @return array
      */
-    private function createProductInGetResponse(Mage_Sales_Model_Order_Item $product)
-    {
+    private function createProductInGetResponse(Mage_Catalog_Model_Product $product,
+        $storeId
+    ) {
         $grCategories = $grImages = array();
 
-        foreach ($product->getProduct()->getCategoryIds() as $category_id) {
+        foreach ($product->getCategoryIds() as $category_id) {
 
             /** @var Mage_Catalog_Model_Category $category */
-            $category = Mage::getModel('catalog/category')->load($category_id) ;
+            $category = Mage::getModel('catalog/category')->load($category_id);
             $grCategories[] = array(
-                'name' => $category->getName(),
-                'url' => $category->getUrl(),
-                'parentId' => 0,
+                'name'       => $category->getName(),
+                'url'        => $category->getUrl(),
+                'parentId'   => 0,
                 'externalId' => $category->getId(),
-                'isDefault' => false
+                'isDefault'  => false
             );
         }
 
-        /** @var Varien_Object $image */
-        foreach ($product->getProduct()->getMediaGalleryImages() as $image) {
+        $mediaGallery = $product->getMediaGalleryImages();
 
-            $grImages[] = array(
-                'src' => $image->getData('url'),
-                'position' => $image->getData('position')
-            );
+        if (!empty($mediaGallery)) {
+            /** @var Varien_Object $image */
+            foreach ($mediaGallery as $image) {
+
+                $grImages[] = array(
+                    'src'      => $image->getData('url'),
+                    'position' => $image->getData('position')
+                );
+            }
         }
 
         $params = array(
-            'name' =>$product->getProduct()->getName(),
-            'url' => $product->getProduct()->getProductUrl(),
+            'name'       => $product->getName(),
+            'url'        => $product->getProductUrl(),
             'categories' => $grCategories,
-            'externalId' => $product->getProductId(),
-            'variants' => array(
+            'externalId' => $product->getId(),
+            'variants'   => array(
                 array(
-                    'name' => $product->getProduct()->getName(),
-                    'url' => $product->getProduct()->getProductUrl(),
-                    'price'=> (float) $product->getPrice(),
-                    'priceTax' => (float) $product->getPriceInclTax(),
-                    'sku' => $product->getProduct()->getSku(),
-                    'quantity' => 1,
-                    'description' => $product->getDescription(),
-                    'images' => $grImages
+                    'name'        => $product->getName(),
+                    'url'         => $product->getProductUrl(),
+                    'price'       => (float)$product->getPrice(),
+                    'priceTax'    => (float)$product->getFinalPrice(),
+                    'sku'         => $product->getSku(),
+                    'quantity'    => 1,
+                    'description' => $product->getData('short_description'),
+                    'images'      => $grImages
                 )
             )
         );
 
-        $response = (array) $this->api->addProduct($this->shopId, $params);
+        $response = (array)$this->api->addProduct($storeId, $params);
         return isset($response['productId']) ? $response : array();
     }
 }

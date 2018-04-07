@@ -11,9 +11,6 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler
     /** @var GetresponseIntegration_Getresponse_Helper_Api */
     private $api;
 
-    /** @var string */
-    private $shopId;
-
     /** @var GrCartBuilder */
     private $cartBuilder;
 
@@ -24,29 +21,87 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler
     private $quoteModel;
 
     /**
-     * @param string $shopId
+     * @param GetresponseIntegration_Getresponse_Helper_Api $api
      */
-    public function __construct($shopId)
+    public function __construct(GetresponseIntegration_Getresponse_Helper_Api $api)
     {
-        $this->api = Mage::helper('getresponse/api');
+        $this->api = $api;
         $this->quoteModel = Mage::getModel('sales/quote');
-        $this->shopId = $shopId;
-        $this->cartBuilder = new GrCartBuilder($this->api, $shopId);
-        $this->productHandler = new GrProductHandler($this->api, $shopId);
+        $this->cartBuilder = new GrCartBuilder($this->api);
+        $this->productHandler = new GrProductHandler($this->api);
     }
 
     /**
-     * Mage_Sales_Model_Order @param $order
-     * @param string $campaignId
-     * @param string $email
+     * @param Mage_Sales_Model_Quote $quote
+     * @param string                 $campaignId
+     * @param string                 $email
+     * @param string $storeId
      *
      * @return string
      * @throws Exception
      */
     public function sendCartToGetresponse(
+        Mage_Sales_Model_Quote $quote,
+        $campaignId,
+        $email,
+        $storeId
+    ) {
+        $grProducts = array();
+
+        $subscriber = $this->api->getContact(
+            $email,
+            $campaignId
+        );
+
+        if (!isset($subscriber->contactId)) {
+            Mage::log('Subscriber not found during export - ' . $subscriber->email);
+            return null;
+        }
+
+        /** @var Mage_Sales_Model_Order_Item $product */
+        foreach ($quote->getAllItems() as $product) {
+            $grProducts[$product->getProduct()->getId()] = $this->productHandler->upsertGetresponseProduct($product->getProduct(), $storeId);
+        }
+
+        $params = $this->cartBuilder->buildGetresponseCart(
+            $subscriber->contactId,
+            $quote,
+            $grProducts
+        );
+
+        /** @var Mage_Sales_Model_Quote $quote */
+        $quote = $this->quoteModel->setStoreId($quote->getStoreId())->load($quote->getId());
+        $grCartId = $quote->getData('getresponse_cart_id');
+
+        if( !empty($grCartId) ) {
+            $response = (array) $this->api->updateCart($storeId, $grCartId, $params);
+        } else {
+            $response = (array) $this->api->addCart($storeId, $params);
+        }
+        if (!isset($response['cartId'])) {
+            return null;
+        }
+
+        $quote->setData('getresponse_cart_id', $response['cartId']);
+        $quote->save();
+
+        return $response['cartId'];
+    }
+
+    /**
+     * @param Mage_Sales_Model_Order $order
+     * @param string                 $campaignId
+     * @param string                 $email
+     * @param string $storeId
+     *
+     * @return string
+     * @throws Exception
+     */
+    public function sendCartToGetresponseFromOrder(
         Mage_Sales_Model_Order $order,
         $campaignId,
-        $email
+        $email,
+        $storeId
     ) {
         $grProducts = array();
 
@@ -62,10 +117,10 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler
 
         /** @var Mage_Sales_Model_Order_Item $product */
         foreach ($order->getAllItems() as $product) {
-            $grProducts[$product->getProduct()->getId()] = $this->productHandler->createGetresponseProduct($product);
+            $grProducts[$product->getProduct()->getId()] = $this->productHandler->upsertGetresponseProduct($product->getProduct(), $storeId);
         }
 
-        $params = $this->cartBuilder->buildGetresponseCart(
+        $params = $this->cartBuilder->buildGetresponseCartFromOrder(
             $subscriber->contactId,
             $order,
             $grProducts
@@ -76,9 +131,9 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler
         $grCartId = $quote->getData('getresponse_cart_id');
 
         if( !empty($grCartId) ) {
-            $response = (array) $this->api->updateCart($this->shopId, $grCartId, $params);
+            $response = (array) $this->api->updateCart($storeId, $grCartId, $params);
         } else {
-            $response = (array) $this->api->addCart($this->shopId, $params);
+            $response = (array) $this->api->addCart($storeId, $params);
         }
         if (!isset($response['cartId'])) {
             return null;

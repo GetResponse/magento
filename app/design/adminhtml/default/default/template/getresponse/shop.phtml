@@ -73,6 +73,25 @@ Make sure to <a href="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/
                             </td>
                         </tr>
 
+                        <tr class="details">
+                            <td class="label">
+                                <label for="optimization">Performance optimization</label>
+                            </td>
+                            <td class="value">
+                                <span><input
+                                        type="radio"
+                                        name="schedule_optimization"
+                                        value="0"
+                                        <?php if(0 === (int) $schedule_optimization): ?>checked="checked"<?php endif ?>
+                                    /> Disabled</span>&nbsp;&nbsp;
+                                <span><input
+                                        type="radio"
+                                        name="schedule_optimization"
+                                        <?php if(1 === (int) $schedule_optimization): ?>checked="checked"<?php endif ?>
+                                        value="1" /> Enabled</span>
+                            </td>
+                        </tr>
+
                         </tbody>
                     </table>
                 </div>

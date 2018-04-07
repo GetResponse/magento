@@ -1,6 +1,9 @@
 <?php
 use GetresponseIntegration_Getresponse_Domain_Shop as Shop;
 
+/**
+ * Class GetresponseIntegration_Getresponse_Domain_ShopFactory
+ */
 class GetresponseIntegration_Getresponse_Domain_ShopFactory
 {
     /**
@@ -11,7 +14,8 @@ class GetresponseIntegration_Getresponse_Domain_ShopFactory
     {
         return new Shop(
             $data['grShopId'],
-            $data['isEnabled']
+            $data['isEnabled'],
+            $data['isScheduleOptimizationEnabled']
         );
     }
 }

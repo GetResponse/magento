@@ -96,12 +96,12 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
             $featureTracking = 1;
         }
 
-        $data = [
+        $data = array(
             'apiKey' => $apiKey,
             'apiUrl' => $apiUrl,
             'apiDomain' => $apiDomain,
             'hasGrTrafficFeatureEnabled' => $featureTracking
-        ];
+        );
 
         // getting tracking code
         $trackingCode = (array)$this->grapi()->get_tracking_code();

@@ -1,36 +1,26 @@
 <?php
 
+/**
+ * Class GetresponseIntegration_Getresponse_Domain_Shop
+ */
 class GetresponseIntegration_Getresponse_Domain_Shop
 {
     private $grShopId;
     private $isEnabled;
+    private $isScheduleOptimizationEnabled;
 
     /**
      * GetresponseIntegration_Getresponse_Domain_Shop constructor.
-     * @param $shopId
+     *
      * @param $grShopId
      * @param $isEnabled
+     * @param $isScheduleOptimizationEnabled
      */
-    public function __construct($grShopId, $isEnabled)
+    public function __construct($grShopId, $isEnabled, $isScheduleOptimizationEnabled)
     {
         $this->grShopId = $grShopId;
         $this->isEnabled = $isEnabled;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getGrShopId()
-    {
-        return $this->grShopId;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getIsEnabled()
-    {
-        return $this->isEnabled;
+        $this->isScheduleOptimizationEnabled = $isScheduleOptimizationEnabled;
     }
 
     /**
@@ -38,9 +28,10 @@ class GetresponseIntegration_Getresponse_Domain_Shop
      */
     public function toArray()
     {
-        return [
+        return array(
             'grShopId' => $this->grShopId,
-            'isEnabled' => $this->isEnabled
-        ];
+            'isEnabled' => $this->isEnabled,
+            'isScheduleOptimizationEnabled' => $this->isScheduleOptimizationEnabled
+        );
     }
 }

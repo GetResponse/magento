@@ -7,22 +7,32 @@ use GetresponseIntegration_Getresponse_Domain_GetresponseException as Getrespons
  */
 class GetresponseIntegration_Getresponse_Domain_Scheduler
 {
-    const UPDATE_CART = 'update_cart';
+    const UPSERT_CART = 'update_cart';
     const REMOVE_CART = 'remove_cart';
-    const CREATE_ORDER = 'update_order';
-    const CREATE_CUSTOMER = 'create_customer';
+    const UPSERT_ORDER = 'create_order';
+    const UPSERT_CUSTOMER = 'create_customer';
 
-    static $VALID_TYPES = [
-        self::UPDATE_CART,
-        self::REMOVE_CART,
-        self::CREATE_ORDER,
-        self::CREATE_CUSTOMER
-    ];
+    static $VALID_TYPES
+        = array(
+            self::UPSERT_CART,
+            self::REMOVE_CART,
+            self::UPSERT_ORDER,
+            self::UPSERT_CUSTOMER
+        );
+
+    /** @var GetresponseIntegration_Getresponse_Model_ScheduleJobsQueue */
+    private $jobsQueueModel;
+
+    public function __construct()
+    {
+        $this->jobsQueueModel = Mage::getModel('getresponse/scheduleJobsQueue');
+    }
+
 
     /**
      * @param string $customer_id
      * @param string $type
-     * @param array $payload
+     * @param array  $payload
      *
      * @throws Exception
      */
@@ -32,14 +42,14 @@ class GetresponseIntegration_Getresponse_Domain_Scheduler
             throw GetresponseException::create_for_invalid_schedule_job_type();
         }
 
-        $jobsQueue = Mage::getModel('getresponse/scheduleJobsQueue');
-        $jobsQueue->setData([
-            'customer_id' => $customer_id,
-            'type' => $type,
-            'payload' => json_encode($payload)
-        ]);
-
-        $jobsQueue->save();
+        $this->jobsQueueModel->setData(
+            array(
+                'customer_id' => $customer_id,
+                'type'        => $type,
+                'payload'     => json_encode($payload)
+            )
+        );
+        $this->jobsQueueModel->save();
     }
 
     /**
@@ -47,7 +57,7 @@ class GetresponseIntegration_Getresponse_Domain_Scheduler
      */
     public function getAllJobs()
     {
-        $jobsQueueCollection = Mage::getModel('getresponse/scheduleJobsQueue')->getCollection();
+        $jobsQueueCollection = $this->jobsQueueModel->getCollection();
         return $jobsQueueCollection->getItems();
     }
 }
