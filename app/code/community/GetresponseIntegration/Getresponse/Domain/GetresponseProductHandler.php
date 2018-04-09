@@ -28,6 +28,8 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler
     public function upsertGetresponseProduct(Mage_Catalog_Model_Product $product,
         $storeId
     ) {
+        Mage::log('upsertGetresponseProduct', 1, 'getresponse.log');
+
         $productMapCollection = Mage::getModel('getresponse/ProductMap')
             ->getCollection();
 

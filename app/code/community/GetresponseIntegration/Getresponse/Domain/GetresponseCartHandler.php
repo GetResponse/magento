@@ -53,14 +53,16 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler
             $campaignId
         );
 
+        Mage::log('sendCartToGetresponse', 1, 'getresponse.log');
+
         if (!isset($subscriber->contactId)) {
             Mage::log('Subscriber not found during export - ' . $subscriber->email);
             return null;
         }
 
-        /** @var Mage_Sales_Model_Order_Item $product */
+        /** @var Mage_Sales_Model_Quote_Item $product */
         foreach ($quote->getAllItems() as $product) {
-            $grProducts[$product->getProduct()->getId()] = $this->productHandler->upsertGetresponseProduct($product->getProduct(), $storeId);
+             $grProducts[$product->getProduct()->getId()] = $this->productHandler->upsertGetresponseProduct($product->getProduct(), $storeId);
         }
 
         $params = $this->cartBuilder->buildGetresponseCart(
@@ -84,7 +86,6 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler
 
         $quote->setData('getresponse_cart_id', $response['cartId']);
         $quote->save();
-
         return $response['cartId'];
     }
 

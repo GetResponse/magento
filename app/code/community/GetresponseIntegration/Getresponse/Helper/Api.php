@@ -650,13 +650,13 @@ class GetresponseIntegration_Getresponse_Helper_Api
      * @return int
      */
     public function upsertContact($campaign, $name, $email, $cycleDay = '',
-        $userCustoms = [], $grCustomFields = []
+        $userCustoms = array(), $grCustomFields = array()
     ) {
-        $params = [
+        $params = array(
             'email'     => $email,
-            'campaign'  => ['campaignId' => $campaign],
-            'ipAddress' => $_SERVER['REMOTE_ADDR'],
-        ];
+            'campaign'  => array('campaignId' => $campaign),
+            'ipAddress' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null,
+        );
 
         $trimName = trim($name);
         if (!empty($trimName)) {

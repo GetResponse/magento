@@ -33,6 +33,7 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
      * @param string                 $campaignId
      * @param string                 $grCartId
      * @param string                 $storeId
+     * @param bool                   $newOrder
      *
      * @throws Exception
      */
@@ -41,7 +42,8 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
         $email,
         $campaignId,
         $grCartId,
-        $storeId
+        $storeId,
+        $newOrder = false
     ) {
         $subscriber = $this->api->getContact(
             $email,
@@ -93,9 +95,13 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
             return;
         }
 
-        $order->setData('getresponse_order_id', $response['orderId']);
-        $order->setData('getresponse_order_md5', $this->createOrderPayloadHash($params));
-        $order->save();
+        if ($newOrder) {
+            $order->setData('getresponse_order_id', $response['orderId']);
+            $order->setData(
+                'getresponse_order_md5', $this->createOrderPayloadHash($params)
+            );
+            $order->save();
+        }
     }
 
 

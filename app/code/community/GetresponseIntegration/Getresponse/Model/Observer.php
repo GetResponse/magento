@@ -3,7 +3,6 @@
 use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
 use GetresponseIntegration_Getresponse_Domain_WebformRepository as WebformRepository;
 use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionRepository as AutomationRulesCollectionRepository;
-use GetresponseIntegration_Getresponse_Domain_Scheduler as Scheduler;
 use GetresponseIntegration_Getresponse_Domain_GetresponseException as GetresponseException;
 
 /**
@@ -211,71 +210,6 @@ class GetresponseIntegration_Getresponse_Model_Observer
     }
 
     /**
-     * @param Varien_Event_Observer $observer
-     */
-    public function createAccountOrder(Varien_Event_Observer $observer)
-    {
-        Mage::log('create order action', 1, 'getresponse.log');
-
-        if (!$this->getresponseHelper->isEnabled()) {
-            return;
-        }
-
-        /** @var Varien_Event $event */
-        $event = $observer->getEvent();
-
-        /** @var Mage_Sales_Model_Order $order */
-        $order = $event->getData('order');
-
-        if ($order->isEmpty()) {
-            return;
-        }
-
-        $categories = $this->getresponseHelper->getCategoriesByOrder($order);
-
-        /** @var Mage_Customer_Model_Customer $customer */
-        $customer = Mage::getModel('customer/customer')->load($order->getCustomerId());
-
-        $settingsRepository = new SettingsRepository($this->shopId);
-        $accountSettings = $settingsRepository->getAccount();
-
-
-        if (empty($accountSettings['apiKey']) || $accountSettings['activeSubscription'] != '1' || empty($accountSettings['campaignId'])) {
-            return;
-        }
-
-        $subscriberModel = $this->newsletterModel->loadByEmail($customer->getData('email'));
-        if (false === $subscriberModel->isSubscribed()) {
-            return;
-        }
-
-        $customs = $this->customsModel->getCustoms($this->shopId);
-
-        $billing = $customer->getPrimaryBillingAddress();
-
-        $user_customs = array();
-
-        if (is_object($billing)) {
-            $user_customs = $billing->getData();
-            $user_customs['country'] = $user_customs['country_id'];
-        }
-
-        try {
-            $api = $this->buildApiInstance();
-            $api->upsertContact(
-                $accountSettings['campaignId'],
-                $customer->getName(),
-                $customer->getData('email'),
-                $accountSettings['cycleDay'],
-                $this->customsModel->mapCustoms($user_customs, $customs)
-            );
-
-            $this->automationHandler($categories, $this->shopId, $customer, $user_customs, $customs, $accountSettings);
-        } catch (GetresponseException $e) {
-        }
-    }
-
-    /**
      * @param                              $categories
      * @param                              $shop_id
      * @param Mage_Customer_Model_Customer $customer
@@ -372,13 +306,6 @@ class GetresponseIntegration_Getresponse_Model_Observer
             $this->sessionModel->setData('_gr_is_subscribed', false);
             $this->sessionModel->setData('_subscriber_data', null);
         }
-    }
-
-    public function customerSaveAfter()
-    {
-        Mage::log('customerSaveAfter action', 1, 'getresponse.log');
-        $post = Mage::app()->getRequest()->getPost();
-        Mage::log('$_POST: ' . print_r($post, 1), 1, 'getresponse.log');
     }
 
     public function checkoutAllAfterFormSubmitted()

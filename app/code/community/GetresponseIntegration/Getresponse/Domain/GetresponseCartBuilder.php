@@ -41,16 +41,16 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder
 
             $grVariants[] = array(
                 'variantId' => $variant['variantId'],
-                'price'     => (float)$product->getProduct()->getPrice(),
-                'priceTax'  => (float)$product->getProduct()->getFinalPrice(),
-                'quantity'  => (int)$product->getQtyOrdered()
+                'price'     => (float) $product->getData('base_price'),
+                'priceTax'  => (float) $product->getData('price'),
+                'quantity'  => (int)$product->getData('qty')
             );
         }
 
         $params = array(
             'contactId'        => $subscriberId,
             'currency'         => $quote->getQuoteCurrencyCode(),
-            'totalPrice'       => (float)$quote->getGrandTotal(),
+            'totalPrice'       => (float) $quote->getGrandTotal(),
             'selectedVariants' => $grVariants,
             'externalId'       => $quote->getId(),
             'totalTaxPrice'    => (float)$quote->getGrandTotal()

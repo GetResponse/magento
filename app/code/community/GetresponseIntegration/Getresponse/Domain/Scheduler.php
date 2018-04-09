@@ -7,17 +7,17 @@ use GetresponseIntegration_Getresponse_Domain_GetresponseException as Getrespons
  */
 class GetresponseIntegration_Getresponse_Domain_Scheduler
 {
-    const UPSERT_CART = 'update_cart';
+    const EXPORT_CART = 'export_cart';
     const REMOVE_CART = 'remove_cart';
-    const UPSERT_ORDER = 'create_order';
-    const UPSERT_CUSTOMER = 'create_customer';
+    const EXPORT_ORDER = 'export_order';
+    const EXPORT_CUSTOMER = 'export_customer';
 
     static $VALID_TYPES
         = array(
-            self::UPSERT_CART,
+            self::EXPORT_CART,
             self::REMOVE_CART,
-            self::UPSERT_ORDER,
-            self::UPSERT_CUSTOMER
+            self::EXPORT_ORDER,
+            self::EXPORT_CUSTOMER
         );
 
     /** @var GetresponseIntegration_Getresponse_Model_ScheduleJobsQueue */

@@ -131,6 +131,10 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
             return;
         }
 
+        /** @var GetresponseIntegration_Getresponse_Helper_Data $getresponseHelper */
+        $getresponseHelper = Mage::helper('getresponse');
+        $shopId = $getresponseHelper->getStoreId();
+
         /** @var Mage_Newsletter_Model_Subscriber $subscriber */
         foreach ($subscribers as $subscriber) {
 
@@ -139,7 +143,7 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
                 $scheduler = new Scheduler();
                 $scheduler->addToQueue(
                     $subscriber->getId(),
-                    Scheduler::UPSERT_CUSTOMER,
+                    Scheduler::EXPORT_CUSTOMER,
                     array(
                         'campaign_id' => $campaignId,
                         'cycle_day' => $cycleDay,
@@ -170,23 +174,25 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
 
                     $scheduler->addToQueue(
                         $subscriber->getId(),
-                        Scheduler::UPSERT_CART,
+                        Scheduler::EXPORT_CART,
                         array(
                             'quote_id' => $order->getQuoteId(),
                             'campaign_id' => $campaignId,
                             'subscriber_email' => $subscriber->getEmail(),
-                            'store_id' => $storeId
+                            'gr_store_id' => $storeId,
+                            'shop_id' => $shopId
                         )
                     );
 
                     $scheduler->addToQueue(
                         $subscriber->getId(),
-                        Scheduler::UPSERT_ORDER,
+                        Scheduler::EXPORT_ORDER,
                         array(
                             'order_id' => $order->getId(),
                             'campaign_id' => $campaignId,
                             'subscriber_email' => $subscriber->getEmail(),
-                            'store_id' => $storeId
+                            'gr_store_id' => $storeId,
+                            'shop_id' => $shopId
                         )
                     );
                 }
@@ -237,7 +243,8 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
                         $subscriber->getEmail(),
                         $campaignId,
                         $cartId,
-                        $storeId
+                        $storeId,
+                        true
                     );
                 }
             }

@@ -71,17 +71,18 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             $customer = $this->customerSessionModel->getCustomer();
 
             if ($this->shopsSettings['isScheduleOptimizationEnabled']) {
+
                 $scheduler = new Scheduler();
                 $scheduler->addToQueue(
                     $customer->getId(),
-                    Scheduler::UPSERT_CART,
+                    Scheduler::EXPORT_CART,
                     array(
                         'quote_id'         => $cartModel->getCart()->getQuote()
                             ->getId(),
                         'campaign_id'      => $campaignId,
                         'subscriber_email' => $customer->getData('email'),
-                        'store_id'         => $this->shopsSettings['grShopId']
-
+                        'gr_store_id'         => $this->shopsSettings['grShopId'],
+                        'shop_id' => $this->shopId
                     )
                 );
             } else {
@@ -130,21 +131,37 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
             $getresponseCartId = $quote->getData('getresponse_cart_id');
 
-            $orderHandler->sendOrderToGetresponse(
-                $observer->getEvent()->getData('order'),
-                $customer->getData('email'),
-                $campaignId,
-                $getresponseCartId,
-                $this->shopsSettings['grShopId']
-            );
+            if ($this->shopsSettings['isScheduleOptimizationEnabled']) {
+
+                $scheduler = new Scheduler();
+                $scheduler->addToQueue(
+                    $customer->getId(),
+                    Scheduler::EXPORT_ORDER,
+                    array(
+                        'order_id' => $order->getId(),
+                        'campaign_id' => $campaignId,
+                        'subscriber_email' => $customer->getData('email'),
+                        'gr_store_id' => $this->shopsSettings['grShopId'],
+                        'shop_id' => $this->shopId
+
+                    )
+                );
+            } else {
+                $orderHandler->sendOrderToGetresponse(
+                    $observer->getEvent()->getData('order'),
+                    $customer->getData('email'),
+                    $campaignId,
+                    $getresponseCartId,
+                    $this->shopsSettings['grShopId'],
+                    true
+                );
+            }
         } catch (Exception $e) {
         }
     }
 
     /**
      * @param Varien_Event_Observer $observer
-     *
-     * @return GetresponseIntegration_Getresponse_Model_ECommerceObserver
      */
     public function orderDetailsChangedHandler(Varien_Event_Observer $observer)
     {
@@ -155,7 +172,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 
         try {
             if (false === $this->canHandleECommerceEvent()) {
-                return $this;
+                return;
             }
 
             $campaignId = isset($this->accountSettings['campaignId'])
@@ -170,7 +187,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             if ($order->getData('getresponse_order_md5') == $hash
                 || '' == $order->getData('getresponse_order_id')
             ) {
-                return $this;
+                return;
             }
 
             /** @var Mage_Customer_Model_Customer $customer */
@@ -183,129 +200,39 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             /** @var Mage_Sales_Model_Order $order */
             $order = $observer->getEvent()->getData('order');
 
-            $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
-            $getresponseCartId = $quote->getData('getresponse_cart_id');
+            if ($this->shopsSettings['isScheduleOptimizationEnabled']) {
 
-            $orderHandler->sendOrderToGetresponse(
-                $observer->getEvent()->getData('order'),
-                $customer->getData('email'),
-                $campaignId,
-                $getresponseCartId,
-                $this->shopsSettings['grShopId']
-            );
+                $scheduler = new Scheduler();
+                $scheduler->addToQueue(
+                    $customer->getId(),
+                    Scheduler::EXPORT_ORDER,
+                    array(
+                        'order_id' => $order->getId(),
+                        'campaign_id' => $campaignId,
+                        'subscriber_email' => $customer->getData('email'),
+                        'gr_store_id' => $this->shopsSettings['grShopId'],
+                        'shop_id' => $this->shopId
+                    )
+                );
+            } else {
 
-            return $this;
+                $quote = Mage::getModel('sales/quote')->load(
+                    $order->getQuoteId()
+                );
+                $getresponseCartId = $quote->getData('getresponse_cart_id');
 
+                $orderHandler->sendOrderToGetresponse(
+                    $observer->getEvent()->getData('order'),
+                    $customer->getData('email'),
+                    $campaignId,
+                    $getresponseCartId,
+                    $this->shopsSettings['grShopId'],
+                    false
+                );
+            }
         } catch (Exception $e) {
             Mage::log('Error: ' . $e->getMessage(), 1, 'getresponse.log');
 
-        }
-
-        return $this;
-    }
-
-    public function export_jobs_to_getresponse()
-    {
-        try {
-            $api = $this->buildApiInstance();
-
-            $scheduler = new Scheduler();
-            $customerHandler
-                = new GetresponseIntegration_Getresponse_Domain_GetresponseCustomerHandler(
-                $api
-            );
-            $cartHandler
-                = new GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler(
-                $api
-            );
-            $orderHandler
-                = new GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler(
-                $api
-            );
-            /** @var array $jobs */
-            $jobs = $scheduler->getAllJobs();
-
-            print PHP_EOL . 'ilosc zadan: ' . count($jobs);
-
-            /** @var GetresponseIntegration_Getresponse_Model_ScheduleJobsQueue $job */
-            foreach ($jobs as $job) {
-
-                print PHP_EOL . 'send job: ' . $job->getData('type');
-
-                switch ($job->getData('type')) {
-                    case Scheduler::UPSERT_CUSTOMER:
-
-                        $payload = json_decode($job->getData('payload'), true);
-
-                        $customerHandler->sendCustomerToGetResponse(
-                            $payload['campaign_id'],
-                            $payload['cycle_day'],
-                            $payload['gr_custom_fields'],
-                            $payload['custom_fields'],
-                            $payload['subscriber_email']
-                        );
-
-                        break;
-
-                    case Scheduler::UPSERT_CART:
-
-                        $payload = json_decode($job->getData('payload'), true);
-                        /** @var Mage_Sales_Model_Quote $quote */
-                        $quote = Mage::getModel('sales/quote')->load(
-                            $payload['quote_id']
-                        );
-
-                        $cartHandler->sendCartToGetresponse(
-                            $quote,
-                            $payload['campaign_id'],
-                            $payload['subscriber_email'],
-                            $payload['store_id']
-                        );
-
-                        break;
-
-                    case Scheduler::UPSERT_ORDER:
-
-                        $payload = json_decode($job->getData('payload'), true);
-
-                        /** @var Mage_Sales_Model_Order $order */
-                        $order = Mage::getResourceModel(
-                            'sales/order_collection'
-                        )
-                            ->addFieldToSelect('*')
-                            ->addFieldToFilter(
-                                'entity_id', $payload['order_id']
-                            )
-                            ->getFirstItem();
-
-                        if ($order->isEmpty()) {
-                            $job->delete();
-                            break;
-                        }
-
-                        $quote = Mage::getModel('sales/quote')->load(
-                            $order->getQuoteId()
-                        );
-
-                        $orderHandler->sendOrderToGetresponse(
-                            $order,
-                            $payload['subscriber_email'],
-                            $payload['campaign_id'],
-                            $quote->getData('getresponse_cart_id'),
-                            $payload['store_id']
-                        );
-
-                        break;
-                }
-                $job->delete();
-            }
-
-        } catch (GetresponseException $e) {
-            Mage::log($e->getMessage(), 1, 'getresponse.log');
-        } catch (Exception $e) {
-            Mage::log(
-                'Cannot remove job - ' . $e->getMessage(), 1, 'getresponse.log'
-            );
         }
     }
 

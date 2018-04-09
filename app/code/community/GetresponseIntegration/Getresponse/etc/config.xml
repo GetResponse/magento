@@ -10,7 +10,7 @@
             <GetresponseIntegration_Getresponse>
                 <schedule><cron_expr>*/1 * * * *</cron_expr></schedule>
                 <run>
-                    <model>getresponse/ecommerceobserver::export_jobs_to_getresponse</model>
+                    <model>getresponse/getresponsecronjobobserver::exportJobsToGetresponse</model>
                 </run>
             </GetresponseIntegration_Getresponse>
         </jobs>
@@ -74,11 +74,6 @@
             </customer_register_success>
             <sales_order_place_after>
                 <observers>
-                    <getresponse_order_create_account>
-                        <class>GetresponseIntegration_Getresponse_Model_Observer</class>
-                        <method>createAccountOrder</method>
-                        <type>singleton</type>
-                    </getresponse_order_create_account>
                     <getresponse_order_create_handler>
                         <class>GetresponseIntegration_Getresponse_Model_ECommerceObserver</class>
                         <method>createOrderHandler</method>
