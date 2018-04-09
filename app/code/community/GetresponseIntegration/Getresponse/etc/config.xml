@@ -10,7 +10,7 @@
             <GetresponseIntegration_Getresponse>
                 <schedule><cron_expr>*/1 * * * *</cron_expr></schedule>
                 <run>
-                    <model>getresponse/getresponsecronjobobserver::exportJobsToGetresponse</model>
+                    <model>getresponse/GetresponseCronjobObserver::exportJobsToGetresponse</model>
                 </run>
             </GetresponseIntegration_Getresponse>
         </jobs>
