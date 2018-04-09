@@ -62,7 +62,7 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
         );
 
         /** @var Mage_Sales_Model_Order_Item $product */
-        foreach ($order->getAllItems() as $product) {
+        foreach ($order->getAllVisibleItems() as $product) {
 
             $grProduct = $this->productHandler->upsertGetresponseProduct($product->getProduct(), $storeId);
             $variant = (array) reset($grProduct['variants']);

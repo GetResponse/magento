@@ -174,7 +174,10 @@ class GetresponseIntegration_Getresponse_Model_Observer
         }
     }
 
-    public function createAccount()
+    /**
+     * @param Varien_Event_Observer $observer
+     */
+    public function createAccount(Varien_Event_Observer $observer)
     {
         Mage::log('create account action', 7, 'getresponse.log');
 
@@ -182,7 +185,9 @@ class GetresponseIntegration_Getresponse_Model_Observer
             return;
         }
 
-        $customer = $this->customerSessionModel->getCustomer();
+        /** @var Varien_Event $event */
+        $event = $observer->getEvent();
+        $customer = $event->getData('customer');
         $settingsRepository = new SettingsRepository($this->shopId);
         $accountSettings = $settingsRepository->getAccount();
 
@@ -190,7 +195,9 @@ class GetresponseIntegration_Getresponse_Model_Observer
             return;
         }
 
-        $subscriber = $this->newsletterModel->loadByEmail($customer->getData('email'));
+
+        $subscriber = $this->newsletterModel->setStoreId($this->shopId)->loadByEmail($customer->getData('email'));
+
         if (false === $subscriber->isSubscribed()) {
             return;
         }

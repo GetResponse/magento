@@ -15,9 +15,6 @@ class GetresponseIntegration_Getresponse_Model_GetresponseCronjobObserver
             /** @var Mage_Sales_Model_Quote $quoteModel */
             $quoteModel = Mage::getModel('sales/quote');
 
-            /** @var Mage_Sales_Model_Resource_Order $orderModel */
-            $orderModel = Mage::getResourceModel('sales/order');
-
             $api = $this->buildApiInstance();
 
             $scheduler = new Scheduler();
@@ -70,11 +67,6 @@ class GetresponseIntegration_Getresponse_Model_GetresponseCronjobObserver
                         $payload = json_decode($job->getData('payload'), true);
                         Mage::app()->setCurrentStore($payload['shop_id']);
 
-                        Mage::log(
-                            'payload: ' . print_r($payload, 1), 1,
-                            'getresponse.log'
-                        );
-
                         /** @var Mage_Sales_Model_Quote $quote */
                         $quote = $quoteModel->load($payload['quote_id']);
 
@@ -93,11 +85,6 @@ class GetresponseIntegration_Getresponse_Model_GetresponseCronjobObserver
 
                         /** @var Mage_Sales_Model_Order $order */
                         $order = Mage::getModel('sales/order')->load($payload['order_id']);
-
-                        Mage::log(
-                            'order instance: ' . get_class($order), 1,
-                            'getresponse.log'
-                        );
 
                         if ($order->isEmpty()) {
                             $job->delete();
@@ -120,7 +107,7 @@ class GetresponseIntegration_Getresponse_Model_GetresponseCronjobObserver
                         break;
                 }
 
-//                $job->delete();
+                $job->delete();
             }
         } catch (Exception $e) {
             Mage::log(

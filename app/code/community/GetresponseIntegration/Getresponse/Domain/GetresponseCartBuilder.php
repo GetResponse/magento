@@ -34,7 +34,7 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder
         $grVariants = array();
 
         /** @var Mage_Sales_Model_Order_Item $product */
-        foreach ($quote->getAllItems() as $product) {
+        foreach ($quote->getAllVisibleItems() as $product) {
 
             $grProduct = $gr_products[$product->getProduct()->getId()];
             $variant = (array) reset($grProduct['variants']);
@@ -75,7 +75,7 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder
         $grVariants = array();
 
         /** @var Mage_Sales_Model_Order_Item $product */
-        foreach ($order->getAllItems() as $product) {
+        foreach ($order->getAllVisibleItems() as $product) {
 
             $grProduct = $gr_products[$product->getProduct()->getId()];
 

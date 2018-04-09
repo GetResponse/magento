@@ -61,7 +61,7 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler
         }
 
         /** @var Mage_Sales_Model_Quote_Item $product */
-        foreach ($quote->getAllItems() as $product) {
+        foreach ($quote->getAllVisibleItems() as $product) {
              $grProducts[$product->getProduct()->getId()] = $this->productHandler->upsertGetresponseProduct($product->getProduct(), $storeId);
         }
 
@@ -117,7 +117,7 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler
         }
 
         /** @var Mage_Sales_Model_Order_Item $product */
-        foreach ($order->getAllItems() as $product) {
+        foreach ($order->getAllVisibleItems() as $product) {
             $grProducts[$product->getProduct()->getId()] = $this->productHandler->upsertGetresponseProduct($product->getProduct(), $storeId);
         }
 
