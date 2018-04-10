@@ -52,10 +52,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
      */
     public function updateCartHandler()
     {
-        Mage::log(
-            'EcommerceObserver::updateCartHandler', 1, 'getresponse.log'
-        );
-
         try {
             if (false === $this->canHandleECommerceEvent()) {
                 return;
@@ -106,10 +102,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
      */
     public function createOrderHandler($observer)
     {
-        Mage::log(
-            'EcommerceObserver::createOrderHandler', 7, 'getresponse.log'
-        );
-
         try {
             if (false === $this->canHandleECommerceEvent()) {
                 return;
@@ -165,11 +157,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
      */
     public function orderDetailsChangedHandler(Varien_Event_Observer $observer)
     {
-        Mage::log(
-            'EcommerceObserver::orderDetailsChangedHandler', 7,
-            'getresponse.log'
-        );
-
         try {
             if (false === $this->canHandleECommerceEvent()) {
                 return;

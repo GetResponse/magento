@@ -37,7 +37,7 @@
 
                     <span class="switch_active_subscription">
                     <input type="checkbox" name="hasGrTrafficFeatureEnabled" id="hasGrTrafficFeatureEnabled" value="1"
-                    <?php if (isset($settings->api['hasGrTrafficFeatureEnabled']) and $settings->api['hasGrTrafficFeatureEnabled'] == 1) : ?>
+                    <?php if (isset($settings->api['hasActiveTrafficModule']) and $settings->api['hasActiveTrafficModule'] == 1) : ?>
                         checked="checked"
                     <?php endif; ?>
                 />

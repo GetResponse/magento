@@ -54,15 +54,6 @@
                     </getresponse_sales_quote_address_save_after>
                 </observers>
             </sales_quote_address_save_after>
-            <customer_save_after>
-                <observers>
-                    <getresponse_customer_save_after>
-                        <class>GetresponseIntegration_Getresponse_Model_Observer</class>
-                        <method>customerSaveAfter</method>
-                        <type>singleton</type>
-                    </getresponse_customer_save_after>
-                </observers>
-            </customer_save_after>
             <customer_register_success>
                 <observers>
                     <getresponse_create_account>
@@ -74,6 +65,16 @@
             </customer_register_success>
             <sales_order_place_after>
                 <observers>
+                    <getresponse_order_create_account>
+                        <class>GetresponseIntegration_Getresponse_Model_Observer</class>
+                        <method>createAccountOrder</method>
+                        <type>singleton</type>
+                    </getresponse_order_create_account>
+                    <getresponse_automation>
+                        <class>GetresponseIntegration_Getresponse_Model_Observer</class>
+                        <method>automationHandler</method>
+                        <type>singleton</type>
+                    </getresponse_automation>
                     <getresponse_order_create_handler>
                         <class>GetresponseIntegration_Getresponse_Model_ECommerceObserver</class>
                         <method>createOrderHandler</method>
@@ -243,14 +244,5 @@
         </core_block_abstract_prepare_layout_before>
     </events>
 </adminhtml>
-
-    <default>
-        <getresponse_customs>
-            <fields_mapping>
-                <map_fields>asdadasda</map_fields>
-            </fields_mapping>
-        </getresponse_customs>
-    </default>
-
 </config>
 

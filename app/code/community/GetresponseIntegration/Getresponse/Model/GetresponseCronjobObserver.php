@@ -34,18 +34,8 @@ class GetresponseIntegration_Getresponse_Model_GetresponseCronjobObserver
             /** @var array $jobs */
             $jobs = $scheduler->getAllJobs();
 
-            Mage::log(
-                'CRONJOB: ilosc zadan: ' . count($jobs), 1, 'getresponse.log'
-            );
-
             /** @var GetresponseIntegration_Getresponse_Model_ScheduleJobsQueue $job */
             foreach ($jobs as $job) {
-
-                Mage::log(
-                    'CRONJOB: send job: ' . $job->getData('type'), 1,
-                    'getresponse.log'
-                );
-
                 switch ($job->getData('type')) {
 
                     case Scheduler::EXPORT_CUSTOMER:

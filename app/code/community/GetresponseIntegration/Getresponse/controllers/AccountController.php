@@ -5,10 +5,11 @@ use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepo
 use GetresponseIntegration_Getresponse_Domain_SettingsFactory as SettingsFactory;
 use GetresponseIntegration_Getresponse_Domain_CustomFieldsCollectionFactory as CustomFieldsCollectionFactory;
 
+require_once 'BaseController.php';
 
-require_once Mage::getModuleDir('controllers',
-        'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
-
+/**
+ * Class GetresponseIntegration_Getresponse_AccountController
+ */
 class GetresponseIntegration_Getresponse_AccountController extends GetresponseIntegration_Getresponse_BaseController
 {
 

@@ -53,8 +53,6 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler
             $campaignId
         );
 
-        Mage::log('sendCartToGetresponse', 1, 'getresponse.log');
-
         if (!isset($subscriber->contactId)) {
             Mage::log('Subscriber not found during export - ' . $subscriber->email);
             return null;

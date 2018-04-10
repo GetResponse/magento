@@ -57,7 +57,7 @@ class GetresponseIntegration_Getresponse_Model_Observer
         $settingsRepository = new SettingsRepository($this->shopId);
         $accountSettings = $settingsRepository->getAccount();
 
-        if (empty($accountSettings['apiKey']) || 0 === (int) $accountSettings['hasGrTrafficFeatureEnabled']) {
+        if (empty($accountSettings['apiKey']) || 0 === (int) $accountSettings['hasGrTrafficFeatureEnabled'] || 0 === (int) $accountSettings['hasActiveTrafficModule']) {
             return;
         }
 
@@ -80,7 +80,13 @@ class GetresponseIntegration_Getresponse_Model_Observer
             if (strlen($customer->email) > 0) {
                 /** @var Mage_Core_Block_Text $myBlock */
                 $myBlock = $layout->createBlock('core/text');
-                $myBlock->setText('<script type="text/javascript">gaSetUserId("' . $customer->email . '");</script>');
+                $myBlock->setText('<script type="text/javascript">
+				if(window.addEventListener){
+				  window.addEventListener("load", function() { gaSetUserId("' . $customer->email . '"); })
+				}else{
+				  window.attachEvent("onload", function() { gaSetUserId("' . $customer->email . '"); } )
+				}
+			</script>');
                 $block->append($myBlock);
             }
         }
@@ -179,8 +185,6 @@ class GetresponseIntegration_Getresponse_Model_Observer
      */
     public function createAccount(Varien_Event_Observer $observer)
     {
-        Mage::log('create account action', 7, 'getresponse.log');
-
         if (!$this->getresponseHelper->isEnabled()) {
             return;
         }
@@ -217,36 +221,118 @@ class GetresponseIntegration_Getresponse_Model_Observer
     }
 
     /**
-     * @param                              $categories
-     * @param                              $shop_id
-     * @param Mage_Customer_Model_Customer $customer
-     * @param                              $user_customs
-     * @param                              $customs
-     * @param                              $settings
+     * @param Varien_Event_Observer $observer
+     */
+    public function createAccountOrder(Varien_Event_Observer $observer)
+    {
+        if (!$this->getresponseHelper->isEnabled()) {
+            return;
+        }
+
+        /** @var Varien_Event $event */
+        $event = $observer->getEvent();
+
+        /** @var Mage_Sales_Model_Order $order */
+        $order = $event->getData('order');
+
+        if ($order->isEmpty()) {
+            return;
+        }
+
+        /** @var Mage_Customer_Model_Customer $customer */
+        $customer = Mage::getModel('customer/customer')->load($order->getCustomerId());
+
+        $settingsRepository = new SettingsRepository($this->shopId);
+        $accountSettings = $settingsRepository->getAccount();
+
+
+        if (empty($accountSettings['apiKey']) || $accountSettings['activeSubscription'] != '1' || empty($accountSettings['campaignId'])) {
+            return;
+        }
+
+        $subscriberModel = $this->newsletterModel->loadByEmail($customer->getData('email'));
+        if (false === $subscriberModel->isSubscribed()) {
+            return;
+        }
+
+        $customs = $this->customsModel->getCustoms($this->shopId);
+
+        $billing = $customer->getPrimaryBillingAddress();
+
+        $user_customs = array();
+
+        if (is_object($billing)) {
+            $user_customs = $billing->getData();
+            $user_customs['country'] = $user_customs['country_id'];
+        }
+
+        try {
+            $api = $this->buildApiInstance();
+            $api->upsertContact(
+                $accountSettings['campaignId'],
+                $customer->getName(),
+                $customer->getData('email'),
+                $accountSettings['cycleDay'],
+                $this->customsModel->mapCustoms($user_customs, $customs)
+            );
+        } catch (GetresponseException $e) {
+        }
+    }
+
+    /**
+     * @param Varien_Event_Observer $observer
      *
      * @throws GetresponseIntegration_Getresponse_Domain_GetresponseException
      */
-    public function automationHandler($categories, $shop_id, Mage_Customer_Model_Customer $customer, $user_customs, $customs, $settings)
+    public function automationHandler(Varien_Event_Observer $observer)
     {
-        $automations = array();
-        $ruleRepository = new AutomationRulesCollectionRepository($shop_id);
+        if (!$this->getresponseHelper->isEnabled()) {
+            return;
+        }
+
+        /** @var Varien_Event $event */
+        $event = $observer->getEvent();
+
+        /** @var Mage_Sales_Model_Order $order */
+        $order = $event->getData('order');
+
+        if ($order->isEmpty()) {
+            return;
+        }
+
+        $categories = $this->getresponseHelper->getCategoriesByOrder($order);
+
+        /** @var Mage_Customer_Model_Customer $customer */
+        $customer = Mage::getModel('customer/customer')->load($order->getCustomerId());
+
+        $billing = $customer->getPrimaryBillingAddress();
+
+        $user_customs = array();
+
+        if (is_object($billing)) {
+            $user_customs = $billing->getData();
+            $user_customs['country'] = $user_customs['country_id'];
+        }
+
+        $customs = $this->customsModel->getCustoms($this->shopId);
+
+        $rules = array();
+        $ruleRepository = new AutomationRulesCollectionRepository($this->shopId);
         $ruleCollectionDb = $ruleRepository->getCollection();
 
         foreach ($ruleCollectionDb as $rule) {
             if (false !== array_search($rule['categoryId'], $categories)) {
-                $automations[] = $rule;
+                $rules[] = $rule;
             }
         }
 
-        if (empty($automations)) {
+        if (empty($rules)) {
             return;
         }
 
         $api = $this->buildApiInstance();
 
-        $delete_contact = false;
-
-        foreach ($automations as $automation) {
+        foreach ($rules as $automation) {
 
             $api->upsertContact(
                 $automation['campaignId'],
@@ -255,17 +341,6 @@ class GetresponseIntegration_Getresponse_Model_Observer
                 $automation['cycleDay'],
                 $this->customsModel->mapCustoms($user_customs, $customs)
             );
-
-            if ($automation['action'] == 'move') {
-                $delete_contact = true;
-            }
-        }
-
-        if ($delete_contact === true) {
-            $contact = $api->getContact($customer->getData('email'), $settings['campaign_id']);
-            if (isset($contact->contactId)) {
-                $api->deleteContact($contact->contactId);
-            }
         }
     }
 
@@ -294,8 +369,6 @@ class GetresponseIntegration_Getresponse_Model_Observer
 
     public function checkoutSaveAddress()
     {
-        Mage::log('checkoutSaveAddress action', 1, 'getresponse.log');
-
         if (!$this->getresponseHelper->isEnabled()) {
             return;
         }
@@ -374,7 +447,7 @@ class GetresponseIntegration_Getresponse_Model_Observer
         $settingsRepository = new SettingsRepository($this->shopId);
         $accountSettings = $settingsRepository->getAccount();
 
-        if (empty($accountSettings['apiKey']) || 1 !== $accountSettings['newsletterSubscription'] || empty($accountSettings['newsletterCampaignId'])) {
+        if (empty($accountSettings['apiKey']) || 1 !== (int) $accountSettings['newsletterSubscription'] || empty($accountSettings['newsletterCampaignId'])) {
             return;
         }
 
