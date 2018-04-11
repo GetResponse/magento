@@ -122,7 +122,7 @@ class GetresponseIntegration_Getresponse_Helper_Api
      */
     public function setCustoms($user_customs)
     {
-        $custom_fields = [];
+        $custom_fields = array();
 
         if (empty($user_customs)) {
             return $custom_fields;
@@ -179,7 +179,7 @@ class GetresponseIntegration_Getresponse_Helper_Api
      */
     public function mergeUserCustoms($results, $user_customs)
     {
-        $custom_fields = [];
+        $custom_fields = array();
 
         if (is_array($results)) {
             foreach ($results as $customs) {
@@ -255,7 +255,7 @@ class GetresponseIntegration_Getresponse_Helper_Api
             return false;
         }
 
-        $forms = [];
+        $forms = array();
 
         foreach ($results as $form) {
             if (isset($form->status) && 'published' === $form->status) {
@@ -268,6 +268,11 @@ class GetresponseIntegration_Getresponse_Helper_Api
         return $forms;
     }
 
+    /**
+     * @param string $id
+     *
+     * @return mixed
+     */
     public function getWebform($id)
     {
         return $this->grapi()->get_web_form($id);
@@ -290,7 +295,7 @@ class GetresponseIntegration_Getresponse_Helper_Api
             return false;
         }
 
-        $forms = [];
+        $forms = array();
 
         foreach ($results as $webform) {
             if (isset($webform->status) && $webform->status == 'enabled') {
@@ -313,17 +318,17 @@ class GetresponseIntegration_Getresponse_Helper_Api
             return $cachedValue;
         }
 
-        $campaignDays = [];
+        $campaignDays = array();
         $page = 1;
         $perPage = 100;
 
         do {
             $apiResponse = $this->grapi()->get_autoresponders(
-                ['page' => $page, 'perPage' => $perPage]
+                array('page' => $page, 'perPage' => $perPage)
             );
 
             if (isset($apiResponse->codeDescription)) {
-                $apiResponse = [];
+                $apiResponse = array();
             }
 
             foreach ($apiResponse as $autoresponder) {
@@ -333,11 +338,11 @@ class GetresponseIntegration_Getresponse_Helper_Api
                 }
 
                 $campaignDays[$autoresponder->triggerSettings->subscribedCampaign->campaignId][$autoresponder->autoresponderId]
-                    = [
+                    = array(
                     'day'    => $autoresponder->triggerSettings->dayOfCycle,
                     'name'   => $autoresponder->name,
                     'status' => $autoresponder->status,
-                ];
+                );
             }
 
             $page++;
@@ -370,16 +375,16 @@ class GetresponseIntegration_Getresponse_Helper_Api
         $code = strtoupper(substr($locale, 0, 2));
 
         try {
-            $params = [
+            $params = array(
                 'name'         => $campaign_name,
-                'confirmation' => [
-                    'fromField'                         => ['fromFieldId' => $from_field],
-                    'replyTo'                           => ['fromFieldId' => $reply_to_field],
+                'confirmation' => array(
+                    'fromField'                         => array('fromFieldId' => $from_field),
+                    'replyTo'                           => array('fromFieldId' => $reply_to_field),
                     'subscriptionConfirmationBodyId'    => $confirmation_body,
                     'subscriptionConfirmationSubjectId' => $confirmation_subject
-                ],
+                ),
                 'languageCode' => $code
-            ];
+            );
 
             $result = $this->grapi()->create_campaign($params);
             $this->cache->remove(self::GET_CAMPAIGN_CACHE_KEY);
@@ -592,12 +597,12 @@ class GetresponseIntegration_Getresponse_Helper_Api
     public function addCustomField($name)
     {
         $custom = $this->grapi()->add_custom_field(
-            [
+            array(
                 'name'   => $name,
                 'type'   => "text",
                 'hidden' => "false",
-                'values' => [],
-            ]
+                'values' => array(),
+            )
         );
 
         return $custom;
@@ -613,7 +618,7 @@ class GetresponseIntegration_Getresponse_Helper_Api
      */
     private function setExportCustoms($userCustoms, $grCustomFields)
     {
-        $customsHashMap = [];
+        $customsHashMap = array();
 
         if (empty($userCustoms)) {
             return $customsHashMap;
@@ -624,10 +629,10 @@ class GetresponseIntegration_Getresponse_Helper_Api
             foreach ($grCustomFields as $grCustomName => $grCustomId) {
                 if ($grCustomName === $name) {
 
-                    $customsHashMap[] = [
+                    $customsHashMap[] = array(
                         'customFieldId' => $grCustomId,
-                        'value'         => is_array($value) ? $value : [$value]
-                    ];
+                        'value'         => is_array($value) ? $value : array($value)
+                    );
                     break;
                 }
             }

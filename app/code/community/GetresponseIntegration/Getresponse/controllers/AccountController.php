@@ -3,7 +3,6 @@ use GetresponseIntegration_Getresponse_Domain_AccountRepository as AccountReposi
 use GetresponseIntegration_Getresponse_Domain_AccountFactory as AccountFactory;
 use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
 use GetresponseIntegration_Getresponse_Domain_SettingsFactory as SettingsFactory;
-use GetresponseIntegration_Getresponse_Domain_CustomFieldsCollectionFactory as CustomFieldsCollectionFactory;
 
 require_once 'BaseController.php';
 
@@ -12,12 +11,6 @@ require_once 'BaseController.php';
  */
 class GetresponseIntegration_Getresponse_AccountController extends GetresponseIntegration_Getresponse_BaseController
 {
-
-    protected function _isAllowed()
-    {
-        return true;
-    }
-
     /**
      * GET getresponse/account/index
      */

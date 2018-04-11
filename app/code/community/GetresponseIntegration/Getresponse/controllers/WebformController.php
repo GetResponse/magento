@@ -90,14 +90,14 @@ class GetresponseIntegration_Getresponse_WebformController extends GetresponseIn
         }
 
         if (empty($webforms->codeDescription)) {
-            $data = [
+            $data = array(
                 'webformId' => $params['webform_id'],
                 'activeSubscription' => $isEnabled,
                 'layoutPosition' => $params['layout_position'],
                 'blockPosition' => $params['block_position'],
                 'webformTitle' => trim($params['webform_title']),
                 'url' => $webforms->scriptUrl
-            ];
+            );
             $webform = WebformFactory::createFromArray($data);
             $webformRepository->create($webform);
 

@@ -3,13 +3,17 @@ use GetresponseIntegration_Getresponse_Domain_AccountRepository as AccountReposi
 use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
 use GetresponseIntegration_Getresponse_Domain_WebformRepository as WebformRepository;
 
+/**
+ * Class GetresponseIntegration_Getresponse_BaseController
+ */
 class GetresponseIntegration_Getresponse_BaseController extends Mage_Adminhtml_Controller_Action
 {
-
     /** @var int */
     public $currentShopId;
+
     /** @var array */
     public $settings;
+
     /** @var GetresponseIntegration_Getresponse_Helper_Api */
     protected $api;
 
@@ -85,18 +89,19 @@ class GetresponseIntegration_Getresponse_BaseController extends Mage_Adminhtml_C
      */
     protected function prepareCustomsForMapping()
     {
-        $grCustoms = $grCustomValues = [];
+        $grCustoms = $grCustomValues = array();
 
         if (empty($this->settings->customs)) {
-            return [
+            return array(
                 'customs' => '',
                 'custom_values' => ''
-            ];
+            );
         }
 
         foreach ($this->settings->customs as $custom) {
 
-            if (in_array($custom['custom_field'], ['firstname', 'lastname', 'email'])) {
+            if (in_array($custom['custom_field'], array('firstname', 'lastname', 'email')
+            )) {
                 continue;
             }
 
@@ -104,10 +109,9 @@ class GetresponseIntegration_Getresponse_BaseController extends Mage_Adminhtml_C
             $grCustoms[] = $custom;
         }
 
-        return [
+        return array(
             'customs' => json_encode($grCustoms),
             'custom_values' => json_encode($grCustomValues)
-        ];
+        );
     }
-
 }
