@@ -95,6 +95,8 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
             return;
         }
 
+        $this->api->deleteCart($storeId, $grCartId);
+
         if ($newOrder) {
             $order->setData('getresponse_order_id', $response['orderId']);
             $order->setData(
