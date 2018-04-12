@@ -3,16 +3,17 @@ use GetresponseIntegration_Getresponse_Domain_AutomationRuleFactory as Automatio
 use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionRepository as AutomationRulesCollectionRepository;
 use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionFactory as AutomationRulesCollectionFactory;
 
-require_once Mage::getModuleDir('controllers',
-        'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
+require_once 'BaseController.php';
 
+/**
+ * Class GetresponseIntegration_Getresponse_ContactlistrulesController
+ */
 class GetresponseIntegration_Getresponse_ContactlistrulesController extends GetresponseIntegration_Getresponse_BaseController
 {
-
-    protected $actions = [
+    protected $actions = array(
         'move' => 'Moved',
         'copy' => 'Copied'
-    ];
+    );
 
     /**
      * GET getresponse/contactlistrules/index
@@ -34,7 +35,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
             ->assign('rules', $ruleCollectionDb)
             ->assign('categories', $this->getCategories())
             ->assign('campaign_days', Mage::helper('getresponse/api')->getCampaignDays())
-            ->assign('campaigns', $this->api->getGrCampaigns())
+            ->assign('campaigns', $this->api->getCampaigns())
         );
 
         $this->renderLayout();
@@ -64,7 +65,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
             ->assign('settings', $this->settings)
             ->assign('categories_tree', $this->getTreeCategoriesHTML(1, false))
             ->assign('actions', $this->actions)
-            ->assign('campaigns', $this->api->getGrCampaigns())
+            ->assign('campaigns', $this->api->getCampaigns())
             ->assign('autoresponder_block', $autoresponderBlock->toHtml())
         );
 
@@ -89,7 +90,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
 
         $ruleRepository = new AutomationRulesCollectionRepository($this->currentShopId);
         $ruleCollectionDb = $ruleRepository->getCollection();
-        $automation = [];
+        $automation = array();
 
         foreach ($ruleCollectionDb as $rule) {
             if ($rule['id'] === $id)
@@ -113,7 +114,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
             ->assign('categories_tree', $this->getTreeCategoriesHTML(1, false, '', $automation['categoryId']))
             ->assign('automation', $automation)
             ->assign('actions', $this->actions)
-            ->assign('campaigns', $this->api->getGrCampaigns())
+            ->assign('campaigns', $this->api->getCampaigns())
             ->assign('autoresponder_block', $autoresponderBlock->toHtml())
         );
 
@@ -135,14 +136,14 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
             $cycleDay = null;
         }
 
-        $data = [
+        $data = array(
             'id' => substr(md5(time()), 0, 5),
             'categoryId' => $params['category_id'],
             'campaignId' => $params['campaign_id'],
             'cycleDay' => $cycleDay,
             'action' => $params['action'],
             'active' => 1
-        ];
+        );
 
         $ruleRepository = new AutomationRulesCollectionRepository($this->currentShopId);
         $rule = AutomationRuleFactory::createFromArray($data);
@@ -185,14 +186,14 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
             $cycleDay = null;
         }
 
-        $data = [
+        $data = array(
             'id' => $id,
             'categoryId' => $params['category_id'],
             'campaignId' => $params['campaign_id'],
             'cycleDay' => $cycleDay,
             'action' => $params['action'],
             'active' => 1
-        ];
+        );
 
         $ruleRepository = new AutomationRulesCollectionRepository($this->currentShopId);
         $editedRule = AutomationRuleFactory::createFromArray($data);
@@ -258,7 +259,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
             ->getCollection()
             ->addAttributeToSelect('*')
             ->addAttributeToFilter('is_active', '1')
-            ->addAttributeToFilter('parent_id', ['eq' => $parentId]);
+            ->addAttributeToFilter('parent_id', array('eq' => $parentId));
 
         foreach ($allCats as $category) {
 
@@ -285,7 +286,7 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
      */
     protected function getCategories()
     {
-        $results = [];
+        $results = array();
         $categories = Mage::getModel('catalog/category')
             ->getCollection()
             ->setStoreId($this->currentShopId)

@@ -3,6 +3,9 @@
 use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
 use GetresponseIntegration_Getresponse_Domain_GetresponseException as GetresponseException;
 use GetresponseIntegration_Getresponse_Domain_Scheduler as Scheduler;
+use GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder as GrCartBuilder;
+use GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler as GrProductHandler;
+use GetresponseIntegration_Getresponse_Domain_GetresponseOrderBuilder as GrOrderBuilder;
 
 /**
  * Class GetresponseIntegration_Getresponse_Model_ECommerceObserver
@@ -18,17 +21,19 @@ class GetresponseIntegration_Getresponse_Model_GetresponseCronjobObserver
             $api = $this->buildApiInstance();
 
             $scheduler = new Scheduler();
-            $cartHandler
-                = new GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler(
-                $api
+            $cartHandler = new GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler(
+                $api,
+                $quoteModel,
+                new GrCartBuilder(),
+                new GrProductHandler($api)
             );
-            $orderHandler
-                = new GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler(
-                $api
+            $orderHandler = new GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler(
+                $api,
+                new GrProductHandler($api),
+                new GrOrderBuilder()
             );
 
-            $customerHandler
-                = new GetresponseIntegration_Getresponse_Domain_GetresponseCustomerHandler(
+            $customerHandler = new GetresponseIntegration_Getresponse_Domain_GetresponseCustomerHandler(
                 $api
             );
             /** @var array $jobs */
@@ -100,15 +105,15 @@ class GetresponseIntegration_Getresponse_Model_GetresponseCronjobObserver
                 $job->delete();
             }
         } catch (Exception $e) {
-            Mage::log(
-                'Cannot process job - ' . $e, 1, 'getresponse.log'
-            );
+            GetresponseIntegration_Getresponse_Helper_Logger::logException($e);
         }
     }
 
     /**
      * @return GetresponseIntegration_Getresponse_Helper_Api
-     * @throws GetresponseException
+     * @throws GetresponseIntegration_Getresponse_Domain_GetresponseException
+     * @throws Mage_Core_Model_Store_Exception
+     * @throws Varien_Exception
      */
     private function buildApiInstance()
     {

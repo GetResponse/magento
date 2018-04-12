@@ -7,7 +7,7 @@ use GetresponseIntegration_Getresponse_Domain_Shop as Shop;
 class GetresponseIntegration_Getresponse_Domain_ShopFactory
 {
     /**
-     * @param $data
+     * @param array $data
      * @return GetresponseIntegration_Getresponse_Domain_Shop
      */
     public static function createFromArray($data)

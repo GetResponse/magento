@@ -1,10 +1,13 @@
 <?php
 use GetresponseIntegration_Getresponse_Domain_CustomField as CustomField;
 
+/**
+ * Class GetresponseIntegration_Getresponse_Domain_CustomFieldsCollection
+ */
 class GetresponseIntegration_Getresponse_Domain_CustomFieldsCollection
 {
     /** @var array  */
-    private $fields = [];
+    private $fields = array();
 
     /**
      * @param GetresponseIntegration_Getresponse_Domain_CustomField $field
@@ -33,7 +36,7 @@ class GetresponseIntegration_Getresponse_Domain_CustomFieldsCollection
      */
     public function toArray()
     {
-        $forJson = [];
+        $forJson = array();
         foreach ($this->fields as $key => $field) {
             $forJson[$key] = $field->toArray();
         }

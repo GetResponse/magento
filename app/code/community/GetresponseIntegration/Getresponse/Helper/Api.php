@@ -1,5 +1,7 @@
 <?php
 
+use GetresponseIntegration_Getresponse_Domain_GetresponseException as GetresponseException;
+
 /**
  * Class GetresponseIntegration_Getresponse_Helper_Api
  */
@@ -20,6 +22,8 @@ class GetresponseIntegration_Getresponse_Helper_Api
     const GET_PUBLISHED_WEB_FORMS = 'get_published_web_forms';
     const GET_SHOPS = 'get_shops';
     const PRODUCT_CACHE_KEY = 'product';
+    const ALL_CUSTOM_FIELDS = 'all_custom_fields';
+    const PER_PAGE = 100;
 
     public static $status
         = array(
@@ -40,17 +44,9 @@ class GetresponseIntegration_Getresponse_Helper_Api
     }
 
     /**
-     * Getresponse API instance
-     */
-    public static function grapi()
-    {
-        return self::instance();
-    }
-
-    /**
      * @return GetresponseIntegration_Getresponse_Helper_GrApi
      */
-    public static function instance()
+    public static function getApiInstance()
     {
         static $instance;
 
@@ -63,413 +59,461 @@ class GetresponseIntegration_Getresponse_Helper_Api
     }
 
     /**
-     * @param $email
-     * @param $campaign
+     * @param string $email
+     * @param string $campaignId
      *
      * @return mixed
+     * @throws GetresponseException
      */
-    public function getContact($email, $campaign)
+    public function getContact($email, $campaignId)
     {
-        $contact = $this->cache->load(md5(self::CONTACT_CACHE_KEY . $email));
+        $key = md5(self::CONTACT_CACHE_KEY . $email . $campaignId);
+        $contact = $this->cache->load($key);
 
-        if (!empty($contact)) {
-            return $contact;
-        }
-
-        $results = (array)$this->grapi()->get_contacts(
-            array('query' => array(
+        if (false === $contact) {
+            $contacts = $this->getApiInstance()->getContacts(
+                array('query'        => array(
                     'email'      => $email,
-                    'campaignId' => $campaign
+                    'campaignId' => $campaignId
                 ), 'additionalFlags' => 'forceCustoms'
-            )
-        );
+                )
+            );
 
-        $contact = reset($results);
-        $this->cache->save($contact, md5(self::CONTACT_CACHE_KEY . $email));
+            $contact = reset($contacts);
+            $this->cache->save($contact, $key);
+        }
 
         return $contact;
     }
 
     /**
-     * Get all custom fields.
-     *
      * @return array
+     * @throws GetresponseException
      */
     public function getCustomFields()
     {
-        $all_customs = array();
-        $results = $this->grapi()->get_custom_fields(array('perPage' => 1000));
+        $finalCustoms = $this->cache->load(self::ALL_CUSTOM_FIELDS);
 
-        if (empty($results)) {
-            return $all_customs;
-        }
+        if (false === $finalCustoms) {
 
-        foreach ($results as $ac) {
-            if (isset($ac->name) && isset($ac->customFieldId)) {
-                $all_customs[$ac->name] = $ac->customFieldId;
+            $finalCustoms = array();
+            $customs = $this->getApiInstance()->getCustomFields(
+                array('perPage' => self::PER_PAGE, 'page' => 1)
+            );
+
+            $headers = $this->getApiInstance()->getHeaders();
+
+            $totalPages = isset($headers['TotalPages']) ? $headers['TotalPages']
+                : 0;
+
+            for ($page = 2; $page <= $totalPages; $page++) {
+                $response = $this->getApiInstance()->getCustomFields(
+                    array('perPage' => self::PER_PAGE, 'page' => $page)
+                );
+                $customs = array_merge($customs, $response);
             }
+
+            foreach ($customs as $customField) {
+                if (isset($customField['name'])
+                    && isset($customField['customFieldId'])
+                ) {
+                    $finalCustoms[$customField['name']]
+                        = $customField['customFieldId'];
+                }
+            }
+
+            $this->cache->save($finalCustoms, self::ALL_CUSTOM_FIELDS);
         }
 
-        return $all_customs;
+        return $finalCustoms;
     }
 
     /**
-     * Set customs.
-     *
-     * * @param $user_customs
+     * @param $userCustoms
      *
      * @return array
      */
-    public function setCustoms($user_customs)
+    public function setCustoms($userCustoms)
     {
-        $custom_fields = array();
+        $customFields = array();
 
-        if (empty($user_customs)) {
-            return $custom_fields;
+        if (empty($userCustoms)) {
+            return $customFields;
         }
 
-        foreach ($user_customs as $name => $value) {
+        foreach ($userCustoms as $name => $value) {
 
             if (!isset($this->cachedCustoms[$name])) {
 
-                $customs = (array)$this->grapi()->get_custom_fields(
-                    array('query[name]' => $name)
-                );
-                $custom = reset($customs);
-
-                // custom field not found - create new
-                if (empty($custom) || empty($custom->customFieldId)) {
-                    $custom = $this->grapi()->add_custom_field(
-                        array(
-                            'name'   => $name,
-                            'type'   => is_array($value) ? "checkbox" : "text",
-                            'hidden' => "false",
-                            'values' => is_array($value) ? $value
-                                : array($value),
-                        )
+                try {
+                    $customs = $this->getApiInstance()->getCustomFields(
+                        array('query[name]' => $name)
                     );
-                    // Custom adding failed
-                    if (!isset($custom->customFieldId)) {
-                        continue;
-                    }
-                }
 
-                $this->cachedCustoms[$name] = $custom;
+                    $custom = reset($customs);
+
+                    // custom field not found - create new
+                    if (empty($custom) || empty($custom['customFieldId'])) {
+                        $custom = $this->getApiInstance()->addCustomField(
+                            array(
+                                'name'   => $name,
+                                'type'   => is_array($value) ? "checkbox"
+                                    : "text",
+                                'hidden' => "false",
+                                'values' => is_array($value) ? $value
+                                    : array($value),
+                            )
+                        );
+                        // Custom adding failed
+                        if (!isset($custom['customFieldId'])) {
+                            continue;
+                        }
+                    }
+
+                    $this->cachedCustoms[$name] = $custom;
+                } catch (GetresponseException $e) {
+                    continue;
+                }
 
             } else {
                 $custom = $this->cachedCustoms[$name];
             }
 
-            $custom_fields[] = array(
-                'customFieldId' => $custom->customFieldId,
+            $customFields[] = array(
+                'customFieldId' => $custom['customFieldId'],
                 'value'         => is_array($value) ? $value : array($value)
             );
         }
 
-        return $custom_fields;
+        return $customFields;
     }
 
     /**
-     * Merge account custom fields.
-     *
-     * @param array $results      results.
-     * @param array $user_customs user customs.
+     * @param array $results
+     * @param array $userCustoms
      *
      * @return array
      */
-    public function mergeUserCustoms($results, $user_customs)
+    public function mergeUserCustoms($results, $userCustoms)
     {
-        $custom_fields = array();
+        $customFields = array();
 
         if (is_array($results)) {
             foreach ($results as $customs) {
-                $value = $customs->value;
-                if (in_array($customs->name, array_keys($user_customs))) {
-                    $user_custom_value = $user_customs[$customs->name];
-                    $value = is_array($user_custom_value) ? $user_custom_value
-                        : array($user_custom_value);
-                    unset($user_customs[$customs->name]);
+                $value = $customs['value'];
+                if (in_array($customs['name'], array_keys($userCustoms))) {
+                    $userCustomValue = $userCustoms[$customs['name']];
+                    $value = is_array($userCustomValue) ? $userCustomValue
+                        : array($userCustomValue);
+                    unset($userCustoms[$customs['name']]);
                 }
 
-                $custom_fields[] = array(
-                    'customFieldId' => $customs->customFieldId,
+                $customFields[] = array(
+                    'customFieldId' => $customs['customFieldId'],
                     'value'         => $value,
                 );
             }
         }
 
-        return array_merge($custom_fields, $this->setCustoms($user_customs));
+        return array_merge($customFields, $this->setCustoms($userCustoms));
     }
 
     /**
-     * Get getresponse campaigns from user account
+     * @return array
+     * @throws GetresponseException
      */
-    public function getGrCampaigns()
+    public function getCampaigns()
     {
-        $cachedValue = $this->cache->load(self::GET_CAMPAIGN_CACHE_KEY);
-        if (false !== $cachedValue) {
-            return $cachedValue;
-        }
+        $finalCampaigns = $this->cache->load(self::GET_CAMPAIGN_CACHE_KEY);
 
-        $campaigns = array();
-        $page = 1;
-        $perPage = 100;
+        if (false === $finalCampaigns) {
+            $finalCampaigns = array();
 
-        do {
-            $apiResponse = $this->grapi()->get_campaigns(
+            $campaigns = $this->getApiInstance()->getCampaigns(
                 array(
                     'sort'    => array('name' => 'asc'),
-                    'page'    => $page,
-                    'perPage' => $perPage
+                    'page'    => 1,
+                    'perPage' => self::PER_PAGE
                 )
             );
 
-            if (isset($apiResponse->codeDescription)) {
-                $apiResponse = array();
+            $headers = $this->getApiInstance()->getHeaders();
+            $totalPages = isset($headers['TotalPages']) ? $headers['TotalPages']
+                : 1;
+
+            for ($page = 2; $page <= $totalPages; $page++) {
+                $response = $this->getApiInstance()->getCampaigns(
+                    array(
+                        'sort'    => array('name' => 'asc'),
+                        'page'    => $page,
+                        'perPage' => self::PER_PAGE
+                    )
+                );
+
+                $campaigns = array_merge($campaigns, $response);
             }
 
-            foreach ($apiResponse as $result) {
-                $campaigns[$result->campaignId] = $result->name;
+            foreach ($campaigns as $campaign) {
+                $finalCampaigns[$campaign['campaignId']] = $campaign['name'];
             }
 
-            $page++;
-        } while (count((array)$apiResponse) === $perPage);
+            $this->cache->save($finalCampaigns, self::GET_CAMPAIGN_CACHE_KEY);
+        }
 
-        $this->cache->save($campaigns, self::GET_CAMPAIGN_CACHE_KEY);
-
-        return $campaigns;
+        return $finalCampaigns;
     }
 
     /**
-     * Get getresponse campaigns from user account
+     * @return array
+     * @throws GetresponseException
      */
     public function getPublishedForms()
     {
-        $cachedValue = $this->cache->load(self::GET_PUBLISHED_FORMS);
-        if (false !== $cachedValue) {
-            return $cachedValue;
-        }
+        $finalForms = $this->cache->load(self::GET_PUBLISHED_FORMS);
 
-        $results = $this->grapi()->get_forms();
-        if (empty($results) || isset($results->codeDescription)) {
-            return false;
-        }
+        if (false === $finalForms) {
+            $finalForms = array();
 
-        $forms = array();
+            $forms = $this->getApiInstance()->getForms(
+                array(
+                    'page'    => 1,
+                    'perPage' => self::PER_PAGE
+                )
+            );
 
-        foreach ($results as $form) {
-            if (isset($form->status) && 'published' === $form->status) {
-                $forms[] = $form;
+            $headers = $this->getApiInstance()->getHeaders();
+            $totalPages = isset($headers['TotalPages']) ? $headers['TotalPages']
+                : 1;
+
+            for ($page = 2; $page <= $totalPages; $page++) {
+                $response = $this->getApiInstance()->getForms(
+                    array(
+                        'page'    => $page,
+                        'perPage' => self::PER_PAGE
+                    )
+                );
+
+                $forms = array_merge($forms, $response);
             }
+
+            foreach ($forms as $form) {
+                if (isset($form['status']) && 'published' === $form['status']) {
+                    $finalForms[] = $form;
+                }
+            }
+
+            $this->cache->save($finalForms, self::GET_PUBLISHED_FORMS);
         }
 
-        $this->cache->save($forms, self::GET_PUBLISHED_FORMS);
-
-        return $forms;
+        return $finalForms;
     }
 
     /**
      * @param string $id
      *
-     * @return mixed
+     * @return array
+     * @throws GetresponseException
      */
     public function getWebform($id)
     {
-        return $this->grapi()->get_web_form($id);
-    }
-
-    public function getForm($id)
-    {
-        return $this->grapi()->get_form($id);
-    }
-
-    public function getPublishedWebForms()
-    {
-        $cachedValue = $this->cache->load(self::GET_PUBLISHED_WEB_FORMS);
-        if (false !== $cachedValue) {
-            return $cachedValue;
-        }
-
-        $results = $this->grapi()->get_web_forms();
-        if (empty($results) || isset($results->codeDescription)) {
-            return false;
-        }
-
-        $forms = array();
-
-        foreach ($results as $webform) {
-            if (isset($webform->status) && $webform->status == 'enabled') {
-                $forms[] = $webform;
-            }
-        }
-
-        $this->cache->save($forms, self::GET_PUBLISHED_WEB_FORMS);
-
-        return $forms;
+        return $this->getApiInstance()->getWebFormById($id);
     }
 
     /**
-     * @return array|bool
+     * @param string $formId
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+    public function getForm($formId)
+    {
+        return $this->getApiInstance()->getFormById($formId);
+    }
+
+    /**
+     * @return array
+     * @throws GetresponseException
+     */
+    public function getPublishedWebForms()
+    {
+        $finalForms = $this->cache->load(self::GET_PUBLISHED_WEB_FORMS);
+
+        if (false === $finalForms) {
+            $finalForms = array();
+
+            $forms = $this->getApiInstance()->getWebForms(
+                array(
+                    'page'    => 1,
+                    'perPage' => self::PER_PAGE
+                )
+            );
+
+            $headers = $this->getApiInstance()->getHeaders();
+            $totalPages = isset($headers['TotalPages']) ? $headers['TotalPages']
+                : 1;
+
+            for ($page = 2; $page <= $totalPages; $page++) {
+                $response = $this->getApiInstance()->getWebForms(
+                    array(
+                        'page'    => $page,
+                        'perPage' => self::PER_PAGE
+                    )
+                );
+
+                $forms = array_merge($forms, $response);
+            }
+
+            foreach ($forms as $form) {
+                if (isset($form['status']) && in_array($form['status'], array('enabled', 'published'))) {
+                    $finalForms[] = $form;
+                }
+            }
+
+            $this->cache->save($finalForms, self::GET_PUBLISHED_WEB_FORMS);
+        }
+
+        return $finalForms;
+    }
+
+    /**
+     * @return array
+     * @throws GetresponseException
      */
     public function getCampaignDays()
     {
-        $cachedValue = $this->cache->load(self::GET_AUTORESPONDER_CACHE_KEY);
-        if (false !== $cachedValue) {
-            return $cachedValue;
-        }
+        $campaignDays = $this->cache->load(self::GET_AUTORESPONDER_CACHE_KEY);
 
-        $campaignDays = array();
-        $page = 1;
-        $perPage = 100;
+        if (false === $campaignDays) {
 
-        do {
-            $apiResponse = $this->grapi()->get_autoresponders(
-                array('page' => $page, 'perPage' => $perPage)
+            $campaignDays = array();
+            $page = 1;
+
+            $autoresponders = $this->getApiInstance()->getAutoResponders(
+                array('page' => $page, 'perPage' => self::PER_PAGE)
             );
 
-            if (isset($apiResponse->codeDescription)) {
-                $apiResponse = array();
+            $headers = $this->getApiInstance()->getHeaders();
+            $totalPages = isset($headers['TotalPages']) ? $headers['TotalPages']
+                : 1;
+
+            for ($page = 2; $page <= $totalPages; $page++) {
+                $response = $this->getApiInstance()->getAutoResponders(
+                    array('page' => $page, 'perPage' => self::PER_PAGE)
+                );
+                $autoresponders = array_merge($autoresponders, $response);
             }
 
-            foreach ($apiResponse as $autoresponder) {
+            foreach ($autoresponders as $autoresponder) {
 
-                if ($autoresponder->triggerSettings->dayOfCycle == null) {
+                if ($autoresponder['triggerSettings']['dayOfCycle'] == null) {
                     continue;
                 }
 
-                $campaignDays[$autoresponder->triggerSettings->subscribedCampaign->campaignId][$autoresponder->autoresponderId]
+                $campaignDays[$autoresponder['triggerSettings']['subscribedCampaign']['campaignId']][$autoresponder['autoresponderId']]
                     = array(
-                    'day'    => $autoresponder->triggerSettings->dayOfCycle,
-                    'name'   => $autoresponder->name,
-                    'status' => $autoresponder->status,
+                    'day'    => $autoresponder['triggerSettings']['dayOfCycle'],
+                    'name'   => $autoresponder['name'],
+                    'status' => $autoresponder['status']
                 );
             }
-
-            $page++;
-        } while (count((array)$apiResponse) === $perPage);
-
-        $this->cache->save($campaignDays, self::GET_AUTORESPONDER_CACHE_KEY);
+            $this->cache->save(
+                $campaignDays, self::GET_AUTORESPONDER_CACHE_KEY
+            );
+        }
 
         return $campaignDays;
     }
 
     /**
-     * Add camapaign to GetResponse via API
+     * @param string $campaignName
+     * @param string $fromField
+     * @param string $replyToField
+     * @param string $confirmationSubject
+     * @param string $confirmationBody
      *
-     * @param $campaign_name
-     * @param $from_field
-     * @param $reply_to_field
-     * @param $confirmation_subject
-     * @param $confirmation_body
-     *
-     * @return string
+     * @throws GetresponseException
      */
-    public function addCampaignToGR(
-        $campaign_name,
-        $from_field,
-        $reply_to_field,
-        $confirmation_subject,
-        $confirmation_body
+    public function addCampaignToGetResponse(
+        $campaignName,
+        $fromField,
+        $replyToField,
+        $confirmationSubject,
+        $confirmationBody
     ) {
         $locale = Mage::app()->getLocale()->getLocaleCode();
         $code = strtoupper(substr($locale, 0, 2));
 
-        try {
-            $params = array(
-                'name'         => $campaign_name,
-                'confirmation' => array(
-                    'fromField'                         => array('fromFieldId' => $from_field),
-                    'replyTo'                           => array('fromFieldId' => $reply_to_field),
-                    'subscriptionConfirmationBodyId'    => $confirmation_body,
-                    'subscriptionConfirmationSubjectId' => $confirmation_subject
-                ),
-                'languageCode' => $code
-            );
+        $params = array(
+            'name'         => $campaignName,
+            'confirmation' => array(
+                'fromField'                         => array('fromFieldId' => $fromField),
+                'replyTo'                           => array('fromFieldId' => $replyToField),
+                'subscriptionConfirmationBodyId'    => $confirmationBody,
+                'subscriptionConfirmationSubjectId' => $confirmationSubject
+            ),
+            'languageCode' => $code
+        );
 
-            $result = $this->grapi()->create_campaign($params);
-            $this->cache->remove(self::GET_CAMPAIGN_CACHE_KEY);
-
-            return $result;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+        $this->getApiInstance()->createCampaign($params);
+        $this->cache->remove(self::GET_CAMPAIGN_CACHE_KEY);
     }
 
     /**
-     * @param $contact_id
-     *
-     * @return bool|mixed
+     * @param string $apiKey
+     * @param string $url
+     * @param string $domain
      */
-    public function deleteContact($contact_id)
+    public function setApiDetails($apiKey, $url, $domain)
     {
-        $results = $this->grapi()->delete_contact($contact_id);
-        if (!empty($results) && !isset($results->codeDescription)) {
-            return $results;
+        if (!empty($apiKey)) {
+            $this->getApiInstance()->api_key = $apiKey;
         }
 
-        return false;
-    }
-
-    /**
-     * Set details for gr api
-     *
-     * @param $api_key
-     * @param $api_url
-     * @param $api_domain
-     */
-    public function setApiDetails($api_key, $api_url, $api_domain)
-    {
-        if (!empty($api_key)) {
-            $this->grapi()->api_key = $api_key;
+        if (!empty($url)) {
+            $this->getApiInstance()->api_url = $url;
         }
 
-        if (!empty($api_url)) {
-            $this->grapi()->api_url = $api_url;
-        }
-
-        if (!empty($api_domain)) {
-            $this->grapi()->domain = $api_domain;
+        if (!empty($domain)) {
+            $this->getApiInstance()->domain = $domain;
         }
     }
 
     /**
      * @return array
+     * @throws GetresponseException
      */
     public function getShops()
     {
-        $cachedValue = $this->cache->load(self::GET_SHOPS);
-        if (false !== $cachedValue) {
-            return $cachedValue;
-        }
+        $shops = $this->cache->load(self::GET_SHOPS);
 
-        $shops = array();
-        $page = 1;
-        $perPage = 100;
+        if (false === $shops) {
 
-        do {
-            $apiResponse = $this->grapi()->get_shops(
-                array('page' => $page, 'perPage' => $perPage)
+            $shops = $this->getApiInstance()->getShops(
+                array('page' => 1, 'perPage' => self::PER_PAGE)
             );
-            if (isset($apiResponse->codeDescription)) {
-                $apiResponse = array();
+
+            $headers = $this->getApiInstance()->getHeaders();
+            $totalPages = isset($headers['TotalPages']) ? $headers['TotalPages']
+                : 1;
+
+            for ($page = 2; $page <= $totalPages; $page++) {
+                $response = $this->getApiInstance()->getShops(
+                    array('page' => $page, 'perPage' => self::PER_PAGE)
+                );
+                $shops = array_merge($shops, $response);
             }
-
-            $shops = array_merge($shops, (array)$apiResponse);
-
-            $page++;
-        } while (count((array)$apiResponse) === $perPage);
-
-        $this->cache->save($shops, self::GET_SHOPS);
+            $this->cache->save($shops, self::GET_SHOPS);
+        }
 
         return $shops;
     }
 
     /**
-     * Create new shop.
-     *
      * @param string $name
      *
-     * @return object
+     * @return array
+     * @throws GetresponseException
+     * @throws Mage_Core_Model_Store_Exception
      */
     public function addShop($name)
     {
@@ -477,22 +521,49 @@ class GetresponseIntegration_Getresponse_Helper_Api
         $currency = Mage::app()->getStore()->getCurrentCurrencyCode();
         $this->cache->remove(self::GET_SHOPS);
 
-        return $this->grapi()->add_shop($name, $locale, $currency);
+        $params = array(
+            'name'     => $name,
+            'locale'   => $locale,
+            'currency' => $currency
+        );
+
+        return $this->getApiInstance()->addShop($params);
     }
 
+    /**
+     * @param string $shopId
+     * @param array  $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
     public function addCart($shopId, $params)
     {
-        return $this->grapi()->add_new_cart($shopId, $params);
+        return $this->getApiInstance()->addCart($shopId, $params);
     }
 
+    /**
+     * @param string $shopId
+     * @param string $cartId
+     * @param array  $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
     public function updateCart($shopId, $cartId, $params)
     {
-        return $this->grapi()->update_cart($shopId, $cartId, $params);
+        return $this->getApiInstance()->updateCart($shopId, $cartId, $params);
     }
 
+    /**
+     * @param string $shopId
+     * @param string $cartId
+     *
+     * @throws GetresponseException
+     */
     public function deleteCart($shopId, $cartId)
     {
-        return $this->grapi()->delete_cart($shopId, $cartId);
+        $this->getApiInstance()->deleteCart($shopId, $cartId);
     }
 
     /**
@@ -507,27 +578,51 @@ class GetresponseIntegration_Getresponse_Helper_Api
         $cacheKey = md5(self::PRODUCT_CACHE_KEY . $shopId . $productId);
         $product = $this->cache->load($cacheKey);
 
-        if (empty($product)) {
-            $product = (array) $this->grapi()->get_product_by_id($shopId, $productId);
+        if (false === $product) {
+            $product = $this->getApiInstance()->getProductById(
+                $shopId, $productId
+            );
             $this->cache->save($product, $cacheKey);
         }
 
         return $product;
     }
 
+    /**
+     * @param string $shopId
+     * @param array  $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
     public function addProduct($shopId, $params)
     {
-        return $this->grapi()->add_product($shopId, $params);
+        return $this->getApiInstance()->addProduct($shopId, $params);
     }
 
+    /**
+     * @param string $shopId
+     * @param array  $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
     public function createOrder($shopId, $params)
     {
-        return $this->grapi()->create_order($shopId, $params);
+        return $this->getApiInstance()->createOrder($shopId, $params);
     }
 
+    /**
+     * @param string $shopId
+     * @param string $orderId
+     * @param array  $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
     public function updateOrder($shopId, $orderId, $params)
     {
-        return $this->grapi()->update_order($shopId, $orderId, $params);
+        return $this->getApiInstance()->updateOrder($shopId, $orderId, $params);
     }
 
     /**
@@ -537,66 +632,96 @@ class GetresponseIntegration_Getresponse_Helper_Api
      */
     public function deleteShop($shopId)
     {
-        $response = $this->grapi()->delete_shop($shopId);
-        if (false === $response || !empty($response->codeDescription)) {
-            return false;
-        } else {
+        try {
+            $this->getApiInstance()->deleteShop($shopId);
             $this->cache->remove(self::GET_SHOPS);
-
             return true;
+        } catch (GetresponseException $e) {
+            return false;
         }
     }
 
     /**
-     * @return mixed
+     * @return array
+     * @throws GetresponseException
      */
     public function getFromFields()
     {
-        $cachedValue = $this->cache->load(self::GET_FROM_FIELDS_CACHE_KEY);
-        if (false !== $cachedValue) {
-            return $cachedValue;
+        $fromFields = $this->cache->load(self::GET_FROM_FIELDS_CACHE_KEY);
+
+        if (false === $fromFields) {
+
+            $fromFields = $this->getApiInstance()->getAccountFromFields(
+                array('page' => 1, 'perPage' => self::PER_PAGE)
+            );
+
+            $headers = $this->getApiInstance()->getHeaders();
+            $totalPages = isset($headers['TotalPages']) ? $headers['TotalPages']
+                : 1;
+
+            for ($page = 2; $page <= $totalPages; $page++) {
+                $response = $this->getApiInstance()->getAccountFromFields(
+                    array('page' => 1, 'perPage' => self::PER_PAGE)
+                );
+                $fromFields = array_merge($fromFields, $response);
+            }
+
+            $this->cache->save($fromFields, self::GET_FROM_FIELDS_CACHE_KEY);
         }
 
-        $apiResponse = $this->grapi()->get_account_from_fields();
-        $this->cache->save($apiResponse, self::GET_FROM_FIELDS_CACHE_KEY);
-
-        return $apiResponse;
+        return $fromFields;
     }
 
-    public function getSubscriptionConfirmationsSubject($code)
+    /**
+     * @param string $language
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+    public function getSubscriptionConfirmationsSubject($language)
     {
-        $cachedValue = $this->cache->load(self::GET_CONFIRMATIONS_SUBJECT);
-        if (false !== $cachedValue) {
-            return $cachedValue;
+        $subject = $this->cache->load(self::GET_CONFIRMATIONS_SUBJECT);
+        if (false === $subject) {
+
+            $subject = $this->getApiInstance()
+                ->getSubscriptionConfirmationsSubject(
+                    $language
+                );
+            $this->cache->save($subject, self::GET_CONFIRMATIONS_SUBJECT);
         }
 
-        $apiResponse = $this->grapi()->get_subscription_confirmations_subject(
-            $code
-        );
-        $this->cache->save($apiResponse, self::GET_CONFIRMATIONS_SUBJECT);
-
-        return $apiResponse;
+        return $subject;
     }
 
-
-    public function getSubscriptionConfirmationsBody($code)
+    /**
+     * @param string $language
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+    public function getSubscriptionConfirmationsBody($language)
     {
-        $cachedValue = $this->cache->load(self::GET_CONFIRMATIONS_BODY);
-        if (false !== $cachedValue) {
-            return $cachedValue;
+        $body = $this->cache->load(self::GET_CONFIRMATIONS_BODY);
+
+        if (false === $body) {
+            $body = $this->getApiInstance()->getSubscriptionConfirmationsBody(
+                $language
+            );
+            $this->cache->save($body, self::GET_CONFIRMATIONS_BODY);
         }
 
-        $apiResponse = $this->grapi()->get_subscription_confirmations_body(
-            $code
-        );
-        $this->cache->save($apiResponse, self::GET_CONFIRMATIONS_BODY);
-
-        return $apiResponse;
+        return $body;
     }
 
+    /**
+     * @param string $name
+     *
+     * @return array
+     * @throws GetresponseException
+     */
     public function addCustomField($name)
     {
-        $custom = $this->grapi()->add_custom_field(
+        $custom = $this->getApiInstance()->addCustomField(
             array(
                 'name'   => $name,
                 'type'   => "text",
@@ -631,12 +756,12 @@ class GetresponseIntegration_Getresponse_Helper_Api
 
                     $customsHashMap[] = array(
                         'customFieldId' => $grCustomId,
-                        'value'         => is_array($value) ? $value : array($value)
+                        'value'         => is_array($value) ? $value
+                            : array($value)
                     );
                     break;
                 }
             }
-
         }
 
         return $customsHashMap;
@@ -659,9 +784,12 @@ class GetresponseIntegration_Getresponse_Helper_Api
     ) {
         $params = array(
             'email'     => $email,
-            'campaign'  => array('campaignId' => $campaign),
-            'ipAddress' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null,
+            'campaign'  => array('campaignId' => $campaign)
         );
+
+        if (!empty($_SERVER['REMOTE_ADDR'])) {
+            $params['ipAddress'] = $_SERVER['REMOTE_ADDR'];
+        }
 
         $trimName = trim($name);
         if (!empty($trimName)) {
@@ -672,23 +800,30 @@ class GetresponseIntegration_Getresponse_Helper_Api
             $params['dayOfCycle'] = $cycleDay;
         }
 
-        $contact = $this->getContact($email, $campaign);
+        try {
+            $contact = $this->getContact($email, $campaign);
+        } catch (GetresponseException $e) {
+            $contact = array();
+        }
 
         // If contact already exists in gr account.
-        if ($contact == !null && isset($contact->contactId)) {
-            if (!empty($contact->customFieldValues) || !empty($userCustoms)) {
+        if (!empty($contact['contactId'])) {
+            if (!empty($contact['customFieldValues']) || !empty($userCustoms)) {
                 $params['customFieldValues'] = $this->mergeUserCustoms(
-                    $contact->customFieldValues, $userCustoms
+                    $contact['customFieldValues'], $userCustoms
                 );
             }
-            $response = $this->grapi()->update_contact(
-                $contact->contactId, $params
-            );
-            if (isset($response->codeDescription)) {
+
+            try {
+                $this->getApiInstance()->updateContact(
+                    $contact['contactId'], $params
+                );
+            } catch (GetresponseException $e) {
                 return self::CONTACT_ERROR;
             }
 
             return self::CONTACT_UPDATED;
+
         } else {
             $userCustoms['origin'] = self::ORIGIN_NAME;
             if (empty($grCustomFields)) {
@@ -699,12 +834,13 @@ class GetresponseIntegration_Getresponse_Helper_Api
                 );
             }
 
-            $response = $this->grapi()->add_contact($params);
-            if (isset($response->codeDescription)) {
+            try {
+                $this->getApiInstance()->addContact($params);
+
+                return self::CONTACT_CREATED;
+            } catch (GetresponseException $e) {
                 return self::CONTACT_ERROR;
             }
-
-            return self::CONTACT_CREATED;
         }
     }
 }

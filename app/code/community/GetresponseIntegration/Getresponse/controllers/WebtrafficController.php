@@ -3,10 +3,7 @@
 use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
 use GetresponseIntegration_Getresponse_Domain_SettingsFactory as SettingsFactory;
 
-require_once Mage::getModuleDir(
-        'controllers',
-        'GetresponseIntegration_Getresponse'
-    ) . DIRECTORY_SEPARATOR . 'BaseController.php';
+require_once 'BaseController.php';
 
 /**
  * Class GetresponseIntegration_Getresponse_WebtrafficController
@@ -60,5 +57,4 @@ class GetresponseIntegration_Getresponse_WebtrafficController
         $this->_getSession()->addSuccess($message);
         $this->_redirect('*/*/index');
     }
-
 }

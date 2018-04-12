@@ -5,16 +5,19 @@
  */
 class GetresponseIntegration_Getresponse_Domain_Shop
 {
+    /** @var string */
     private $grShopId;
+
+    /** @var bool */
     private $isEnabled;
+
+    /** @var bool */
     private $isScheduleOptimizationEnabled;
 
     /**
-     * GetresponseIntegration_Getresponse_Domain_Shop constructor.
-     *
-     * @param $grShopId
-     * @param $isEnabled
-     * @param $isScheduleOptimizationEnabled
+     * @param string $grShopId
+     * @param bool $isEnabled
+     * @param bool $isScheduleOptimizationEnabled
      */
     public function __construct($grShopId, $isEnabled, $isScheduleOptimizationEnabled)
     {

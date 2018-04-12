@@ -1,21 +1,35 @@
 <?php
 
+/**
+ * Class GetresponseIntegration_Getresponse_Domain_AutomationRule
+ */
 class GetresponseIntegration_Getresponse_Domain_AutomationRule
 {
+    /** @var string */
     private $id;
+
+    /** @var string */
     private $categoryId;
+
+    /** @var string */
     private $campaignId;
+
+    /** @var string */
     private $action;
+
+    /** @var string */
     private $cycleDay;
+
+    /** @var bool */
     private $active;
 
     /**
-     * GetresponseIntegration_Getresponse_Domain_AutomationRule constructor.
-     * @param $categoryId
-     * @param $campaignId
-     * @param $action
-     * @param $cycleDay
-     * @param $active
+     * @param string $id
+     * @param string $categoryId
+     * @param string $campaignId
+     * @param string $action
+     * @param string $cycleDay
+     * @param bool   $active
      */
     public function __construct(
         $id,
@@ -86,13 +100,13 @@ class GetresponseIntegration_Getresponse_Domain_AutomationRule
      */
     public function toArray()
     {
-        return [
+        return array(
             'id' => $this->id,
             'categoryId' => $this->categoryId,
             'campaignId' => $this->campaignId,
             'action' => $this->action,
             'cycleDay' => $this->cycleDay,
             'active' => $this->active
-        ];
+        );
     }
 }

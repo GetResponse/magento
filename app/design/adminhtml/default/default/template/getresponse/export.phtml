@@ -70,8 +70,8 @@
                             <select name="ecommerce_store" id="">
                                 <option value="">Select a store</option>
                                 <?php foreach ($gr_shops as $shop):?>
-                                    <option value="<?php echo $shop->shopId ?>">
-                                        <?php echo $shop->name ?>
+                                    <option value="<?php echo $shop['shopId'] ?>">
+                                        <?php echo $shop['name'] ?>
                                     </option>';
                                 <?php endforeach ?>
                             </select>

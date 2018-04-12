@@ -1,71 +1,38 @@
 <?php
 
+use GetresponseIntegration_Getresponse_Domain_GetresponseException as GetresponseException;
+
+/**
+ * Class GetresponseIntegration_Getresponse_Helper_GrApi
+ */
 class GetresponseIntegration_Getresponse_Helper_GrApi
 {
-
-	/**
-	 *
-	 * API Key
-	 *
-	 * @var string
-	 */
+	/** @var string */
 	public $api_key = '';
 
-	/**
-	 *
-	 * API url for 360.com.
-	 *
-	 * @var string
-	 */
+	/** @var string */
 	public $api_url_360_com = 'https://api3.getresponse360.com/v3';
 
-	/**
-	 *
-	 * API url for 360.pl.
-	 *
-	 * @var string
-	 */
+	/** @var string */
 	public $api_url_360_pl = 'https://api3.getresponse360.pl/v3';
 
-	/**
-	 *
-	 * API url.
-	 *
-	 * @var null|string
-	 */
+	/** @var string */
 	public $api_url = 'https://api.getresponse.com/v3';
 
-	/**
-	 *
-	 * Domain for GetResponse 360.
-	 *
-	 * @var null
-	 */
+	/** @var null */
 	public $domain = null;
 
-	/**
-	 *
-	 * Timeout.
-	 *
-	 * @var int
-	 */
+	/** @var int */
 	public $timeout = 8;
 
-	/**
-	 *
-	 * Ping result object.
-	 *
-	 * @var object
-	 */
+	/** @var */
 	public $ping;
 
-	/**
-	 *
-	 * API status.
-	 *
-	 * @var bool
-	 */
+	/** @var bool */
 	public $status = true;
+
+	/** @var array */
+	private $headers;
 
     /**
      * @var array
@@ -73,38 +40,30 @@ class GetresponseIntegration_Getresponse_Helper_GrApi
      * 1018 - Your IP was blocked
      * 1017 - Suspected behaviour, API was permanently blocked, please contact with our support
      */
-	private $unauthorizedResponseCodes = [1014, 1018, 1017];
+	private $unauthorizedResponseCodes = array(1014, 1018, 1017);
 
-	/**
-	 * Set api key and optionally API endpoint
-	 *
-	 * @param string $api_key API key.
-	 * @param string $api_url API url.
-	 * @param string $domain  API domain.
-	 */
-	public function __construct()
+    /**
+     * Check, if api works properly.
+     *
+     * @param string $url
+     * @param string $domain
+     *
+     * @return array
+     */
+	public function checkApi($url = '', $domain = '')
 	{
-	}
-
-	/**
-	 * Check, if api works properly.
-	 *
-	 * @param null $api_url
-	 * @param null $domain
-	 *
-	 * @return bool
-	 */
-	public function check_api($api_url = null, $domain = null)
-	{
-
-		if ( !empty($api_url)) {
-			$this->api_url = $api_url;
+		if ( !empty($url)) {
+			$this->api_url = $url;
 		}
 		if ( !empty($domain)) {
 			$this->domain = $domain;
 		}
 
-		return $this->call_ping();
+		try {
+            return $this->call('accounts');
+        } catch(Exception $e) {
+		    return array();
+        }
 	}
 
 	/**
@@ -118,397 +77,334 @@ class GetresponseIntegration_Getresponse_Helper_GrApi
 		$this->{$key} = $value;
 	}
 
-	/**
-	 * Ping to api.
-	 * @return mixed
-	 */
-	public function call_ping()
-	{
-		return $this->call('accounts');
-	}
-
-	/**
-	 * Return features list
-	 * @return mixed
-	 */
-	public function get_features()
+    /**
+     * Return features list
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+	public function getFeatures()
 	{
 		return $this->call('accounts/features');
 	}
 
-	/**
-	 * Return features list
-	 * @return mixed
-	 */
-	public function get_tracking_code()
+    /**
+     * Return features list
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+	public function getTrackingCode()
 	{
 		return $this->call('tracking');
 	}
 
     /**
-     * Return all campaigns
-     * @return mixed
+     * @param array $params
+     *
+     * @return array
+     * @throws GetresponseException
      */
-    public function get_campaigns($params)
+    public function getCampaigns($params)
     {
-        return $this->call('campaigns?' . $this->setParams($params));
+        return $this->call('campaigns?' . $this->setParams($params), 'GET', array(), true);
     }
 
-	/**
-	 * get single campaign
-	 *
-	 * @param string $campaign_id retrieved using API
-	 *
-	 * @return mixed
-	 */
-	public function get_campaign($campaign_id)
-	{
-		return $this->call('campaigns/' . $campaign_id);
-	}
-
-	/**
-	 * adding campaign
-	 *
-	 * @param $params
-	 *
-	 * @return mixed
-	 */
-	public function create_campaign($params)
+    /**
+     * @param array $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+	public function createCampaign($params)
 	{
 		return $this->call('campaigns', 'POST', $params);
 	}
 
-	/**
-	 * add single contact into your campaign
-	 *
-	 * @param $params
-	 *
-	 * @return mixed
-	 */
-	public function add_contact($params)
+    /**
+     * add single contact into your campaign
+     *
+     * @param $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+	public function addContact($params)
 	{
 		return $this->call('contacts', 'POST', $params);
 	}
 
-	/**
-	 * retrieving contact by id
-	 *
-	 * @param string $contact_id - contact id obtained by API
-	 *
-	 * @return mixed
-	 */
-	public function get_contact($contact_id)
-	{
-		return $this->call('contacts/' . $contact_id);
-	}
-
-	/**
-	 * retrieving contact by params
-	 *
-	 * @param array $params
-	 *
-	 * @return mixed
-	 */
-	public function get_contacts($params = array())
+    /**
+     * @param array $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+	public function getContacts($params = array())
 	{
 		return $this->call('contacts?' . $this->setParams($params));
 	}
 
-	/**
-	 * updating any fields of your subscriber (without email of course)
-	 *
-	 * @param       $contact_id
-	 * @param array $params
-	 *
-	 * @return mixed
-	 */
-	public function update_contact($contact_id, $params = array())
+    /**
+     * @param string $contact_id
+     * @param array  $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+	public function updateContact($contact_id, $params = array())
 	{
 		return $this->call('contacts/' . $contact_id, 'POST', $params);
 	}
 
-	/**
-	 * drop single user by ID
-	 *
-	 * @param string $contact_id - obtained by API
-	 *
-	 * @return mixed
-	 */
-	public function delete_contact($contact_id)
+    /**
+     * @param array $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+	public function getAccountFromFields($params = array())
 	{
-		return $this->call('contacts/' . $contact_id, 'DELETE');
-	}
-
-	/**
-	 * retrieve account from fields
-	 *
-	 * @param array $params
-	 *
-	 * @return mixed
-	 */
-	public function get_account_from_fields($params = array())
-	{
-		return $this->call('from-fields?' . $this->setParams($params));
-	}
-
-	/**
-	 * get all subscription confirmation subjects
-	 * @return mixed
-	 */
-	public function get_subscription_confirmations_subject($lang = 'EN')
-	{
-		return $this->call('subscription-confirmations/subject/' . $lang);
-	}
-
-	/**
-	 * get all subscription confirmation bodies
-	 * @return mixed
-	 */
-	public function get_subscription_confirmations_body($lang = 'EN')
-	{
-		return $this->call('subscription-confirmations/body/' . $lang);
+		return $this->call('from-fields?' . $this->setParams($params), 'GET', array(), true);
 	}
 
     /**
-     * retrieve single custom field
+     * @param string $language
      *
-     * @param array $params
-     * @return mixed
+     * @return array
+     * @throws GetresponseException
      */
-	public function add_custom_field($params = array())
+	public function getSubscriptionConfirmationsSubject($language = 'EN')
+	{
+		return $this->call('subscription-confirmations/subject/' . $language, 'GET', array(), true);
+	}
+
+    /**
+     * @param string $language
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+	public function getSubscriptionConfirmationsBody($language = 'EN')
+	{
+		return $this->call('subscription-confirmations/body/' . $language);
+	}
+
+    /**
+     * @param array $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+	public function addCustomField($params = array())
 	{
 		return $this->call('custom-fields', 'POST', $params);
 	}
 
-	/**
-	 * drop single custom field
-	 *
-	 * @param string $custom_id obtained by API
-	 *
-	 * @return mixed
-	 */
-	public function delete_custom_field($custom_id)
+    /**
+     * @param array $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+	public function getCustomFields($params = array())
 	{
-		return $this->call('custom-fields/' . $custom_id, 'DELETE');
+		return $this->call('custom-fields?' . $this->setParams($params), 'GET', array(), true);
 	}
 
-	/**
-	 * retrieve account custom fields
-	 *
-	 * @param array $params
-	 *
-	 * @return mixed
-	 */
-	public function get_custom_fields($params = array())
+    /**
+     * @param string $webformId
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+	public function getWebFormById($webformId)
 	{
-		return $this->call('custom-fields?' . $this->setParams($params));
+		return $this->call('webforms/' . $webformId);
 	}
 
-	/**
-	 * get single custom field
-	 *
-	 * @param string $custom_id obtained by API
-	 *
-	 * @return mixed
-	 */
-	public function get_custom_field($custom_id)
-	{
-		return $this->call('custom-fields/' . $custom_id, 'GET');
-	}
-
-	/**
-	 * update single custom field
-	 *
-	 * @param string $custom_id obtained by API
-	 * @param array  $params
-	 *
-	 * @return mixed
-	 */
-	public function update_custom_field($custom_id, $params = array())
-	{
-		return $this->call('custom-fields/' . $custom_id, 'POST', $params);
-	}
-
-	/**
-	 * get single web form
-	 *
-	 * @param int $w_id
-	 *
-	 * @return mixed
-	 */
-	public function get_web_form($w_id)
-	{
-		return $this->call('webforms/' . $w_id);
-	}
-
-	/**
-	 * retrieve all webforms
-	 *
-	 * @param array $params
-	 *
-	 * @return mixed
-	 */
-	public function get_web_forms($params = array())
+    /**
+     * @param array $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+	public function getWebForms($params = array())
 	{
 		return $this->call('webforms?' . $this->setParams($params));
 	}
 
-
-	/**
-	 * get single form
-	 *
-	 * @param int $form_id
-	 *
-	 * @return mixed
-	 */
-	public function get_form($form_id)
-	{
-		return $this->call('forms/' . $form_id);
-	}
-
-	/**
-	 * retrieve all forms
-	 *
-	 * @param array $params
-	 *
-	 * @return mixed
-	 */
-	public function get_forms($params = array())
-	{
-		return $this->call('forms?' . $this->setParams($params));
-	}
-
-	/**
-	 * retrieve all forms
-	 *
-	 * @param array $params
-	 *
-	 * @return mixed
-	 */
-	public function get_form_variants($form_id)
-	{
-		return $this->call('forms/' . $form_id . '/variants');
-	}
-
-	/**
-	 * retrieve autoresponders
-	 *
-	 * @param array $params
-	 *
-	 * @return mixed
-	 */
-	public function get_autoresponders($params = array())
-	{
-		return $this->call('autoresponders?' . $this->setParams($params));
-	}
-
     /**
-     * Retrieve shops.
+     * @param string $formId
      *
-     * @return object
+     * @return array
+     * @throws GetresponseException
      */
-    public function get_shops($params = array())
-    {
-        return $this->call('shops?' . $this->setParams($params));
+	public function getFormById($formId)
+	{
+		return $this->call('forms/' . $formId);
 	}
 
     /**
-     * @param string $shopName
-     * @param string $locale
-     * @param string $currency
-     * @return object
+     * @param array $params
+     *
+     * @return array
+     * @throws GetresponseException
      */
-    public function add_shop($shopName, $locale, $currency)
-    {
-        $params = array(
-            'name' => $shopName,
-            'locale' => $locale,
-            'currency' => $currency
-        );
+	public function getForms($params = array())
+	{
+		return $this->call('forms?' . $this->setParams($params), 'GET', array(), true);
+	}
 
+    /**
+     * @param array $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+	public function getAutoResponders($params)
+	{
+		return $this->call('autoresponders?' . $this->setParams($params), 'GET', array(), true);
+	}
+
+    /**
+     * @param array $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+    public function getShops($params)
+    {
+        return $this->call('shops?' . $this->setParams($params), 'GET', array(), true);
+	}
+
+    /**
+     * @param array $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+    public function addShop($params)
+    {
         return $this->call('shops', 'POST', $params);
     }
 
     /**
-     * Create new cart.
-     *
      * @param string $shopId
+     * @param array  $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+    public function addCart($shopId, $params)
+    {
+        return $this->call('shops/' . $shopId . '/carts', 'POST', $params);
+    }
+
+    /**
+     * @param string $shopId
+     * @param string $cartId
      * @param array $params
      *
-     * @return object
+     * @return array
+     * @throws GetresponseException
      */
-    public function add_new_cart($shopId, $params)
+    public function updateCart($shopId, $cartId, $params)
     {
-        return $this->call('shops/'.$shopId.'/carts', 'POST', $params);
-    }
-
-    public function update_cart($shopId, $cartId, $params)
-    {
-        return $this->call('shops/'.$shopId.'/carts/'.$cartId, 'POST', $params);
-    }
-
-    public function delete_cart($shopId, $cartId)
-    {
-        return $this->call('shops/'.$shopId.'/carts/'.$cartId, 'DELETE');
+        return $this->call('shops/' . $shopId . '/carts/' . $cartId, 'POST', $params);
     }
 
     /**
      * @param string $shopId
-     * @param array $params
+     * @param string $cartId
      *
-     * @return object
+     * @return array
+     * @throws GetresponseException
      */
-    public function add_new_purchase($shopId, $params)
+    public function deleteCart($shopId, $cartId)
     {
-        return $this->call('shops/'.$shopId.'/purchase', 'POST', $params);
-    }
-
-    public function get_products($shopId, $filter = array())
-    {
-        return $this->call('shops/'.$shopId.'/products?'.$this->setParams($filter));
+        return $this->call('shops/' . $shopId . '/carts/' . $cartId, 'DELETE');
     }
 
     /**
      * @param string $shopId
-     * @param string $product_id
+     * @param string $productId
      *
-     * @return object
-     * @throws Exception
+     * @return array
+     * @throws GetresponseException
      */
-    public function get_product_by_id($shopId, $product_id)
+    public function getProductById($shopId, $productId)
     {
-        return $this->call('shops/'.$shopId.'/products/' . $product_id);
-    }
-
-    public function add_product($shopId, $params)
-    {
-        return $this->call('shops/'.$shopId.'/products', 'POST', $params);
-    }
-
-    public function create_order($shopId, $params)
-    {
-        return $this->call('shops/'.$shopId.'/orders', 'POST', $params);
-    }
-
-    public function update_order($shopId, $orderId, $params)
-    {
-        return $this->call('shops/'.$shopId.'/orders/'.$orderId, 'POST', $params);
+        return $this->call('shops/' . $shopId . '/products/' . $productId);
     }
 
     /**
-     * Curl run request
+     * @param string $shopId
+     * @param array  $params
      *
-     * @param null $api_method
+     * @return array
+     * @throws GetresponseException
+     */
+    public function addProduct($shopId, $params)
+    {
+        return $this->call('shops/' . $shopId . '/products', 'POST', $params);
+    }
+
+    /**
+     * @param string $shopId
+     * @param array  $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+    public function createOrder($shopId, $params)
+    {
+        return $this->call('shops/' . $shopId.'/orders?additionalFlags=skipAutomation', 'POST', $params);
+    }
+
+    /**
+     * @param string $shopId
+     * @param string $orderId
+     * @param array  $params
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+    public function updateOrder($shopId, $orderId, $params)
+    {
+        return $this->call('shops/' . $shopId . '/orders/' . $orderId . '?additionalFlags=skipAutomation', 'POST', $params);
+    }
+
+    /**
+     * @param string $shopId
+     *
+     * @return array
+     * @throws GetresponseException
+     */
+    public function deleteShop($shopId)
+    {
+        return $this->call('shops/' . $shopId, 'DELETE');
+    }
+
+    /**
+     * @param string $api_method
      * @param string $http_method
-     * @param array $params
+     * @param array  $params
+     * @param bool   $withHeaders
      *
-     * @return object
-     * @throws Exception
+     * @return array
+     * @throws GetresponseIntegration_Getresponse_Domain_GetresponseException
      */
-	protected function call($api_method = null, $http_method = 'GET', $params = array())
+	protected function call($api_method = null, $http_method = 'GET', $params = array(), $withHeaders = false)
 	{
+	    /** @var GetresponseIntegration_Getresponse_Helper_Logger $logger */
+	    $logger = Mage::helper('getresponse/logger');
+
+	    /** @var GetresponseIntegration_Getresponse_Helper_Data $grHelper */
+	    $grHelper = Mage::helper('getresponse');
+
 		if (empty($api_method)) {
-			return (object)array(
+			return array(
 				'httpStatus' => '400',
 				'code' => '1010',
 				'codeDescription' => 'Error in external resources',
@@ -522,7 +418,7 @@ class GetresponseIntegration_Getresponse_Helper_GrApi
 		$headers = array(
 			'X-Auth-Token: api-key ' . $this->api_key,
 			'Content-Type: application/json',
-			'User-Agent: Getresponse Plugin '. Mage::helper('getresponse')->getExtensionVersion(),
+			'User-Agent: Getresponse Plugin '. $grHelper->getExtensionVersion(),
 			'X-APP-ID: 71609442-d357-47ea-8c7e-ebc36a6b1a7d'
 		);
 
@@ -538,7 +434,7 @@ class GetresponseIntegration_Getresponse_Helper_GrApi
 			CURLOPT_FRESH_CONNECT  => 1,
 			CURLOPT_RETURNTRANSFER => 1,
 			CURLOPT_TIMEOUT        => $this->timeout,
-			CURLOPT_HEADER         => false,
+			CURLOPT_HEADER         => $withHeaders,
 			CURLOPT_HTTPHEADER     => $headers
 		);
 
@@ -555,34 +451,47 @@ class GetresponseIntegration_Getresponse_Helper_GrApi
 		try {
             $curl = curl_init();
             curl_setopt_array($curl, $options);
-            $response = json_decode(curl_exec($curl));
+            $response = curl_exec($curl);
             curl_close($curl);
+
+            if ($withHeaders) {
+                list($headers, $response) = explode("\r\n\r\n", $response, 2);
+                $this->headers = $this->prepareHeaders($headers);
+            }
+
+            $response = json_decode($response, true);
         } catch (Exception $e) {
-            Mage::helper('getresponse/logger')->logException($e);
-            return false;
+            $logger->logException($e);
+            return array();
         }
 
 
-        if (!empty($response->codeDescription)) {
-            Mage::helper('getresponse/logger')->log(
-                sprintf('API: %s %s method failed: %s (%s)', $http_method, $api_method, $response->codeDescription,
-                    $response->code)
+        if (!empty($response['codeDescription'])) {
+            $logger->log(
+                sprintf('API: %s %s method failed: %s (%s)', $http_method, $api_method, $response['codeDescription'],
+                    $response['code'])
             );
         } else {
-            Mage::helper('getresponse/logger')->log(
+            $logger->log(
                 sprintf('API: %s %s method successed', $http_method, $api_method)
             );
         }
 
-        if (isset($response->httpStatus) && (int)$response->httpStatus >= 400 && (int)$response->httpStatus < 500) {
-            if (isset($response->code) && in_array($response->code, $this->unauthorizedResponseCodes)) {
-                Mage::helper('getresponse')->handleUnauthorizedApiCall();
+        if (isset($response['httpStatus']) && (int) $response['httpStatus'] >= 400 && (int) $response['httpStatus'] < 500) {
+            if (isset($response['code']) && in_array($response['code'], $this->unauthorizedResponseCodes)) {
+                try {
+                    $grHelper->handleUnauthorizedApiCall();
+                } catch (Mage_Core_Model_Store_Exception $e) {
+                } catch (Varien_Exception $e) {
+                }
             }
+
+            throw new GetresponseException($response['message'], $response['code']);
         } else {
-            Mage::helper('getresponse')->resetUnauthorizedApiCallDate();
+            $grHelper->resetUnauthorizedApiCallDate();
         }
 
-        return (object)$response;
+        return (array) $response;
 	}
 
 	/**
@@ -602,8 +511,26 @@ class GetresponseIntegration_Getresponse_Helper_GrApi
 		return http_build_query($result);
 	}
 
-    public function delete_shop($shopId)
+    /**
+     * @param string $headers
+     * @return array
+     */
+    private function prepareHeaders( $headers ) {
+        $headers = explode("\n", $headers);
+        foreach ($headers as $header) {
+            $params = explode(':', $header, 2);
+            $key = isset($params[0]) ? $params[0] : null;
+            $value = isset($params[1]) ? $params[1] : null;
+            $headers[trim($key)] = trim($value);
+        }
+        return $headers;
+    }
+
+    /**
+     * @return array
+     */
+    public function getHeaders()
     {
-        return $this->call('shops/'.$shopId, 'DELETE');
+        return $this->headers;
     }
 }

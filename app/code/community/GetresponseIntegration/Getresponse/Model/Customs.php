@@ -49,7 +49,8 @@ class GetresponseIntegration_Getresponse_Model_Customs extends Mage_Core_Model_A
      */
     public function connectCustoms($shopId)
     {
-        if (!empty($this->getCustoms($shopId))) {
+        $customs = $this->getCustoms($shopId);
+        if (!empty($customs)) {
             return;
         }
 

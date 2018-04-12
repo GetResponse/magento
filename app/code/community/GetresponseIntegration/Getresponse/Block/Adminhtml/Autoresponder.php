@@ -1,8 +1,10 @@
 <?php
 
+/**
+ * Class GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder
+ */
 class GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder extends Mage_Core_Block_Template
 {
-
     protected $campaignDays = array();
     protected $selectedDay = '';
 
@@ -69,8 +71,6 @@ class GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder extends M
             </script>
             ";
         }
-
         return $html . ' ' . $js;
     }
-
 }

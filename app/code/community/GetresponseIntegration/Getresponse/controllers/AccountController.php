@@ -54,12 +54,10 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
         $apiUrl = ($isMX) ? $this->getRequest()->getParam('api_url') : null;
         $apiDomain = ($isMX) ? $this->getRequest()->getParam('api_domain') : null;
 
-        $this->grapi()->api_key = $apiKey;
-        $status = $this->grapi()->check_api($apiUrl, $apiDomain);
+        $this->grApiInstance()->api_key = $apiKey;
+        $status = $this->grApiInstance()->checkApi($apiUrl, $apiDomain);
 
-        $status_array = (array)$status;
-
-        if (empty($status_array) && !empty($apiDomain)) {
+        if (empty($status) && !empty($apiDomain)) {
             $this->_getSession()->addError('Invalid domain');
             $this->_forward('index');
             return;
@@ -68,7 +66,7 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
                 ->addError('The API key seems incorrect. Please check if you typed or pasted it correctly. If you recently generated a new key, please make sure you’re using the right one');
             $this->_forward('index');
             return;
-        } elseif (empty($status->accountId)) {
+        } elseif (empty($status['accountId'])) {
             $this->_getSession()->addError('Error - please try again');
             $this->_forward('index');
             return;
@@ -84,34 +82,37 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
         $this->_getSession()->addSuccess('GetResponse account connected');
 
         $featureTracking = 0;
-        $features = $this->grapi()->get_features();
 
-        if ($features instanceof stdClass && 1 == $features->feature_tracking) {
-            $featureTracking = 1;
-        }
+        try {
+            $features = $this->grApiInstance()->getFeatures();
 
-        $data = array(
-            'apiKey' => $apiKey,
-            'apiUrl' => $apiUrl,
-            'apiDomain' => $apiDomain,
-            'hasGrTrafficFeatureEnabled' => $featureTracking
-        );
+            if (isset($features['feature_tracking']) && 1 == $features['feature_tracking']) {
+                $featureTracking = 1;
+            }
 
-        // getting tracking code
-        $trackingCode = (array)$this->grapi()->get_tracking_code();
+            $data = array(
+                'apiKey' => $apiKey,
+                'apiUrl' => $apiUrl,
+                'apiDomain' => $apiDomain,
+                'hasGrTrafficFeatureEnabled' => $featureTracking
+            );
 
-        if (!empty($trackingCode) && is_object($trackingCode[0]) && 0 < strlen($trackingCode[0]->snippet)) {
-            $data['trackingCodeSnippet'] = $trackingCode[0]->snippet;
-        }
+            $trackingCode = $this->grApiInstance()->getTrackingCode();
+            $trackingCode = is_array($trackingCode) ? reset($trackingCode) : array();
 
-        $settingsRepository = new SettingsRepository($this->currentShopId);
-        $settings = SettingsFactory::createFromArray($data);
+            if (!empty($trackingCode) && 0 < strlen($trackingCode['snippet'])) {
+                $data['trackingCodeSnippet'] = $trackingCode['snippet'];
+            }
 
-        if (false === $settingsRepository->create($settings)) {
-            $this->_getSession()->addError('Error during settings details save');
-        }
+            $settingsRepository = new SettingsRepository($this->currentShopId);
+            $settings = SettingsFactory::createFromArray($data);
 
-        $this->_redirect('*/*/index');
+            if (false === $settingsRepository->create($settings)) {
+                $this->_getSession()->addError('Error during settings details save');
+            }
+            $this->_redirect('*/*/index');
+
+        } catch (GetresponseIntegration_Getresponse_Domain_GetresponseException $e) {}
     }
 
     protected function displayAccountDataPage()
@@ -137,9 +138,9 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
     /**
      * Getresponse API instance
      */
-    public function grapi()
+    public function grApiInstance()
     {
-        return GetresponseIntegration_Getresponse_Helper_Api::instance();
+        return GetresponseIntegration_Getresponse_Helper_Api::getApiInstance();
     }
 
 }

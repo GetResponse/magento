@@ -7,17 +7,6 @@ use GetresponseIntegration_Getresponse_Helper_Api as ApiHelper;
  */
 class GetresponseIntegration_Getresponse_Domain_GetresponseOrderBuilder
 {
-    /** @var ApiHelper */
-    private $api;
-
-    /**
-     * @param ApiHelper $api
-     */
-    public function __construct(ApiHelper $api)
-    {
-        $this->api = $api;
-    }
-
     /**
      * @param string                 $subscriberId
      * @param Mage_Sales_Model_Order $order

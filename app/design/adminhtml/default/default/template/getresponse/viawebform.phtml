@@ -65,18 +65,17 @@
                                             <?php } ?>
                                             <?php
                                             foreach ($forms as $form) {
-                                                $selected = ($form->formId == $settings->webforms_settings['webformId']) ? 'selected="selected"' : '';
-                                                echo '<option ' . $selected . ' data-version="new" value="' . $form->formId . '">' . $form->name . ' (' . $form->campaign->name . ')</option>';
+                                                $selected = ($form['formId'] == $settings->webforms_settings['webformId']) ? 'selected="selected"' : '';
+                                                echo '<option ' . $selected . ' data-version="new" value="' . $form['formId'] . '">' . $form['name'] . ' (' . $form['campaign']['name'] . ')</option>';
                                             }
                                             ?>
                                             <?php if (!empty($forms) && !empty($webforms)) { ?>
                                         </optgroup>
                                         <optgroup label="Old Forms:">
                                             <?php } ?>
-                                            <?php
-                                            foreach ($webforms as $webform) {
-                                                $selected = ($webform->webformId == $settings->webforms_settings['webformId']) ? 'selected="selected"' : '';
-                                                echo '<option ' . $selected . ' data-version="old" value="' . $webform->webformId . '">' . $webform->name . ' (' . $webform->campaign->name . ')</option>';
+                                            <?php foreach ($webforms as $webform) {
+                                                $selected = ($webform['webformId'] == $settings->webforms_settings['webformId']) ? 'selected="selected"' : '';
+                                                echo '<option ' . $selected . ' data-version="old" value="' . $webform['webformId'] . '">' . $webform['name'] . ' (' . $webform['campaign']['name'] . ')</option>';
                                             }
                                             ?>
                                             <?php if (!empty($forms) && !empty($webforms)) { ?>

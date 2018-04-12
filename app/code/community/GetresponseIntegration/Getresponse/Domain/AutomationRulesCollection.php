@@ -1,10 +1,13 @@
 <?php
 use GetresponseIntegration_Getresponse_Domain_AutomationRule as AutomationRule;
 
+/**
+ * Class GetresponseIntegration_Getresponse_Domain_AutomationRulesCollection
+ */
 class GetresponseIntegration_Getresponse_Domain_AutomationRulesCollection
 {
     /** @var array */
-    private $rules = [];
+    private $rules = array();
 
     /**
      * @param GetresponseIntegration_Getresponse_Domain_AutomationRule $rule
@@ -33,7 +36,7 @@ class GetresponseIntegration_Getresponse_Domain_AutomationRulesCollection
      */
     public function toArray()
     {
-        $forJson = [];
+        $forJson = array();
         foreach ($this->rules as $key => $rule) {
             $forJson[$key] = $rule->toArray();
         }

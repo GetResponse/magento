@@ -2,6 +2,9 @@
 use GetresponseIntegration_Getresponse_Domain_Account as Account;
 use GetresponseIntegration_Getresponse_Domain_AccountFactory as AccountFactory;
 
+/**
+ * Class GetresponseIntegration_Getresponse_Domain_AccountRepository
+ */
 class GetresponseIntegration_Getresponse_Domain_AccountRepository
 {
     private $configPath = 'getresponse/account';
@@ -22,12 +25,18 @@ class GetresponseIntegration_Getresponse_Domain_AccountRepository
         \Mage::getConfig()->cleanCache();
     }
 
+    /**
+     * @param GetresponseIntegration_Getresponse_Domain_Account $account
+     */
     public function create(Account $account)
     {
         \Mage::getConfig()->saveConfig($this->configPath, json_encode($account->toArray()), 'default', $this->shopId);
         \Mage::getConfig()->cleanCache();
     }
 
+    /**
+     * @param GetresponseIntegration_Getresponse_Domain_Account $account
+     */
     public function update(Account $account)
     {
         $accountDb = json_decode(\Mage::getStoreConfig($this->configPath), true);

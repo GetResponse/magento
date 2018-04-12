@@ -1,6 +1,8 @@
 <?php
 
-
+/**
+ * Class GetresponseIntegration_Getresponse_Model_Cache
+ */
 class GetresponseIntegration_Getresponse_Model_Cache
 {
     const TAG = 'getresponse';
@@ -18,6 +20,8 @@ class GetresponseIntegration_Getresponse_Model_Cache
     /**
      * @param string $value
      * @param string $key
+     *
+     * @throws Zend_Cache_Exception
      */
     public function save($value, $key)
     {
@@ -45,9 +49,11 @@ class GetresponseIntegration_Getresponse_Model_Cache
         $this->cache->remove($key);
     }
 
+    /**
+     * @throws Zend_Cache_Exception
+     */
     public function clean()
     {
         $this->cache->clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array(self::TAG));
     }
-
 }

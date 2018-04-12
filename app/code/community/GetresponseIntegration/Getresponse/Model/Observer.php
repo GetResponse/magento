@@ -216,7 +216,7 @@ class GetresponseIntegration_Getresponse_Model_Observer
                 array()
             );
         } catch (GetresponseException $e) {
-            Mage::log($e->getMessage(), 1, 'getresponse.log');
+            GetresponseIntegration_Getresponse_Helper_Logger::logException($e);
         }
     }
 
@@ -300,7 +300,13 @@ class GetresponseIntegration_Getresponse_Model_Observer
             return;
         }
 
-        $categories = $this->getresponseHelper->getCategoriesByOrder($order);
+        try {
+            $categories = $this->getresponseHelper->getCategoriesByOrder(
+                $order
+            );
+        } catch (Varien_Exception $e) {
+            $categories = array();
+        }
 
         /** @var Mage_Customer_Model_Customer $customer */
         $customer = Mage::getModel('customer/customer')->load($order->getCustomerId());

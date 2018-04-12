@@ -25,7 +25,8 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler
      * @return array
      * @throws Exception
      */
-    public function upsertGetresponseProduct(Mage_Catalog_Model_Product $product,
+    public function upsertGetresponseProduct(
+        Mage_Catalog_Model_Product $product,
         $storeId
     ) {
         $productMapCollection = Mage::getModel('getresponse/ProductMap')
@@ -66,8 +67,10 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler
      * @param string                     $storeId
      *
      * @return array
+     * @throws GetresponseIntegration_Getresponse_Domain_GetresponseException
      */
-    private function createProductInGetResponse(Mage_Catalog_Model_Product $product,
+    private function createProductInGetResponse(
+        Mage_Catalog_Model_Product $product,
         $storeId
     ) {
         $grCategories = $grImages = array();
@@ -117,7 +120,7 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler
             )
         );
 
-        $response = (array)$this->api->addProduct($storeId, $params);
+        $response = $this->api->addProduct($storeId, $params);
         return isset($response['productId']) ? $response : array();
     }
 }

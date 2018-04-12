@@ -2,6 +2,9 @@
 use GetresponseIntegration_Getresponse_Domain_CustomFieldsCollection as CustomFieldsCollectionCollection;
 use GetresponseIntegration_Getresponse_Domain_CustomFieldFactory as CustomFieldFactory;
 
+/**
+ * Class GetresponseIntegration_Getresponse_Domain_CustomFieldsCollectionFactory
+ */
 class GetresponseIntegration_Getresponse_Domain_CustomFieldsCollectionFactory
 {
     /**

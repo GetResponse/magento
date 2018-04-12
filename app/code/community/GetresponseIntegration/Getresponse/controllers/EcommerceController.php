@@ -26,10 +26,16 @@ class GetresponseIntegration_Getresponse_EcommerceController
             'Mage_Core_Block_Template', 'getresponse_content'
         );
 
+        try {
+            $shops = $this->api->getShops();
+        } catch (GetresponseIntegration_Getresponse_Domain_GetresponseException $e) {
+            $shops = array();
+        }
+
         $this->_addContent(
             $block
                 ->setTemplate('getresponse/shop.phtml')
-                ->assign('gr_shops', (array)$this->api->getShops())
+                ->assign('gr_shops', $shops)
                 ->assign(
                     'shop_enabled', isset($ecommerceSettings['isEnabled'])
                     ? $ecommerceSettings['isEnabled'] : 0
@@ -112,9 +118,10 @@ class GetresponseIntegration_Getresponse_EcommerceController
             $shop = $this->api->addShop($shopName);
             $data = array(
                 'result'    => 'success',
-                'msg'       => 'Shop ' . $shop->name . ' successfully created.',
-                'shop_id'   => $shop->shopId,
-                'shop_name' => $shop->name
+                'msg'       => 'Shop ' . $shop['name']
+                    . ' successfully created.',
+                'shop_id'   => $shop['shopId'],
+                'shop_name' => $shop['name']
             );
         } catch (\Exception $e) {
             $data = array(

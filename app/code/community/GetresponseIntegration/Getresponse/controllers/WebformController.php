@@ -2,12 +2,14 @@
 use GetresponseIntegration_Getresponse_Domain_WebformRepository as WebformRepository;
 use GetresponseIntegration_Getresponse_Domain_WebformFactory as WebformFactory;
 
-require_once Mage::getModuleDir('controllers',
-        'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
+require_once 'BaseController.php';
 
+/**
+ * Class GetresponseIntegration_Getresponse_WebformController
+ */
 class GetresponseIntegration_Getresponse_WebformController extends GetresponseIntegration_Getresponse_BaseController
 {
-    public $layout_positions = [
+    public $layout_positions = array(
         'top.menu' => 'Navigation Bar',
         'after_body_start' => 'Page Top',
         'left' => 'Left Column',
@@ -15,12 +17,12 @@ class GetresponseIntegration_Getresponse_WebformController extends GetresponseIn
         'content' => 'Content',
         'before_body_end' => 'Page Bottom',
         'footer' => 'Footer'
-    ];
+    );
 
-    public $block_positions = [
+    public $block_positions = array(
         'after' => 'Bottom',
         'before' => 'Top',
-    ];
+    );
 
     /**
      * GET getresponse/webform/index
@@ -33,11 +35,18 @@ class GetresponseIntegration_Getresponse_WebformController extends GetresponseIn
         $this->settings->layout_positions = $this->layout_positions;
         $this->settings->block_positions = $this->block_positions;
 
+        try {
+            $forms = $this->api->getPublishedForms();
+            $webForms = $this->api->getPublishedWebForms();
+        } catch (GetresponseIntegration_Getresponse_Domain_GetresponseException $e) {
+            $forms = $webForms = array();
+        }
+
         $this->_addContent($this->getLayout()
             ->createBlock('Mage_Core_Block_Template', 'getresponse_content')
             ->setTemplate('getresponse/viawebform.phtml')
-            ->assign('forms', $this->api->getPublishedForms())
-            ->assign('webforms', $this->api->getPublishedWebForms())
+            ->assign('forms', $forms)
+            ->assign('webforms', $webForms)
             ->assign('layout_positions', $this->layout_positions)
             ->assign('block_positions', $this->block_positions)
             ->assign('settings', $this->settings)
@@ -83,20 +92,26 @@ class GetresponseIntegration_Getresponse_WebformController extends GetresponseIn
             }
         }
 
-        if (!empty($params['gr_webform_type']) && $params['gr_webform_type'] == 'old') {
-            $webforms = $this->api->getWebform($params['webform_id']);
-        } else {
-            $webforms = $this->api->getForm($params['webform_id']);
+        try {
+            if (!empty($params['gr_webform_type'])
+                && $params['gr_webform_type'] == 'old'
+            ) {
+                $webForm = $this->api->getWebform($params['webform_id']);
+            } else {
+                $webForm = $this->api->getForm($params['webform_id']);
+            }
+        } catch (GetresponseIntegration_Getresponse_Domain_GetresponseException $e) {
+            $webForm = array();
         }
 
-        if (empty($webforms->codeDescription)) {
+        if (empty($webForm['codeDescription'])) {
             $data = array(
                 'webformId' => $params['webform_id'],
                 'activeSubscription' => $isEnabled,
                 'layoutPosition' => $params['layout_position'],
                 'blockPosition' => $params['block_position'],
                 'webformTitle' => trim($params['webform_title']),
-                'url' => $webforms->scriptUrl
+                'url' => $webForm['scriptUrl']
             );
             $webform = WebformFactory::createFromArray($data);
             $webformRepository->create($webform);
@@ -108,5 +123,4 @@ class GetresponseIntegration_Getresponse_WebformController extends GetresponseIn
 
         $this->_redirect('*/*/index');
     }
-
 }

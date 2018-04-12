@@ -2,10 +2,13 @@
 use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollection as AutomationRulesCollection;
 use GetresponseIntegration_Getresponse_Domain_AutomationRuleFactory as AutomationRuleFactory;
 
+/**
+ * Class GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionFactory
+ */
 class GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionFactory
 {
     /**
-     * @param $data
+     * @param array $data
      * @return GetresponseIntegration_Getresponse_Domain_AutomationRulesCollection
      */
     public static function createFromArray($data)

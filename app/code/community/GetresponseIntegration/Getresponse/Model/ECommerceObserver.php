@@ -6,6 +6,9 @@ use GetresponseIntegration_Getresponse_Domain_GetresponseException as Getrespons
 use GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler as GetresponseOrderHandler;
 use GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler as GetresponseCartHandler;
 use GetresponseIntegration_Getresponse_Domain_Scheduler as Scheduler;
+use GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder as GrCartBuilder;
+use GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler as GrProductHandler;
+use GetresponseIntegration_Getresponse_Domain_GetresponseOrderBuilder as GrOrderBuilder;
 
 /**
  * Class GetresponseIntegration_Getresponse_Model_ECommerceObserver
@@ -57,12 +60,17 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                 return;
             }
 
-            $campaignId = isset($this->accountSettings['campaignId'])
-                ? $this->accountSettings['campaignId'] : '';
+            $campaignId = '';
 
+            if (isset($this->accountSettings['campaignId'])) {
+                $campaignId = $this->accountSettings['campaignId'];
+            }
 
             /** @var Mage_Checkout_Helper_Cart $cartModel */
             $cartModel = Mage::helper('checkout/cart');
+
+            /** @var Mage_Sales_Model_Quote $salesQuote */
+            $salesQuote = Mage::getModel('sales/quote');
 
             $customer = $this->customerSessionModel->getCustomer();
 
@@ -83,7 +91,10 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                 );
             } else {
                 $cartHandler = new GetresponseCartHandler(
-                    $this->buildApiInstance()
+                    $this->buildApiInstance(),
+                    $salesQuote,
+                    new GrCartBuilder(),
+                    new GrProductHandler($this->buildApiInstance())
                 );
                 $cartHandler->sendCartToGetresponse(
                     $cartModel->getCart()->getQuote(),
@@ -114,7 +125,9 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             $customer = $this->customerSessionModel->getCustomer();
 
             $orderHandler = new GetresponseOrderHandler(
-                $this->buildApiInstance()
+                $this->buildApiInstance(),
+                new GrProductHandler($this->buildApiInstance()),
+                new GrOrderBuilder()
             );
 
             /** @var Mage_Sales_Model_Order $order */
@@ -181,7 +194,9 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             $customer = $this->customerSessionModel->getCustomer();
 
             $orderHandler = new GetresponseOrderHandler(
-                $this->buildApiInstance()
+                $this->buildApiInstance(),
+                new GrProductHandler($this->buildApiInstance()),
+                new GrOrderBuilder()
             );
 
             /** @var Mage_Sales_Model_Order $order */
@@ -218,7 +233,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                 );
             }
         } catch (Exception $e) {
-            Mage::log('Error: ' . $e->getMessage(), 1, 'getresponse.log');
+            GetresponseIntegration_Getresponse_Helper_Logger::logException($e);
 
         }
     }
@@ -330,7 +345,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             );
 
             return (array)$response;
-        } catch (GetresponseIntegration_Getresponse_Domain_GetresponseException $e) {
+        } catch (GetresponseException $e) {
             return array();
         } catch (Zend_Cache_Exception $e) {
             return array();

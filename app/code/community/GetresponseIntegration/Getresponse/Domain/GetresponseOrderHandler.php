@@ -18,13 +18,18 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
     private $orderBuilder;
 
     /**
-     * @param GetresponseIntegration_Getresponse_Helper_Api $api
+     * @param GetresponseIntegration_Getresponse_Helper_Api                       $api
+     * @param GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler $productHandler
+     * @param GetresponseIntegration_Getresponse_Domain_GetresponseOrderBuilder   $orderBuilder
      */
-    public function __construct(GetresponseIntegration_Getresponse_Helper_Api $api)
-    {
+    public function __construct(
+        GetresponseIntegration_Getresponse_Helper_Api $api,
+        GrProductHandler $productHandler,
+        GrOrderBuilder $orderBuilder
+    ) {
         $this->api = $api;
-        $this->productHandler = new GrProductHandler($this->api);
-        $this->orderBuilder = new GrOrderBuilder($this->api);
+        $this->productHandler = $productHandler;
+        $this->orderBuilder = $orderBuilder;
     }
 
     /**
@@ -35,7 +40,7 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
      * @param string                 $storeId
      * @param bool                   $newOrder
      *
-     * @throws Exception
+     * @return string|null
      */
     public function sendOrderToGetresponse(
         Mage_Sales_Model_Order $order,
@@ -45,65 +50,72 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
         $storeId,
         $newOrder = false
     ) {
-        $subscriber = $this->api->getContact(
-            $email,
-            $campaignId
-        );
 
-        if (!isset($subscriber->contactId)) {
-            Mage::log('Subscriber not found during export - ' . $email);
-            return;
-        }
-
-        $params = $this->orderBuilder->createGetresponseOrder(
-            $subscriber->contactId,
-            $order,
-            $grCartId
-        );
-
-        /** @var Mage_Sales_Model_Order_Item $product */
-        foreach ($order->getAllVisibleItems() as $product) {
-
-            $grProduct = $this->productHandler->upsertGetresponseProduct($product->getProduct(), $storeId);
-            $variant = (array) reset($grProduct['variants']);
-
-            $params['selectedVariants'][] = array(
-                'variantId' => $variant['variantId'],
-                'price' => (float) $product->getProduct()->getPrice(),
-                'priceTax' => (float) $product->getProduct()->getFinalPrice() ,
-                'quantity' => (int) $product->getQtyOrdered(),
-                'type' => $product->getProductType(),
+        try {
+            $subscriber = $this->api->getContact(
+                $email,
+                $campaignId
             );
-        }
 
-        $grOrderId = $order->getData('getresponse_order_id');
+            if (!isset($subscriber['contactId'])) {
+                GetresponseIntegration_Getresponse_Helper_Logger::log('Subscriber not found during export - ' . $email);
+                return;
+            }
 
-        if ( !empty($grOrderId) ) {
-            $response = (array) $this->api->updateOrder(
-                $storeId,
-                $grOrderId,
-                $params
+            $params = $this->orderBuilder->createGetresponseOrder(
+                $subscriber['contactId'],
+                $order,
+                $grCartId
             );
-        } else {
-            $response = (array) $this->api->createOrder(
-                $storeId,
-                $params
-            );
-        }
 
-        if (!isset($response['orderId'])) {
-            return;
-        }
+            /** @var Mage_Sales_Model_Order_Item $product */
+            foreach ($order->getAllVisibleItems() as $product) {
 
-        $this->api->deleteCart($storeId, $grCartId);
+                $grProduct = $this->productHandler->upsertGetresponseProduct($product->getProduct(), $storeId);
+                $variant = (array) reset($grProduct['variants']);
 
-        if ($newOrder) {
-            $order->setData('getresponse_order_id', $response['orderId']);
-            $order->setData(
-                'getresponse_order_md5', $this->createOrderPayloadHash($params)
-            );
-            $order->save();
+                $params['selectedVariants'][] = array(
+                    'variantId' => $variant['variantId'],
+                    'price' => (float) $product->getProduct()->getPrice(),
+                    'priceTax' => (float) $product->getProduct()->getFinalPrice() ,
+                    'quantity' => (int) $product->getQtyOrdered(),
+                    'type' => $product->getProductType(),
+                );
+            }
+
+            $grOrderId = $order->getData('getresponse_order_id');
+
+            if ( !empty($grOrderId) ) {
+                $grOrder = $this->api->updateOrder(
+                    $storeId,
+                    $grOrderId,
+                    $params
+                );
+            } else {
+                $grOrder = $this->api->createOrder(
+                    $storeId,
+                    $params
+                );
+            }
+
+            if (!isset($grOrder['orderId'])) {
+                return;
+            }
+
+            $this->api->deleteCart($storeId, $grCartId);
+
+            if ($newOrder) {
+                $order->setData('getresponse_order_id', $order['orderId']);
+                $order->setData(
+                    'getresponse_order_md5', $this->createOrderPayloadHash($params)
+                );
+                $order->save();
+            }
+
+        } catch (Exception $e) {
+            GetresponseIntegration_Getresponse_Helper_Logger::logException($e);
         }
+        return null;
     }
 
 

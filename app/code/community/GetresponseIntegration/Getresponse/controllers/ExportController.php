@@ -1,11 +1,14 @@
 <?php
 
-require_once __DIR__ . '/BaseController.php';
-
+use GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder as GrCartBuilder;
+use GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler as GrProductHandler;
+use GetresponseIntegration_Getresponse_Domain_GetresponseOrderBuilder as GrOrderBuilder;
 use GetresponseIntegration_Getresponse_Domain_Scheduler as Scheduler;
 use GetresponseIntegration_Getresponse_Domain_GetresponseCustomerHandler as GrCustomerHandler;
 use GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler as GrCartHandler;
 use GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler as GrOrderHandler;
+
+require_once 'BaseController.php';
 
 /**
  * Class GetresponseIntegration_Getresponse_ExportController
@@ -14,6 +17,8 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
 {
     /**
      * GET getresponse/index/export
+     *
+     * @throws GetresponseIntegration_Getresponse_Domain_GetresponseException
      */
     public function indexAction()
     {
@@ -23,12 +28,16 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
 
         $this->prepareCustomsForMapping();
 
+        $campaignDays = $this->api->getCampaignDays();
+        $campaigns = $this->api->getCampaigns();
+        $shops = $this->api->getShops();
+
         /** @var Mage_Core_Block_Abstract $autoresponderBlock */
         $autoresponderBlock = $this->getLayout()->createBlock(
             'GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder',
             'autoresponder',
             array(
-                'campaign_days' => $this->api->getCampaignDays()
+                'campaign_days' => $campaignDays
             )
         );
 
@@ -36,9 +45,9 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
         $block = $this->getLayout()->createBlock('Mage_Core_Block_Template', 'getresponse_content');
 
         $block->setTemplate('getresponse/export.phtml')
-            ->assign('campaign_days', $this->api->getCampaignDays())
-            ->assign('campaigns', $this->api->getGrCampaigns())
-            ->assign('gr_shops', (array)$this->api->getShops())
+            ->assign('campaign_days', $campaignDays)
+            ->assign('campaigns', $campaigns)
+            ->assign('gr_shops', $shops)
             ->assign('customs', $this->prepareCustomsForMapping())
             ->assign('autoresponder_block', $autoresponderBlock->toHtml());
 
@@ -72,6 +81,7 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
      * @param $campaignId
      * @param $params
      *
+     * @throws GetresponseIntegration_Getresponse_Domain_GetresponseException
      * @throws Exception
      */
     private function exportCustomers($campaignId, $params)
@@ -109,15 +119,15 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
 
         if (!empty($customFieldsToBeAdded)) {
             foreach ($customFieldsToBeAdded as $field_key => $field_value) {
-                $custom = $api->addCustomField($field_value);
-                $grCustomFields[$custom->name] = $custom->customFieldId;
-                if (!isset($custom->customFieldId)) {
+                try {
+                    $custom = $api->addCustomField($field_value);
+                    $grCustomFields[$custom['name']] = $custom['customFieldId'];
+                } catch (GetresponseIntegration_Getresponse_Domain_GetresponseException $e) {
                     $failedCustomFields[] = $field_value;
                 }
             }
             if (!empty($failedCustomFields)) {
                 $this->_getSession()->addError('Incorrect field name: ' . implode(', ', $failedCustomFields) . '.');
-
                 return;
             }
         }
@@ -134,13 +144,13 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
         /** @var GetresponseIntegration_Getresponse_Helper_Data $getresponseHelper */
         $getresponseHelper = Mage::helper('getresponse');
         $shopId = $getresponseHelper->getStoreId();
+        $scheduler = new Scheduler();
+        $createCustomerHandler = new GrCustomerHandler($api);
 
         /** @var Mage_Newsletter_Model_Subscriber $subscriber */
         foreach ($subscribers as $subscriber) {
 
             if ($use_schedule) {
-
-                $scheduler = new Scheduler();
                 $scheduler->addToQueue(
                     $subscriber->getId(),
                     Scheduler::EXPORT_CUSTOMER,
@@ -198,7 +208,6 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
                 }
 
             } else {
-                $createCustomerHandler = new GrCustomerHandler($api);
                 $createCustomerHandler->sendCustomerToGetResponse(
                     $campaignId,
                     $cycleDay,
@@ -221,10 +230,25 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
                     continue;
                 }
 
+                /** @var Mage_Sales_Model_Quote $salesQuote */
+                $salesQuote = Mage::getModel('sales/quote');
+
+                $createCartHandler = new GrCartHandler(
+                    $api,
+                    $salesQuote,
+                    new GrCartBuilder(),
+                    new GrProductHandler($this->api)
+                );
+
+                $createOrderHandler = new GrOrderHandler(
+                    $api,
+                    new GrProductHandler($api),
+                    new GrOrderBuilder()
+                );
+
                 /** @var Mage_Sales_Model_Order $order */
                 foreach ($orders as $order) {
 
-                    $createCartHandler = new GrCartHandler($api);
                     $cartId = $createCartHandler->sendCartToGetresponseFromOrder(
                         $order,
                         $campaignId,
@@ -233,11 +257,10 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
                     );
 
                     if (empty($cartId)) {
-                        Mage::log('Cart not created', 1, 'getresponse.log');
+                        GetresponseIntegration_Getresponse_Helper_Logger::log('Cart not found for order: ' . $order->getId());
                         continue;
                     }
 
-                    $createOrderHandler = new GrOrderHandler($api);
                     $createOrderHandler->sendOrderToGetresponse(
                         $order,
                         $subscriber->getEmail(),
@@ -269,5 +292,4 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
 
         return $fields;
     }
-
 }

@@ -1,27 +1,14 @@
 <?php
 
-use GetresponseIntegration_Getresponse_Helper_Api as ApiHelper;
-
 /**
  * Class GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder
  */
 class GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder
 {
-    /** @var ApiHelper */
-    private $api;
-
-    /**
-     * @param ApiHelper $api
-     */
-    public function __construct(ApiHelper $api)
-    {
-        $this->api = $api;
-    }
-
     /**
      * @param string                 $subscriberId
      * @param Mage_Sales_Model_Quote $quote
-     * @param array                  $gr_products
+     * @param array                  $grProducts
      *
      * @return array
      * @throws Exception
@@ -29,20 +16,20 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder
     public function buildGetresponseCart(
         $subscriberId,
         Mage_Sales_Model_Quote $quote,
-        $gr_products
+        $grProducts
     ) {
         $grVariants = array();
 
         /** @var Mage_Sales_Model_Order_Item $product */
         foreach ($quote->getAllVisibleItems() as $product) {
 
-            $grProduct = $gr_products[$product->getProduct()->getId()];
-            $variant = (array) reset($grProduct['variants']);
+            $grProduct = $grProducts[$product->getProduct()->getId()];
+            $variant = (array)reset($grProduct['variants']);
 
             $grVariants[] = array(
                 'variantId' => $variant['variantId'],
-                'price'     => (float) $product->getData('base_price'),
-                'priceTax'  => (float) $product->getData('price'),
+                'price'     => (float)$product->getData('base_price'),
+                'priceTax'  => (float)$product->getData('price'),
                 'quantity'  => (int)$product->getData('qty')
             );
         }
@@ -50,7 +37,7 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder
         $params = array(
             'contactId'        => $subscriberId,
             'currency'         => $quote->getQuoteCurrencyCode(),
-            'totalPrice'       => (float) $quote->getGrandTotal(),
+            'totalPrice'       => (float)$quote->getGrandTotal(),
             'selectedVariants' => $grVariants,
             'externalId'       => $quote->getId(),
             'totalTaxPrice'    => (float)$quote->getGrandTotal()
@@ -62,7 +49,7 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder
     /**
      * @param string                 $subscriberId
      * @param Mage_Sales_Model_Order $order
-     * @param array                  $gr_products
+     * @param array                  $grProducts
      *
      * @return array
      * @throws Exception
@@ -70,14 +57,14 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder
     public function buildGetresponseCartFromOrder(
         $subscriberId,
         Mage_Sales_Model_Order $order,
-        $gr_products
+        $grProducts
     ) {
         $grVariants = array();
 
         /** @var Mage_Sales_Model_Order_Item $product */
         foreach ($order->getAllVisibleItems() as $product) {
 
-            $grProduct = $gr_products[$product->getProduct()->getId()];
+            $grProduct = $grProducts[$product->getProduct()->getId()];
 
             $variant = (array)reset($grProduct['variants']);
 
