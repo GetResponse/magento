@@ -37,4 +37,12 @@ class GetresponseIntegration_Getresponse_Domain_Shop
             'isScheduleOptimizationEnabled' => $this->isScheduleOptimizationEnabled
         );
     }
+
+    /**
+     * @return bool
+     */
+    public function isEnabled()
+    {
+        return 1 === $this->isEnabled;
+    }
 }

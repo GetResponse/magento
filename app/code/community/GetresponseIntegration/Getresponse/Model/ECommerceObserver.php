@@ -1,14 +1,14 @@
 <?php
 
+use GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder as GrCartBuilder;
+use GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler as GetresponseCartHandler;
+use GetresponseIntegration_Getresponse_Domain_GetresponseException as GetresponseException;
+use GetresponseIntegration_Getresponse_Domain_GetresponseOrderBuilder as GrOrderBuilder;
+use GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler as GetresponseOrderHandler;
+use GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler as GrProductHandler;
+use GetresponseIntegration_Getresponse_Domain_Scheduler as Scheduler;
 use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
 use GetresponseIntegration_Getresponse_Domain_ShopRepository as ShopRepository;
-use GetresponseIntegration_Getresponse_Domain_GetresponseException as GetresponseException;
-use GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler as GetresponseOrderHandler;
-use GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler as GetresponseCartHandler;
-use GetresponseIntegration_Getresponse_Domain_Scheduler as Scheduler;
-use GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder as GrCartBuilder;
-use GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler as GrProductHandler;
-use GetresponseIntegration_Getresponse_Domain_GetresponseOrderBuilder as GrOrderBuilder;
 
 /**
  * Class GetresponseIntegration_Getresponse_Model_ECommerceObserver
@@ -20,9 +20,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
     /** @var Mage_Customer_Model_Session */
     private $customerSessionModel;
 
-    /** @var SettingsRepository */
-    private $getresponseSettings;
-
     /** @var Mage_Core_Model_Abstract */
     private $shopsSettings;
 
@@ -32,21 +29,15 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
     /** @var array */
     private $accountSettings;
 
-    /** @var GetresponseIntegration_Getresponse_Helper_Data */
-    private $getresponseHelper;
-
     /** @var string */
     private $shopId;
 
     public function __construct()
     {
         $this->customerSessionModel = Mage::getSingleton('customer/session');
-        $this->getresponseHelper = Mage::helper('getresponse');
-        $this->shopId = $this->getresponseHelper->getStoreId();
-        $this->getresponseSettings = new SettingsRepository($this->shopId);
-        $this->accountSettings = $this->getresponseSettings->getAccount();
-        $shopRepository = new ShopRepository($this->shopId);
-        $this->shopsSettings = $shopRepository->getShop()->toArray();
+        $this->shopId = Mage::helper('getresponse')->getStoreId();
+        $this->accountSettings = (new SettingsRepository($this->shopId))->getAccount();
+        $this->shopsSettings = (new ShopRepository($this->shopId))->getShop()->toArray();
         $this->cache = Mage::app()->getCache();
     }
 
@@ -60,11 +51,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                 return;
             }
 
-            $campaignId = '';
-
-            if (isset($this->accountSettings['campaignId'])) {
-                $campaignId = $this->accountSettings['campaignId'];
-            }
+            $campaignId = $this->accountSettings['campaignId'];
 
             /** @var Mage_Checkout_Helper_Cart $cartModel */
             $cartModel = Mage::helper('checkout/cart');
@@ -81,15 +68,16 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                     $customer->getId(),
                     Scheduler::EXPORT_CART,
                     array(
-                        'quote_id'         => $cartModel->getCart()->getQuote()
-                            ->getId(),
-                        'campaign_id'      => $campaignId,
+                        'quote_id' => $cartModel->getCart()->getQuote()->getId(),
+                        'campaign_id' => $campaignId,
                         'subscriber_email' => $customer->getData('email'),
-                        'gr_store_id'         => $this->shopsSettings['grShopId'],
+                        'gr_store_id' => $this->shopsSettings['grShopId'],
                         'shop_id' => $this->shopId
                     )
                 );
+
             } else {
+
                 $cartHandler = new GetresponseCartHandler(
                     $this->buildApiInstance(),
                     $salesQuote,
@@ -118,17 +106,10 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                 return;
             }
 
-            $campaignId = isset($this->accountSettings['campaignId'])
-                ? $this->accountSettings['campaignId'] : '';
+            $campaignId = $this->accountSettings['campaignId'];
 
             /** @var Mage_Customer_Model_Customer $customer */
             $customer = $this->customerSessionModel->getCustomer();
-
-            $orderHandler = new GetresponseOrderHandler(
-                $this->buildApiInstance(),
-                new GrProductHandler($this->buildApiInstance()),
-                new GrOrderBuilder()
-            );
 
             /** @var Mage_Sales_Model_Order $order */
             $order = $observer->getEvent()->getData('order');
@@ -151,7 +132,15 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 
                     )
                 );
+
             } else {
+
+                $orderHandler = new GetresponseOrderHandler(
+                    $this->buildApiInstance(),
+                    new GrProductHandler($this->buildApiInstance()),
+                    new GrOrderBuilder()
+                );
+
                 $orderHandler->sendOrderToGetresponse(
                     $observer->getEvent()->getData('order'),
                     $customer->getData('email'),
@@ -167,67 +156,76 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
     }
 
     /**
+     * @param Mage_Sales_Model_Order $order
+     * @return bool
+     */
+    private function isOrderPayloadChanged(Mage_Sales_Model_Order $order)
+    {
+        $hash = $this->createOrderPayloadHash(
+            $this->createOrderPayload($order)
+        );
+
+        return $order->getData('getresponse_order_md5') !== $hash;
+    }
+
+    /**
+     * @param Mage_Sales_Model_Order $order
+     * @return bool
+     */
+    private function orderExistsInGetresponse(Mage_Sales_Model_Order $order)
+    {
+        return !empty($order->getData('getresponse_order_id'));
+    }
+
+    /**
      * @param Varien_Event_Observer $observer
      */
     public function orderDetailsChangedHandler(Varien_Event_Observer $observer)
     {
         try {
-            if (false === $this->canHandleECommerceEvent()) {
+            /** @var Mage_Sales_Model_Order $order */
+            $order = $observer->getEvent()->getOrder();
+
+            if (!$this->canChangeOrderDetails($order)) {
                 return;
             }
 
-            $campaignId = isset($this->accountSettings['campaignId'])
-                ? $this->accountSettings['campaignId'] : '';
-
-            /** @var Mage_Sales_Model_Order $order */
-            $order = $observer->getEvent()->getData('order');
-            $orderPayload = $this->createOrderPayload($order);
-
-            $hash = $this->createOrderPayloadHash($orderPayload);
-
-            if ($order->getData('getresponse_order_md5') == $hash
-                || '' == $order->getData('getresponse_order_id')
-            ) {
+            if (!$this->isOrderPayloadChanged($order) || !$this->orderExistsInGetresponse($order)) {
                 return;
             }
 
-            /** @var Mage_Customer_Model_Customer $customer */
-            $customer = $this->customerSessionModel->getCustomer();
-
-            $orderHandler = new GetresponseOrderHandler(
-                $this->buildApiInstance(),
-                new GrProductHandler($this->buildApiInstance()),
-                new GrOrderBuilder()
-            );
-
-            /** @var Mage_Sales_Model_Order $order */
-            $order = $observer->getEvent()->getData('order');
+            $campaignId = $this->accountSettings['campaignId'];
 
             if ($this->shopsSettings['isScheduleOptimizationEnabled']) {
 
                 $scheduler = new Scheduler();
                 $scheduler->addToQueue(
-                    $customer->getId(),
+                    $order->getCustomerId(),
                     Scheduler::EXPORT_ORDER,
                     array(
                         'order_id' => $order->getId(),
                         'campaign_id' => $campaignId,
-                        'subscriber_email' => $customer->getData('email'),
+                        'subscriber_email' => $order->getCustomerEmail(),
                         'gr_store_id' => $this->shopsSettings['grShopId'],
                         'shop_id' => $this->shopId,
                         'skip_automation' => 0
                     )
                 );
+
             } else {
 
-                $quote = Mage::getModel('sales/quote')->load(
-                    $order->getQuoteId()
+                $orderHandler = new GetresponseOrderHandler(
+                    $this->buildApiInstance(),
+                    new GrProductHandler($this->buildApiInstance()),
+                    new GrOrderBuilder()
                 );
+
+                $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
                 $getresponseCartId = $quote->getData('getresponse_cart_id');
 
                 $orderHandler->sendOrderToGetresponse(
-                    $observer->getEvent()->getData('order'),
-                    $customer->getData('email'),
+                    $order,
+                    $order->getCustomerEmail(),
                     $campaignId,
                     $getresponseCartId,
                     $this->shopsSettings['grShopId'],
@@ -237,8 +235,100 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             }
         } catch (Exception $e) {
             GetresponseIntegration_Getresponse_Helper_Logger::logException($e);
-
         }
+    }
+
+    /**
+     * @param Mage_Sales_Model_Order $order
+     * @return bool
+     * @throws Mage_Core_Model_Store_Exception
+     * @throws Varien_Exception
+     */
+    private function canChangeOrderDetails(Mage_Sales_Model_Order $order)
+    {
+        return $this->isUserClientOrAdminAuthenticated()
+            && $this->isStoreEnabled()
+            && $this->isCampaignIdSet()
+            && $this->isClientInGetResponse($order->getCustomerId());
+    }
+
+    /**
+     * @param int $customerId
+     * @return bool
+     * @throws Varien_Exception
+     */
+    private function isClientInGetResponse($customerId)
+    {
+        $customerEmail = $this->getCustomerEmailById($customerId);
+        $contact = $this->getContactFromGetResponseByEmail($customerEmail);
+
+        return !empty($contact);
+    }
+
+    /**
+     * @param string $email
+     * @return array
+     */
+    private function getContactFromGetResponseByEmail($email)
+    {
+        try {
+            if (empty($email) || empty($this->accountSettings['campaignId'])) {
+                return array();
+            }
+
+            $cacheKey = md5($email . $this->accountSettings['campaignId']);
+            $cachedContact = $this->cache->load($cacheKey);
+
+            if (false !== $cachedContact) {
+                return unserialize($cachedContact);
+            }
+
+            $api = $this->buildApiInstance();
+            $response = $api->getContact($email, $this->accountSettings['campaignId']);
+
+            $this->cache->save(serialize($response), $cacheKey, [self::CACHE_KEY], 5 * 60);
+
+            return (array)$response;
+        } catch (GetresponseException $e) {
+            return array();
+        } catch (Zend_Cache_Exception $e) {
+            return array();
+        }
+    }
+
+    /**
+     * @param int $customerId
+     * @return string
+     * @throws Varien_Exception
+     */
+    private function getCustomerEmailById($customerId)
+    {
+        $customerData = Mage::getModel('customer/customer')->load($customerId);
+
+        return $customerData->getEmail();
+    }
+
+    /**
+     * @return bool
+     */
+    private function isStoreEnabled()
+    {
+        $shopRepository = new ShopRepository(Mage::helper('getresponse')->getStoreId());
+
+        return $shopRepository->getShop()->isEnabled();
+    }
+
+
+    /**
+     * @return bool
+     * @throws Mage_Core_Model_Store_Exception
+     * @throws Varien_Exception
+     */
+    private function isUserClientOrAdminAuthenticated()
+    {
+        return Mage::app()->getStore()->isAdmin()
+            ? Mage::getSingleton('admin/session')->isLoggedIn()
+            : Mage::getSingleton('customer/session')->isLoggedIn();
     }
 
     /**
@@ -248,7 +338,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
      */
     private function createOrderPayload(Mage_Sales_Model_Order $order)
     {
-
         $shippingAddress = $order->getShippingAddress();
 
         if (empty($shippingAddress)) {
@@ -264,17 +353,15 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             'shippingPrice'   => $order->getShippingAmount(),
             'externalId'      => $order->getId(),
             'shippingAddress' => array(
-                'countryCode' => $shippingAddress->getCountryModel()
-                    ->getIso3Code(),
+                'countryCode' => $shippingAddress->getCountryModel()->getIso3Code(),
                 'name'        => $shippingAddress->getStreetFull(),
                 'firstName'   => $shippingAddress->getFirstname(),
                 'lastName'    => $shippingAddress->getLastname(),
                 'city'        => $shippingAddress->getCity(),
                 'zip'         => $shippingAddress->getPostcode(),
             ),
-            'billingAddress'  => array(
-                'countryCode' => $order->getBillingAddress()->getCountryModel()
-                    ->getIso3Code(),
+            'billingAddress' => array(
+                'countryCode' => $order->getBillingAddress()->getCountryModel()->getIso3Code(),
                 'name'        => $order->getBillingAddress()->getStreetFull(),
                 'firstName'   => $order->getBillingAddress()->getFirstname(),
                 'lastName'    => $order->getBillingAddress()->getLastname(),
@@ -296,63 +383,14 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 
     /**
      * @return bool
+     * @throws Varien_Exception
      */
     private function canHandleECommerceEvent()
     {
-        if (!$this->customerSessionModel->isLoggedIn()) {
-            return false;
-        }
-
-        if (1 != $this->shopsSettings['isEnabled']) {
-            return false;
-        }
-
-        $contact = $this->getContactFromGetResponse(
-            $this->customerSessionModel->getCustomer()
-        );
-
-        if (!isset($contact['contactId'])) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @param Mage_Customer_Model_Customer $customer
-     *
-     * @return array
-     */
-    private function getContactFromGetResponse(Mage_Customer_Model_Customer $customer
-    ) {
-        try {
-            $cacheKey = md5(
-                $customer->getData('email')
-                . $this->accountSettings['campaignId']
-            );
-            $cachedContact = $this->cache->load($cacheKey);
-
-            if (false !== $cachedContact) {
-                return (array)unserialize($cachedContact);
-            }
-
-            $api = $this->buildApiInstance();
-
-            $response = $api->getContact(
-                $customer->getData('email'),
-                $this->accountSettings['campaignId']
-            );
-
-            $this->cache->save(
-                serialize($response), $cacheKey, array(self::CACHE_KEY), 5 * 60
-            );
-
-            return (array)$response;
-        } catch (GetresponseException $e) {
-            return array();
-        } catch (Zend_Cache_Exception $e) {
-            return array();
-        }
+        return $this->customerSessionModel->isLoggedIn()
+            && $this->isStoreEnabled()
+            && $this->isCampaignIdSet()
+            && $this->isClientInGetResponse($this->customerSessionModel->getCustomer()->getId());
     }
 
     /**
@@ -375,5 +413,13 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
         );
 
         return $api;
+    }
+
+    /**
+     * @return bool
+     */
+    private function isCampaignIdSet()
+    {
+        return isset($this->accountSettings['campaignId']);
     }
 }
