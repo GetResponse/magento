@@ -308,6 +308,16 @@ class GetresponseIntegration_Getresponse_Model_Observer
             $categories = array();
         }
 
+        $api = $this->buildApiInstance();
+
+        $settingsRepository = new SettingsRepository($this->shopId);
+        $accountSettings = $settingsRepository->getAccount();
+
+
+        if (empty($accountSettings['apiKey']) || $accountSettings['activeSubscription'] != '1' || empty($accountSettings['campaignId'])) {
+            return;
+        }
+
         /** @var Mage_Customer_Model_Customer $customer */
         $customer = Mage::getModel('customer/customer')->load($order->getCustomerId());
 
@@ -336,17 +346,31 @@ class GetresponseIntegration_Getresponse_Model_Observer
             return;
         }
 
-        $api = $this->buildApiInstance();
-
         foreach ($rules as $automation) {
 
-            $api->upsertContact(
-                $automation['campaignId'],
-                $customer->getName(),
-                $customer->getData('email'),
-                $automation['cycleDay'],
-                $this->customsModel->mapCustoms($user_customs, $customs)
-            );
+            if ('move' === $automation['action']) {
+
+                $grContact = $api->getContact($customer->getData('email'), $accountSettings['campaignId']);
+
+                if (!empty($grContact['contactId'])) {
+                    $api->updateContact(
+                        $grContact['contactId'],
+                        $automation['campaignId'],
+                        $grContact['email'],
+                        $grContact['name'],
+                        $grContact['dayOfCycle'],
+                        $grContact['customFieldValues']
+                    );
+                }
+            } else {
+                $api->upsertContact(
+                    $automation['campaignId'],
+                    $customer->getName(),
+                    $customer->getData('email'),
+                    $automation['cycleDay'],
+                    $this->customsModel->mapCustoms($user_customs, $customs)
+                );
+            }
         }
     }
 

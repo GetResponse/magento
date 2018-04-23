@@ -843,4 +843,45 @@ class GetresponseIntegration_Getresponse_Helper_Api
             }
         }
     }
+
+    /**
+     * @param string $contactId
+     * @param string $campaignId
+     * @param string $email
+     * @param string $name
+     * @param string $cycleDay
+     * @param array $userCustoms
+     *
+     * @return int
+     */
+    public function updateContact($contactId, $campaignId, $email, $name, $cycleDay, $userCustoms)
+    {
+        $params = array(
+            'email'     => $email,
+            'campaign'  => array('campaignId' => $campaignId)
+        );
+
+        if (!empty($_SERVER['REMOTE_ADDR'])) {
+            $params['ipAddress'] = $_SERVER['REMOTE_ADDR'];
+        }
+
+        $trimName = trim($name);
+        if (!empty($trimName)) {
+            $params['name'] = trim($name);
+        }
+
+        if (is_numeric($cycleDay) && $cycleDay >= 0) {
+            $params['dayOfCycle'] = $cycleDay;
+        }
+
+        $params['customFieldValues'] = $userCustoms;
+
+        try {
+            $this->getApiInstance()->updateContact($contactId, $params);
+        } catch (GetresponseException $e) {
+            return self::CONTACT_ERROR;
+        }
+
+        return self::CONTACT_UPDATED;
+    }
 }
