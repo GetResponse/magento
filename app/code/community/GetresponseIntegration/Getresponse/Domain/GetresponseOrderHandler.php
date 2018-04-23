@@ -97,13 +97,13 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
                     $storeId,
                     $params
                 );
+
+                $this->api->deleteCart($storeId, $grCartId);
             }
 
             if (!isset($grOrder['orderId'])) {
                 return;
             }
-
-            $this->api->deleteCart($storeId, $grCartId);
 
             if ($newOrder) {
                 $order->setData('getresponse_order_id', $grOrder['orderId']);
