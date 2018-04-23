@@ -106,6 +106,11 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
         if (isset($params['gr_export_ecommerce_details']) && 1 === (int)$params['gr_export_ecommerce_details']) {
             $exportEcommerceEnabled = true;
             $storeId = $params['ecommerce_store'];
+
+            if (empty($storeId)) {
+                $this->_getSession()->addError('You need to select a store');
+                return;
+            }
         }
 
         if (isset($params['gr_export_schedule']) && 1 === (int)$params['gr_export_schedule']) {
