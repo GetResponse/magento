@@ -147,18 +147,19 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler
         $quote = $this->quoteModel->setStoreId($order->getStoreId())->load($order->getQuoteId());
         $grCartId = $quote->getData('getresponse_cart_id');
 
-        if( !empty($grCartId) ) {
-            $cart = $this->api->updateCart($storeId, $grCartId, $params);
-        } else {
+        if( empty($grCartId) ) {
             $cart = $this->api->addCart($storeId, $params);
-        }
-        if (!isset($cart['cartId'])) {
-            return null;
+
+            if (!isset($cart['cartId'])) {
+                return null;
+            }
+
+            $quote->setData('getresponse_cart_id', $cart['cartId']);
+            $quote->save();
+
+            return $cart['cartId'];
         }
 
-        $quote->setData('getresponse_cart_id', $cart['cartId']);
-        $quote->save();
-
-        return $cart['cartId'];
+        return $grCartId;
     }
 }
