@@ -158,7 +158,8 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                     $campaignId,
                     $getresponseCartId,
                     $this->shopsSettings['grShopId'],
-                    true
+                    true,
+                    false
                 );
             }
         } catch (Exception $e) {
@@ -213,7 +214,8 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                         'campaign_id' => $campaignId,
                         'subscriber_email' => $customer->getData('email'),
                         'gr_store_id' => $this->shopsSettings['grShopId'],
-                        'shop_id' => $this->shopId
+                        'shop_id' => $this->shopId,
+                        'skip_automation' => 0
                     )
                 );
             } else {
@@ -229,6 +231,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                     $campaignId,
                     $getresponseCartId,
                     $this->shopsSettings['grShopId'],
+                    false,
                     false
                 );
             }

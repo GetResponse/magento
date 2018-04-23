@@ -353,26 +353,39 @@ class GetresponseIntegration_Getresponse_Helper_GrApi
     /**
      * @param string $shopId
      * @param array  $params
+     * @param bool   $skipAutomation
      *
      * @return array
-     * @throws GetresponseException
+     * @throws GetresponseIntegration_Getresponse_Domain_GetresponseException
      */
-    public function createOrder($shopId, $params)
+    public function createOrder($shopId, $params, $skipAutomation = false)
     {
-        return $this->call('shops/' . $shopId.'/orders?additionalFlags=skipAutomation', 'POST', $params);
+        $url = 'shops/' . $shopId . '/orders';
+
+        if ($skipAutomation) {
+            $url .= '?additionalFlags=skipAutomation';
+        }
+
+        return $this->call($url, 'POST', $params);
     }
 
     /**
      * @param string $shopId
      * @param string $orderId
      * @param array  $params
+     * @param bool $skipAutomation
      *
      * @return array
-     * @throws GetresponseException
+     * @throws GetresponseIntegration_Getresponse_Domain_GetresponseException
      */
-    public function updateOrder($shopId, $orderId, $params)
+    public function updateOrder($shopId, $orderId, $params, $skipAutomation = false)
     {
-        return $this->call('shops/' . $shopId . '/orders/' . $orderId . '?additionalFlags=skipAutomation', 'POST', $params);
+        $url = 'shops/' . $shopId . '/orders/' . $orderId;
+
+        if ($skipAutomation) {
+            $url .= '?additionalFlags=skipAutomation';
+        }
+        return $this->call( $url, 'POST', $params);
     }
 
     /**

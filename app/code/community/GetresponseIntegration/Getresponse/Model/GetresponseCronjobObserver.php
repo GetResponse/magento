@@ -96,7 +96,8 @@ class GetresponseIntegration_Getresponse_Model_GetresponseCronjobObserver
                             $payload['campaign_id'],
                             $quote->getData('getresponse_cart_id'),
                             $payload['gr_store_id'],
-                            true
+                            true,
+                            $payload['skip_automation']
                         );
 
                         break;

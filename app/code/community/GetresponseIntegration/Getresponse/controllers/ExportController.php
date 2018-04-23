@@ -207,7 +207,8 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
                             'campaign_id' => $campaignId,
                             'subscriber_email' => $subscriber->getEmail(),
                             'gr_store_id' => $storeId,
-                            'shop_id' => $shopId
+                            'shop_id' => $shopId,
+                            'skip_automation' => 1
                         )
                     );
                 }
@@ -272,6 +273,7 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
                         $campaignId,
                         $cartId,
                         $storeId,
+                        true,
                         true
                     );
                 }

@@ -603,26 +603,28 @@ class GetresponseIntegration_Getresponse_Helper_Api
     /**
      * @param string $shopId
      * @param array  $params
+     * @param bool   $skipAutomation
      *
      * @return array
-     * @throws GetresponseException
+     * @throws GetresponseIntegration_Getresponse_Domain_GetresponseException
      */
-    public function createOrder($shopId, $params)
+    public function createOrder($shopId, $params, $skipAutomation = false)
     {
-        return $this->getApiInstance()->createOrder($shopId, $params);
+        return $this->getApiInstance()->createOrder($shopId, $params, $skipAutomation);
     }
 
     /**
      * @param string $shopId
      * @param string $orderId
      * @param array  $params
+     * @param bool   $skipAutomation
      *
      * @return array
-     * @throws GetresponseException
+     * @throws GetresponseIntegration_Getresponse_Domain_GetresponseException
      */
-    public function updateOrder($shopId, $orderId, $params)
+    public function updateOrder($shopId, $orderId, $params, $skipAutomation = false)
     {
-        return $this->getApiInstance()->updateOrder($shopId, $orderId, $params);
+        return $this->getApiInstance()->updateOrder($shopId, $orderId, $params, $skipAutomation);
     }
 
     /**

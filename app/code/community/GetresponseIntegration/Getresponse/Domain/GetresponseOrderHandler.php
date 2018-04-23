@@ -39,6 +39,7 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
      * @param string                 $grCartId
      * @param string                 $storeId
      * @param bool                   $newOrder
+     * @param bool                   $skipAutomation
      *
      * @return string|null
      */
@@ -48,7 +49,8 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
         $campaignId,
         $grCartId,
         $storeId,
-        $newOrder = false
+        $newOrder = false,
+        $skipAutomation = false
     ) {
 
         try {
@@ -89,12 +91,14 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
                 $grOrder = $this->api->updateOrder(
                     $storeId,
                     $grOrderId,
-                    $params
+                    $params,
+                    $skipAutomation
                 );
             } else {
                 $grOrder = $this->api->createOrder(
                     $storeId,
-                    $params
+                    $params,
+                    $skipAutomation
                 );
 
                 $this->api->deleteCart($storeId, $grCartId);
