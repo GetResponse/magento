@@ -86,7 +86,6 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
             $grOrderId = $order->getData('getresponse_order_id');
 
             if ( !empty($grOrderId) ) {
-                unset($params['cartId']);
                 $grOrder = $this->api->updateOrder(
                     $storeId,
                     $grOrderId,
