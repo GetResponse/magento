@@ -281,8 +281,6 @@ class GetresponseIntegration_Getresponse_Model_Observer
 
     /**
      * @param Varien_Event_Observer $observer
-     *
-     * @throws GetresponseIntegration_Getresponse_Domain_GetresponseException
      */
     public function automationHandler(Varien_Event_Observer $observer)
     {
@@ -308,7 +306,11 @@ class GetresponseIntegration_Getresponse_Model_Observer
             $categories = array();
         }
 
-        $api = $this->buildApiInstance();
+        try {
+            $api = $this->buildApiInstance();
+        } catch (GetresponseIntegration_Getresponse_Domain_GetresponseException $e) {
+            return;
+        }
 
         $settingsRepository = new SettingsRepository($this->shopId);
         $accountSettings = $settingsRepository->getAccount();

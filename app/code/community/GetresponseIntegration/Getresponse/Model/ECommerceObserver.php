@@ -36,8 +36,10 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
     {
         $this->customerSessionModel = Mage::getSingleton('customer/session');
         $this->shopId = Mage::helper('getresponse')->getStoreId();
-        $this->accountSettings = (new SettingsRepository($this->shopId))->getAccount();
-        $this->shopsSettings = (new ShopRepository($this->shopId))->getShop()->toArray();
+        $settingsRepository = new SettingsRepository($this->shopId);
+        $this->accountSettings = $settingsRepository->getAccount();
+        $shopRepository = new ShopRepository($this->shopId);
+        $this->shopsSettings = $shopRepository->getShop()->toArray();
         $this->cache = Mage::app()->getCache();
     }
 
@@ -174,7 +176,8 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
      */
     private function orderExistsInGetresponse(Mage_Sales_Model_Order $order)
     {
-        return !empty($order->getData('getresponse_order_id'));
+        $exists = $order->getData('getresponse_order_id');
+        return !empty($exists);
     }
 
     /**
@@ -286,7 +289,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             $api = $this->buildApiInstance();
             $response = $api->getContact($email, $this->accountSettings['campaignId']);
 
-            $this->cache->save(serialize($response), $cacheKey, [self::CACHE_KEY], 5 * 60);
+            $this->cache->save(serialize($response), $cacheKey, array(self::CACHE_KEY), 5 * 60);
 
             return (array)$response;
         } catch (GetresponseException $e) {
