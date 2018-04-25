@@ -5,7 +5,6 @@
  */
 class GetresponseIntegration_Getresponse_Helper_Logger extends Mage_Core_Helper_Abstract
 {
-
     /**
      * @param string $message
      */
@@ -21,5 +20,4 @@ class GetresponseIntegration_Getresponse_Helper_Logger extends Mage_Core_Helper_
     {
         self::log($exception->getMessage() . ' [ErrorCode:'. $exception->getCode() .']');
     }
-
 }

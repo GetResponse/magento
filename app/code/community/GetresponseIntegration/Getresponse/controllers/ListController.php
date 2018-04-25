@@ -1,11 +1,12 @@
 <?php
 
-require_once Mage::getModuleDir('controllers',
-        'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
+require_once 'BaseController.php';
 
+/**
+ * Class GetresponseIntegration_Getresponse_ListController
+ */
 class GetresponseIntegration_Getresponse_ListController extends GetresponseIntegration_Getresponse_BaseController
 {
-
     /**
      * GET getresponse/list/index
      */
@@ -16,12 +17,20 @@ class GetresponseIntegration_Getresponse_ListController extends GetresponseInteg
 
         $langCode = strtoupper(substr(Mage::app()->getLocale()->getDefaultLocale(), 0, 2));
 
+        try {
+            $fromFields = $this->api->getFromFields();
+            $confirmationSubject = $this->api->getSubscriptionConfirmationsSubject($langCode);
+            $confirmationBody = $this->api->getSubscriptionConfirmationsBody($langCode);
+        } catch (GetresponseIntegration_Getresponse_Domain_GetresponseException $e) {
+            $fromFields = $confirmationSubject = $confirmationBody = array();
+        }
+
         $this->_addContent($this->getLayout()
             ->createBlock('Mage_Core_Block_Template', 'getresponse_content')
             ->setTemplate('getresponse/create_list.phtml')
-            ->assign('from_fields', $this->api->getFromFields())
-            ->assign('confirmation_subject', $this->api->getSubscriptionConfirmationsSubject($langCode))
-            ->assign('confirmation_body', $this->api->getSubscriptionConfirmationsBody($langCode))
+            ->assign('from_fields', $fromFields)
+            ->assign('confirmation_subject', $confirmationSubject)
+            ->assign('confirmation_body', $confirmationBody)
             ->assign('back_url', base64_decode($this->getRequest()->getParam('back_url')))
         );
 
@@ -46,26 +55,31 @@ class GetresponseIntegration_Getresponse_ListController extends GetresponseInteg
 
         $campaignName = strtolower($params['campaign_name']);
 
-        $add = $this->api->addCampaignToGR(
-            $campaignName,
-            $params['from'],
-            $params['reply_to'],
-            $params['confirmation_subject'],
-            $params['confirmation_body']
-        );
+        try {
+            $this->api->addCampaignToGetResponse(
+                $campaignName,
+                $params['from'],
+                $params['reply_to'],
+                $params['confirmation_subject'],
+                $params['confirmation_body']
+            );
 
-        if (is_object($add) && isset($add->campaignId)) {
             $this->_getSession()->addSuccess('List created');
             $this->_redirect($params['back_url']);
-        } elseif (is_object($add) && $add->code == 1008) {
-            $this->_getSession()->addError('List name you entered already exists. Please enter a different name');
-            $this->_redirect('*/*/index');
-        } else {
-            $this->_getSession()
-                ->addError('List "' . $campaignName . '" has not been added' . ' - ' . $add->message . '.');
+        } catch (Exception $e) {
+
+            if ($e->getCode() === 1008) {
+                $this->_getSession()->addError('List name you entered already exists. Please enter a different name');
+            } else {
+
+                $this->_getSession()
+                    ->addError(
+                        'List "' . $campaignName . '" has not been added'
+                        . ' - ' . $e->getMessage() . '.'
+                    );
+            }
             $this->_redirect('*/*/index');
         }
-
     }
 
     /**

@@ -1,6 +1,9 @@
 <?php
 use GetresponseIntegration_Getresponse_Domain_Account as Account;
 
+/**
+ * Class GetresponseIntegration_Getresponse_Domain_AccountFactory
+ */
 class GetresponseIntegration_Getresponse_Domain_AccountFactory
 {
     /**

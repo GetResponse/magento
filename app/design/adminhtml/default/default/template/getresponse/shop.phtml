@@ -64,12 +64,31 @@ Make sure to <a href="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/
                                     <?php
                                     foreach ($gr_shops as $shop):?>
                                         <option
-                                            <?php if($current_shop_id == $shop->shopId): ?>selected="selected"<?php endif ?>
-                                            value="<?php echo $shop->shopId ?>">
-                                            <?php echo $shop->name ?>
+                                            <?php if($current_shop_id == $shop['shopId']): ?>selected="selected"<?php endif ?>
+                                            value="<?php echo $shop['shopId'] ?>">
+                                            <?php echo $shop['name'] ?>
                                         </option>';
                                     <?php endforeach ?>
                                 </select>
+                            </td>
+                        </tr>
+
+                        <tr class="details">
+                            <td class="label">
+                                <label for="optimization">Performance optimization</label>
+                            </td>
+                            <td class="value">
+                                <span><input
+                                        type="radio"
+                                        name="schedule_optimization"
+                                        value="0"
+                                        <?php if(0 === (int) $schedule_optimization): ?>checked="checked"<?php endif ?>
+                                    /> Disabled</span>&nbsp;&nbsp;
+                                <span><input
+                                        type="radio"
+                                        name="schedule_optimization"
+                                        <?php if(1 === (int) $schedule_optimization): ?>checked="checked"<?php endif ?>
+                                        value="1" /> Enabled</span>
                             </td>
                         </tr>
 
@@ -104,15 +123,15 @@ Make sure to <a href="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/
                                     <tbody>
 
                                     <?php foreach ($gr_shops as $key => $shop):?>
-                                        <tr data-shop-id="<?=$shop->shopId?>" <?php if(0 == $key%2) : ?> class="even" <?php endif; ?>>
+                                        <tr data-shop-id="<?=$shop['shopId']?>" <?php if(0 == $key%2) : ?> class="even" <?php endif; ?>>
                                             <td style="text-align: center">
                                                 <?=$key+1?>
                                             </td>
                                             <td>
-                                                <?=$shop->name?>
+                                                <?=$shop['name']?>
                                             </td>
                                             <td style="text-align: center">
-                                                <a href="javascript:void(0)" class="delete_shop" data-shop-id="<?=$shop->shopId?>">Delete</a>
+                                                <a href="javascript:void(0)" class="delete_shop" data-shop-id="<?=$shop['shopId']?>">Delete</a>
                                             </td>
                                         </tr>
                                     <?php endforeach ?>
@@ -180,7 +199,7 @@ Make sure to <a href="<?php echo Mage::helper("adminhtml")->getUrl('getresponse/
                 }.bind(this));
 
                 $.each($('.delete_shop'), function(key, val) {
-                    $(val).click(function() {
+                    $(val).click(function(event) {
                         this.delete_store($(event.target).attr('data-shop-id'));
                     }.bind(this));
                 }.bind(this));

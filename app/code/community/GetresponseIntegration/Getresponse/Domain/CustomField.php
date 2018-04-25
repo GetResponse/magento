@@ -1,20 +1,31 @@
 <?php
 
+/**
+ * Class GetresponseIntegration_Getresponse_Domain_CustomField
+ */
 class GetresponseIntegration_Getresponse_Domain_CustomField
 {
+    /** @var string */
     private $id;
+
+    /** @var string */
     private $customField;
+
+    /** @var string */
     private $customValue;
+
+    /** @var bool */
     private $isDefault;
+
+    /** @var bool */
     private $isActive;
 
     /**
-     * GetresponseIntegration_Getresponse_Domain_CustomField constructor.
-     * @param $id
-     * @param $customField
-     * @param $customValue
-     * @param $isDefault
-     * @param $activeCustom
+     * @param string $id
+     * @param string $customField
+     * @param string $customValue
+     * @param bool $isDefault
+     * @param bool $activeCustom
      */
     public function __construct($id, $customField, $customValue, $isDefault, $activeCustom)
     {
@@ -26,7 +37,7 @@ class GetresponseIntegration_Getresponse_Domain_CustomField
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getId()
     {
@@ -34,7 +45,7 @@ class GetresponseIntegration_Getresponse_Domain_CustomField
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getCustomField()
     {
@@ -42,7 +53,7 @@ class GetresponseIntegration_Getresponse_Domain_CustomField
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getCustomValue()
     {
@@ -50,7 +61,7 @@ class GetresponseIntegration_Getresponse_Domain_CustomField
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
     public function getIsDefault()
     {
@@ -58,7 +69,7 @@ class GetresponseIntegration_Getresponse_Domain_CustomField
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
     public function getIsActive()
     {
@@ -70,12 +81,12 @@ class GetresponseIntegration_Getresponse_Domain_CustomField
      */
     public function toArray()
     {
-        return [
+        return array(
             'id_custom' => $this->id,
             'custom_field' => $this->customField,
             'custom_value' => $this->customValue,
             'default' => $this->isDefault,
             'custom_active' => $this->isActive
-        ];
+        );
     }
 }

@@ -1,4 +1,12 @@
 <?php
+
+use GetresponseIntegration_Getresponse_Domain_GetresponseCartBuilder as GrCartBuilder;
+use GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler as GetresponseCartHandler;
+use GetresponseIntegration_Getresponse_Domain_GetresponseException as GetresponseException;
+use GetresponseIntegration_Getresponse_Domain_GetresponseOrderBuilder as GrOrderBuilder;
+use GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler as GetresponseOrderHandler;
+use GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler as GrProductHandler;
+use GetresponseIntegration_Getresponse_Domain_Scheduler as Scheduler;
 use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
 use GetresponseIntegration_Getresponse_Domain_ShopRepository as ShopRepository;
 
@@ -9,326 +17,167 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 {
     const CACHE_KEY = 'getresponse_cache';
 
-    /** @var GetresponseIntegration_Getresponse_Helper_Api */
-    protected $api;
-    /** @var SettingsRepository */
-    protected $getresponseSettings;
-    /** @var Mage_Core_Model_Abstract  */
-    protected $getresponseShopsSettings;
-    /** @var Zend_Cache_Core  */
-    protected $cache;
+    /** @var Mage_Customer_Model_Session */
+    private $customerSessionModel;
+
+    /** @var Mage_Core_Model_Abstract */
+    private $shopsSettings;
+
+    /** @var Zend_Cache_Core */
+    private $cache;
+
+    /** @var array */
+    private $accountSettings;
+
+    /** @var string */
+    private $shopId;
 
     public function __construct()
     {
-        $shopId = Mage::helper('getresponse')->getStoreId();
-        $this->getresponseSettings = (new SettingsRepository($shopId))->getAccount();
-        $shopRepository = new ShopRepository($shopId);
-        $this->getresponseShopsSettings = $shopRepository->getShop()->toArray();
-
-        $this->api = Mage::helper('getresponse/api');
-
-        $this->api->setApiDetails(
-            $this->getresponseSettings['apiKey'],
-            $this->getresponseSettings['apiUrl'],
-            $this->getresponseSettings['apiDomain']
-        );
-
+        $this->customerSessionModel = Mage::getSingleton('customer/session');
+        $this->shopId = Mage::helper('getresponse')->getStoreId();
+        $settingsRepository = new SettingsRepository($this->shopId);
+        $this->accountSettings = $settingsRepository->getAccount();
+        $shopRepository = new ShopRepository($this->shopId);
+        $this->shopsSettings = $shopRepository->getShop()->toArray();
         $this->cache = Mage::app()->getCache();
     }
 
     /**
-     * @param Varien_Event_Observer $observer
+     * Ten event reaguje na zmiany w koszyku
      */
-    public function addProductToCartHandler(Varien_Event_Observer $observer)
+    public function updateCartHandler()
     {
-        if (false === $this->canHandleECommerceEvent()) {
-            return;
-        }
-
-        /** @var Mage_Sales_Model_Quote $magentoCart */
-        $magentoCart = Mage::helper('checkout/cart')->getCart()->getQuote();
-
-        $requestToGr = [
-            'contactId' => $this->getContactFromGetResponse()->contactId,
-            'currency' => $magentoCart->getStoreCurrencyCode(),
-            'totalPrice' => $magentoCart->getSubtotal(),
-            'totalTaxPrice' => $magentoCart->getGrandTotal(),
-            'selectedVariants' => []
-        ];
-
-        /** @var Mage_Sales_Model_Quote_Item $magentoCartItem */
-        foreach ($magentoCart->getAllVisibleItems() as $magentoCartItem) {
-
-            if (false === $this->_isProductTypeSupported($magentoCartItem->getProductType())) {
-                continue;
+        try {
+            if (false === $this->canHandleECommerceEvent()) {
+                return;
             }
 
-            $grProductId = $this->getProductId($this->getresponseShopsSettings['grShopId'], $magentoCartItem);
-            if (false === $grProductId) {
-                continue;
-            }
+            $campaignId = $this->accountSettings['campaignId'];
 
-            $requestToGr['selectedVariants'][] = [
-                'variantId' => $grProductId,
-                'price' => $magentoCartItem->getProduct()->getPrice(),
-                'priceTax' => $magentoCartItem->getPriceInclTax(),
-                'quantity' => $magentoCartItem->getQty(),
-            ];
-        }
+            /** @var Mage_Checkout_Helper_Cart $cartModel */
+            $cartModel = Mage::helper('checkout/cart');
 
-        if (empty($requestToGr['selectedVariants'])) {
-            if (!empty($magentoCart['getresponse_cart_id'])) {
-                $this->api->deleteCart(
-                    $this->getresponseShopsSettings['grShopId'],
-                    $magentoCart['getresponse_cart_id']
+            /** @var Mage_Sales_Model_Quote $salesQuote */
+            $salesQuote = Mage::getModel('sales/quote');
+
+            $customer = $this->customerSessionModel->getCustomer();
+
+            if ($this->shopsSettings['isScheduleOptimizationEnabled']) {
+
+                $scheduler = new Scheduler();
+                $scheduler->addToQueue(
+                    $customer->getId(),
+                    Scheduler::EXPORT_CART,
+                    array(
+                        'quote_id' => $cartModel->getCart()->getQuote()->getId(),
+                        'campaign_id' => $campaignId,
+                        'subscriber_email' => $customer->getData('email'),
+                        'gr_store_id' => $this->shopsSettings['grShopId'],
+                        'shop_id' => $this->shopId
+                    )
                 );
-                $magentoCart->setGetresponseCartId('');
-                $magentoCart->save();
+
+            } else {
+
+                $cartHandler = new GetresponseCartHandler(
+                    $this->buildApiInstance(),
+                    $salesQuote,
+                    new GrCartBuilder(),
+                    new GrProductHandler($this->buildApiInstance())
+                );
+                $cartHandler->sendCartToGetresponse(
+                    $cartModel->getCart()->getQuote(),
+                    $campaignId,
+                    $customer->getData('email'),
+                    $this->shopsSettings['grShopId']
+                );
             }
-            return;
+
+        } catch (Exception $e) {
         }
-
-
-        if (empty($magentoCart['getresponse_cart_id'])) {
-            $response = $this->api->addCart($this->getresponseShopsSettings['grShopId'], $requestToGr);
-            $magentoCart->setGetresponseCartId($response->cartId);
-            $magentoCart->save();
-        } else {
-            $response = $this->api->updateCart(
-                $this->getresponseShopsSettings['grShopId'],
-                $magentoCart['getresponse_cart_id'],
-                $requestToGr
-            );
-        }
-
-    }
-
-    /**
-     * @param string $shopId
-     * @param Mage_Sales_Model_Quote_Item $magentoCartItem
-     * @return bool|string
-     */
-    protected function getProductId($shopId, $magentoCartItem)
-    {
-        $productMapCollection = Mage::getModel('getresponse/ProductMap')->getCollection();
-
-        $productMap = $productMapCollection
-            ->addFieldToFilter('entity_id', $magentoCartItem->getProductId())
-            ->addFieldToFilter('gr_shop_id', $shopId)
-            ->getFirstItem();
-
-        if (!is_null($productMap->getGrProductId())) {
-            return $productMap->getGrProductId();
-        }
-
-        $productId = $this->createProductInGetResponse($shopId, $magentoCartItem);
-
-        if (false === $productId) {
-            return false;
-        }
-
-        $productMap = Mage::getModel('getresponse/ProductMap');
-        $productMap->setData([
-            'gr_shop_id' => $shopId,
-            'entity_id' => $magentoCartItem->getProductId(),
-            'gr_product_id' => $productId
-        ]);
-        $productMap->save();
-
-        return $productId;
-    }
-
-    /**
-     * @param string $shopId
-     * @param Mage_Sales_Model_Quote_Item $magentoCartItem
-     * @return bool
-     */
-    protected function createProductInGetResponse($shopId, $magentoCartItem)
-    {
-        $params = [
-            'name' => $magentoCartItem->getProduct()->getName(),
-            'categories' => [],
-            'externalId' => $magentoCartItem->getProductId(),
-            'variants' => [
-                [
-                    'name' => $magentoCartItem->getName(),
-                    'price'=> $magentoCartItem->getProduct()->getPrice(),
-                    'priceTax' => $magentoCartItem->getProduct()->getPrice(),
-                    'sku' => $magentoCartItem->getProduct()->getSku(),
-                ],
-            ],
-        ];
-
-        $response = $this->api->addProduct($shopId, $params);
-
-        return $this->handleProductResponse($response);
-    }
-
-    protected function handleProductResponse($response)
-    {
-        if (!isset($response->productId)) {
-            return false;
-        } else {
-            return $response->variants[0]->variantId;
-        }
-    }
-
-    /**
-     * @return mixed
-     * @throws Zend_Cache_Exception
-     */
-    protected function getContactFromGetResponse()
-    {
-        /** @var Mage_Customer_Model_Customer $customer */
-        $customer = Mage::getSingleton('customer/session')->getCustomer();
-
-        $cacheKey = md5($customer->getEmail().$this->getresponseSettings['campaignId']);
-        $cachedContact = $this->cache->load($cacheKey);
-
-        if (false !== $cachedContact) {
-            return unserialize($cachedContact);
-        }
-
-        $response = $this->api->getContact(
-            $customer->getEmail(),
-            $this->getresponseSettings['campaignId']
-        );
-
-        $this->cache->save(serialize($response), $cacheKey, [self::CACHE_KEY], 5*60);
-
-        return $response;
-    }
-
-    /**
-     * @return bool
-     * @throws Zend_Cache_Exception
-     */
-    protected function canHandleECommerceEvent()
-    {
-        if (!Mage::getSingleton('customer/session')->isLoggedIn()) {
-            return false;
-        }
-
-        $shopId = Mage::helper('getresponse')->getStoreId();
-        $shopRepository = new ShopRepository($shopId);
-        $data = $shopRepository->getShop()->toArray();
-
-        if (1 != $data['isEnabled']) {
-            return false;
-        }
-
-        $contact = $this->getContactFromGetResponse();
-
-        if (!isset($contact->contactId)) {
-            return false;
-        }
-
     }
 
     /**
      * @param Varien_Event_Observer $observer
-     * @throws Exception
      */
     public function createOrderHandler($observer)
     {
-        if (false === $this->canHandleECommerceEvent()) {
-            return;
+        try {
+            if (false === $this->canHandleECommerceEvent()) {
+                return;
+            }
+
+            $campaignId = $this->accountSettings['campaignId'];
+
+            /** @var Mage_Customer_Model_Customer $customer */
+            $customer = $this->customerSessionModel->getCustomer();
+
+            /** @var Mage_Sales_Model_Order $order */
+            $order = $observer->getEvent()->getData('order');
+
+            $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
+            $getresponseCartId = $quote->getData('getresponse_cart_id');
+
+            if ($this->shopsSettings['isScheduleOptimizationEnabled']) {
+
+                $scheduler = new Scheduler();
+                $scheduler->addToQueue(
+                    $customer->getId(),
+                    Scheduler::EXPORT_ORDER,
+                    array(
+                        'order_id' => $order->getId(),
+                        'campaign_id' => $campaignId,
+                        'subscriber_email' => $customer->getData('email'),
+                        'gr_store_id' => $this->shopsSettings['grShopId'],
+                        'shop_id' => $this->shopId
+
+                    )
+                );
+
+            } else {
+
+                $orderHandler = new GetresponseOrderHandler(
+                    $this->buildApiInstance(),
+                    new GrProductHandler($this->buildApiInstance()),
+                    new GrOrderBuilder()
+                );
+
+                $orderHandler->sendOrderToGetresponse(
+                    $observer->getEvent()->getData('order'),
+                    $customer->getData('email'),
+                    $campaignId,
+                    $getresponseCartId,
+                    $this->shopsSettings['grShopId'],
+                    true,
+                    false
+                );
+            }
+        } catch (Exception $e) {
         }
-
-        /** @var Mage_Sales_Model_Order $order */
-        $order = $observer->getEvent()->getData('order');
-        $orderPayload = $this->createOrderPayload($order);
-
-        $response = $this->api->createOrder(
-            $this->getresponseShopsSettings['grShopId'],
-            $orderPayload
-        );
-
-        Mage::log('Add new order to GetResponse - ' . $response->orderId, 1, 'getresponse.log');
-
-        $order->setGetresponseOrderId($response->orderId);
-        $order->setGetresponseOrderMd5($this->createOrderPayloadHash($orderPayload));
-        $order->save();
     }
 
     /**
      * @param Mage_Sales_Model_Order $order
-     * @return array
-     * @throws Zend_Cache_Exception
-     */
-    protected function createOrderPayload(Mage_Sales_Model_Order $order)
-    {
-        $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
-        $getresponseCartId = $quote->getData('getresponse_cart_id');
-
-        $requestToGr = [
-            'contactId' => $this->getContactFromGetResponse()->contactId,
-            'totalPrice' => $order->getGrandTotal(),
-            'totalPriceTax' => $order->getTaxAmount(),
-            'cartId' => $getresponseCartId,
-            'currency' => $order->getOrderCurrencyCode(),
-            'status' => $order->getStatus(),
-            'shippingPrice'  => $order->getShippingAmount(),
-            'externalId' => $order->getId(),
-            'shippingAddress' => [
-                'countryCode' => $order->getShippingAddress()->getCountryModel()->getIso3Code(),
-                'name' => $order->getShippingAddress()->getStreetFull(),
-                'firstName' => $order->getShippingAddress()->getFirstname(),
-                'lastName' => $order->getShippingAddress()->getLastname(),
-                'city' => $order->getShippingAddress()->getCity(),
-                'zip' => $order->getShippingAddress()->getPostcode(),
-            ],
-            'billingAddress' => [
-                'countryCode' => $order->getBillingAddress()->getCountryModel()->getIso3Code(),
-                'name' => $order->getBillingAddress()->getStreetFull(),
-                'firstName' => $order->getBillingAddress()->getFirstname(),
-                'lastName' => $order->getBillingAddress()->getLastname(),
-                'city' => $order->getBillingAddress()->getCity(),
-                'zip' => $order->getBillingAddress()->getPostcode(),
-            ],
-        ];
-
-        /** @var Mage_Sales_Model_Order_Item $item */
-        foreach ($order->getAllItems() as $item) {
-
-            if (0 == $item->getQtyOrdered()) {
-                continue;
-            }
-
-            $grProductId = $this->getProductId($this->getresponseShopsSettings['grShopId'], $item);
-            if (false === $grProductId) {
-                continue;
-            }
-
-            $requestToGr['selectedVariants'][] = [
-                'variantId' => $grProductId,
-                'price' => $item->getPrice(),
-                'priceTax' => round($item->getTaxAmount() / $item->getQtyOrdered(), 2),
-                'quantity' => $item->getQtyOrdered(),
-                'type' => $item->getProductType(),
-            ];
-
-        }
-
-        return $requestToGr;
-    }
-
-    /**
-     * @param $productType
      * @return bool
      */
-    protected function _isProductTypeSupported($productType)
+    private function isOrderPayloadChanged(Mage_Sales_Model_Order $order)
     {
-        return true;
+        $hash = $this->createOrderPayloadHash(
+            $this->createOrderPayload($order)
+        );
+
+        return $order->getData('getresponse_order_md5') !== $hash;
     }
 
     /**
-     * @param array $orderPayload
-     * @return string
+     * @param Mage_Sales_Model_Order $order
+     * @return bool
      */
-    protected function createOrderPayloadHash(array $orderPayload)
+    private function orderExistsInGetresponse(Mage_Sales_Model_Order $order)
     {
-        return md5(json_encode($orderPayload));
+        $exists = $order->getData('getresponse_order_id');
+        return !empty($exists);
     }
 
     /**
@@ -336,27 +185,244 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
      */
     public function orderDetailsChangedHandler(Varien_Event_Observer $observer)
     {
-        if (false === $this->canHandleECommerceEvent()) {
-            return;
+        try {
+            /** @var Mage_Sales_Model_Order $order */
+            $order = $observer->getEvent()->getOrder();
+
+            if (!$this->canChangeOrderDetails($order)) {
+                return;
+            }
+
+            if (!$this->isOrderPayloadChanged($order) || !$this->orderExistsInGetresponse($order)) {
+                return;
+            }
+
+            $campaignId = $this->accountSettings['campaignId'];
+
+            if ($this->shopsSettings['isScheduleOptimizationEnabled']) {
+
+                $scheduler = new Scheduler();
+                $scheduler->addToQueue(
+                    $order->getCustomerId(),
+                    Scheduler::EXPORT_ORDER,
+                    array(
+                        'order_id' => $order->getId(),
+                        'campaign_id' => $campaignId,
+                        'subscriber_email' => $order->getCustomerEmail(),
+                        'gr_store_id' => $this->shopsSettings['grShopId'],
+                        'shop_id' => $this->shopId,
+                        'skip_automation' => 0
+                    )
+                );
+
+            } else {
+
+                $orderHandler = new GetresponseOrderHandler(
+                    $this->buildApiInstance(),
+                    new GrProductHandler($this->buildApiInstance()),
+                    new GrOrderBuilder()
+                );
+
+                $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
+                $getresponseCartId = $quote->getData('getresponse_cart_id');
+
+                $orderHandler->sendOrderToGetresponse(
+                    $order,
+                    $order->getCustomerEmail(),
+                    $campaignId,
+                    $getresponseCartId,
+                    $this->shopsSettings['grShopId'],
+                    false,
+                    false
+                );
+            }
+        } catch (Exception $e) {
+            GetresponseIntegration_Getresponse_Helper_Logger::logException($e);
+        }
+    }
+
+    /**
+     * @param Mage_Sales_Model_Order $order
+     * @return bool
+     * @throws Mage_Core_Model_Store_Exception
+     * @throws Varien_Exception
+     */
+    private function canChangeOrderDetails(Mage_Sales_Model_Order $order)
+    {
+        return $this->isUserClientOrAdminAuthenticated()
+            && $this->isStoreEnabled()
+            && $this->isCampaignIdSet()
+            && $this->isClientInGetResponse($order->getCustomerId());
+    }
+
+    /**
+     * @param int $customerId
+     * @return bool
+     * @throws Varien_Exception
+     */
+    private function isClientInGetResponse($customerId)
+    {
+        $customerEmail = $this->getCustomerEmailById($customerId);
+        $contact = $this->getContactFromGetResponseByEmail($customerEmail);
+
+        return !empty($contact);
+    }
+
+    /**
+     * @param string $email
+     * @return array
+     */
+    private function getContactFromGetResponseByEmail($email)
+    {
+        try {
+            if (empty($email) || empty($this->accountSettings['campaignId'])) {
+                return array();
+            }
+
+            $cacheKey = md5($email . $this->accountSettings['campaignId']);
+            $cachedContact = $this->cache->load($cacheKey);
+
+            if (false !== $cachedContact) {
+                return unserialize($cachedContact);
+            }
+
+            $api = $this->buildApiInstance();
+            $response = $api->getContact($email, $this->accountSettings['campaignId']);
+
+            $this->cache->save(serialize($response), $cacheKey, array(self::CACHE_KEY), 5 * 60);
+
+            return (array)$response;
+        } catch (GetresponseException $e) {
+            return array();
+        } catch (Zend_Cache_Exception $e) {
+            return array();
+        }
+    }
+
+    /**
+     * @param int $customerId
+     * @return string
+     * @throws Varien_Exception
+     */
+    private function getCustomerEmailById($customerId)
+    {
+        $customerData = Mage::getModel('customer/customer')->load($customerId);
+
+        return $customerData->getEmail();
+    }
+
+    /**
+     * @return bool
+     */
+    private function isStoreEnabled()
+    {
+        $shopRepository = new ShopRepository(Mage::helper('getresponse')->getStoreId());
+
+        return $shopRepository->getShop()->isEnabled();
+    }
+
+
+    /**
+     * @return bool
+     * @throws Mage_Core_Model_Store_Exception
+     * @throws Varien_Exception
+     */
+    private function isUserClientOrAdminAuthenticated()
+    {
+        return Mage::app()->getStore()->isAdmin()
+            ? Mage::getSingleton('admin/session')->isLoggedIn()
+            : Mage::getSingleton('customer/session')->isLoggedIn();
+    }
+
+    /**
+     * @param Mage_Sales_Model_Order $order
+     *
+     * @return array
+     */
+    private function createOrderPayload(Mage_Sales_Model_Order $order)
+    {
+        $shippingAddress = $order->getShippingAddress();
+
+        if (empty($shippingAddress)) {
+            $shippingAddress = $order->getBillingAddress();
         }
 
-        /** @var Mage_Sales_Model_Order $order */
-        $order = $observer->getEvent()->getOrder();
-        $orderPayload = $this->createOrderPayload($order);
-
-        if ($order->getGetresponseOrderMd5() == $this->createOrderPayloadHash($orderPayload) || '' == $order->getGetresponseOrderId()) {
-            Mage::log('[Order Details Changed Event] - Nothing important to GR', 1, 'getresponse.log');
-            return;
-        }
-
-        $this->api->updateOrder(
-            $this->getresponseShopsSettings['grShopId'],
-            $order->getGetresponseOrderId(),
-            $orderPayload
+        return array(
+            'customerId'      => $order->getCustomerId(),
+            'totalPrice'      => $order->getGrandTotal(),
+            'totalPriceTax'   => $order->getTaxAmount(),
+            'currency'        => $order->getOrderCurrencyCode(),
+            'status'          => $order->getStatus(),
+            'shippingPrice'   => $order->getShippingAmount(),
+            'externalId'      => $order->getId(),
+            'shippingAddress' => array(
+                'countryCode' => $shippingAddress->getCountryModel()->getIso3Code(),
+                'name'        => $shippingAddress->getStreetFull(),
+                'firstName'   => $shippingAddress->getFirstname(),
+                'lastName'    => $shippingAddress->getLastname(),
+                'city'        => $shippingAddress->getCity(),
+                'zip'         => $shippingAddress->getPostcode(),
+            ),
+            'billingAddress' => array(
+                'countryCode' => $order->getBillingAddress()->getCountryModel()->getIso3Code(),
+                'name'        => $order->getBillingAddress()->getStreetFull(),
+                'firstName'   => $order->getBillingAddress()->getFirstname(),
+                'lastName'    => $order->getBillingAddress()->getLastname(),
+                'city'        => $order->getBillingAddress()->getCity(),
+                'zip'         => $order->getBillingAddress()->getPostcode(),
+            ),
         );
-        $order->setGetresponseOrderMd5($this->createOrderPayloadHash($orderPayload));
-        $order->save();
+    }
 
-        Mage::log('[Order Details Changed Event] - Important to GR. Request sent.', 1, 'getresponse.log');
+    /**
+     * @param array $orderPayload
+     *
+     * @return string
+     */
+    private function createOrderPayloadHash(array $orderPayload)
+    {
+        return md5(json_encode($orderPayload));
+    }
+
+    /**
+     * @return bool
+     * @throws Varien_Exception
+     */
+    private function canHandleECommerceEvent()
+    {
+        return $this->customerSessionModel->isLoggedIn()
+            && $this->isStoreEnabled()
+            && $this->isCampaignIdSet()
+            && $this->isClientInGetResponse($this->customerSessionModel->getCustomer()->getId());
+    }
+
+    /**
+     * @return GetresponseIntegration_Getresponse_Helper_Api
+     * @throws GetresponseException
+     */
+    private function buildApiInstance()
+    {
+        if (empty($this->accountSettings['apiKey'])) {
+            throw GetresponseException::create_when_api_key_not_found();
+        }
+
+        /** @var GetresponseIntegration_Getresponse_Helper_Api $api */
+        $api = Mage::helper('getresponse/api');
+
+        $api->setApiDetails(
+            $this->accountSettings['apiKey'],
+            $this->accountSettings['apiUrl'],
+            $this->accountSettings['apiDomain']
+        );
+
+        return $api;
+    }
+
+    /**
+     * @return bool
+     */
+    private function isCampaignIdSet()
+    {
+        return isset($this->accountSettings['campaignId']);
     }
 }

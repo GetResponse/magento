@@ -5,6 +5,16 @@
             <version>19.1.11</version>
         </GetresponseIntegration_Getresponse>
     </modules>
+    <crontab>
+        <jobs>
+            <GetresponseIntegration_Getresponse>
+                <schedule><cron_expr>*/1 * * * *</cron_expr></schedule>
+                <run>
+                    <model>getresponse/GetresponseCronjobObserver::exportJobsToGetresponse</model>
+                </run>
+            </GetresponseIntegration_Getresponse>
+        </jobs>
+    </crontab>
     <global>
         <helpers>
             <getresponse>
@@ -60,6 +70,11 @@
                         <method>createAccountOrder</method>
                         <type>singleton</type>
                     </getresponse_order_create_account>
+                    <getresponse_automation>
+                        <class>GetresponseIntegration_Getresponse_Model_Observer</class>
+                        <method>automationHandler</method>
+                        <type>singleton</type>
+                    </getresponse_automation>
                     <getresponse_order_create_handler>
                         <class>GetresponseIntegration_Getresponse_Model_ECommerceObserver</class>
                         <method>createOrderHandler</method>
@@ -85,27 +100,12 @@
             <getresponse_resource>
                 <class>GetresponseIntegration_Getresponse_Model_Resource</class>
                 <entities>
-                    <settings>
-                        <table>getresponse_settings</table>
-                    </settings>
-                    <customs>
-                        <table>getresponse_customs</table>
-                    </customs>
-                    <account>
-                        <table>getresponse_account</table>
-                    </account>
-                    <webforms>
-                        <table>getresponse_webforms</table>
-                    </webforms>
-                    <automations>
-                        <table>getresponse_automations</table>
-                    </automations>
-                    <shop>
-                        <table>getresponse_shops</table>
-                    </shop>
                     <productMap>
                         <table>getresponse_product_map</table>
                     </productMap>
+                    <scheduleJobsQueue>
+                        <table>getresponse_schedule_jobs_queue</table>
+                    </scheduleJobsQueue>
                 </entities>
             </getresponse_resource>
         </models>
@@ -158,7 +158,7 @@
                 <observers>
                     <getresponse2_add_to_cart_shop_webhook>
                         <class>GetresponseIntegration_Getresponse_Model_ECommerceObserver</class>
-                        <method>addProductToCartHandler</method>
+                        <method>updateCartHandler</method>
                         <type>singleton</type>
                     </getresponse2_add_to_cart_shop_webhook>
                 </observers>
@@ -244,14 +244,5 @@
         </core_block_abstract_prepare_layout_before>
     </events>
 </adminhtml>
-
-    <default>
-        <getresponse_customs>
-            <fields_mapping>
-                <map_fields>asdadasda</map_fields>
-            </fields_mapping>
-        </getresponse_customs>
-    </default>
-
 </config>
 

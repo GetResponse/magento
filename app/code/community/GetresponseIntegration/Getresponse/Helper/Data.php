@@ -5,6 +5,9 @@ use GetresponseIntegration_Getresponse_Domain_ShopRepository as ShopRepository;
 use GetresponseIntegration_Getresponse_Domain_WebformRepository as WebformRepository;
 use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionRepository as AutomationRulesCollectionRepository;
 
+/**
+ * Class GetresponseIntegration_Getresponse_Helper_Data
+ */
 class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Abstract
 {
 	/**
@@ -77,9 +80,12 @@ class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Ab
 		return $this->_files;
 	}
 
+    /**
+     * @return object
+     */
 	public function getNewsletterSubscribersCollection()
     {
-        return Mage::getModel('newsletter/subscriber')->getResourceCollection();
+        return Mage::getModel('newsletter/subscriber')->getCollection();
             //->addFieldToSelect('email');
     }
 
@@ -101,27 +107,29 @@ class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Ab
 			->joinAttribute('birthday', 'customer/dob', 'entity_id', null, 'left');
 	}
 
-	/**
-	 * @return int
-	 */
+    /**
+     * @return int
+     * @throws Mage_Core_Model_Store_Exception
+     * @throws Varien_Exception
+     */
 	public function getStoreId()
 	{
 		$store_id = Mage::app()->getStore()->getStoreId();
-
 		return !empty($store_id) ? $store_id : Mage_Core_Model_App::DISTRO_STORE_ID;
 	}
 
-	/**
-	 * @param $order
-	 *
-	 * @return array
-	 */
+    /**
+     * @param $order
+     *
+     * @return array
+     * @throws Varien_Exception
+     */
 	public function getCategoriesByOrder($order)
 	{
 		$categories = array();
 		if ($order->getId()) {
 
-			foreach ($order->getAllVisibleItems() as $item) {
+			foreach ($order->getAllItems() as $item) {
 				$product = Mage::getModel('catalog/product')->load($item->getProductId());
 				$cats = $product->getCategoryIds();
 
@@ -138,6 +146,8 @@ class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Ab
 
     /**
      * @param int $shopId
+     *
+     * @throws Varien_Exception
      */
 	public function disconnectIntegration($shopId)
 	{
@@ -159,6 +169,10 @@ class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Ab
 		Mage::getModel('getresponse/customs')->disconnect($shopId);
 	}
 
+    /**
+     * @throws Mage_Core_Model_Store_Exception
+     * @throws Varien_Exception
+     */
 	public function handleUnauthorizedApiCall()
     {
         $firstOccurrenceTime = Mage::getStoreConfig(self::UNAUTHORIZED_API_CALL_CONFIG_PATH);
@@ -177,5 +191,4 @@ class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Ab
     {
         Mage::getConfig()->deleteConfig(self::UNAUTHORIZED_API_CALL_CONFIG_PATH);
     }
-
 }

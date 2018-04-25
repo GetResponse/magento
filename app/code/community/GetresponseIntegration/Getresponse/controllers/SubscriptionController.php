@@ -5,12 +5,13 @@ use GetresponseIntegration_Getresponse_Domain_CustomFieldsCollectionFactory as C
 use GetresponseIntegration_Getresponse_Domain_CustomFieldsCollectionRepository as CustomFieldsCollectionRepository;
 use GetresponseIntegration_Getresponse_Domain_CustomFieldFactory as CustomFieldFactory;
 
-require_once Mage::getModuleDir('controllers',
-        'GetresponseIntegration_Getresponse') . DIRECTORY_SEPARATOR . 'BaseController.php';
+require_once 'BaseController.php';
 
+/**
+ * Class GetresponseIntegration_Getresponse_SubscriptionController
+ */
 class GetresponseIntegration_Getresponse_SubscriptionController extends GetresponseIntegration_Getresponse_BaseController
 {
-
     /**
      * GET getresponse/subscription/index
      */
@@ -19,12 +20,19 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
         $this->_initAction();
         $this->_title($this->__('Subscription via registration page'))->_title($this->__('GetResponse'));
 
+        try {
+            $campaignDays = $this->api->getCampaignDays();
+            $campaigns = $this->api->getCampaigns();
+        } catch (GetresponseIntegration_Getresponse_Domain_GetresponseException $e) {
+            $campaignDays = $campaigns = array();
+        }
+
         /** @var Mage_Core_Block_Abstract $autoresponderBlock */
         $autoresponderBlock = $this->getLayout()->createBlock(
             'GetresponseIntegration_Getresponse_Block_Adminhtml_Autoresponder',
             'autoresponder',
             array(
-                'campaign_days' => $this->api->getCampaignDays(),
+                'campaign_days' => $campaignDays,
                 'selected_day' => $this->settings->api['cycleDay']
             )
         );
@@ -32,7 +40,7 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
         $this->_addContent($this->getLayout()
             ->createBlock('Mage_Core_Block_Template', 'getresponse_content')
             ->setTemplate('getresponse/viapage.phtml')
-            ->assign('campaigns', $this->api->getGrCampaigns())
+            ->assign('campaigns', $campaigns)
             ->assign('customs', $this->prepareCustomsForMapping())
             ->assign('settings', $this->settings)
             ->assign('autoresponder_block', $autoresponderBlock->toHtml())
@@ -81,25 +89,25 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
 
         if ($activeSubscription === 0) {
             $newSettings = SettingsFactory::createFromArray(
-                [
+                array(
                     'campaignId' => 0,
                     'activeSubscription' => 0,
                     'updateAddress' => 0,
                     'cycleDay' => null,
                     'subscriptionOnCheckout' => 0,
                     'newsletterCycleDay' => $oldSettings['newsletterCycleDay']
-                ]
+                )
             );
         } else {
             $newSettings = SettingsFactory::createFromArray(
-                [
+                array(
                     'campaignId' => $campaignId,
                     'activeSubscription' => $activeSubscription,
                     'updateAddress' => $syncOrderData,
                     'cycleDay' => $cycleDay,
                     'subscriptionOnCheckout' => $subscriptionOnCheckout,
                     'newsletterCycleDay' => $oldSettings['newsletterCycleDay']
-                ]
+                )
             );
         }
 
@@ -107,7 +115,7 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
 
         if (!empty($params['gr_sync_order_data']) && isset($params['gr_custom_field'])) {
 
-            $customMap = [];
+            $customMap = array();
             $customsDb = $this->settings->customs;
 
             foreach ($params['gr_custom_field'] as $key => $name) {
