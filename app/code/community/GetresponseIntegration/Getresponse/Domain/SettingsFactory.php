@@ -1,6 +1,9 @@
 <?php
 use GetresponseIntegration_Getresponse_Domain_Settings as Settings;
 
+/**
+ * Class GetresponseIntegration_Getresponse_Domain_SettingsFactory
+ */
 class GetresponseIntegration_Getresponse_Domain_SettingsFactory
 {
     /**

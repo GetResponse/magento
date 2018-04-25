@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class GetresponseIntegration_Getresponse_Block_Getresponse
+ */
 class GetresponseIntegration_Getresponse_Block_Getresponse extends Mage_Core_Block_Template
 {
 	/**
@@ -10,5 +13,4 @@ class GetresponseIntegration_Getresponse_Block_Getresponse extends Mage_Core_Blo
 		parent::_construct();
 		$this->setTemplate('getresponse/webform.phtml');
 	}
-
 }

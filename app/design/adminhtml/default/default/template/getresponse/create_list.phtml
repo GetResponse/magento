@@ -9,7 +9,7 @@
 
             <button title="Back" type="button" class="scalable back" onclick="window.history.back()" style=""><span><span><span>Back</span></span></span></button>
 
-            <button type="submit" onclick="getresponselist.submit();" name="Submit" id="saveContactList" class="scalable save"><span>Save New List</span></button>
+            <button type="submit" name="Submit" id="saveContactList" class="scalable save"><span>Save New List</span></button>
         </p>
     </div>
 
@@ -37,10 +37,10 @@
                                 <select name="from" id="form_from">
                                     <option value="">Select from field</option>
                                     <?php foreach ($from_fields as $from): ?>
-                                        <?php if ($from->isActive == true): ?>
+                                        <?php if ($from['isActive'] == true): ?>
                                             <option
-                                                value="<?php echo $from->fromFieldId ?>">
-                                                <?php echo $from->name . ' (' . $from->email . ')' ?></option>
+                                                value="<?php echo $from['fromFieldId'] ?>">
+                                                <?php echo $from['name'] . ' (' . $from['email'] . ')' ?></option>
                                         <?php endif ?>
                                     <?php endforeach ?>
                                 </select>
@@ -61,10 +61,10 @@
                                 <select name="reply_to" id="form_reply_to">
                                     <option value="">Select reply-to-address</option>
                                     <?php foreach ($from_fields as $from): ?>
-                                        <?php if ($from->isActive == true):?>
+                                        <?php if ($from['isActive'] == true):?>
                                             <option
-                                                value="<?php echo $from->fromFieldId?>">
-                                                <?php echo $from->name . ' (' . $from->email . ')'?></option>
+                                                value="<?php echo $from['fromFieldId']?>">
+                                                <?php echo $from['name'] . ' (' . $from['email'] . ')'?></option>
                                         <?php endif ?>
                                     <?php endforeach ?>
                                 </select>
@@ -85,7 +85,7 @@
                                 <select name="confirmation_subject" id="form_confirmation_subject">
                                     <option value="">Select confirmation message subject</option>
                                     <?php foreach ($confirmation_subject as $cs): ?>
-                                        <option value="<?php echo $cs->subscriptionConfirmationSubjectId ?>"><?php echo $cs->subject ?></option>
+                                        <option value="<?php echo $cs['subscriptionConfirmationSubjectId'] ?>"><?php echo $cs['subject'] ?></option>
                                     <?php endforeach ?>
                                 </select>
                                 <?php else: ?>
@@ -105,7 +105,7 @@
                                 <select name="confirmation_body" id="form_confirmation_body">
                                     <option value="">Select confirmation message body template</option>
                                     <?php foreach ($confirmation_body as $cb): ?>
-                                        <option value="<?php echo $cb->subscriptionConfirmationBodyId ?>"><?php echo $cb->contentPlain?></option>
+                                        <option value="<?php echo $cb['subscriptionConfirmationBodyId'] ?>"><?php echo $cb['contentPlain'] ?></option>
                                     <?php endforeach ?>
                                 </select>
                                 <?php else: ?>

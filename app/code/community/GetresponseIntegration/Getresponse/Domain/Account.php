@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class GetresponseIntegration_Getresponse_Domain_Account
+ */
 class GetresponseIntegration_Getresponse_Domain_Account
 {
     private $accountId;
@@ -17,6 +20,22 @@ class GetresponseIntegration_Getresponse_Domain_Account
     private $timeZoneName;
     private $timeZoneOffset;
 
+    /**
+     * @param int $accountId
+     * @param string $firstName
+     * @param string $lastName
+     * @param string $email
+     * @param string $phone
+     * @param string $state
+     * @param string $city
+     * @param string $street
+     * @param string $zipCode
+     * @param string $country
+     * @param int $numberOfEmployees
+     * @param string $timeFormat
+     * @param string $timeZoneName
+     * @param string $timeZoneOffset
+     */
     public function __construct(
         $accountId,
         $firstName,
@@ -49,64 +68,100 @@ class GetresponseIntegration_Getresponse_Domain_Account
         $this->timeZoneOffset = $timeZoneOffset;
     }
 
+    /**
+     * @return int
+     */
     public function getAccountId()
     {
         return $this->accountId;
     }
 
+    /**
+     * @return string
+     */
     public function getFirstName()
     {
         return $this->firstName;
     }
 
+    /**
+     * @return string
+     */
     public function getLastName()
     {
         return $this->lastName;
     }
 
+    /**
+     * @return string
+     */
     public function getEmail()
     {
         return $this->email;
     }
 
+    /**
+     * @return string
+     */
     public function getPhone()
     {
         return $this->phone;
     }
 
+    /**
+     * @return string
+     */
     public function getState()
     {
         return $this->state;
     }
 
+    /**
+     * @return string
+     */
     public function getCity()
     {
         return $this->city;
     }
 
+    /**
+     * @return string
+     */
     public function getStreet()
     {
         return $this->street;
     }
 
+    /**
+     * @return string
+     */
     public function getZipCode()
     {
         return $this->zipCode;
     }
 
+    /**
+     * @return string
+     */
     public function getCountry()
     {
         return $this->country;
     }
 
+    /**
+     * @return int
+     */
     public function getNumberOfEmployees()
     {
         return $this->numberOfEmployees;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
-        return [
+        return array(
             'accountId' => $this->accountId,
             'firstName' => $this->firstName,
             'lastName' => $this->lastName,
@@ -121,6 +176,6 @@ class GetresponseIntegration_Getresponse_Domain_Account
             'timeFormat' => $this->timeFormat,
             'timeZoneName' => $this->timeZoneName,
             'timeZoneOffset' => $this->timeZoneOffset
-        ];
+        );
     }
 }

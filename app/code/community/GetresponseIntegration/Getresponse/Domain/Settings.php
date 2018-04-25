@@ -1,11 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mjaniszewski
- * Date: 11/12/2017
- * Time: 14:47
- */
 
+/**
+ * Class GetresponseIntegration_Getresponse_Domain_Settings
+ */
 class GetresponseIntegration_Getresponse_Domain_Settings
 {
     private $apiKey;
@@ -24,21 +21,20 @@ class GetresponseIntegration_Getresponse_Domain_Settings
     private $newsletterCycleDay;
 
     /**
-     * GetresponseIntegration_Getresponse_Domain_Settings constructor.
-     * @param $apiKey
-     * @param $apiUrl
-     * @param $apiDomain
-     * @param $activeSubscription
-     * @param $updateAddress
-     * @param $campaignId
-     * @param $cycleDay
-     * @param $subscriptionOnCheckout
-     * @param $hasGrTrafficFeatureEnabled
-     * @param $hasActiveTrafficModule
-     * @param $trackingCodeSnippet
-     * @param $newsletterSubscription
-     * @param $newsletterCampaignId
-     * @param $newsletterCycleDay
+     * @param string $apiKey
+     * @param string $apiUrl
+     * @param string $apiDomain
+     * @param string $activeSubscription
+     * @param string $updateAddress
+     * @param string $campaignId
+     * @param int $cycleDay
+     * @param string $subscriptionOnCheckout
+     * @param bool $hasGrTrafficFeatureEnabled
+     * @param bool $hasActiveTrafficModule
+     * @param string $trackingCodeSnippet
+     * @param string $newsletterSubscription
+     * @param string $newsletterCampaignId
+     * @param string $newsletterCycleDay
      */
     public function __construct(
         $apiKey,
@@ -73,7 +69,7 @@ class GetresponseIntegration_Getresponse_Domain_Settings
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getApiKey()
     {
@@ -81,7 +77,7 @@ class GetresponseIntegration_Getresponse_Domain_Settings
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getApiUrl()
     {
@@ -89,7 +85,7 @@ class GetresponseIntegration_Getresponse_Domain_Settings
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getApiDomain()
     {
@@ -97,7 +93,7 @@ class GetresponseIntegration_Getresponse_Domain_Settings
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getActiveSubscription()
     {
@@ -105,7 +101,7 @@ class GetresponseIntegration_Getresponse_Domain_Settings
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getUpdateAddress()
     {
@@ -113,7 +109,7 @@ class GetresponseIntegration_Getresponse_Domain_Settings
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getCampaignId()
     {
@@ -121,7 +117,7 @@ class GetresponseIntegration_Getresponse_Domain_Settings
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getCycleDay()
     {
@@ -129,7 +125,7 @@ class GetresponseIntegration_Getresponse_Domain_Settings
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getSubscriptionOnCheckout()
     {
@@ -137,7 +133,7 @@ class GetresponseIntegration_Getresponse_Domain_Settings
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
     public function getHasGrTrafficFeatureEnabled()
     {
@@ -145,7 +141,7 @@ class GetresponseIntegration_Getresponse_Domain_Settings
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
     public function getHasActiveTrafficModule()
     {
@@ -153,7 +149,7 @@ class GetresponseIntegration_Getresponse_Domain_Settings
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getTrackingCodeSnippet()
     {
@@ -161,7 +157,7 @@ class GetresponseIntegration_Getresponse_Domain_Settings
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getNewsletterSubscription()
     {
@@ -169,7 +165,7 @@ class GetresponseIntegration_Getresponse_Domain_Settings
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getNewsletterCampaignId()
     {
@@ -177,7 +173,7 @@ class GetresponseIntegration_Getresponse_Domain_Settings
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getNewsletterCycleDay()
     {
@@ -189,7 +185,7 @@ class GetresponseIntegration_Getresponse_Domain_Settings
      */
     public function toArray()
     {
-        return [
+        return array(
             'apiKey' => $this->apiKey,
             'apiUrl' => $this->apiUrl,
             'apiDomain' => $this->apiDomain,
@@ -204,6 +200,6 @@ class GetresponseIntegration_Getresponse_Domain_Settings
             'newsletterSubscription' => $this->newsletterSubscription,
             'newsletterCampaignId' => $this->newsletterCampaignId,
             'newsletterCycleDay' => $this->newsletterCycleDay
-        ];
+        );
     }
 }

@@ -1,28 +1,35 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mjaniszewski
- * Date: 11/12/2017
- * Time: 17:41
- */
 
+/**
+ * Class GetresponseIntegration_Getresponse_Domain_Webform
+ */
 class GetresponseIntegration_Getresponse_Domain_Webform
 {
+    /** @var string */
     private $webformId;
+
+    /** @var string */
     private $activeSubscription;
+
+    /** @var string */
     private $layoutPosition;
+
+    /** @var string */
     private $blockPosition;
+
+    /** @var string */
     private $webformTitle;
+
+    /** @var string */
     private $url;
 
     /**
-     * GetresponseIntegration_Getresponse_Domain_Webform constructor.
-     * @param $webformId
-     * @param $activeSubscription
-     * @param $layoutPosition
-     * @param $blockPosition
-     * @param $webformTitle
-     * @param $url
+     * @param string $webformId
+     * @param string $activeSubscription
+     * @param string $layoutPosition
+     * @param string $blockPosition
+     * @param string $webformTitle
+     * @param string $url
      */
     public function __construct($webformId, $activeSubscription, $layoutPosition, $blockPosition, $webformTitle, $url)
     {
@@ -35,7 +42,7 @@ class GetresponseIntegration_Getresponse_Domain_Webform
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getWebformId()
     {
@@ -43,7 +50,7 @@ class GetresponseIntegration_Getresponse_Domain_Webform
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function isActiveSubscription()
     {
@@ -51,7 +58,7 @@ class GetresponseIntegration_Getresponse_Domain_Webform
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getLayoutPosition()
     {
@@ -59,7 +66,7 @@ class GetresponseIntegration_Getresponse_Domain_Webform
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getBlockPosition()
     {
@@ -67,7 +74,7 @@ class GetresponseIntegration_Getresponse_Domain_Webform
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getWebformTitle()
     {
@@ -75,7 +82,7 @@ class GetresponseIntegration_Getresponse_Domain_Webform
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getUrl()
     {
@@ -87,13 +94,13 @@ class GetresponseIntegration_Getresponse_Domain_Webform
      */
     public function toArray()
     {
-        return [
+        return array(
             'webformId' => $this->webformId,
             'activeSubscription' => $this->activeSubscription,
             'layoutPosition' => $this->layoutPosition,
             'blockPosition' => $this->blockPosition,
             'webformTitle' => $this->webformTitle,
             'url' => $this->url
-        ];
+        );
     }
 }
