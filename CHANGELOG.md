@@ -1,5 +1,19 @@
 # Changelog
 
+## 19.1.12
+*(2018-04-25)*
+
+#### Bug fixes
+* Add export for E-commerce
+* Add schedule jobs optimization
+* Code refactoring and improvement
+
+## 19.1.11
+*(2018-04-03)*
+
+#### Bug fixes
+* Bug fixes and cleanup
+
 ## 19.1.10
 *(2018-03-06)*
 
