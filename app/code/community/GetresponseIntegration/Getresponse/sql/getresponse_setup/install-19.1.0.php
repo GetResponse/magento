@@ -15,7 +15,7 @@ try {
         `gr_product_id` varchar(32) NOT NULL,
         PRIMARY KEY (`id`),
         KEY `entity_id` (`entity_id`),
-        CONSTRAINT `getresponse_product_map_ibfk_1` FOREIGN KEY (`entity_id`) REFERENCES `catalog_product_entity` (`entity_id`) ON DELETE CASCADE ON UPDATE CASCADE
+        CONSTRAINT `getresponse_product_map_ibfk_1` FOREIGN KEY (`entity_id`) REFERENCES `{$installer->getTable('catalog_product_entity')}` (`entity_id`) ON DELETE CASCADE ON UPDATE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
 } catch (\Exception $e) {
     Mage::helper('getresponse/logger')->logException($e);
