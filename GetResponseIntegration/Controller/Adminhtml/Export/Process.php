@@ -22,6 +22,7 @@ use Magento\Framework\App\Request\Http;
 class Process extends AbstractController
 {
     const PAGE_TITLE = 'Export Customer Data on Demand';
+    const SUBSCRIBED = 1;
 
     protected $resultPageFactory;
 
@@ -103,9 +104,31 @@ class Process extends AbstractController
             }
         }
 
+        $subscribers = $this->repository->getNewsletterSubscribers();
+        foreach ($subscribers as $subscriber) {
+
+            if ((int) $subscriber['subscriber_status'] !== self::SUBSCRIBED) {
+                continue;
+            }
+
+            // create contact factory
+            $this->stats['count']++;
+            $custom_fields = [];
+            $custom_fields['origin'] = 'magento2';
+            $cycle_day = (isset($data['gr_autoresponder']) && $data['cycle_day'] != '') ? (int)$data['cycle_day'] : 0;
+
+            $this->addContact(
+                $campaign,
+                null,
+                null,
+                $subscriber['subscriber_email'],
+                $cycle_day,
+                $custom_fields
+            );
+        }
+
         // only those that are subscribed to newsletters
         $customers = $this->repository->getFullCustomersDetails();
-
         foreach ($customers as $customer) {
             // create contact factory
             $this->stats['count']++;
@@ -152,16 +175,18 @@ class Process extends AbstractController
     public function addContact($campaign, $firstName, $lastName, $email, $cycleDay = 0, $user_customs = [])
     {
         $apiHelper = new ApiHelper($this->grRepository);
-        $name = trim($firstName) . ' ' . trim($lastName);
 
         $user_customs['origin'] = 'magento2';
 
         $params = [
-            'name' => $name,
             'email' => $email,
             'campaign' => ['campaignId' => $campaign],
             'ipAddress' => $_SERVER['REMOTE_ADDR']
         ];
+
+        if (!empty($firstName) || !empty($lastName)) {
+            $params['name'] = trim($firstName) . ' ' . trim($lastName);
+        }
 
         if (!empty($cycleDay)) {
             $params['dayOfCycle'] = (int)$cycleDay;

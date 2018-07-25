@@ -118,6 +118,12 @@ class Repository
         return $customers;
     }
 
+    public function getNewsletterSubscribers()
+    {
+        $customers = $this->_objectManager->get('Magento\Newsletter\Model\Subscriber');
+        return $customers->getCollection()->getData();
+    }
+
     /**
      * @return array
      */
@@ -410,6 +416,14 @@ class Repository
     }
 
     /**
+     * @return array
+     */
+    public function getNewsletterSettings()
+    {
+        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_NEWSLETTER_SETTINGS));
+    }
+
+    /**
      * @param RegistrationSettings $registrationSettings
      */
     public function saveRegistrationSettings(RegistrationSettings $registrationSettings)
@@ -417,6 +431,20 @@ class Repository
         $this->configWriter->save(
             Config::CONFIG_DATA_REGISTRATION_SETTINGS,
             json_encode($registrationSettings->toArray()),
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+        $this->cacheManager->clean(['config']);
+    }
+
+    /**
+     * @param NewsletterSettings $newsletterSettings
+     */
+    public function saveNewsletterSettings(NewsletterSettings $newsletterSettings)
+    {
+        $this->configWriter->save(
+            Config::CONFIG_DATA_NEWSLETTER_SETTINGS,
+            json_encode($newsletterSettings->toArray()),
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
@@ -531,6 +559,17 @@ class Repository
     {
         $this->configWriter->delete(
             Config::CONFIG_DATA_REGISTRATION_SETTINGS,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+
+        $this->cacheManager->clean(['config']);
+    }
+
+    public function clearNewsletterSettings()
+    {
+        $this->configWriter->delete(
+            Config::CONFIG_DATA_NEWSLETTER_SETTINGS,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
