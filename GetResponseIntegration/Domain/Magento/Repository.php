@@ -118,6 +118,9 @@ class Repository
         return $customers;
     }
 
+    /**
+     * @return mixed
+     */
     public function getNewsletterSubscribers()
     {
         $customers = $this->_objectManager->get('Magento\Newsletter\Model\Subscriber');
