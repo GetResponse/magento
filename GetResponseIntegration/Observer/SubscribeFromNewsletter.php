@@ -48,8 +48,6 @@ class SubscribeFromNewsletter implements ObserverInterface
     }
 
     /**
-     * Save order into registry to use it in the overloaded controller.
-     *
      * @param EventObserver $observer
      * @return $this
      */
