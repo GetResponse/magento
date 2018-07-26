@@ -640,6 +640,7 @@ class Repository
     {
         $this->clearConnectionSettings();
         $this->clearRegistrationSettings();
+        $this->clearNewsletterSettings();
         $this->clearAccountDetails();
         $this->clearWebforms();
         $this->clearRules();
