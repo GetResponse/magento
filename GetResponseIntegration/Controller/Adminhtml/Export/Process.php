@@ -104,33 +104,10 @@ class Process extends AbstractController
             }
         }
 
-        $subscribers = $this->repository->getNewsletterSubscribers();
+        $subscribers = $this->repository->getFullCustomersDetails();
+
         foreach ($subscribers as $subscriber) {
 
-            if ((int) $subscriber['subscriber_status'] !== self::SUBSCRIBED) {
-                continue;
-            }
-
-            // create contact factory
-            $this->stats['count']++;
-            $custom_fields = [];
-            $custom_fields['origin'] = 'magento2';
-            $cycle_day = (isset($data['gr_autoresponder']) && $data['cycle_day'] != '') ? (int)$data['cycle_day'] : 0;
-
-            $this->addContact(
-                $campaign,
-                null,
-                null,
-                $subscriber['subscriber_email'],
-                $cycle_day,
-                $custom_fields
-            );
-        }
-
-        // only those that are subscribed to newsletters
-        $customers = $this->repository->getFullCustomersDetails();
-        foreach ($customers as $customer) {
-            // create contact factory
             $this->stats['count']++;
             $custom_fields = [];
             foreach ($customs as $field => $name) {
@@ -143,9 +120,9 @@ class Process extends AbstractController
 
             $this->addContact(
                 $campaign,
-                $customer['firstname'],
-                $customer['lastname'],
-                $customer['email'],
+                $subscriber['firstname'],
+                $subscriber['lastname'],
+                $subscriber['subscriber_email'],
                 $cycle_day,
                 $custom_fields
             );

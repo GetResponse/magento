@@ -33,7 +33,7 @@ class NewsletterSettings
      */
     public function isEnabled()
     {
-        return (1 === (int)$this->status) ? true : false;
+        return (1 === (int)$this->status);
     }
 
     /**
