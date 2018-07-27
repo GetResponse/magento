@@ -15,6 +15,7 @@ class Config
     const CONFIG_DATA_WEB_EVENT_TRACKING = 'getresponse/web-event-tracking';
     const CONFIG_DATA_REGISTRATION_SETTINGS = 'getresponse/registration/settings';
     const CONFIG_DATA_REGISTRATION_CUSTOMS = 'getresponse/registration/customs';
+    const CONFIG_DATA_NEWSLETTER_SETTINGS = 'getresponse/newsletter/settings';
     const CONFIG_DATA_WEBFORMS_SETTINGS = 'getresponse/webforms/settings';
     const CONFIG_DATA_UNAUTHORIZED_API_CALL_DATE = 'getresponse/unauthorized-api-call-date';
 

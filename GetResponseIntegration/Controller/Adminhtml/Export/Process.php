@@ -22,6 +22,7 @@ use Magento\Framework\App\Request\Http;
 class Process extends AbstractController
 {
     const PAGE_TITLE = 'Export Customer Data on Demand';
+    const SUBSCRIBED = 1;
 
     protected $resultPageFactory;
 
@@ -103,11 +104,10 @@ class Process extends AbstractController
             }
         }
 
-        // only those that are subscribed to newsletters
-        $customers = $this->repository->getFullCustomersDetails();
+        $subscribers = $this->repository->getFullCustomersDetails();
 
-        foreach ($customers as $customer) {
-            // create contact factory
+        foreach ($subscribers as $subscriber) {
+
             $this->stats['count']++;
             $custom_fields = [];
             foreach ($customs as $field => $name) {
@@ -120,9 +120,9 @@ class Process extends AbstractController
 
             $this->addContact(
                 $campaign,
-                $customer['firstname'],
-                $customer['lastname'],
-                $customer['email'],
+                $subscriber['firstname'],
+                $subscriber['lastname'],
+                $subscriber['subscriber_email'],
                 $cycle_day,
                 $custom_fields
             );
@@ -152,16 +152,18 @@ class Process extends AbstractController
     public function addContact($campaign, $firstName, $lastName, $email, $cycleDay = 0, $user_customs = [])
     {
         $apiHelper = new ApiHelper($this->grRepository);
-        $name = trim($firstName) . ' ' . trim($lastName);
 
         $user_customs['origin'] = 'magento2';
 
         $params = [
-            'name' => $name,
             'email' => $email,
             'campaign' => ['campaignId' => $campaign],
             'ipAddress' => $_SERVER['REMOTE_ADDR']
         ];
+
+        if (!empty($firstName) || !empty($lastName)) {
+            $params['name'] = trim($firstName) . ' ' . trim($lastName);
+        }
 
         if (!empty($cycleDay)) {
             $params['dayOfCycle'] = (int)$cycleDay;

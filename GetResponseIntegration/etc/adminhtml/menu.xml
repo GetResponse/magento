@@ -13,6 +13,8 @@
 
         <add id="GetResponse_GetResponseIntegration::automation" title="Contact List Rules" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/lists/rules" resource="GetResponse_GetResponseIntegration::settings"/>
 
+        <add id="GetResponse_GetResponseIntegration::newsletter" title="Add to Contact List after Customer Subscribes" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/newsletter/index" resource="GetResponse_GetResponseIntegration::settings"/>
+
         <add id="GetResponse_GetResponseIntegration::web_traffic_tracking" title="Web Event Tracking" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/webtraffic/index" resource="GetResponse_GetResponseIntegration::settings"/>
 
         <add id="GetResponse_GetResponseIntegration::getresponse_e_commerce" title="GetResponse Ecommerce" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/ecommerce/index" resource="GetResponse_GetResponseIntegration::ecommerce"/>

@@ -98,6 +98,10 @@ class Lists extends Template
             case 'registration':
                 return 'getresponse/registration/index';
                 break;
+
+            case 'newsletter':
+                return 'getresponse/newsletter/index';
+                break;
         }
 
         return '';

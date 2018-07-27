@@ -99,21 +99,13 @@ class Repository
      */
     public function getFullCustomersDetails()
     {
-        $customers = $this->_objectManager->get('Magento\Customer\Model\Customer');
-        $customers = $customers->getCollection()
-            ->joinAttribute('street', 'customer_address/street', 'default_billing', null, 'left')
-            ->joinAttribute('postcode', 'customer_address/postcode', 'default_billing', null, 'left')
-            ->joinAttribute('city', 'customer_address/city', 'default_billing', null, 'left')
-            ->joinAttribute('telephone', 'customer_address/telephone', 'default_billing', null, 'left')
-            ->joinAttribute('country', 'customer_address/country_id', 'default_billing', null, 'left')
-            ->joinAttribute('company', 'customer_address/company', 'default_billing', null, 'left')
-            ->joinAttribute('birthday', 'customer/dob', 'entity_id', null, 'left')
-            ->joinTable(
-                'newsletter_subscriber',
-                'customer_id=entity_id',
-                ['subscriber_status'],
-                '{{table}}.subscriber_status=1'
-            );
+        $customers = $this->_objectManager->get('Magento\Newsletter\Model\Subscriber');
+        $customers = $customers->getCollection();
+
+        $customers->getSelect()
+            ->joinLeft(['customer_entity' => 'customer_entity'], 'customer_entity.entity_id=main_table.customer_id', ['*'])
+            ->joinLeft(['customer_address_entity' => 'customer_address_entity'], 'customer_address_entity.entity_id=default_billing', ['*'])
+            ->where('subscriber_status=1');
 
         return $customers;
     }
@@ -410,6 +402,14 @@ class Repository
     }
 
     /**
+     * @return array
+     */
+    public function getNewsletterSettings()
+    {
+        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_NEWSLETTER_SETTINGS));
+    }
+
+    /**
      * @param RegistrationSettings $registrationSettings
      */
     public function saveRegistrationSettings(RegistrationSettings $registrationSettings)
@@ -417,6 +417,20 @@ class Repository
         $this->configWriter->save(
             Config::CONFIG_DATA_REGISTRATION_SETTINGS,
             json_encode($registrationSettings->toArray()),
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+        $this->cacheManager->clean(['config']);
+    }
+
+    /**
+     * @param NewsletterSettings $newsletterSettings
+     */
+    public function saveNewsletterSettings(NewsletterSettings $newsletterSettings)
+    {
+        $this->configWriter->save(
+            Config::CONFIG_DATA_NEWSLETTER_SETTINGS,
+            json_encode($newsletterSettings->toArray()),
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
@@ -538,6 +552,17 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
+    public function clearNewsletterSettings()
+    {
+        $this->configWriter->delete(
+            Config::CONFIG_DATA_NEWSLETTER_SETTINGS,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+
+        $this->cacheManager->clean(['config']);
+    }
+
     public function clearCustoms()
     {
         $this->configWriter->delete(
@@ -598,6 +623,7 @@ class Repository
     {
         $this->clearConnectionSettings();
         $this->clearRegistrationSettings();
+        $this->clearNewsletterSettings();
         $this->clearAccountDetails();
         $this->clearWebforms();
         $this->clearRules();
