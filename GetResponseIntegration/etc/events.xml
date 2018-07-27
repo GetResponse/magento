@@ -7,6 +7,6 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
     <event name="newsletter_subscriber_save_before">
-        <observer name="new_subscriber_from_newsletter" instance="GetResponse\GetResponseIntegration\Observer\SubscribeFromCheckoutNewsletter"/>
+        <observer name="new_subscriber_from_newsletter" instance="GetResponse\GetResponseIntegration\Observer\SubscribeFromNewsletter"/>
     </event>
 </config>
