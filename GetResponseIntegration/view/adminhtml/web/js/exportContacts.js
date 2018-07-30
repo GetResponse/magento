@@ -43,6 +43,7 @@ require(['jquery'], function($) {
             options = '<option value="">no autoresponders</option>';
             cycleDay.prop('disabled', true);
             grAutoresponder.prop('disabled', true).prop('checked', false);
+            autoresponderDayField.addClass('hidden');
         }
         cycleDay.append(options);
     }

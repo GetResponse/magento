@@ -1,4 +1,5 @@
 <?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */
+
 $campaigns = $block->getCampaigns();
 $customers = $block->getCustomers();
 $settings = $block->getExportSettings();
@@ -69,11 +70,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                        name="gr_autoresponder"
                                        id="gr_autoresponder"
                                        value="1"
-                                    <?php
-                                    if ($settings->getCycleDay()) {
-                                        echo ' checked="checked"';
-                                    }
-                                    ?>
+                                        <?php if ($settings->getCycleDay() !== 0):?> checked="checked"<?php endif ?>
                                 />
                                 <label class="admin__field-label" for="gr_autoresponder">Add to autoresponder cycle</label>
                             </div>
