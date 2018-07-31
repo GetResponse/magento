@@ -1,0 +1,16 @@
+<?php
+namespace GetResponse\GetResponseIntegration\Model\ResourceModel;
+
+use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+
+/**
+ * Class CartMap
+ * @package GetResponse\GetResponseIntegration\Model\ResourceModel
+ */
+class CartMap extends AbstractDb
+{
+    protected function _construct()
+    {
+        $this->_init('getresponse_cart_map', 'id');
+    }
+}
