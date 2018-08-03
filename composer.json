@@ -7,15 +7,22 @@
     "type": "magento2-module",
     "repositories": [
         {
+            "type": "composer",
+            "url": "https://repo.magento.com/"
+        },
+        {
             "type": "git",
-            "url": "git@github.com:GetResponse/share-code-plugin.git"
+            "url": "https://github.com/GetResponse/share-code-plugin.git"
         }
     ],
     "require": {
         "getresponse/share-code-plugin": "2.0.*"
     },
     "require-dev": {
-        "phpunit/phpunit": "4.1.0"
+        "phpunit/phpunit": "^5",
+        "magento/module-backend": "^100.1.0",
+        "magento/module-store": "^100.1.0",
+        "magento/framework": "^100.1.0"
     },
     "autoload": {
         "files": [

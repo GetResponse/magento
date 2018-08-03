@@ -9,6 +9,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Framework\ObjectManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Magento\Framework\View\Element\Template\Context;
@@ -20,7 +21,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrReposi
  * Class RegistrationTest
  * @package GetResponse\GetResponseIntegration\Test\Unit\Block
  */
-class RegistrationTest extends TestCase
+class RegistrationTest extends BaseTestCase
 {
     /** @var Context|PHPUnit_Framework_MockObject_MockObject */
     private $context;
@@ -42,11 +43,11 @@ class RegistrationTest extends TestCase
 
     public function setUp()
     {
-        $this->context = $this->createMock(Context::class);
-        $this->repository = $this->createMock(Repository::class);
-        $this->repositoryFactory = $this->createMock(RepositoryFactory::class);
-        $this->objectManager = $this->createMock(ObjectManagerInterface::class);
-        $this->grRepository = $this->createMock(GrRepository::class);
+        $this->context = $this->getMockWithoutConstructing(Context::class);
+        $this->repository = $this->getMockWithoutConstructing(Repository::class);
+        $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
+        $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
+        $this->grRepository = $this->getMockWithoutConstructing(GrRepository::class);
         $this->repositoryFactory->method('createRepository')->willReturn($this->grRepository);
 
         $getresponseBlock = new Getresponse($this->repository, $this->repositoryFactory);

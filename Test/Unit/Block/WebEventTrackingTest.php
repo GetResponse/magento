@@ -5,6 +5,7 @@ use GetResponse\GetResponseIntegration\Block\WebEventTracking;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettings;
+use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use PHPUnit\Framework\TestCase;
 use Magento\Framework\View\Element\Template\Context;
 use PHPUnit_Framework_MockObject_MockObject;
@@ -13,7 +14,7 @@ use PHPUnit_Framework_MockObject_MockObject;
  * Class WebEventTrackingTest
  * @package GetResponse\GetResponseIntegration\Test\Unit\Block
  */
-class WebEventTrackingTest extends TestCase
+class WebEventTrackingTest extends BaseTestCase
 {
     /** @var Context|PHPUnit_Framework_MockObject_MockObject */
     private $context;
@@ -29,9 +30,9 @@ class WebEventTrackingTest extends TestCase
 
     public function setUp()
     {
-        $this->context = $this->createMock(Context::class);
-        $this->repository = $this->createMock(Repository::class);
-        $this->repositoryFactory = $this->createMock(RepositoryFactory::class);
+        $this->context = $this->getMockWithoutConstructing(Context::class);
+        $this->repository = $this->getMockWithoutConstructing(Repository::class);
+        $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
         $this->trackingBlock = new WebEventTracking($this->context, $this->repository);
     }
 
