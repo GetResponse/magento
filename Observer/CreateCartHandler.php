@@ -89,7 +89,7 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
             );
 
         } catch (Exception $e) {
-            $this->logger->addError($e->getMessage(), ['exception' => $e]);
+            $this->logger->addError($e->getMessage(), ['trace' => $e->getTraceAsString()]);
         }
 
         return $this;

@@ -81,7 +81,7 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
             $this->orderService->sendOrder($observer->getEvent()->getOrder(), $contactListId, $shopId);
 
         } catch (Exception $e) {
-            $this->logger->addError($e->getMessage(), ['exception' => $e]);
+            $this->logger->addError($e->getMessage(), ['trace' => $e->getTraceAsString()]);
         }
     }
 

@@ -148,7 +148,7 @@ class Process extends AbstractController
                     $this->cartService->exportCart($order->getQuoteId(), $contactListId, $grShopId);
                     $this->orderService->exportOrder($order, $contactListId, $grShopId);
                 } catch (Exception $e) {
-                    $this->logger->addError($e->getMessage(), ['exception' => $e]);
+                    $this->logger->addError($e->getMessage(), ['trace' => $e->getTraceAsString()]);
                 }
             }
         }
