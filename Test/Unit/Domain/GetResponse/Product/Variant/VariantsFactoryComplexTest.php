@@ -2,7 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Variant;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductUrlFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant\VariantsFactoryComplex;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant\ComplexVariantFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Product\Variant\VariantsCollection;
@@ -19,7 +19,7 @@ class VariantsFactoryComplexTest extends BaseTestCase
     /** @var ProductUrlFactory|PHPUnit_Framework_MockObject_MockObject */
     private $productUrlFactory;
 
-    /** @var VariantsFactoryComplex */
+    /** @var ComplexVariantFactory */
     private $variantFactoryComplex;
 
     /**
@@ -39,15 +39,6 @@ class VariantsFactoryComplexTest extends BaseTestCase
         $childQuoteItem->expects(self::exactly(3))
             ->method('getProduct')
             ->willReturn($product);
-
-        $childQuoteItem->expects(self::exactly(2))
-            ->method('getPrice')
-            ->willReturn(3);
-
-        $childQuoteItem->expects(self::exactly(2))
-            ->method('__call')
-            ->with('getPriceInclTax')
-            ->willReturn(4);
 
         $childQuoteItems = [$childQuoteItem, $childQuoteItem];
 
@@ -79,8 +70,8 @@ class VariantsFactoryComplexTest extends BaseTestCase
         $this->assertCount(2, $magentoVariantCollection);
         $this->assertEquals(1, $magentoVariant->getExternalId());
         $this->assertEquals('Variant Name', $magentoVariant->getName());
-        $this->assertEquals(3, $magentoVariant->getPrice());
-        $this->assertEquals(4, $magentoVariant->getPriceTax());
+        $this->assertEquals(120, $magentoVariant->getPrice());
+        $this->assertEquals(100, $magentoVariant->getPriceTax());
         $this->assertEquals('Product SKU No', $magentoVariant->getSku());
         $this->assertEquals('http://getresponse.com', $magentoVariant->getUrl());
         $this->assertEquals('Product short description', $magentoVariant->getDescription());
@@ -91,7 +82,18 @@ class VariantsFactoryComplexTest extends BaseTestCase
      */
     private function getMagentoVariantMock()
     {
-        $magentoVariant = $this->getMockWithoutConstructing(Product::class);
+        $magentoVariant = $this->getMockWithoutConstructing(Product::class, [
+            'getValue',
+            'getBaseAmount',
+            'getAmount',
+            'getPrice',
+            'getPriceInfo',
+            'getSku',
+            'getName',
+            'getId',
+            '__call',
+            'getMediaGalleryImages'
+        ]);
         $magentoVariant->expects(self::exactly(2))
             ->method('getId')
             ->willReturn(1);
@@ -113,6 +115,27 @@ class VariantsFactoryComplexTest extends BaseTestCase
             ->method('getMediaGalleryImages')
             ->willReturn([]);
 
+        $magentoVariant->expects(self::exactly(2))
+            ->method('getPriceInfo')
+            ->will($this->returnSelf());
+
+        $magentoVariant->expects(self::exactly(2))
+            ->method('getPrice')
+            ->with('final_price')
+            ->will($this->returnSelf());
+
+        $magentoVariant->expects(self::exactly(2))
+            ->method('getAmount')
+            ->will($this->returnSelf());
+
+        $magentoVariant->expects(self::exactly(2))
+            ->method('getBaseAmount')
+            ->willReturn(120);
+
+        $magentoVariant->expects(self::exactly(2))
+            ->method('getValue')
+            ->willReturn(100);
+
         return $magentoVariant;
     }
 
@@ -133,14 +156,6 @@ class VariantsFactoryComplexTest extends BaseTestCase
         $childOrderItem->expects(self::exactly(3))
             ->method('getProduct')
             ->willReturn($product);
-
-        $childOrderItem->expects(self::exactly(2))
-            ->method('getPrice')
-            ->willReturn(3);
-
-        $childOrderItem->expects(self::exactly(2))
-            ->method('getPriceInclTax')
-            ->willReturn(4);
 
         $childQuoteItems = [$childOrderItem, $childOrderItem];
 
@@ -172,8 +187,8 @@ class VariantsFactoryComplexTest extends BaseTestCase
         $this->assertCount(2, $magentoVariantCollection);
         $this->assertEquals(1, $magentoVariant->getExternalId());
         $this->assertEquals('Variant Name', $magentoVariant->getName());
-        $this->assertEquals(3, $magentoVariant->getPrice());
-        $this->assertEquals(4, $magentoVariant->getPriceTax());
+        $this->assertEquals(120, $magentoVariant->getPrice());
+        $this->assertEquals(100, $magentoVariant->getPriceTax());
         $this->assertEquals('Product SKU No', $magentoVariant->getSku());
         $this->assertEquals('http://getresponse.com', $magentoVariant->getUrl());
         $this->assertEquals('Product short description', $magentoVariant->getDescription());
@@ -185,7 +200,7 @@ class VariantsFactoryComplexTest extends BaseTestCase
         $this->magentoRepository = $this->getMockWithoutConstructing(Repository::class);
         $this->productUrlFactory = $this->getMockWithoutConstructing(ProductUrlFactory::class);
 
-        $this->variantFactoryComplex = new VariantsFactoryComplex(
+        $this->variantFactoryComplex = new ComplexVariantFactory(
             $this->magentoRepository,
             $this->productUrlFactory
         );

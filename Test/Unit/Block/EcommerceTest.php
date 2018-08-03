@@ -6,8 +6,8 @@ use GetResponse\GetResponseIntegration\Block\Getresponse;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Framework\ObjectManagerInterface;
-use PHPUnit\Framework\TestCase;
 use Magento\Framework\View\Element\Template\Context;
 use PHPUnit_Framework_MockObject_MockObject;
 
@@ -15,7 +15,7 @@ use PHPUnit_Framework_MockObject_MockObject;
  * Class EcommerceTest
  * @package GetResponse\GetResponseIntegration\Test\Unit\Block
  */
-class EcommerceTest extends TestCase
+class EcommerceTest extends BaseTestCase
 {
     /** @var Context|PHPUnit_Framework_MockObject_MockObject */
     private $context;
@@ -34,10 +34,10 @@ class EcommerceTest extends TestCase
 
     public function setUp()
     {
-        $this->context = $this->createMock(Context::class);
-        $this->repository = $this->createMock(Repository::class);
-        $this->repositoryFactory = $this->createMock(RepositoryFactory::class);
-        $this->objectManager = $this->createMock(ObjectManagerInterface::class);
+        $this->context = $this->getMockWithoutConstructing(Context::class);
+        $this->repository = $this->getMockWithoutConstructing(Repository::class);
+        $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
+        $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
 
         $getresponseBlock = new Getresponse($this->repository, $this->repositoryFactory);
         $this->accountBlock = new EcommerceBlock($this->context, $this->objectManager, $this->repository, $this->repositoryFactory, $getresponseBlock);

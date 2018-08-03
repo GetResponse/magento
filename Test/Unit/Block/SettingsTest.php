@@ -6,15 +6,16 @@ use GetResponse\GetResponseIntegration\Block\Settings;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use PHPUnit\Framework\TestCase;
+use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Framework\View\Element\Template\Context;
+use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_MockObject_MockObject;
 
 /**
  * Class SettingsTest
  * @package GetResponse\GetResponseIntegration\Test\Unit\Block
  */
-class SettingsTest extends TestCase
+class SettingsTest extends BaseTestCase
 {
     /** @var Context|PHPUnit_Framework_MockObject_MockObject */
     private $context;
@@ -30,13 +31,17 @@ class SettingsTest extends TestCase
 
     public function setUp()
     {
-        $this->context = $this->createMock(Context::class);
-        $this->repository = $this->createMock(Repository::class);
-        $this->repositoryFactory = $this->createMock(RepositoryFactory::class);
+        $this->context = $this->getMockWithoutConstructing(Context::class);
+        $this->repository = $this->getMockWithoutConstructing(Repository::class);
+        $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
 
         $getresponseBlock = new Getresponse($this->repository, $this->repositoryFactory);
-        $this->settingsBlock = new Settings($this->context, $this->repository, $this->repositoryFactory,
-            $getresponseBlock);
+        $this->settingsBlock = new Settings(
+            $this->context,
+            $this->repository,
+            $this->repositoryFactory,
+            $getresponseBlock
+        );
     }
 
     /**

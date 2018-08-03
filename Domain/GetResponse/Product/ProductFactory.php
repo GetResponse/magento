@@ -1,8 +1,8 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Product;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant\VariantsFactoryComplex;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant\VariantsFactorySimple;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant\ComplexVariantFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant\SimpleVariantFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\Product\Product;
 use Magento\Quote\Model\Quote\Item;
@@ -16,7 +16,7 @@ class ProductFactory
     /** @var Repository */
     private $magentoRepository;
 
-    /** @var VariantsFactorySimple */
+    /** @var SimpleVariantFactory */
     private $variantFactorySimple;
 
     /** @var ProductUrlFactory */
@@ -25,20 +25,20 @@ class ProductFactory
     /** @var CategoriesFactory */
     private $categoriesFactory;
 
-    /** @var VariantsFactoryComplex */
+    /** @var ComplexVariantFactory */
     private $variantsFactoryComplex;
 
     /**
      * @param Repository $magentoRepository
-     * @param VariantsFactorySimple $variantFactorySimple
-     * @param VariantsFactoryComplex $variantsFactoryComplex
+     * @param SimpleVariantFactory $variantFactorySimple
+     * @param ComplexVariantFactory $variantsFactoryComplex
      * @param ProductUrlFactory $productUrlFactory
      * @param CategoriesFactory $categoriesFactory
      */
     public function __construct(
         Repository $magentoRepository,
-        VariantsFactorySimple $variantFactorySimple,
-        VariantsFactoryComplex $variantsFactoryComplex,
+        SimpleVariantFactory $variantFactorySimple,
+        ComplexVariantFactory $variantsFactoryComplex,
         ProductUrlFactory $productUrlFactory,
         CategoriesFactory $categoriesFactory
     ) {

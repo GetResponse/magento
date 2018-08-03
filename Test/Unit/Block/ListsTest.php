@@ -4,6 +4,7 @@ namespace GetResponse\GetResponseIntegration\Test\Unit\Block;
 use GetResponse\GetResponseIntegration\Block\Lists as ListsBlock;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Framework\ObjectManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Magento\Framework\View\Element\Template\Context;
@@ -14,7 +15,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrReposi
  * Class ListsTest
  * @package GetResponse\GetResponseIntegration\Test\Unit\Block
  */
-class ListsTest extends TestCase
+class ListsTest extends BaseTestCase
 {
     /** @var Context|PHPUnit_Framework_MockObject_MockObject */
     private $context;
@@ -36,11 +37,11 @@ class ListsTest extends TestCase
 
     public function setUp()
     {
-        $this->context = $this->createMock(Context::class);
-        $this->repository = $this->createMock(Repository::class);
-        $this->repositoryFactory = $this->createMock(RepositoryFactory::class);
-        $this->objectManager = $this->createMock(ObjectManagerInterface::class);
-        $this->grRepository = $this->createMock(GrRepository::class);
+        $this->context = $this->getMockWithoutConstructing(Context::class);
+        $this->repository = $this->getMockWithoutConstructing(Repository::class);
+        $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
+        $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
+        $this->grRepository = $this->getMockWithoutConstructing(GrRepository::class);
 
         $this->repositoryFactory->expects($this->once())->method('createRepository')->willReturn($this->grRepository);
         $this->listsBlock = new ListsBlock($this->context, $this->objectManager, $this->repository, $this->repositoryFactory);
