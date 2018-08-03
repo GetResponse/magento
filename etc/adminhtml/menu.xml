@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../Magento/Backend/etc/menu.xsd">
+    <menu>
+        <add id="GetResponse_GetResponseIntegration" title="GetResponse" module="GetResponse_GetResponseIntegration" sortOrder="100" resource="GetResponse_GetResponseIntegration::settings"/>
+
+        <add id="GetResponse_GetResponseIntegration::settings" title="GetResponse Account" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/account" resource="GetResponse_GetResponseIntegration::account"/>
+
+        <add id="GetResponse_GetResponseIntegration::export" title="Export Customer Data on Demand" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/export" resource="GetResponse_GetResponseIntegration::settings"/>
+
+        <add id="GetResponse_GetResponseIntegration::registration" title="Add Contacts During Registrations" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/registration/index" resource="GetResponse_GetResponseIntegration::settings"/>
+
+        <add id="GetResponse_GetResponseIntegration::webform" title="Add contacts via GetResponse forms" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/webform/index" resource="GetResponse_GetResponseIntegration::settings"/>
+
+        <add id="GetResponse_GetResponseIntegration::automation" title="Contact List Rules" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/lists/rules" resource="GetResponse_GetResponseIntegration::settings"/>
+
+        <add id="GetResponse_GetResponseIntegration::newsletter" title="Add to Contact List after Customer Subscribes" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/newsletter/index" resource="GetResponse_GetResponseIntegration::settings"/>
+
+        <add id="GetResponse_GetResponseIntegration::web_traffic_tracking" title="Web Event Tracking" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/webtraffic/index" resource="GetResponse_GetResponseIntegration::settings"/>
+
+        <add id="GetResponse_GetResponseIntegration::getresponse_e_commerce" title="GetResponse Ecommerce" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/ecommerce/index" resource="GetResponse_GetResponseIntegration::ecommerce"/>
+    </menu>
+</config>

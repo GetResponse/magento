@@ -1,0 +1,105 @@
+<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Registration */
+
+$campaigns = $block->getCampaigns();
+$newsletter = $block->getNewsletterSettings();
+$jsAutoresponders = $block->getAutorespondersForFrontend();
+
+?>
+
+<form method="post" action="<?php echo $block->getUrl('getresponse/newsletter/save'); ?>">
+    <?php echo $block->getBlockHtml('formkey'); ?>
+
+    <div class="page-main-actions">
+        <div class="page-main-hint">
+            <span>Get new contacts in GetResponse each time somebody signed up to your newsletter.</span>
+        </div>
+        <div class="page-actions">
+            <div class="page-actions-inner">
+                <div class="page-actions-buttons">
+                    <button id="getresponse_add_new_campaign" title="Create Contact List" type="button" onclick="location.href='<?php echo $block->getUrl('getresponse/lists/create/back/newsletter'); ?>'" class="action- scalable action-secondary"  >
+                        <span>Create Contact List</span>
+                    </button>
+                    <button id="save" title="Save" type="submit" class="action-default scalable save primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
+                        <span class="ui-button-text">
+                            <span>Save</span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="page:main-container" class="page-columns">
+        <div class="admin__old">
+            <div id="container" class="main-col">
+                <fieldset class="fieldset admin__fieldset" id="gr_enabled_fieldset" style="display: block;">
+                    <div class="admin__field field field-basic_gr_enabled required _required">
+                        <label class="label admin__field-label" for="gr_enabled"></label>
+                        <div class="admin__field-control control">
+                            <div class="admin__field admin__field-option gr_enabled__field">
+                                <input id="gr_enabled" name="gr_enabled" class="admin__control-checkbox" type="checkbox" value="1"
+                                    <?php if($newsletter->isEnabled()): ?>checked="checked" <?php endif ?>
+                                >
+                                <label class="admin__field-label" for="gr_enabled">Add customers to GetResponse contact list when they subscribe to newsletter</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="admin__field field field-basic_campaign required _required forms
+                        <?php if (!$newsletter->isEnabled()):?>hidden<?php endif ?>"
+                    >
+                        <label class="label admin__field-label" for="campaign_id">
+                            <span>Contact list</span>
+                        </label>
+                        <div class="admin__field-control control">
+                            <div class="admin__field">
+                                <select name="campaign_id" id="campaign_id" class="select admin__control-select" aria-required="true">
+                                    <option value="">Select a list</option>
+                                    <?php if (count($campaigns) > 0): ?>
+                                        <?php foreach ($campaigns as $campaign): ?>
+                                            <option
+                                                value="<?php echo $campaign->campaignId ?>"
+                                                <?php if ($newsletter->getCampaignId() == $campaign->campaignId): ?>
+                                                    selected="selected"
+                                                <?php endif ?>>
+                                            <?php echo $campaign->name ?>
+                                            </option>
+                                        <?php endforeach ?>
+                                    <?php endif ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="admin__field field field-basic_autoresponder forms
+                        <?php if (!$newsletter->isEnabled()): ?> hidden<?php endif ?>">
+                        <label class="label admin__field-label" for="gr_enabled"></label>
+                        <div class="admin__field-control control">
+                            <div class="admin__field admin__field-option gr_enabled__field">
+                                <input class="admin__control-checkbox"
+                                       type="checkbox"
+                                       name="gr_autoresponder"
+                                       id="gr_autoresponder"
+                                       value="1"
+                                    <?php if ($newsletter->getCycleDay() !== 0):?> checked="checked"<?php endif ?>
+                                />
+                                <label class="admin__field-label" for="gr_autoresponder">Add to autoresponder cycle</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="field-autoresponder" class="admin__field field field-basic_autoresponder hidden">
+                        <label class="label admin__field-label" for="cycle_day">
+                            <span>Autoresponder day</span>
+                        </label>
+                        <div class="admin__field-control control">
+                            <div class="admin__field cycle_day">
+                                <select name="cycle_day" id="cycle_day" class="select admin__control-select" aria-required="true" disabled="disabled"></select>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</form>
+<input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($jsAutoresponders); ?>'/>
+<script>
+    require(['registration']);
+</script>
