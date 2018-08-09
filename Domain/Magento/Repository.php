@@ -529,17 +529,6 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    public function clearAccount()
-    {
-        $this->configWriter->delete(
-            Config::CONFIG_DATA_ACCOUNT,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->cacheManager->clean(['config']);
-    }
-
     /**
      * @param WebformSettings $webform
      */
@@ -593,6 +582,8 @@ class Repository
         $this->clearRules();
         $this->clearWebEventTracking();
         $this->clearCustoms();
+        $this->clearEcommerceSettings();
+        $this->clearUnauthorizedApiCallDate();
     }
 
     public function clearConnectionSettings()
@@ -602,8 +593,6 @@ class Repository
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
-
-        $this->cacheManager->clean(['config']);
     }
 
     public function clearRegistrationSettings()
@@ -624,8 +613,6 @@ class Repository
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
-
-        $this->cacheManager->clean(['config']);
     }
 
     public function clearWebforms()
@@ -635,8 +622,6 @@ class Repository
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
-
-        $this->cacheManager->clean(['config']);
     }
 
     public function clearNewsletterSettings()
@@ -646,8 +631,6 @@ class Repository
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
-
-        $this->cacheManager->clean(['config']);
     }
 
     public function clearRules()
@@ -657,8 +640,6 @@ class Repository
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
-
-        $this->cacheManager->clean(['config']);
     }
 
     public function clearWebEventTracking()
@@ -668,8 +649,6 @@ class Repository
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
-
-        $this->cacheManager->clean(['config']);
     }
 
     public function clearCustoms()
@@ -679,8 +658,21 @@ class Repository
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+    }
 
-        $this->cacheManager->clean(['config']);
+    public function clearEcommerceSettings()
+    {
+        $this->configWriter->delete(
+            Config::CONFIG_DATA_SHOP_STATUS,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+
+        $this->configWriter->delete(
+            Config::CONFIG_DATA_SHOP_ID,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
     }
 
     /**
@@ -748,5 +740,14 @@ class Repository
         return $this->_objectManager
             ->create(Country::class)
             ->load($countryId);
+    }
+
+    private function clearUnauthorizedApiCallDate()
+    {
+        $this->configWriter->delete(
+            Config::CONFIG_DATA_UNAUTHORIZED_API_CALL_DATE,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
     }
 }
