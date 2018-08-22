@@ -125,7 +125,7 @@ class Process extends AbstractController
                     $custom_fields[$name] = $customer[$field];
                 }
             }
-            $custom_fields['origin'] = 'magento2';
+
             $cycle_day = (isset($data['gr_autoresponder']) && $data['cycle_day'] != '') ? (int)$data['cycle_day'] : 0;
 
             $this->addContact(
