@@ -20,7 +20,6 @@ use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Sales\Model\Order;
-use Magento\Setup\Exception;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -147,8 +146,8 @@ class Process extends AbstractController
                 try {
                     $this->cartService->exportCart($order->getQuoteId(), $contactListId, $grShopId);
                     $this->orderService->exportOrder($order, $contactListId, $grShopId);
-                } catch (Exception $e) {
-                    $this->logger->addError($e->getMessage(), ['exception' => $e]);
+                } catch (\Exception $e) {
+                    $this->handleException($e);
                 }
             }
         }
