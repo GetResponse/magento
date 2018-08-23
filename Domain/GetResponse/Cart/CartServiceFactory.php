@@ -44,7 +44,7 @@ class CartServiceFactory
             $this->magentoRepository->getConnectionSettings()
         );
 
-        $apiType = ApiTypeFactory::createFromDomainUrl($connectionSettings->getDomain());
+        $apiType = ApiTypeFactory::createFromConnectionSettings($connectionSettings);
 
         $pluginVersion = $this->magentoRepository->getGetResponsePluginVersion();
 
