@@ -13,15 +13,12 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\ApiHelper;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Logger\Logger;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Sales\Model\Order;
-use Magento\Setup\Exception;
-use Psr\Log\LoggerInterface;
 
 /**
  * Class Process
@@ -53,9 +50,6 @@ class Process extends AbstractController
     /** @var OrderService */
     private $orderService;
 
-    /** @var LoggerInterface */
-    private $logger;
-
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
@@ -64,7 +58,6 @@ class Process extends AbstractController
      * @param RepositoryValidator $repositoryValidator
      * @param CartService $cartService
      * @param OrderService $orderService
-     * @param Logger $getResponseLogger
      * @throws RepositoryException
      */
     public function __construct(
@@ -74,8 +67,7 @@ class Process extends AbstractController
         RepositoryFactory $repositoryFactory,
         RepositoryValidator $repositoryValidator,
         CartService $cartService,
-        OrderService $orderService,
-        Logger $getResponseLogger
+        OrderService $orderService
     ) {
         parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
@@ -83,7 +75,6 @@ class Process extends AbstractController
         $this->repository = $repository;
         $this->cartService = $cartService;
         $this->orderService = $orderService;
-        $this->logger = $getResponseLogger;
 
         return $this->checkGetResponseConnection();
     }
@@ -147,8 +138,8 @@ class Process extends AbstractController
                 try {
                     $this->cartService->exportCart($order->getQuoteId(), $contactListId, $grShopId);
                     $this->orderService->exportOrder($order, $contactListId, $grShopId);
-                } catch (Exception $e) {
-                    $this->logger->addError($e->getMessage(), ['exception' => $e]);
+                } catch (\Exception $e) {
+                    $this->handleException($e);
                 }
             }
         }

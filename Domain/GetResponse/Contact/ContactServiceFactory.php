@@ -39,9 +39,7 @@ class ContactServiceFactory
 
         $pluginVersion = $this->magentoRepository->getGetResponsePluginVersion();
 
-        $apiType = ApiTypeFactory::createFromDomainUrl(
-            $connectionSettings->getDomain()
-        );
+        $apiType = ApiTypeFactory::createFromConnectionSettings($connectionSettings);
 
         $getResponseApi = new GetresponseApi(
             $connectionSettings->getApiKey(),
