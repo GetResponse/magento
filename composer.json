@@ -1,7 +1,7 @@
 {
     "name": "getresponse/magento2-module",
     "description": "GetResponse Integration for Magento2",
-    "version": "20.2.2",
+    "version": "20.2.3",
     "license": "OSL-3.0",
     "minimum-stability": "dev",
     "type": "magento2-module",
