@@ -102,7 +102,7 @@ class Uninstall implements UninstallInterface
         );
 
         $this->configWriter->delete(
-            Config::CONFIG_DATA_UNAUTHORIZED_API_CALL_DATE,
+            Config::INVALID_REQUEST_DATE_TIME,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
