@@ -14,7 +14,7 @@
 
     <testsuites>
         <testsuite name="GetresponseUnitTests">
-            <directory sufix="Test.php">../../../vendor/GetResponse/GetResponseIntegration/Test/Unit</directory>
+            <directory sufix="Test.php">./Test/Unit</directory>
         </testsuite>
     </testsuites>
 

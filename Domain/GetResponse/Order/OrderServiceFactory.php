@@ -1,4 +1,5 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Order;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiTypeFactory;
@@ -10,6 +11,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
 use GrShareCode\Api\ApiTypeException;
 use GrShareCode\Api\UserAgentHeader;
 use GrShareCode\GetresponseApi;
+use GrShareCode\GetresponseApiClient;
 use GrShareCode\Order\OrderService as GrOrderService;
 
 /**
@@ -48,15 +50,18 @@ class OrderServiceFactory
 
         $apiType = ApiTypeFactory::createFromConnectionSettings($connectionSettings);
 
-        $getResponseApi = new GetresponseApi(
-            $connectionSettings->getApiKey(),
-            $apiType,
-            Config::X_APP_ID,
-            new UserAgentHeader(
-                Config::SERVICE_NAME,
-                Config::SERVICE_VERSION,
-                $pluginVersion
-            )
+        $getResponseApi = new GetresponseApiClient(
+            new GetresponseApi(
+                $connectionSettings->getApiKey(),
+                $apiType,
+                Config::X_APP_ID,
+                new UserAgentHeader(
+                    Config::SERVICE_NAME,
+                    Config::SERVICE_VERSION,
+                    $pluginVersion
+                )
+            ),
+            $this->sharedCodeRepository
         );
 
         $productService = new ProductServiceFactory(
