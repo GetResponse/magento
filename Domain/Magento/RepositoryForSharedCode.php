@@ -8,7 +8,12 @@ use GrShareCode\DbRepositoryInterface;
 use GrShareCode\Job\Job;
 use GrShareCode\Job\JobCollection;
 use GrShareCode\ProductMapping\ProductMapping;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\App\Config\Storage\WriterInterface;
+use GetResponse\GetResponseIntegration\Helper\Config;
+use Magento\Store\Model\Store;
+
 
 /**
  * Class RepositoryForSharedCode
@@ -19,12 +24,25 @@ class RepositoryForSharedCode implements DbRepositoryInterface
     /** @var ObjectManagerInterface */
     private $objectManager;
 
+    /** @var ScopeConfigInterface */
+    private $scopeConfig;
+
+    /** @var WriterInterface */
+    private $configWriter;
+
     /**
      * @param ObjectManagerInterface $objectManager
+     * @param ScopeConfigInterface $scopeConfig
+     * @param WriterInterface $configWriter
      */
-    public function __construct(ObjectManagerInterface $objectManager)
-    {
+    public function __construct(
+        ObjectManagerInterface $objectManager,
+        ScopeConfigInterface $scopeConfig,
+        WriterInterface $configWriter
+    ) {
         $this->objectManager = $objectManager;
+        $this->scopeConfig = $scopeConfig;
+        $this->configWriter = $configWriter;
     }
 
     /**
@@ -214,7 +232,7 @@ class RepositoryForSharedCode implements DbRepositoryInterface
      */
     public function addJob(Job $job)
     {
-        // TODO: Implement addJob() method.
+
     }
 
     /**
@@ -222,7 +240,7 @@ class RepositoryForSharedCode implements DbRepositoryInterface
      */
     public function getJobsToProcess()
     {
-        // TODO: Implement getJobsToProcess() method.
+
     }
 
     /**
@@ -230,8 +248,52 @@ class RepositoryForSharedCode implements DbRepositoryInterface
      */
     public function deleteJob(Job $job)
     {
-        // TODO: Implement deleteJob() method.
+
     }
 
 
+    /**
+     * @param int $accountId
+     */
+    public function markAccountAsInvalid($accountId)
+    {
+        $this->configWriter->save(
+            Config::INVALID_REQUEST_DATE_TIME,
+            (new \DateTime('now'))->format('Y-m-d H:i:s'),
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+    }
+
+    /**
+     * @param $accountId
+     */
+    public function markAccountAsValid($accountId)
+    {
+        $this->configWriter->delete(
+            Config::INVALID_REQUEST_DATE_TIME,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT
+        );
+    }
+
+    /**
+     * @param int $accountId
+     */
+    public function getInvalidAccountFirstOccurrenceDate($accountId)
+    {
+        return $this->scopeConfig->getValue(Config::INVALID_REQUEST_DATE_TIME);
+
+    }
+
+    /**
+     * @param int $accountId
+     */
+    public function disconnectAccount($accountId)
+    {
+        $this->configWriter->delete(
+            Config::CONFIG_DATA_CONNECTION_SETTINGS,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+    }
 }

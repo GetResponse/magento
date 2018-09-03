@@ -3,7 +3,6 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository as MagentoRepository;
-use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Framework\Controller\ResultFactory;
 
 
@@ -59,32 +58,8 @@ class RepositoryValidator
         $response = $grRepository->ping();
 
         if (isset($response->httpStatus) && (int)$response->httpStatus >= 400 && (int)$response->httpStatus < 500) {
-            if (isset($response->code) && in_array($response->code, Config::UNAUTHORIZED_RESPONSE_CODES)) {
-                $this->handleUnauthorizedApiCall();
-
-                return false;
-            }
-
-            return true;
+            return false;
         }
-
-        $this->repository->setUnauthorizedApiCallDate('');
-
         return true;
-    }
-
-    private function handleUnauthorizedApiCall()
-    {
-        $firstOccurrenceTime = $this->repository->getUnauthorizedApiCallDate();
-
-        if (empty($firstOccurrenceTime)) {
-            $this->repository->setUnauthorizedApiCallDate(time());
-        } else {
-            $now = time();
-            if ($now - $firstOccurrenceTime > Config::DISCONNECT_DELAY) {
-                $this->repository->clearDatabase();
-                $this->repository->setUnauthorizedApiCallDate('');
-            }
-        }
     }
 }

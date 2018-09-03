@@ -2,7 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Product;
 
 use GrShareCode\DbRepositoryInterface;
-use GrShareCode\GetresponseApi;
+use GrShareCode\GetresponseApiClient;
 use GrShareCode\Product\ProductService as GrProductService;
 
 /**
@@ -11,19 +11,19 @@ use GrShareCode\Product\ProductService as GrProductService;
  */
 class ProductServiceFactory
 {
-    /** @var GetresponseApi */
-    private $getResponseApi;
+    /** @var GetresponseApiClient */
+    private $getResponseApiClient;
 
     /** @var DbRepositoryInterface */
     private $repository;
 
     /**
-     * @param GetresponseApi $getResponseApi
+     * @param GetresponseApiClient $getResponseApiClient
      * @param DbRepositoryInterface $repository
      */
-    public function __construct(GetresponseApi $getResponseApi, DbRepositoryInterface $repository)
+    public function __construct(GetresponseApiClient $getResponseApiClient, DbRepositoryInterface $repository)
     {
-        $this->getResponseApi = $getResponseApi;
+        $this->getResponseApiClient = $getResponseApiClient;
         $this->repository = $repository;
     }
 
@@ -33,7 +33,7 @@ class ProductServiceFactory
     public function create()
     {
         return new GrProductService(
-            $this->getResponseApi,
+            $this->getResponseApiClient,
             $this->repository
         );
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Cart;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiTypeFactory;
@@ -11,6 +12,7 @@ use GrShareCode\Api\ApiTypeException;
 use GrShareCode\Api\UserAgentHeader;
 use GrShareCode\Cart\CartService as GrCartService;
 use GrShareCode\GetresponseApi;
+use GrShareCode\GetresponseApiClient;
 
 /**
  * Class CartServiceFactory
@@ -48,24 +50,27 @@ class CartServiceFactory
 
         $pluginVersion = $this->magentoRepository->getGetResponsePluginVersion();
 
-        $getResponseApi = new GetresponseApi(
-            $connectionSettings->getApiKey(),
-            $apiType,
-            Config::X_APP_ID,
-            new UserAgentHeader(
-                Config::SERVICE_NAME,
-                Config::SERVICE_VERSION,
-                $pluginVersion
-            )
+        $getResponseApiClient = new GetresponseApiClient(
+            $getResponseApiClient = new GetresponseApi(
+                $connectionSettings->getApiKey(),
+                $apiType,
+                Config::X_APP_ID,
+                new UserAgentHeader(
+                    Config::SERVICE_NAME,
+                    Config::SERVICE_VERSION,
+                    $pluginVersion
+                )
+            ),
+            $this->sharedCodeRepository
         );
 
         $productService = new ProductServiceFactory(
-            $getResponseApi,
+            $getResponseApiClient,
             $this->sharedCodeRepository
         );
 
         return new GrCartService(
-            $getResponseApi,
+            $getResponseApiClient,
             $this->sharedCodeRepository,
             $productService->create()
         );
