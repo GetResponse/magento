@@ -84,6 +84,10 @@ class Edit extends AbstractController
             return $resultPage;
         }
 
+        if (!isset($data['gr_autoresponder']) || $data['gr_autoresponder'] !== '1') {
+            $data['autoresponder'] = null;
+        }
+
         $error = RuleValidator::validateForPostedParams($data);
 
         if (!empty($error)) {

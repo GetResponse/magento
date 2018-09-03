@@ -60,7 +60,7 @@ class Save extends AbstractController
         $data = $this->request->getPostValue();
 
         $updateCustomFields = (isset($data['gr_sync_order_data'])) ? $data['gr_sync_order_data'] : 0;
-        $cycleDay = (isset($data['gr_autoresponder']) && $data['gr_autoresponder'] == 1) ? $data['cycle_day'] : '';
+        $autoresponder = (isset($data['gr_autoresponder']) && $data['gr_autoresponder'] == 1) ? $data['autoresponder'] : '';
         $isEnabled = isset($data['gr_enabled']) && 1 == $data['gr_enabled'] ? true : false;
 
         if (!$isEnabled) {
@@ -97,7 +97,8 @@ class Save extends AbstractController
                 'status' => $isEnabled,
                 'customFieldsStatus' => $updateCustomFields,
                 'campaignId' => $campaignId,
-                'cycleDay' => $cycleDay
+                'cycleDay' => !empty($autoresponder) ? explode('_', $autoresponder)[0] : 0,
+                'autoresponderId' => !empty($autoresponder) ? explode('_', $autoresponder)[1] : '',
             ]);
 
             $this->repository->saveRegistrationSettings($registrationSettings);

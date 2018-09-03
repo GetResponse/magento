@@ -16,16 +16,29 @@ class NewsletterSettings
     /** @var int */
     private $cycleDay;
 
+    /** @var string */
+    private $autoresponderId;
+
     /**
      * @param int $status
      * @param string $campaignId
      * @param int $cycleDay
+     * @param string $autoresponderId
      */
-    public function __construct($status, $campaignId, $cycleDay)
+    public function __construct($status, $campaignId, $cycleDay, $autoresponderId)
     {
         $this->status = $status;
         $this->campaignId = $campaignId;
         $this->cycleDay = $cycleDay;
+        $this->autoresponderId = $autoresponderId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAutoresponderId()
+    {
+        return $this->autoresponderId;
     }
 
     /**
@@ -33,7 +46,7 @@ class NewsletterSettings
      */
     public function isEnabled()
     {
-        return (1 === (int)$this->status);
+        return 1 === (int)$this->status;
     }
 
     /**
@@ -52,7 +65,8 @@ class NewsletterSettings
         return [
             'status' => $this->status,
             'campaignId' => $this->campaignId,
-            'cycleDay' => $this->cycleDay
+            'cycleDay' => $this->cycleDay,
+            'autoresponderId' => $this->autoresponderId
         ];
     }
 

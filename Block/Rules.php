@@ -76,7 +76,7 @@ class Rules extends Template
             $ruleId = $this->_request->getParam('id');
         }
 
-        return RuleFactory::createFromArray((array)$this->repository->getRuleById($ruleId));
+        return RuleFactory::createFromDbArray((array)$this->repository->getRuleById($ruleId));
     }
 
     /**

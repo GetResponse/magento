@@ -19,18 +19,23 @@ class RegistrationSettings
     /** @var int */
     private $cycleDay;
 
+    /** @var string */
+    private $autoresponderId;
+
     /**
      * @param int $status
      * @param int $customFieldsStatus
      * @param string $campaignId
      * @param int $cycleDay
+     * @param string $autoresponderId
      */
-    public function __construct($status, $customFieldsStatus, $campaignId, $cycleDay)
+    public function __construct($status, $customFieldsStatus, $campaignId, $cycleDay, $autoresponderId)
     {
         $this->status = $status;
         $this->customFieldsStatus = $customFieldsStatus;
         $this->campaignId = $campaignId;
         $this->cycleDay = $cycleDay;
+        $this->autoresponderId = $autoresponderId;
     }
 
     /**
@@ -38,7 +43,15 @@ class RegistrationSettings
      */
     public function isEnabled()
     {
-        return (1 === (int)$this->status) ? true : false;
+        return 1 === (int)$this->status;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAutoresponderId()
+    {
+        return $this->autoresponderId;
     }
 
     /**
@@ -66,7 +79,8 @@ class RegistrationSettings
             'status' => $this->status,
             'customFieldsStatus' => $this->customFieldsStatus,
             'campaignId' => $this->campaignId,
-            'cycleDay' => $this->cycleDay
+            'cycleDay' => $this->cycleDay,
+            'autoresponderId' => $this->autoresponderId
         ];
     }
 
