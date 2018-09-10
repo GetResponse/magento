@@ -22,7 +22,8 @@ class RulesCollectionFactory
                 $row->category,
                 $row->action,
                 $row->campaign,
-                $row->cycle_day
+                $row->cycle_day,
+                $row->autoresponderId
             ));
         }
 

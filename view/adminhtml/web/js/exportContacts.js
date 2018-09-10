@@ -40,13 +40,13 @@ require(['jquery'], function($) {
             campaignAutoresponders = autoresponders[campaignId.val()];
         }
 
-        if (typeof campaignAutoresponders == 'object' && campaignAutoresponders.length > 0) {
-            for (var i = 0; i < campaignAutoresponders.length; i++) {
-                options += '<option value="' + campaignAutoresponders[i]['dayOfCycle']
-                    + '">(Day: ' + campaignAutoresponders[i]['dayOfCycle'] + ') '
-                    + campaignAutoresponders[i]['name']
-                    + ' (Subject: ' + campaignAutoresponders[i]['subject'] + ')</option>';
-            }
+        if (typeof campaignAutoresponders === 'object' && Object.keys(campaignAutoresponders).length > 0) {
+            Object.keys(campaignAutoresponders).forEach(function(key) {
+                options += '<option value="' + campaignAutoresponders[key]['dayOfCycle'] + '" '
+                    + '>(Day: ' + campaignAutoresponders[key]['dayOfCycle'] + ') '
+                    + campaignAutoresponders[key]['name']
+                    + ' (Subject: ' + campaignAutoresponders[key]['subject'] + ')</option>';
+            });
             cycleDay.prop('disabled', false);
             grAutoresponder.prop('disabled', false);
         } else {

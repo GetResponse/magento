@@ -4,7 +4,7 @@ require(['jquery'], function($) {
     var category = createRuleForm.find('#category');
     var action = createRuleForm.find('#action');
     var campaignId = createRuleForm.find('#campaign_id');
-    var cycleDay = createRuleForm.find('#cycle_day');
+    var autoresponder = createRuleForm.find('#autoresponder');
     var grAutoresponder = createRuleForm.find('#gr_autoresponder');
     var autoresponders = JSON.parse($('#jsAutoresponders').val());
 
@@ -68,27 +68,28 @@ require(['jquery'], function($) {
     }
 
     function populateSelectWithAutoresponders() {
-        cycleDay.empty();
+        autoresponder.empty();
 
         var options = '';
         var campaignAutoresponders = autoresponders[campaignId.val()];
 
-        if (typeof campaignAutoresponders == 'object' && campaignAutoresponders.length > 0) {
-            for (var i = 0; i < campaignAutoresponders.length; i++) {
-                options += '<option value="' + campaignAutoresponders[i]['dayOfCycle']
-                    + '">(Day: ' + campaignAutoresponders[i]['dayOfCycle'] + ') '
-                    + campaignAutoresponders[i]['name']
-                    + ' (Subject: ' + campaignAutoresponders[i]['subject'] + ')</option>';
-            }
-            cycleDay.prop('disabled', false);
+        if (typeof campaignAutoresponders === 'object' && Object.keys(campaignAutoresponders).length > 0) {
+            Object.keys(campaignAutoresponders).forEach(function(key) {
+                var optionKey = campaignAutoresponders[key]['dayOfCycle'] + '_' + key;
+                options += '<option value="' + optionKey + '" '
+                    + '>(Day: ' + campaignAutoresponders[key]['dayOfCycle'] + ') '
+                    + campaignAutoresponders[key]['name']
+                    + ' (Subject: ' + campaignAutoresponders[key]['subject'] + ')</option>';
+            });
+            autoresponder.prop('disabled', false);
             grAutoresponder.prop('disabled', false);
         } else {
             options = '<option value="">no autoresponders</option>';
-            cycleDay.prop('disabled', true);
+            autoresponder.prop('disabled', true);
             grAutoresponder.prop('disabled', true).prop('checked', false);
             autoresponderDayField.addClass('hidden');
         }
-        cycleDay.append(options);
+        autoresponder.append(options);
     }
 
     populateSelectWithAutoresponders();

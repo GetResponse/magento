@@ -78,19 +78,19 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                        name="gr_autoresponder"
                                        id="gr_autoresponder"
                                        value="1"
-                                    <?php if ($registrationSettings->getCycleDay() !== 0):?> checked="checked"<?php endif ?>
+                                    <?php if ($registrationSettings->getCycleDay() !== ''):?> checked="checked"<?php endif ?>
                                 />
                                 <label class="admin__field-label" for="gr_autoresponder">Add to autoresponder cycle</label>
                             </div>
                         </div>
                     </div>
                     <div id="field-autoresponder" class="admin__field field field-basic_autoresponder hidden">
-                        <label class="label admin__field-label" for="cycle_day">
+                        <label class="label admin__field-label" for="autoresponder">
                             <span>Autoresponder day</span>
                         </label>
                         <div class="admin__field-control control">
-                            <div class="admin__field cycle_day">
-                                <select name="cycle_day" id="cycle_day" class="select admin__control-select" aria-required="true" disabled="disabled"></select>
+                            <div class="admin__field autoresponder">
+                                <select name="autoresponder" id="autoresponder" class="select admin__control-select" aria-required="true" disabled="disabled"></select>
                             </div>
                         </div>
                     </div>
@@ -127,6 +127,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
     </div>
 </form>
 <input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($jsAutoresponders); ?>'/>
+<input type="hidden" id="jsSettingsCycleDayKey" value='<?php echo $registrationSettings->getCycleDay() . '_' . $registrationSettings->getAutoresponderId(); ?>'/>
 <script>
     require(['registration']);
 </script>
