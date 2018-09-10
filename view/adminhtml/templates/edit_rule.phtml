@@ -5,6 +5,7 @@ $rule = $block->getCurrentRule();
 $categories = $block->getStoreCategories();
 $campaigns = $block->getCampaigns();
 $jsAutoresponders = $block->getAutorespondersForFrontend();
+
 ?>
 <form id="editRuleForm" action="" method="POST">
     <?php echo $block->getBlockHtml('formkey'); ?>
@@ -108,7 +109,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                        id="gr_autoresponder"
                                        value="1"
                                     <?php
-                                        if (!empty($rule->getAutoresponder())) {
+                                        if (!empty($rule->getAutoresponderDay())) {
                                             echo ' checked="checked"';
                                         }
                                     ?>
@@ -118,13 +119,12 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                         </div>
                     </div>
                     <div class="admin__field field field-basic_autoresponder forms hidden" id="field-autoresponder">
-                        <label class="label admin__field-label" for="cycle_day">
+                        <label class="label admin__field-label" for="autoresponder">
                             <span>Autoresponder day</span>
                         </label>
                         <div class="admin__field-control control">
-                            <div class="admin__field cycle_day">
-                                <select name="cycle_day" id="cycle_day" class="select admin__control-select" aria-required="true" disabled="disabled"></select>
-                                <input type="hidden" name="selected_cycle_day" value="<?php echo $rule->getAutoresponder() ?>" />
+                            <div class="admin__field autoresponder">
+                                <select name="autoresponder" id="autoresponder" class="select admin__control-select" aria-required="true" disabled="disabled"></select>
                             </div>
                         </div>
                     </div>
@@ -138,6 +138,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
     <div>Please confirm that you want to delete this rule.</div>
 </div>
 <input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($jsAutoresponders); ?>'/>
+<input type="hidden" id="jsSettingsCycleDayKey" value='<?php echo $rule->getAutoresponderDay() . '_' . $rule->getAutoresponderId(); ?>'/>
 <input type="hidden" id="ruleUrl" value='<?php echo $block->getUrl('getresponse/rules/delete', ['id' => $rule->getId()]); ?>'/>
 <script>
     require(['editRule']);

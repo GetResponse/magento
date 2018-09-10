@@ -114,7 +114,7 @@ class SubscribeFromOrder implements ObserverInterface
                         'category_id' => $rule->getCategory(),
                         'action' => $rule->getAction(),
                         'campaign_id' => $rule->getCampaign(),
-                        'cycle_day' => $rule->getAutoresponder()
+                        'cycle_day' => $rule->getAutoresponderDay()
                     ];
                 }
 

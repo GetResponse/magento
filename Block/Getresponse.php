@@ -51,7 +51,7 @@ class Getresponse
             if (!empty($result)) {
                 foreach ($result as $autoresponder) {
                     if (isset($autoresponder->triggerSettings->selectedCampaigns[0])) {
-                        $autoresponders[$autoresponder->triggerSettings->selectedCampaigns[0]][$autoresponder->triggerSettings->dayOfCycle] = [
+                        $autoresponders[$autoresponder->triggerSettings->selectedCampaigns[0]][$autoresponder->autoresponderId] = [
                             'name' => $autoresponder->name,
                             'subject' => $autoresponder->subject,
                             'dayOfCycle' => $autoresponder->triggerSettings->dayOfCycle
@@ -77,18 +77,7 @@ class Getresponse
             return [];
         }
 
-        $result = [];
-
-        foreach ($autoresponders as $id => $elements) {
-            $array = [];
-            foreach ($elements as $element) {
-                $array[] = $element;
-            }
-
-            $result[$id] = $array;
-        }
-
-        return $result;
+        return $autoresponders;
     }
 
     /**
