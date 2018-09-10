@@ -364,7 +364,8 @@ class Repository
                 $_rule->category = $rule->getCategory();
                 $_rule->action = $rule->getAction();
                 $_rule->campaign = $rule->getCampaign();
-                $_rule->cycle_day = $rule->getAutoresponder();
+                $_rule->cycle_day = $rule->getAutoresponderDay();
+                $_rule->autoresponderId = $rule->getAutoresponderId();
             }
         }
 
@@ -584,6 +585,7 @@ class Repository
         $this->clearCustoms();
         $this->clearEcommerceSettings();
         $this->clearUnauthorizedApiCallDate();
+        $this->clearNewsletterSettings();
     }
 
     public function clearConnectionSettings()
@@ -631,6 +633,8 @@ class Repository
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+
+        $this->cacheManager->clean(['config']);
     }
 
     public function clearRules()

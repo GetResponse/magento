@@ -16,13 +16,14 @@ class NewsletterSettingsFactory
     public static function createFromArray(array $data)
     {
         if (empty($data)) {
-            return new NewsletterSettings(0, '', 0);
+            return new NewsletterSettings(0, '', 0, '');
         }
 
         return new NewsletterSettings(
             $data['status'],
             $data['campaignId'],
-            $data['cycleDay']
+            $data['cycleDay'],
+            $data['autoresponderId']
         );
     }
 }

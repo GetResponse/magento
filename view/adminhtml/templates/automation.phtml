@@ -78,14 +78,14 @@ $rules = $block->getRulesCollection()->getRules();
 
                                 <td>
                                     <input type="checkbox" disabled="disabled"
-                                           <?php echo !empty($rule->getAutoresponder()) ? 'checked="checked"' : '' ?> />
+                                           <?php echo !empty($rule->getAutoresponderDay()) ? 'checked="checked"' : '' ?> />
                                 </td>
 
                                 <td class="cycle_day_edit">
-                                    <?php if (!empty($rule->getAutoresponder())):?>
+                                    <?php if (!empty($rule->getAutoresponderDay())):?>
 
-                                    (Day: <?php echo $rule->getAutoresponder() ?>)
-                                    <?php  echo isset($autoresponders[$rule->getCampaign()][$rule->getAutoresponder()]) ? $autoresponders[$rule->getCampaign()][$rule->getAutoresponder()]['name'] : '' ?>
+                                    (Day: <?php echo $rule->getAutoresponderDay() ?>)
+                                    <?php  echo isset($autoresponders[$rule->getCampaign()][$rule->getAutoresponderId()]) ? $autoresponders[$rule->getCampaign()][$rule->getAutoresponderId()]['name'] : '' ?>
                             <?php endif ?>
                                 </td>
 
@@ -103,6 +103,3 @@ $rules = $block->getRulesCollection()->getRules();
     </div>
 </div>
 <input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($autoresponders); ?>'/>
-<script>
-    require(['automation']);
-</script>
