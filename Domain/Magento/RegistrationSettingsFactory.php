@@ -16,14 +16,15 @@ class RegistrationSettingsFactory
     public static function createFromArray(array $data)
     {
         if (empty($data)) {
-            return new RegistrationSettings(0, 0, '', 0);
+            return new RegistrationSettings(0, 0, '', 0, '');
         }
 
         return new RegistrationSettings(
             $data['status'],
             $data['customFieldsStatus'],
             $data['campaignId'],
-            $data['cycleDay']
+            $data['cycleDay'],
+            $data['autoresponderId']
         );
     }
 }

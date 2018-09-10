@@ -22,20 +22,33 @@ class Rule
     /** @var int */
     private $autoresponderDay;
 
+    /** @var string */
+    private $autoresponderId;
+
     /**
      * @param int $id
      * @param int $categoryId
      * @param string $action
      * @param string $campaignId
      * @param int $autoresponderDay
+     * @param string $autoresponderId
      */
-    public function __construct($id, $categoryId, $action, $campaignId, $autoresponderDay)
+    public function __construct($id, $categoryId, $action, $campaignId, $autoresponderDay, $autoresponderId)
     {
         $this->id = $id;
         $this->categoryId = $categoryId;
         $this->action = $action;
         $this->campaignId = $campaignId;
         $this->autoresponderDay = $autoresponderDay;
+        $this->autoresponderId = $autoresponderId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAutoresponderId()
+    {
+        return $this->autoresponderId;
     }
 
     /**
@@ -81,7 +94,7 @@ class Rule
     /**
      * @return int
      */
-    public function getAutoresponder()
+    public function getAutoresponderDay()
     {
         return $this->autoresponderDay;
     }
@@ -96,7 +109,8 @@ class Rule
             'category' => $this->categoryId,
             'action' => $this->action,
             'campaign' => $this->campaignId,
-            'cycle_day' => $this->autoresponderDay
+            'cycle_day' => $this->autoresponderDay,
+            'autoresponderId' => $this->autoresponderId
         ];
     }
 }

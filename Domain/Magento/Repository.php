@@ -364,7 +364,8 @@ class Repository
                 $_rule->category = $rule->getCategory();
                 $_rule->action = $rule->getAction();
                 $_rule->campaign = $rule->getCampaign();
-                $_rule->cycle_day = $rule->getAutoresponder();
+                $_rule->cycle_day = $rule->getAutoresponderDay();
+                $_rule->autoresponderId = $rule->getAutoresponderId();
             }
         }
 
@@ -552,27 +553,6 @@ class Repository
         return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_WEBFORMS_SETTINGS));
     }
 
-    /**
-     * @return string
-     */
-    public function getUnauthorizedApiCallDate()
-    {
-        return $this->_scopeConfig->getValue(Config::CONFIG_DATA_UNAUTHORIZED_API_CALL_DATE);
-    }
-
-    /**
-     * @param string $value
-     */
-    public function setUnauthorizedApiCallDate($value)
-    {
-        $this->configWriter->save(
-            Config::CONFIG_DATA_UNAUTHORIZED_API_CALL_DATE,
-            $value,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-    }
-
     public function clearDatabase()
     {
         $this->clearConnectionSettings();
@@ -584,6 +564,7 @@ class Repository
         $this->clearCustoms();
         $this->clearEcommerceSettings();
         $this->clearUnauthorizedApiCallDate();
+        $this->clearNewsletterSettings();
     }
 
     public function clearConnectionSettings()
@@ -631,6 +612,8 @@ class Repository
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+
+        $this->cacheManager->clean(['config']);
     }
 
     public function clearRules()
@@ -745,7 +728,7 @@ class Repository
     private function clearUnauthorizedApiCallDate()
     {
         $this->configWriter->delete(
-            Config::CONFIG_DATA_UNAUTHORIZED_API_CALL_DATE,
+            Config::INVALID_REQUEST_DATE_TIME,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );

@@ -7,7 +7,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Cart\CartService as GrCartService;
 use GrShareCode\DbRepositoryInterface;
-use GrShareCode\GetresponseApi;
+use GrShareCode\GetresponseApiClient;
 use GrShareCode\Product\ProductService;
 
 class CartServiceFactoryTest extends BaseTestCase
@@ -51,8 +51,8 @@ class CartServiceFactoryTest extends BaseTestCase
         );
 
         $this->assertInstanceOf(
-            GetresponseApi::class,
-            $this->getObjectAttribute($result, 'getresponseApi')
+            GetresponseApiClient::class,
+            $this->getObjectAttribute($result, 'getresponseApiClient')
         );
 
         $this->assertInstanceOf(

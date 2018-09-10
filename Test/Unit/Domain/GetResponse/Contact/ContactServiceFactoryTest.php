@@ -3,9 +3,10 @@ namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Contac
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactServiceFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Contact\ContactService as GrContactService;
-use GrShareCode\GetresponseApi;
+use GrShareCode\GetresponseApiClient;
 
 /**
  * Class ContactServiceFactoryTest
@@ -15,6 +16,9 @@ class ContactServiceFactoryTest extends BaseTestCase
 {
     /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $magentoRepository;
+
+    /** @var RepositoryForSharedCode|\PHPUnit_Framework_MockObject_MockObject */
+    private $shareCodeRepository;
 
     /** @var ContactServiceFactory */
     private $contactServiceFactory;
@@ -28,8 +32,8 @@ class ContactServiceFactoryTest extends BaseTestCase
             ->expects(self::once())
             ->method('getConnectionSettings')
             ->willReturn([
-                'domain' => 'https://api3.getresponse360.pl/v3',
-                'url' => 'https://my_private_custom_page_url',
+                'url' => 'https://api3.getresponse360.pl/v3',
+                'domain' => 'https://my_private_custom_page_url',
                 'apiKey' => 'GetResponseApiKey'
             ]);
 
@@ -43,8 +47,8 @@ class ContactServiceFactoryTest extends BaseTestCase
         $this->assertInstanceOf(GrContactService::class, $result);
 
         $this->assertInstanceOf(
-            GetresponseApi::class,
-            $this->getObjectAttribute($result, 'getresponseApi')
+            GetresponseApiClient::class,
+            $this->getObjectAttribute($result, 'getresponseApiClient')
         );
 
     }
@@ -52,7 +56,8 @@ class ContactServiceFactoryTest extends BaseTestCase
     protected function setUp()
     {
         $this->magentoRepository = $this->getMockWithoutConstructing(Repository::class);
-        $this->contactServiceFactory = new ContactServiceFactory($this->magentoRepository);
+        $this->shareCodeRepository = $this->getMockWithoutConstructing(RepositoryForSharedCode::class);
+        $this->contactServiceFactory = new ContactServiceFactory($this->magentoRepository, $this->shareCodeRepository);
     }
 
 
