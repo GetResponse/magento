@@ -585,6 +585,7 @@ class Repository
         $this->clearCustoms();
         $this->clearEcommerceSettings();
         $this->clearUnauthorizedApiCallDate();
+        $this->clearNewsletterSettings();
     }
 
     public function clearConnectionSettings()
