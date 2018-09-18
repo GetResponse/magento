@@ -60,8 +60,8 @@ class Webform extends Template
         try {
             $grRepository = $this->repositoryFactory->createRepository();
             return WebformCollectionFactory::createFromApiResponse(
-                (array)$grRepository->getForms(['query' => ['status' => 'enabled']]),
-                (array)$grRepository->getWebForms()
+                $grRepository->getForms(['query' => ['status' => 'enabled']]),
+                $grRepository->getWebForms()
             );
         } catch (RepositoryException $e) {
             return new WebformsCollection();

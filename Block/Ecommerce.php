@@ -68,7 +68,7 @@ class Ecommerce extends Template
      */
     public function getShops()
     {
-        return (array)$this->grRepository->getShops();
+        return $this->grRepository->getShops();
     }
 
     /**

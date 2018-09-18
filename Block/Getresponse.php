@@ -50,11 +50,11 @@ class Getresponse
 
             if (!empty($result)) {
                 foreach ($result as $autoresponder) {
-                    if (isset($autoresponder->triggerSettings->selectedCampaigns[0])) {
-                        $autoresponders[$autoresponder->triggerSettings->selectedCampaigns[0]][$autoresponder->autoresponderId] = [
-                            'name' => $autoresponder->name,
-                            'subject' => $autoresponder->subject,
-                            'dayOfCycle' => $autoresponder->triggerSettings->dayOfCycle
+                    if (isset($autoresponder['triggerSettings']['selectedCampaigns'][0])) {
+                        $autoresponders[$autoresponder['triggerSettings']['selectedCampaigns'][0]][$autoresponder['autoresponderId']] = [
+                            'name' => $autoresponder['name'],
+                            'subject' => $autoresponder['subject'],
+                            'dayOfCycle' => $autoresponder['triggerSettings']['dayOfCycle']
                         ];
                     }
                 }

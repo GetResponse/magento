@@ -63,35 +63,35 @@ class SubscribeFromNewsletter implements ObserverInterface
 
         try {
             $grRepository = $this->repositoryFactory->createRepository();
+
+            $apiHelper = new ApiHelper($grRepository);
+
+            $subscriber = $observer->getEvent()->getSubscriber();
+            $email = $subscriber->getEmail();
+
+            if (empty($email)) {
+                return $this;
+            }
+
+            $params = [];
+            $userCustoms = [];
+            $userCustoms['origin'] = 'magento2';
+            $params['campaign'] = ['campaignId' => $newsletterSettings->getCampaignId()];
+            $params['email'] = $email;
+
+            if (!empty($newsletterSettings->getCycleDay())) {
+                $params['dayOfCycle'] = (int) $newsletterSettings->getCycleDay();
+            }
+
+            $contact = $grRepository->getContactByEmail($email, $newsletterSettings->getCampaignId());
+
+            if (!isset($contact['contactId'])) {
+                $params['customFieldValues'] = $apiHelper->setCustoms($userCustoms);
+                $grRepository->addContact($params);
+            }
+            return $this;
         } catch (RepositoryException $e) {
             return $this;
         }
-
-        $apiHelper = new ApiHelper($grRepository);
-
-        $subscriber = $observer->getEvent()->getSubscriber();
-        $email = $subscriber->getEmail();
-
-        if (empty($email)) {
-            return $this;
-        }
-
-        $params = [];
-        $user_customs = [];
-        $user_customs['origin'] = 'magento2';
-        $params['campaign'] = ['campaignId' => $newsletterSettings->getCampaignId()];
-        $params['email'] = $email;
-
-        if (!empty($newsletterSettings->getCycleDay())) {
-            $params['dayOfCycle'] = (int) $newsletterSettings->getCycleDay();
-        }
-
-        $contact = $grRepository->getContactByEmail($email, $newsletterSettings->getCampaignId());
-
-        if (empty($contact)) {
-            $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
-            $grRepository->addContact($params);
-        }
-        return $this;
     }
 }

@@ -88,9 +88,9 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                 <?php if (count($campaigns) > 0): ?>
                                     <?php foreach ($campaigns as $campaign): ?>
                                         <option
-                                            <?php if ($campaign->campaignId == $rule->getCampaign()): ?>selected="selected"<?php endif ?>
-                                            value="<?php echo $campaign->campaignId ?>">
-                                            <?php echo $campaign->name ?>
+                                            <?php if ($campaign['campaignId'] == $rule->getCampaign()): ?>selected="selected"<?php endif ?>
+                                            value="<?php echo $campaign['campaignId'] ?>">
+                                            <?php echo $campaign['name'] ?>
                                         </option>
                                     <?php endforeach ?>
                                 <?php endif ?>

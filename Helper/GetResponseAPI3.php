@@ -8,98 +8,96 @@ namespace GetResponse\GetResponseIntegration\Helper;
 class GetResponseAPI3
 {
     /** @var string */
-    private $api_key;
+    private $apiKey;
 
     /** @var string */
-    private $api_url = 'https://api.getresponse.com/v3';
+    private $apiUrl = 'https://api.getresponse.com/v3';
 
     /** @var int */
     private $timeout = 8;
 
     /** @var string */
-    private $enterprise_domain;
+    private $enterpriseDomain;
 
     /** @var string */
-    public $http_status;
+    public $httpStatus;
 
     /** @var string */
     private $version;
 
+    /** @var array */
+    private $headers;
+
     /**
-     * Set api key and optionally API endpoint
-     * @param string $api_key
-     * @param string $api_url
-     * @param string $enterprise_domain
+     * @param string $apiKey
+     * @param string $apiUrl
+     * @param string $enterpriseDomain
      * @param string $version
      */
-    public function __construct($api_key, $api_url = null, $enterprise_domain = null, $version = '')
+    public function __construct($apiKey, $apiUrl = '', $enterpriseDomain = '', $version = '')
     {
-        $this->api_key = $api_key;
+        $this->apiKey = $apiKey;
         $this->version = $version;
 
-        if (!empty($api_url)) {
-            $this->api_url = $api_url;
+        if (!empty($apiUrl)) {
+            $this->apiUrl = $apiUrl;
         }
 
-        if (!empty($enterprise_domain)) {
-            $this->enterprise_domain = $enterprise_domain;
+        if (!empty($enterpriseDomain)) {
+            $this->enterpriseDomain = $enterpriseDomain;
         }
     }
 
     /**
-     * get account details
-     *
-     * @return mixed
+     * @return array
      */
-    public function accounts()
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    /**
+     * @return array
+     */
+    public function ping()
     {
         return $this->call('accounts');
     }
 
     /**
-     * @return mixed
-     */
-    public function ping()
-    {
-        return $this->accounts();
-    }
-
-    /**
-     * Return all campaigns
      * @param array $params
-     * @return mixed
+     * @return array
      */
     public function getCampaigns($params)
     {
+        $params['perPage'] = 100;
         $params['page'] = 1;
-        $params['perPage'] = $pageSize = 100;
+        $result = $this->call('campaigns?' . $this->setParams($params), 'GET', [], true);
 
-        $result = [];
+        $headers = $this->getHeaders();
 
-        do {
-            $response = (array) $this->call('campaigns?' . $this->setParams($params));
-            $result = array_merge($result, $response);
-            $params['page']++;
-            $responseCount = count($response);
-        } while ($responseCount == $pageSize);
+        for($i = 2; $i <= $headers['TotalPages']; $i++) {
+            $params['page'] = $i;
+            $res = $this->call('campaigns?' . $this->setParams($params), 'GET', []);
+            $result = array_merge($result, $res);
+        }
 
         return $result;
+
     }
 
     /**
-     * get single campaign
-     * @param string $campaign_id retrieved using API
-     * @return mixed
+     * @param string $campaignId
+     * @return array
      */
-    public function getCampaign($campaign_id)
+    public function getCampaign($campaignId)
     {
-        return $this->call('campaigns/' . $campaign_id);
+        return $this->call('campaigns/' . $campaignId);
     }
 
     /**
-     * adding campaign
-     * @param $params
-     * @return mixed
+     * @param array $params
+     * @return array
      */
     public function createCampaign($params)
     {
@@ -107,9 +105,8 @@ class GetResponseAPI3
     }
 
     /**
-     * get all subscription confirmation subjects
      * @param string $lang
-     * @return mixed
+     * @return array
      */
     public function getSubscriptionConfirmationsSubject($lang = 'EN')
     {
@@ -117,9 +114,8 @@ class GetResponseAPI3
     }
 
     /**
-     * get all subscription confirmation bodies
      * @param string $lang
-     * @return mixed
+     * @return array
      */
     public function getSubscriptionConfirmationsBody($lang = 'EN')
     {
@@ -127,10 +123,8 @@ class GetResponseAPI3
     }
 
     /**
-     * add single contact into your campaign
-     *
      * @param array $params
-     * @return mixed
+     * @return array
      */
     public function addContact($params)
     {
@@ -138,21 +132,17 @@ class GetResponseAPI3
     }
 
     /**
-     * retrieving contact by id
-     *
-     * @param string $contact_id - contact id obtained by API
-     * @return mixed
+     * @param string $contactId
+     * @return array
      */
-    public function getContact($contact_id)
+    public function getContact($contactId)
     {
-        return $this->call('contacts/' . $contact_id);
+        return $this->call('contacts/' . $contactId);
     }
 
     /**
-     * retrieving contact by params
      * @param array $params
-     *
-     * @return mixed
+     * @return array
      */
     public function getContacts($params = [])
     {
@@ -160,44 +150,28 @@ class GetResponseAPI3
     }
 
     /**
-     * updating any fields of your subscriber (without email of course)
-     * @param string $contact_id
+     * @param string $contactId
      * @param array $params
      *
-     * @return mixed
+     * @return array
      */
-    public function updateContact($contact_id, $params = [])
+    public function updateContact($contactId, $params = [])
     {
-        return $this->call('contacts/' . $contact_id, 'POST', $params);
+        return $this->call('contacts/' . $contactId, 'POST', $params);
     }
 
     /**
-     * drop single user by ID
-     *
-     * @param string $contact_id - obtained by API
-     * @return mixed
+     * @param string $contactId
+     * @return array
      */
-    public function deleteContact($contact_id)
+    public function deleteContact($contactId)
     {
-        return $this->call('contacts/' . $contact_id, 'DELETE');
+        return $this->call('contacts/' . $contactId, 'DELETE');
     }
 
     /**
-     * retrieve account custom fields
      * @param array $params
-     *
-     * @return mixed
-     */
-    public function getCustomFields($params = [])
-    {
-        return $this->call('custom-fields?' . $this->setParams($params));
-    }
-
-    /**
-     * retrieve single custom field
-     *
-     * @param array $params
-     * @return mixed
+     * @return array
      */
     public function addCustomField($params = [])
     {
@@ -205,10 +179,8 @@ class GetResponseAPI3
     }
 
     /**
-     * retrieve account from fields
      * @param array $params
-     *
-     * @return mixed
+     * @return array
      */
     public function getAccountFromFields($params = [])
     {
@@ -216,84 +188,68 @@ class GetResponseAPI3
     }
 
     /**
-     * retrieve autoresponders
      * @param array $params
-     *
-     * @return mixed
+     * @return array
      */
     public function getAutoresponders($params = [])
     {
-        return $this->call('autoresponders?' . $this->setParams($params));
+        $params['perPage'] = 100;
+        $params['page'] = 1;
+        $result = $this->call('autoresponders?' . $this->setParams($params), 'GET', [], true);
+        $headers = $this->getHeaders();
+
+        for($i = 2; $i <= $headers['TotalPages']; $i++) {
+            $params['page'] = $i;
+            $res = $this->call('autoresponders?' . $this->setParams($params), 'GET', []);
+            $result = array_merge($result, $res);
+        }
+
+        return $result;
+
     }
 
     /**
-     * add custom field
-     *
      * @param array $params
-     * @return mixed
-     */
-    public function setCustomField($params)
-    {
-        return $this->call('custom-fields', 'POST', $params);
-    }
-
-    /**
-     * retrieve single custom field
-     *
-     * @param string $custom_id obtained by API
-     * @return mixed
-     */
-    public function getCustomField($custom_id)
-    {
-        return $this->call('custom-fields/' . $custom_id, 'GET');
-    }
-
-    /**
-     * get single web form
-     *
-     * @param int $webform_id
-     * @return mixed
-     */
-    public function getWebForm($webform_id)
-    {
-        return $this->call('webforms/' . $webform_id);
-    }
-
-    /**
-     * retrieve all webforms
-     * @param array $params
-     *
-     * @return mixed
+     * @return array
      */
     public function getWebForms($params = [])
     {
-        return $this->call('webforms?' . $this->setParams($params));
+        $params['perPage'] = 100;
+        $params['page'] = 1;
+        $result = $this->call('webforms?' . $this->setParams($params), 'GET', [], true);
+        $headers = $this->getHeaders();
+
+        for($i = 2; $i <= $headers['TotalPages']; $i++) {
+            $params['page'] = $i;
+            $res = $this->call('webforms?' . $this->setParams($params), 'GET', []);
+            $result = array_merge($result, $res);
+        }
+
+        return $result;
     }
 
     /**
-     * get single form
-     *
-     * @param int $form_id
-     * @return mixed
-     */
-    public function getForm($form_id)
-    {
-        return $this->call('forms/' . $form_id);
-    }
-
-    /**
-     * retrieve all forms
      * @param array $params
-     *
-     * @return mixed
+     * @return array
      */
     public function getForms($params = [])
     {
-        return $this->call('forms?' . $this->setParams($params));
+        $params['perPage'] = 100;
+        $params['page'] = 1;
+        $result = $this->call('forms?' . $this->setParams($params), 'GET', [], true);
+        $headers = $this->getHeaders();
+
+        for($i = 2; $i <= $headers['TotalPages']; $i++) {
+            $params['page'] = $i;
+            $res = $this->call('forms?' . $this->setParams($params), 'GET', []);
+            $result = array_merge($result, $res);
+        }
+
+        return $result;
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getFeatures()
     {
@@ -301,7 +257,7 @@ class GetResponseAPI3
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getTrackingCode()
     {
@@ -309,17 +265,72 @@ class GetResponseAPI3
     }
 
     /**
-     * Curl run request
+     * @param string $shopName
+     * @param string $locale
+     * @param string $currency
      *
-     * @param null $api_method
-     * @param string $http_method
-     * @param array $params
+     * @return array
+     */
+    public function createShop($shopName, $locale, $currency)
+    {
+        $params = [
+            'name' => $shopName,
+            'locale' => $locale,
+            'currency' => $currency
+        ];
+
+        return $this->call('shops', 'POST', $params);
+    }
+
+    /**
+     * @return array
+     */
+    public function getShops()
+    {
+        $params['perPage'] = 100;
+        $params['page'] = 1;
+        $result = $this->call('shops?' . $this->setParams($params), 'GET', [], true);
+        $headers = $this->getHeaders();
+
+        for($i = 2; $i <= $headers['TotalPages']; $i++) {
+            $params['page'] = $i;
+            $res = $this->call('shops?' . $this->setParams($params), 'GET', []);
+            $result = array_merge($result, $res);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string $shopId
      * @return mixed
      */
-    private function call($api_method = null, $http_method = 'GET', $params = [])
+    public function deleteShop($shopId)
     {
-        if (empty($api_method)) {
-            return (object)[
+        return $this->call('shops/' . $shopId, 'DELETE');
+    }
+
+    /**
+     * @param $name
+     * @return array
+     */
+    public function getCustomFieldByName($name)
+    {
+        $result = $this->call('custom-fields?query[name]=' . $name);
+        return reset($result);
+    }
+
+    /**
+     * @param string $apiMethod
+     * @param string $httpMethod
+     * @param array $params
+     * @param bool $withHeaders
+     * @return array
+     */
+    private function call($apiMethod, $httpMethod = 'GET', $params = [], $withHeaders = false)
+    {
+        if (empty($apiMethod)) {
+            return [
                 'httpStatus' => '400',
                 'code' => '1010',
                 'codeDescription' => 'Error in external resources',
@@ -328,18 +339,18 @@ class GetResponseAPI3
         }
 
         $params = json_encode($params);
-        $url = $this->api_url . '/' . $api_method;
+        $url = $this->apiUrl . '/' . $apiMethod;
 
         $headers = [
-            'X-Auth-Token: api-key ' . $this->api_key,
+            'X-Auth-Token: api-key ' . $this->apiKey,
             'Content-Type: application/json',
             'User-Agent: Getresponse Plugin ' . $this->version,
             'X-APP-ID: d7a458d2-1a75-4296-b417-ed601697e289'
         ];
 
         // for GetResponse 360
-        if (isset($this->enterprise_domain)) {
-            $headers[] = 'X-Domain: ' . $this->enterprise_domain;
+        if (isset($this->enterpriseDomain)) {
+            $headers[] = 'X-Domain: ' . $this->enterpriseDomain;
         }
 
         $options = [
@@ -348,30 +359,34 @@ class GetResponseAPI3
             CURLOPT_FRESH_CONNECT => 1,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_TIMEOUT => $this->timeout,
-            CURLOPT_HEADER => false,
+            CURLOPT_HEADER => $withHeaders,
             CURLOPT_HTTPHEADER => $headers
         ];
 
-        if ($http_method == 'POST') {
+        if ($httpMethod == 'POST') {
             $options[CURLOPT_POST] = 1;
             $options[CURLOPT_POSTFIELDS] = $params;
-        } elseif ($http_method == 'DELETE') {
+        } elseif ($httpMethod == 'DELETE') {
             $options[CURLOPT_CUSTOMREQUEST] = 'DELETE';
         }
 
-        try {
-            $curl = curl_init();
-            curl_setopt_array($curl, $options);
+        $curl = curl_init();
+        curl_setopt_array($curl, $options);
 
-            $response = json_decode(curl_exec($curl));
-            $this->http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $response = curl_exec($curl);
+        $this->httpStatus = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
 
-            curl_close($curl);
-        } catch (\Exception $e) {
-            return false;
+        if (false === $response) {
+            return [];
         }
 
-        return (object)$response;
+        if ($withHeaders) {
+            list($headers, $response) = explode("\r\n\r\n", $response, 2);
+            $this->headers = $this->prepareHeaders($headers);
+        }
+
+        return json_decode($response, true);
     }
 
     /**
@@ -392,152 +407,20 @@ class GetResponseAPI3
     }
 
     /**
-     * @param string $shopName
-     * @param string $locale
-     * @param string $currency
-     *
-     * @return mixed
+     * @param string $rawHeaders
+     * @return array
      */
-    public function createShop($shopName, $locale, $currency)
-    {
-        $params = [
-            'name' => $shopName,
-            'locale' => $locale,
-            'currency' => $currency
-        ];
+    private function prepareHeaders( $rawHeaders ) {
+        $rawHeaders = explode("\r\n", $rawHeaders);
+        $headers = array();
 
-        return $this->call('shops', 'POST', $params);
-    }
+        foreach ($rawHeaders as $header) {
+            $params = explode(':', $header, 2);
+            $key = isset($params[0]) ? $params[0] : null;
+            $value = isset($params[1]) ? $params[1] : null;
+            $headers[trim($key)] = trim($value);
+        }
 
-    /**
-     * @return mixed
-     */
-    public function getShops()
-    {
-        $params['page'] = 1;
-        $params['perPage'] = $pageSize = 100;
-
-        $result = [];
-
-        do {
-            $response = (array) $this->call('shops?' . $this->setParams($params));
-            $result = array_merge($result, $response);
-            $params['page']++;
-            $responseCount = count($response);
-        } while ($responseCount == $pageSize);
-
-        return $result;
-    }
-
-    /**
-     * @param string $shopId
-     * @return mixed
-     */
-    public function deleteShop($shopId)
-    {
-        return $this->call('shops/' . $shopId, 'DELETE');
-    }
-
-    /**
-     * @param string $shopId
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function addNewCart($shopId, $params)
-    {
-        return $this->call('shops/' . $shopId . '/carts', 'POST', $params);
-    }
-
-    /**
-     * @param string $shopId
-     * @param string $cartId
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function updateCart($shopId, $cartId, $params)
-    {
-        return $this->call('shops/' . $shopId . '/carts/' . $cartId, 'POST', $params);
-    }
-
-    /**
-     * @param string $shopId
-     * @param string $cartId
-     *
-     * @return mixed
-     */
-    public function deleteCart($shopId, $cartId)
-    {
-        return $this->call('shops/' . $shopId . '/carts/' . $cartId, 'DELETE');
-    }
-
-    /**
-     * @param string $shopId
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function addProduct($shopId, $params)
-    {
-        return $this->call('shops/' . $shopId . '/products', 'POST', $params);
-    }
-
-    /**
-     * @param string $shopId
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function addCart($shopId, $params)
-    {
-        return $this->call('shops/' . $shopId . '/carts', 'POST', $params);
-    }
-
-    /**
-     * @param string $shopId
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function createOrder($shopId, $params)
-    {
-        return $this->call('shops/' . $shopId . '/orders', 'POST', $params);
-    }
-
-    /**
-     * @param string $shopId
-     * @param string $orderId
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function getOrder($shopId, $orderId, $params = [])
-    {
-        return $this->call('shops/' . $shopId . '/orders/' . $orderId, 'GET', $params);
-    }
-
-    /**
-     * @param string $shopId
-     * @param string $orderId
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function updateOrder($shopId, $orderId, $params)
-    {
-        return $this->call('shops/' . $shopId . '/orders/' . $orderId, 'POST', $params);
-    }
-
-    /**
-     * @param $name
-     *
-     * @return mixed
-     */
-    public function getCustomFieldByName($name)
-    {
-        $result = (array)$this->call('custom-fields?query[name]=' . $name);
-
-        return reset($result);
+        return $headers;
     }
 }

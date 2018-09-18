@@ -1,7 +1,6 @@
 <?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */
 
 $campaigns = $block->getCampaigns();
-$customers = $block->getCustomers();
 $settings = $block->getExportSettings();
 $shops = $block->getShops();
 $jsAutoresponders = $block->getAutorespondersForFrontend();
@@ -55,7 +54,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                     <?php
                                         if (count($campaigns) > 0) {
                                             foreach ($campaigns as $campaign) {
-                                                echo '<option value="' . $campaign->campaignId . '">' . $campaign->name . '</option>';
+                                                echo '<option value="' . $campaign['campaignId'] . '">' . $campaign['name'] . '</option>';
                                             }
                                         }
                                     ?>
@@ -120,7 +119,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                     <?php
                                     if (count($shops) > 0) {
                                         foreach ($shops as $shop) {
-                                            echo '<option value="' . $shop->shopId . '">' . $shop->name . '</option>';
+                                            echo '<option value="' . $shop['shopId'] . '">' . $shop['name'] . '</option>';
                                         }
                                     }
                                     ?>

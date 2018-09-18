@@ -56,11 +56,11 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                     <?php if (count($campaigns) > 0): ?>
                                         <?php foreach ($campaigns as $campaign): ?>
                                             <option
-                                                value="<?php echo $campaign->campaignId ?>"
-                                                <?php if ($newsletter->getCampaignId() == $campaign->campaignId): ?>
+                                                value="<?php echo $campaign['campaignId'] ?>"
+                                                <?php if ($newsletter->getCampaignId() == $campaign['campaignId']): ?>
                                                     selected="selected"
                                                 <?php endif ?>>
-                                            <?php echo $campaign->name ?>
+                                            <?php echo $campaign['name'] ?>
                                             </option>
                                         <?php endforeach ?>
                                     <?php endif ?>

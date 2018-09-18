@@ -196,8 +196,6 @@ class Process extends AbstractController
      * @param string $email
      * @param int $cycleDay
      * @param array $user_customs
-     *
-     * @return mixed
      */
     public function addContact($campaign, $firstName, $lastName, $email, $cycleDay = 0, $user_customs = [])
     {
@@ -222,32 +220,28 @@ class Process extends AbstractController
         $contact = $this->grRepository->getContactByEmail($email, $campaign);
 
         // if contact already exists in gr account
-        if (!empty($contact) && isset($contact->contactId)) {
-            if (!empty($contact->customFieldValues)) {
-                $params['customFieldValues'] = $apiHelper->mergeUserCustoms($contact->customFieldValues, $user_customs);
+        if (isset($contact['contactId'])) {
+            if (!empty($contact['customFieldValues'])) {
+                $params['customFieldValues'] = $apiHelper->mergeUserCustoms($contact['customFieldValues'], $user_customs);
             } else {
                 $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
             }
-            $response = $this->grRepository->updateContact($contact->contactId, $params);
-            if (isset($response->message)) {
+            $response = $this->grRepository->updateContact($contact['contactId'], $params);
+            if (!isset($response['contactId'])) {
                 $this->stats['error']++;
             } else {
                 $this->stats['updated']++;
             }
-
-            return $response;
         } else {
             $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
 
             $response = $this->grRepository->addContact($params);
 
-            if (isset($response->message)) {
-                $this->stats['error']++;
-            } else {
+            if (isset($response['contactId'])) {
                 $this->stats['added']++;
+            } else {
+                $this->stats['error']++;
             }
-
-            return $response;
         }
     }
 

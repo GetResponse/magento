@@ -35,7 +35,7 @@ class ApiHelper
         foreach ($user_customs as $name => $value) {
             $custom = $this->repository->getCustomFieldByName($name);
 
-            if (empty($custom) || !isset($custom->customFieldId)) {
+            if (!isset($custom['customFieldId'])) {
                 $custom = $this->repository->addCustomField([
                     'name' => $name,
                     'type' => "text",
@@ -49,7 +49,7 @@ class ApiHelper
             }
 
             $custom_fields[] = [
-                'customFieldId' => $custom->customFieldId,
+                'customFieldId' => $custom['customFieldId'],
                 'value' => [$value]
             ];
         }

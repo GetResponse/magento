@@ -57,9 +57,10 @@ class RepositoryValidator
     {
         $response = $grRepository->ping();
 
-        if (isset($response->httpStatus) && (int)$response->httpStatus >= 400 && (int)$response->httpStatus < 500) {
+        if (isset($response['httpStatus']) && (int) $response['httpStatus'] >= 400 && (int) $response['httpStatus'] < 500) {
             return false;
         }
+
         return true;
     }
 }

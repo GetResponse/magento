@@ -73,8 +73,8 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                 <option value="">Select a list</option>
                                 <?php if (count($campaigns) > 0):?>
                                     <?php foreach ($campaigns as $campaign): ?>
-                                        <option value="<?php echo $campaign->campaignId?>">
-                                            <?php echo $campaign->name?>
+                                        <option value="<?php echo $campaign['campaignId']?>">
+                                            <?php echo $campaign['name']?>
                                         </option>
                                     <?php endforeach ?>
                                 <?php endif ?>

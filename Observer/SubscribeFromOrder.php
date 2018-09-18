@@ -67,14 +67,14 @@ class SubscribeFromOrder implements ObserverInterface
 
         $customs = $this->repository->getCustoms();
 
-        $order_id = $observer->getOrderIds();
-        $order_id = (int)(is_array($order_id) ? array_pop($order_id) : $order_id);
+        $orderId = $observer->getOrderIds();
+        $orderId = (int)(is_array($orderId) ? array_pop($orderId) : $orderId);
 
-        if ($order_id < 1) {
+        if ($orderId < 1) {
             return $this;
         }
 
-        $order = $this->repository->loadOrder($order_id);
+        $order = $this->repository->loadOrder($orderId);
 
         $customer_id = $order->getCustomerId();
         $customer = $this->repository->loadCustomer($customer_id);
@@ -83,7 +83,7 @@ class SubscribeFromOrder implements ObserverInterface
 
         $data = array_merge($address->getData(), $customer->getData());
 
-        $custom_fields = [];
+        $customFields = [];
 
         foreach ($customs as $custom) {
             if ($custom->isDefault) {
@@ -98,19 +98,19 @@ class SubscribeFromOrder implements ObserverInterface
             }
 
             if (!empty($data[$custom->customField])) {
-                $custom_fields[$custom->customName] = $data[$custom->customField];
+                $customFields[$custom->customName] = $data[$custom->customField];
             }
         }
 
         $subscriber = $this->repository->loadSubscriberByEmail($customer->getEmail());
 
         if ($subscriber->isSubscribed() == true) {
-            $move_subscriber = false;
+            $moveSubscriber = false;
 
             if (!empty($rulesCollection->getRules())) {
-                $category_ids = [];
+                $categoryIds = [];
                 foreach ($rulesCollection->getRules() as $rule) {
-                    $category_ids[$rule->getCategory()] = [
+                    $categoryIds[$rule->getCategory()] = [
                         'category_id' => $rule->getCategory(),
                         'action' => $rule->getAction(),
                         'campaign_id' => $rule->getCampaign(),
@@ -118,7 +118,7 @@ class SubscribeFromOrder implements ObserverInterface
                     ];
                 }
 
-                $automations_categories = array_keys($category_ids);
+                $automations_categories = array_keys($categoryIds);
 
                 foreach ($order->getItems() as $item) {
                     $product_id = $item->getData()['product_id'];
@@ -128,23 +128,23 @@ class SubscribeFromOrder implements ObserverInterface
                     $category = array_intersect($product_categories, $automations_categories);
                     if ($category) {
                         foreach ($category as $c) {
-                            if ($category_ids[$c]['action'] == 'move') {
-                                $move_subscriber = true;
+                            if ($categoryIds[$c]['action'] == 'move') {
+                                $moveSubscriber = true;
                             }
 
                             $this->addContact(
-                                $category_ids[$c]['campaign_id'],
+                                $categoryIds[$c]['campaign_id'],
                                 $customer->getFirstname(),
                                 $customer->getLastname(),
                                 $customer->getEmail(),
-                                $category_ids[$c]['cycle_day'],
-                                $custom_fields
+                                $categoryIds[$c]['cycle_day'],
+                                $customFields
                             );
                         }
                     }
                 }
-                if ($move_subscriber) {
-                    $results = (array)$grRepository->getContacts([
+                if ($moveSubscriber) {
+                    $results = $grRepository->getContacts([
                         'query' => [
                             'email' => $customer->getEmail(),
                             'campaignId' => $registrationSettings->getCampaignId()
@@ -152,19 +152,19 @@ class SubscribeFromOrder implements ObserverInterface
                     ]);
                     $contact = array_pop($results);
 
-                    if (!empty($contact) && isset($contact->contactId)) {
-                        $grRepository->deleteContact($contact->contactId);
+                    if (isset($contact['contactId'])) {
+                        $grRepository->deleteContact($contact['contactId']);
                     }
                 }
             }
-            if (!$move_subscriber) {
+            if (!$moveSubscriber) {
                 $this->addContact(
                     $registrationSettings->getCampaignId(),
                     $customer->getFirstname(),
                     $customer->getLastname(),
                     $customer->getEmail(),
                     $registrationSettings->getCycleDay(),
-                    $custom_fields
+                    $customFields
                 );
             }
         }
@@ -176,14 +176,12 @@ class SubscribeFromOrder implements ObserverInterface
     /**
      * Add (or update) contact to gr campaign
      *
-     * @param       $campaign
-     * @param       $firstname
-     * @param       $lastname
-     * @param       $email
+     * @param string $campaign
+     * @param string $firstname
+     * @param string $lastname
+     * @param string $email
      * @param int $cycle_day
      * @param array $user_customs
-     *
-     * @return mixed
      */
     public function addContact($campaign, $firstname, $lastname, $email, $cycle_day = 0, $user_customs = [])
     {
@@ -209,29 +207,21 @@ class SubscribeFromOrder implements ObserverInterface
             $params['dayOfCycle'] = (int)$cycle_day;
         }
 
-        $results = (array)$grRepository->getContacts([
-            'query' => [
-                'email' => $email,
-                'campaignId' => $campaign
-            ]
-        ]);
-
+        $results = $grRepository->getContacts(['query' => ['email' => $email, 'campaignId' => $campaign]]);
         $contact = array_pop($results);
 
-        // if contact already exists in gr account
-        if (!empty($contact) && isset($contact->contactId)) {
-            $results = $grRepository->getContact($contact->contactId);
-            if (!empty($results->customFieldValues)) {
-                $params['customFieldValues'] = $apiHelper->mergeUserCustoms($results->customFieldValues, $user_customs);
+        if (isset($contact['contactId'])) {
+            $results = $grRepository->getContact($contact['contactId']);
+            if (!empty($results['customFieldValues'])) {
+                $params['customFieldValues'] = $apiHelper->mergeUserCustoms($results['customFieldValues'], $user_customs);
             } else {
                 $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
             }
 
-            return $grRepository->updateContact($contact->contactId, $params);
+            $grRepository->updateContact($contact['contactId'], $params);
         } else {
             $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
-
-            return $grRepository->addContact($params);
+            $grRepository->addContact($params);
         }
     }
 }

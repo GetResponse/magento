@@ -40,7 +40,7 @@ class Lists extends Template
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getAccountFromFields()
     {
@@ -48,7 +48,7 @@ class Lists extends Template
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getSubscriptionConfirmationsSubject()
     {
@@ -59,7 +59,7 @@ class Lists extends Template
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getSubscriptionConfirmationsBody()
     {

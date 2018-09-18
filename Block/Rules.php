@@ -162,7 +162,7 @@ class Rules extends Template
 
     /**
      * @param $id
-     * @return mixed
+     * @return array
      */
     public function getCampaign($id)
     {

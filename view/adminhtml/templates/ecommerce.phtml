@@ -70,9 +70,9 @@ $settings = $block->getRegistrationSettings();
                                         <option value="">Select a store</option>
                                         <?php foreach ($shops as $shop): ?>
                                             <option
-                                                <?php if ($shop->shopId === $currentShopId): ?> selected="selected" <?php endif ?>
-                                                    value="<?php echo $shop->shopId ?>">
-                                                <?php echo $shop->name ?>
+                                                <?php if ($shop['shopId'] === $currentShopId): ?> selected="selected" <?php endif ?>
+                                                    value="<?php echo $shop['shopId'] ?>">
+                                                <?php echo $shop['name'] ?>
                                             </option>
                                         <?php endforeach ?>
                                     </select>
@@ -110,10 +110,10 @@ $settings = $block->getRegistrationSettings();
                                         <?php foreach ($shops as $key => $shop): ?>
                                             <tr class="data-row <?php if ($key % 2): ?>_odd-row<?php endif ?>">
                                                 <td>
-                                                    <?php echo $shop->name ?>
+                                                    <?php echo $shop['name'] ?>
                                                 </td>
                                                 <td>
-                                                    <a href="#" data-id="<?php echo $shop->shopId ?>" class="deleteStoreBtn">Delete</a>
+                                                    <a href="#" data-id="<?php echo $shop['shopId'] ?>" class="deleteStoreBtn">Delete</a>
                                                 </td>
                                             </tr>
                                         <?php endforeach ?>

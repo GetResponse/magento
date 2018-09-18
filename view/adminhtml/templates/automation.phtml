@@ -1,6 +1,4 @@
 <?php /** @var $block \GetResponse\GetResponseIntegration\Block\Rules */
-$categories = $block->getStoreCategories();
-$campaigns = $block->getCampaigns();
 $autoresponders = $block->getAutoresponders();
 $rules = $block->getRulesCollection()->getRules();
 ?>
@@ -73,7 +71,7 @@ $rules = $block->getRulesCollection()->getRules();
 
                                 <td class="campaign">
                                     <?php $campaign = $block->getCampaign($rule->getCampaign()); ?>
-                                    <?php echo isset($campaign->name) ? $campaign->name : ''; ?>
+                                    <?php echo isset($campaign['name']) ? $campaign['name'] : ''; ?>
                                 </td>
 
                                 <td>

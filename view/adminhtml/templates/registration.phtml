@@ -1,6 +1,7 @@
 <?php /** @var $block \GetResponse\GetResponseIntegration\Block\Registration */
 
 $campaigns = $block->getCampaigns();
+
 $registrationSettings = $block->getRegistrationSettings();
 $jsAutoresponders = $block->getAutorespondersForFrontend();
 
@@ -56,11 +57,11 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                                     <?php if (count($campaigns) > 0): ?>
                                         <?php foreach ($campaigns as $campaign): ?>
                                             <option
-                                                value="<?php echo $campaign->campaignId ?>"
-                                                <?php if ($registrationSettings->getCampaignId() == $campaign->campaignId): ?>
+                                                value="<?php echo $campaign['campaignId'] ?>"
+                                                <?php if ($registrationSettings->getCampaignId() == $campaign['campaignId']): ?>
                                                     selected="selected"
                                                 <?php endif ?>>
-                                            <?php echo $campaign->name ?>
+                                            <?php echo $campaign['name'] ?>
                                             </option>
                                         <?php endforeach ?>
                                     <?php endif ?>

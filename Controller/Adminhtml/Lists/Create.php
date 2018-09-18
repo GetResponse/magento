@@ -85,12 +85,10 @@ class Create extends AbstractController
         }
 
         $data['lang'] = substr($this->repository->getMagentoCountryCode(), 0, 2);
-        $result = $this->grRepository->createCampaign(
-            CampaignFactory::createFromArray($data)
-        );
+        $campaign = $this->grRepository->createCampaign(CampaignFactory::createFromArray($data));
 
-        if (isset($result->httpStatus) && (int)$result->httpStatus >= 400) {
-            $this->messageManager->addErrorMessage(Message::CANNOT_CREATE_LIST . ' - uuid: ' . $result->uuid);
+        if (isset($campaign['httpStatus']) && (int) $campaign['httpStatus'] >= 400) {
+            $this->messageManager->addErrorMessage(Message::CANNOT_CREATE_LIST . ' - uuid: ' . $campaign['uuid']);
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 

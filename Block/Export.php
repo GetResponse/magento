@@ -72,7 +72,7 @@ class Export extends Template
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getCampaigns()
     {

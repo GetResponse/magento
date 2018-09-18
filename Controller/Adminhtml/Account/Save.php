@@ -103,13 +103,13 @@ class Save extends Action
 
         $features = $grRepository->getFeatures();
 
-        if ($features instanceof \stdClass && $features->feature_tracking == 1) {
+        if (isset($features['feature_tracking']) && (int) $features['feature_tracking'] === 1) {
             $featureTracking = true;
 
-            $trackingCode = (array)$grRepository->getTrackingCode();
+            $trackingCode = $grRepository->getTrackingCode();
 
-            if (!empty($trackingCode) && is_object($trackingCode[0]) && 0 < strlen($trackingCode[0]->snippet)) {
-                $trackingCodeSnippet = $trackingCode[0]->snippet;
+            if (isset($trackingCode[0]) && 0 < strlen($trackingCode[0]['snippet'])) {
+                $trackingCodeSnippet = $trackingCode[0]['snippet'];
             }
         }
 

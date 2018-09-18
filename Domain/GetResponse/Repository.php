@@ -34,7 +34,7 @@ class Repository
      * @param string $lang
      * @param string $currency
      *
-     * @return mixed
+     * @return array
      */
     public function createShop($name, $lang, $currency)
     {
@@ -42,7 +42,7 @@ class Repository
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getShops()
     {
@@ -51,8 +51,7 @@ class Repository
 
     /**
      * @param string $id
-     *
-     * @return mixed
+     * @return array
      */
     public function deleteShop($id)
     {
@@ -61,8 +60,7 @@ class Repository
 
     /**
      * @param array $params
-     *
-     * @return mixed
+     * @return array
      */
     public function addContact($params)
     {
@@ -73,7 +71,7 @@ class Repository
      * @param string $id
      * @param array $params
      *
-     * @return mixed
+     * @return array
      */
     public function updateContact($id, $params)
     {
@@ -82,18 +80,15 @@ class Repository
 
     /**
      * @param string $id
-     *
-     * @return mixed
      */
     public function deleteContact($id)
     {
-        return $this->resource->deleteContact($id);
+        $this->resource->deleteContact($id);
     }
 
     /**
      * @param array $params
-     *
-     * @return mixed
+     * @return array
      */
     public function getContacts($params)
     {
@@ -103,7 +98,7 @@ class Repository
     /**
      * @param string $id
      *
-     * @return mixed
+     * @return array
      */
     public function getContact($id)
     {
@@ -114,17 +109,11 @@ class Repository
      * @param string $email
      * @param string $campaign
      *
-     * @return mixed
+     * @return array
      */
     public function getContactByEmail($email, $campaign)
     {
-        $result = (array)$this->resource->getContacts([
-            'query' => [
-                'email' => $email,
-                'campaignId' => $campaign
-            ]
-        ]);
-
+        $result = $this->resource->getContacts(['query' => ['email' => $email, 'campaignId' => $campaign]]);
         return array_pop($result);
     }
 
@@ -133,13 +122,12 @@ class Repository
      */
     public function getAccountDetails()
     {
-        return (array)$this->resource->ping();
+        return $this->resource->ping();
     }
 
     /**
      * @param string $name
-     *
-     * @return mixed
+     * @return array
      */
     public function getCustomFieldByName($name)
     {
@@ -160,8 +148,7 @@ class Repository
 
     /**
      * @param array $params
-     *
-     * @return mixed
+     * @return array
      */
     public function addCustomField($params)
     {
@@ -170,8 +157,7 @@ class Repository
 
     /**
      * @param Campaign $campaign
-     *
-     * @return mixed
+     * @return array
      */
     public function createCampaign(Campaign $campaign)
     {
@@ -179,7 +165,7 @@ class Repository
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getFeatures()
     {
@@ -187,7 +173,7 @@ class Repository
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getTrackingCode()
     {
@@ -197,7 +183,7 @@ class Repository
     /**
      * @param array $params
      *
-     * @return mixed
+     * @return array
      */
     public function getCampaigns($params)
     {
@@ -207,7 +193,7 @@ class Repository
     /**
      * @param string $id
      *
-     * @return mixed
+     * @return array
      */
     public function getCampaign($id)
     {
@@ -215,7 +201,7 @@ class Repository
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getAccountFromFields()
     {
@@ -224,8 +210,7 @@ class Repository
 
     /**
      * @param string $lang
-     *
-     * @return mixed
+     * @return array
      */
     public function getSubscriptionConfirmationsSubject($lang)
     {
@@ -234,8 +219,7 @@ class Repository
 
     /**
      * @param string $lang
-     *
-     * @return mixed
+     * @return array
      */
     public function getSubscriptionConfirmationsBody($lang)
     {
@@ -254,8 +238,7 @@ class Repository
 
     /**
      * @param array $params
-     *
-     * @return mixed
+     * @return array
      */
     public function getForms($params)
     {
@@ -264,8 +247,7 @@ class Repository
 
     /**
      * @param array $params
-     *
-     * @return mixed
+     * @return array
      */
     public function getWebForms($params = [])
     {
@@ -273,87 +255,7 @@ class Repository
     }
 
     /**
-     * @param string $shopId
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function addProduct($shopId, $params)
-    {
-        return $this->resource->addProduct($shopId, $params);
-    }
-
-    /**
-     * @param string $shopId
-     * @param string $cartId
-     *
-     * @return mixed
-     */
-    public function deleteCart($shopId, $cartId)
-    {
-        return $this->resource->deleteCart($shopId, $cartId);
-    }
-
-    /**
-     * @param string $shopId
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function addCart($shopId, $params)
-    {
-        return $this->resource->addCart($shopId, $params);
-    }
-
-    /**
-     * @param string $shopId
-     * @param string $cartId
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function updateCart($shopId, $cartId, $params)
-    {
-        return $this->resource->updateCart($shopId, $cartId, $params);
-    }
-
-    /**
-     * @param string $shopId
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function createOrder($shopId, $params)
-    {
-        return $this->resource->createOrder($shopId, $params);
-    }
-
-    /**
-     * @param string $shopId
-     * @param string $orderId
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function updateOrder($shopId, $orderId, $params)
-    {
-        return $this->resource->updateOrder($shopId, $orderId, $params);
-    }
-
-    /**
-     * @param string $shopId
-     * @param string $orderId
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function getOrder($shopId, $orderId, $params = [])
-    {
-        return $this->resource->getOrder($shopId, $orderId, $params);
-    }
-
-    /**
-     * @return mixed
+     * @return array
      */
     public function ping()
     {

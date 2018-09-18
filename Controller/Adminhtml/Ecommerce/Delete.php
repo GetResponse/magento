@@ -58,8 +58,8 @@ class Delete extends AbstractController
 
         $response = $this->grRepository->deleteShop($id);
 
-        if (isset($response->httpStatus) && $response->httpStatus > 204) {
-            $this->messageManager->addErrorMessage(Message::DELETE_SHOP_ERROR . ' - uuid: ' . $response->uuid);
+        if (isset($response['httpStatus']) && $response['httpStatus'] > 204) {
+            $this->messageManager->addErrorMessage(Message::DELETE_SHOP_ERROR . ' - uuid: ' . $response['uuid']);
         } else {
             $this->messageManager->addSuccessMessage(Message::STORE_REMOVED);
         }
