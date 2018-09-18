@@ -76,9 +76,11 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
                 return;
             }
 
-            $contactListId = $this->magentoRepository->getRegistrationSettings()['campaignId'];
-
-            $this->orderService->sendOrder($observer->getEvent()->getOrder(), $contactListId, $shopId);
+            $this->orderService->sendOrder(
+                $observer->getEvent()->getOrder(),
+                $this->scopeConfig->getValue(Config::CONFIG_DATA_ECOMMERCE_LIST_ID),
+                $shopId
+            );
 
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);

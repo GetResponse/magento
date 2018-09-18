@@ -1,4 +1,5 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
@@ -59,7 +60,6 @@ class Repository
     public function getShopId()
     {
         $id = $this->_scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
-
         return strlen($id) > 0 ? $id : '';
     }
 
@@ -69,7 +69,6 @@ class Repository
     public function getShopStatus()
     {
         $status = $this->_scopeConfig->getValue(Config::CONFIG_DATA_SHOP_STATUS);
-
         return 'enabled' === $status ? 'enabled' : 'disabled';
     }
 
@@ -79,7 +78,6 @@ class Repository
     public function getCustomers()
     {
         $customers = $this->_objectManager->get('Magento\Customer\Model\Customer');
-
         return $customers->getCollection()->getData();
     }
 
@@ -101,7 +99,6 @@ class Repository
     public function getCategoryName($category_id)
     {
         $_categoryHelper = $this->_objectManager->create('\Magento\Catalog\Model\Category');
-
         return $_categoryHelper->load($category_id)->getName();
     }
 
@@ -111,7 +108,6 @@ class Repository
     public function getStoreCategories()
     {
         $_categoryHelper = $this->_objectManager->create('\Magento\Catalog\Helper\Category');
-
         return $_categoryHelper->getStoreCategories(true, false, true);
     }
 
@@ -124,8 +120,10 @@ class Repository
         $customers = $customers->getCollection();
 
         $customers->getSelect()
-            ->joinLeft(['customer_entity' => 'customer_entity'], 'customer_entity.entity_id=main_table.customer_id', ['*'])
-            ->joinLeft(['customer_address_entity' => 'customer_address_entity'], 'customer_address_entity.entity_id=default_billing', ['*'])
+            ->joinLeft(['customer_entity' => 'customer_entity'], 'customer_entity.entity_id=main_table.customer_id',
+                ['*'])
+            ->joinLeft(['customer_address_entity' => 'customer_address_entity'],
+                'customer_address_entity.entity_id=default_billing', ['*'])
             ->where('subscriber_status=1');
 
         return $customers;
@@ -153,7 +151,6 @@ class Repository
     public function getMagentoCurrencyCode()
     {
         $storeManager = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface');
-
         return $storeManager->getStore()->getCurrentCurrencyCode();
     }
 
@@ -179,7 +176,6 @@ class Repository
     public function loadOrder($id)
     {
         $order_object = $this->_objectManager->create('Magento\Sales\Model\Order');
-
         return $order_object->load($id);
     }
 
@@ -191,7 +187,6 @@ class Repository
     public function loadCustomer($id)
     {
         $customer_object = $this->_objectManager->create('Magento\Customer\Model\Customer');
-
         return $customer_object->load($id);
     }
 
@@ -202,7 +197,6 @@ class Repository
     public function getProductById($productId)
     {
         $productObject = $this->_objectManager->create(\Magento\Catalog\Model\Product::class);
-
         return $productObject->load($productId);
     }
 
@@ -213,7 +207,6 @@ class Repository
     public function getProductParentConfigurableById($productId)
     {
         $productObject = $this->_objectManager->create(Configurable::class);
-
         return $productObject->getParentIdsByChild($productId);
     }
 
@@ -224,7 +217,6 @@ class Repository
     public function getProductConfigurableChildrenById($productId)
     {
         $productObject = $this->_objectManager->create(Configurable::class);
-
         return $productObject->getChildrenIds($productId);
     }
 
@@ -426,6 +418,22 @@ class Repository
         $this->configWriter->save(
             Config::CONFIG_DATA_SHOP_ID,
             $shopId,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+
+        $this->cacheManager->clean(['config']);
+    }
+
+    /**
+     * @param string $listId
+     *
+     */
+    public function saveEcommerceListId($listId)
+    {
+        $this->configWriter->save(
+            Config::CONFIG_DATA_ECOMMERCE_LIST_ID,
+            $listId,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
@@ -656,6 +664,12 @@ class Repository
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+
+        $this->configWriter->delete(
+            Config::CONFIG_DATA_ECOMMERCE_LIST_ID,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
     }
 
     /**
@@ -732,5 +746,14 @@ class Repository
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getEcommerceListId()
+    {
+        $id = $this->_scopeConfig->getValue(Config::CONFIG_DATA_ECOMMERCE_LIST_ID);
+        return strlen($id) > 0 ? $id : '';
     }
 }

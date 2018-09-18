@@ -64,6 +64,14 @@ class Ecommerce extends Template
     }
 
     /**
+     * @return string
+     */
+    public function getEcommerceListId()
+    {
+        return $this->repository->getEcommerceListId();
+    }
+
+    /**
      * @return array
      */
     public function getShops()
@@ -77,5 +85,13 @@ class Ecommerce extends Template
     public function getRegistrationSettings()
     {
         return $this->getresponseBlock->getRegistrationSettings();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCampaigns()
+    {
+        return $this->grRepository->getCampaigns(['sort' => ['name' => 'asc']]);
     }
 }

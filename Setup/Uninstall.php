@@ -60,6 +60,12 @@ class Uninstall implements UninstallInterface
         );
 
         $this->configWriter->delete(
+            Config::CONFIG_DATA_ECOMMERCE_LIST_ID,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+
+        $this->configWriter->delete(
             Config::CONFIG_DATA_ACCOUNT,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID

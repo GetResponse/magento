@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "getresponse/share-code-plugin": "^4.0"
+        "getresponse/share-code-plugin": "^4.0.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^5",
