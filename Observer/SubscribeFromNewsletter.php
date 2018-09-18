@@ -10,6 +10,7 @@ use Magento\Customer\Model\Session;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Newsletter\Model\Subscriber;
 
 /**
  * Class SubscribeFromNewsletter
@@ -66,7 +67,13 @@ class SubscribeFromNewsletter implements ObserverInterface
 
             $apiHelper = new ApiHelper($grRepository);
 
+            /** @var Subscriber $subscriber */
             $subscriber = $observer->getEvent()->getSubscriber();
+
+            if ($subscriber->getCustomerId() > 0) {
+                return $this;
+            }
+
             $email = $subscriber->getEmail();
 
             if (empty($email)) {
