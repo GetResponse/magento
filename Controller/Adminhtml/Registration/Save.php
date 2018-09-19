@@ -2,6 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Registration;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactoryException;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
@@ -51,6 +52,7 @@ class Save extends AbstractController
 
     /**
      * @return ResponseInterface|Redirect
+     * @throws CustomFieldFactoryException
      */
     public function execute()
     {
@@ -97,7 +99,7 @@ class Save extends AbstractController
                 'status' => $isEnabled,
                 'customFieldsStatus' => $updateCustomFields,
                 'campaignId' => $campaignId,
-                'cycleDay' => !empty($autoresponder) ? explode('_', $autoresponder)[0] : 0,
+                'cycleDay' => !empty($autoresponder) ? explode('_', $autoresponder)[0] : '',
                 'autoresponderId' => !empty($autoresponder) ? explode('_', $autoresponder)[1] : '',
             ]);
 

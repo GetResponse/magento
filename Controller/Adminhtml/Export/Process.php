@@ -1,23 +1,32 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Export;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Cart\CartService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Helper\ApiHelper;
 use GetResponse\GetResponseIntegration\Helper\Message;
+use GrShareCode\Api\ApiTypeException;
+use GrShareCode\Contact\AddContactCommand;
+use GrShareCode\Contact\ContactCustomField;
+use GrShareCode\Contact\ContactCustomFieldsCollection;
+use GrShareCode\Contact\ContactService;
+use GrShareCode\GetresponseApiClient;
+use GrShareCode\GetresponseApiException;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Newsletter\Model\Subscriber;
 use Magento\Sales\Model\Order;
 
 /**
@@ -41,8 +50,8 @@ class Process extends AbstractController
     /** @var Repository */
     private $repository;
 
-    /** @var GrRepository */
-    private $grRepository;
+    /** @var GetresponseApiClient */
+    private $grApiClient;
 
     /** @var CartService */
     private $cartService;
@@ -59,6 +68,7 @@ class Process extends AbstractController
      * @param CartService $cartService
      * @param OrderService $orderService
      * @throws RepositoryException
+     * @throws ApiTypeException
      */
     public function __construct(
         Context $context,
@@ -71,7 +81,7 @@ class Process extends AbstractController
     ) {
         parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
-        $this->grRepository = $repositoryFactory->createRepository();
+        $this->grApiClient = $repositoryFactory->createGetResponseApiClient();
         $this->repository = $repository;
         $this->cartService = $cartService;
         $this->orderService = $orderService;
@@ -80,7 +90,8 @@ class Process extends AbstractController
     }
 
     /**
-     * @return ResponseInterface|Page
+     * @return ResponseInterface|ResultInterface|Page
+     * @throws GetresponseApiException
      */
     public function execute()
     {
@@ -107,6 +118,7 @@ class Process extends AbstractController
 
         $subscribers = $this->repository->getFullCustomersDetails();
 
+        /** @var Subscriber $subscriber */
         foreach ($subscribers as $subscriber) {
 
             $this->stats['count']++;
@@ -136,7 +148,6 @@ class Process extends AbstractController
             foreach ($this->repository->getOrderByCustomerId($subscriber->getCustomerId()) as $order) {
                 $grShopId = $data['store_id'];
                 try {
-                    $this->cartService->exportCart($order->getQuoteId(), $contactListId, $grShopId);
                     $this->orderService->exportOrder($order, $contactListId, $grShopId);
                 } catch (\Exception $e) {
                     $this->handleException($e);
@@ -190,59 +201,39 @@ class Process extends AbstractController
     /**
      * Add (or update) contact to gr campaign
      *
-     * @param string $campaign
+     * @param string $campaignId
      * @param string $firstName
      * @param string $lastName
      * @param string $email
      * @param int $cycleDay
-     * @param array $user_customs
+     * @param array $userCustoms
+     * @throws GetresponseApiException
      */
-    public function addContact($campaign, $firstName, $lastName, $email, $cycleDay = 0, $user_customs = [])
+    public function addContact($campaignId, $firstName, $lastName, $email, $cycleDay = null, $userCustoms = [])
     {
-        $apiHelper = new ApiHelper($this->grRepository);
+        $customFields = new ContactCustomFieldsCollection();
 
-        $user_customs['origin'] = 'magento2';
+        foreach ($userCustoms as $name => $value) {
+            $custom = $this->grApiClient->getCustomFieldByName($name);
 
-        $params = [
-            'email' => $email,
-            'campaign' => ['campaignId' => $campaign],
-            'ipAddress' => $_SERVER['REMOTE_ADDR']
-        ];
-
-        if (!empty($firstName) || !empty($lastName)) {
-            $params['name'] = trim($firstName) . ' ' . trim($lastName);
-        }
-
-        if (!empty($cycleDay)) {
-            $params['dayOfCycle'] = (int)$cycleDay;
-        }
-
-        $contact = $this->grRepository->getContactByEmail($email, $campaign);
-
-        // if contact already exists in gr account
-        if (isset($contact['contactId'])) {
-            if (!empty($contact['customFieldValues'])) {
-                $params['customFieldValues'] = $apiHelper->mergeUserCustoms($contact['customFieldValues'], $user_customs);
-            } else {
-                $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
-            }
-            $response = $this->grRepository->updateContact($contact['contactId'], $params);
-            if (!isset($response['contactId'])) {
-                $this->stats['error']++;
-            } else {
-                $this->stats['updated']++;
-            }
-        } else {
-            $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
-
-            $response = $this->grRepository->addContact($params);
-
-            if (isset($response['contactId'])) {
-                $this->stats['added']++;
-            } else {
-                $this->stats['error']++;
+            if (!empty($custom)) {
+                $customFields->add(new ContactCustomField($custom['customFieldId'], $value));
             }
         }
+
+        $name = trim($firstName . ' ' . $lastName);
+
+        $service = new ContactService($this->grApiClient);
+        $service->upsertContact(new AddContactCommand(
+            $email,
+            !empty($name) ? $name : null,
+            $campaignId,
+            $cycleDay,
+            $customFields,
+            Config::ORIGIN_NAME
+        ));
+
+        $this->stats['added']++;
     }
 
 }

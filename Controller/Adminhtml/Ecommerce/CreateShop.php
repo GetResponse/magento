@@ -7,7 +7,11 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+use GrShareCode\Api\ApiTypeException;
+use GrShareCode\GetresponseApiClient;
+use GrShareCode\GetresponseApiException;
+use GrShareCode\Shop\AddShopCommand;
+use GrShareCode\Shop\ShopService;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Controller\Result\Json;
@@ -22,8 +26,8 @@ class CreateShop extends AbstractController
     /** @var Repository */
     private $repository;
 
-    /** @var GrRepository */
-    private $grRepository;
+    /** @var GetresponseApiClient */
+    private $grApiClient;
 
     /** @var JsonFactory */
     private $resultJsonFactory;
@@ -35,6 +39,7 @@ class CreateShop extends AbstractController
      * @param JsonFactory $resultJsonFactory
      * @param RepositoryValidator $repositoryValidator
      * @throws RepositoryException
+     * @throws ApiTypeException
      */
     public function __construct(
         Context $context,
@@ -45,7 +50,7 @@ class CreateShop extends AbstractController
     ) {
         parent::__construct($context, $repositoryValidator);
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->createRepository();
+        $this->grApiClient = $repositoryFactory->createGetResponseApiClient();
         $this->resultJsonFactory = $resultJsonFactory;
 
         return $this->checkGetResponseConnection();
@@ -53,6 +58,7 @@ class CreateShop extends AbstractController
 
     /**
      * @return Json
+     * @throws GetresponseApiException
      */
     public function execute()
     {
@@ -67,8 +73,10 @@ class CreateShop extends AbstractController
         $countryCode = $this->repository->getMagentoCountryCode();
         $lang = substr($countryCode, 0, 2);
         $currency = $this->repository->getMagentoCurrencyCode();
-        $result = $this->grRepository->createShop($data['shop_name'], $lang, $currency);
 
-        return $this->resultJsonFactory->create()->setData($result);
+        $service = new ShopService($this->grApiClient);
+
+        $shop = $service->addShop(new AddShopCommand($data['shop_name'], $lang, $currency));
+        return $this->resultJsonFactory->create()->setData($shop);
     }
 }

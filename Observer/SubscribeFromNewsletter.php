@@ -1,11 +1,17 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Helper\ApiHelper;
+use GrShareCode\Api\ApiTypeException;
+use GrShareCode\Contact\AddContactCommand;
+use GrShareCode\Contact\ContactCustomFieldsCollection;
+use GrShareCode\Contact\ContactService;
+use GrShareCode\GetresponseApiException;
 use Magento\Customer\Model\Session;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer as EventObserver;
@@ -51,6 +57,7 @@ class SubscribeFromNewsletter implements ObserverInterface
     /**
      * @param EventObserver $observer
      * @return $this
+     * @throws GetresponseApiException
      */
     public function execute(EventObserver $observer)
     {
@@ -63,9 +70,7 @@ class SubscribeFromNewsletter implements ObserverInterface
         }
 
         try {
-            $grRepository = $this->repositoryFactory->createRepository();
-
-            $apiHelper = new ApiHelper($grRepository);
+            $grApiClient = $this->repositoryFactory->createGetResponseApiClient();
 
             /** @var Subscriber $subscriber */
             $subscriber = $observer->getEvent()->getSubscriber();
@@ -80,24 +85,18 @@ class SubscribeFromNewsletter implements ObserverInterface
                 return $this;
             }
 
-            $params = [];
-            $userCustoms = [];
-            $userCustoms['origin'] = 'magento2';
-            $params['campaign'] = ['campaignId' => $newsletterSettings->getCampaignId()];
-            $params['email'] = $email;
-
-            if (!empty($newsletterSettings->getCycleDay())) {
-                $params['dayOfCycle'] = (int) $newsletterSettings->getCycleDay();
-            }
-
-            $contact = $grRepository->getContactByEmail($email, $newsletterSettings->getCampaignId());
-
-            if (!isset($contact['contactId'])) {
-                $params['customFieldValues'] = $apiHelper->setCustoms($userCustoms);
-                $grRepository->addContact($params);
-            }
-            return $this;
+            $service = new ContactService($grApiClient);
+            $service->upsertContact(new AddContactCommand(
+                $email,
+                null,
+                $newsletterSettings->getCampaignId(),
+                $newsletterSettings->getCycleDay(),
+                new ContactCustomFieldsCollection(),
+                Config::ORIGIN_NAME
+            ));
         } catch (RepositoryException $e) {
+        } catch (ApiTypeException $e) {
+        } finally {
             return $this;
         }
     }

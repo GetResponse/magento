@@ -1,10 +1,18 @@
 <?php /** @var $block \GetResponse\GetResponseIntegration\Block\Ecommerce */
 
+use GrShareCode\ContactList\ContactList;
+use GrShareCode\ContactList\ContactListCollection;
+use GrShareCode\Shop\Shop;
+use GrShareCode\Shop\ShopsCollection;
+
+/** @var ShopsCollection $shops */
 $shops = $block->getShops();
 $shopStatus = $block->getShopStatus();
 $currentShopId = $block->getCurrentShopId();
 $currentListId = $block->getEcommerceListId();
 $settings = $block->getRegistrationSettings();
+
+/** @var ContactListCollection $campaigns */
 $campaigns = $block->getCampaigns();
 ?>
 
@@ -56,11 +64,13 @@ $campaigns = $block->getCampaigns();
                                 <select name="shop_id" id="shop_id" class="select admin__control-select"
                                         aria-required="true">
                                     <option value="">Select a store</option>
-                                    <?php foreach ($shops as $shop): ?>
+                                    <?php
+                                    /** @var Shop $shop */
+                                    foreach ($shops as $shop): ?>
                                         <option
-                                            <?php if ($shop['shopId'] === $currentShopId): ?> selected="selected" <?php endif ?>
-                                                value="<?php echo $shop['shopId'] ?>">
-                                            <?php echo $shop['name'] ?>
+                                            <?php if ($shop->getId() === $currentShopId): ?> selected="selected" <?php endif ?>
+                                                value="<?php echo $shop->getId() ?>">
+                                            <?php echo $shop->getName() ?>
                                         </option>
                                     <?php endforeach ?>
                                 </select>
@@ -77,11 +87,13 @@ $campaigns = $block->getCampaigns();
                                 <select name="list_id" id="list_id" class="select admin__control-select"
                                         aria-required="true">
                                     <option value="">Select a store</option>
-                                    <?php foreach ($campaigns as $campaign): ?>
+                                    <?php
+                                    /** @var ContactList $campaign */
+                                    foreach ($campaigns as $campaign): ?>
                                         <option
-                                            <?php if ($campaign['campaignId'] === $currentListId): ?> selected="selected" <?php endif ?>
-                                                value="<?php echo $campaign['campaignId'] ?>">
-                                            <?php echo $campaign['name'] ?>
+                                            <?php if ($campaign->getId() === $currentListId): ?> selected="selected" <?php endif ?>
+                                                value="<?php echo $campaign->getId() ?>">
+                                            <?php echo $campaign->getName() ?>
                                         </option>
                                     <?php endforeach ?>
                                 </select>
@@ -120,10 +132,10 @@ $campaigns = $block->getCampaigns();
                                 <?php foreach ($shops as $key => $shop): ?>
                                     <tr class="data-row <?php if ($key % 2): ?>_odd-row<?php endif ?>">
                                         <td>
-                                            <?php echo $shop['name'] ?>
+                                            <?php echo $shop->getName() ?>
                                         </td>
                                         <td>
-                                            <a href="#" data-id="<?php echo $shop['shopId'] ?>" class="deleteStoreBtn">Delete</a>
+                                            <a href="#" data-id="<?php echo $shop->getId() ?>" class="deleteStoreBtn">Delete</a>
                                         </td>
                                     </tr>
                                 <?php endforeach ?>

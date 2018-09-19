@@ -2,10 +2,10 @@
 
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GrShareCode\Account\Account;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Directory\Model\Country;
 use Magento\Framework\App\Cache\Manager;
@@ -83,7 +83,7 @@ class Repository
 
     /**
      * @param string $categoryId
-     * @return Category[]
+     * @return Category
      */
     public function getCategoryById($categoryId)
     {
@@ -448,7 +448,7 @@ class Repository
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_ACCOUNT,
-            json_encode($account->toArray()),
+            json_encode($this->getAccountAsArray($account)),
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
@@ -755,5 +755,23 @@ class Repository
     {
         $id = $this->_scopeConfig->getValue(Config::CONFIG_DATA_ECOMMERCE_LIST_ID);
         return strlen($id) > 0 ? $id : '';
+    }
+
+    /**
+     * @param Account $account
+     * @return array
+     */
+    private function getAccountAsArray(Account $account)
+    {
+        return [
+            'firstName' => $account->getFirstName(),
+            'lastName' => $account->getLastName(),
+            'email' => $account->getEmail(),
+            'phone' => $account->getPhone(),
+            'companyName' => $account->getCompanyName(),
+            'city' => $account->getCity(),
+            'street' => $account->getStreet(),
+            'zipCode' => $account->getZipCode()
+        ];
     }
 }

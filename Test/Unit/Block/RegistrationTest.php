@@ -111,7 +111,7 @@ class RegistrationTest extends BaseTestCase
         ];
         $this->grRepository->expects($this->once())->method('getAutoresponders')->willReturn($rawAutoresponders);
 
-        $autoresponders = $this->registrationBlock->getAutoresponders();
+        $autoresponders = $this->registrationBlock->getAutoResponders();
         self::assertTrue(is_array($autoresponders));
 
         if (count($autoresponders) > 0) {
@@ -145,7 +145,7 @@ class RegistrationTest extends BaseTestCase
         ];
         $this->grRepository->expects($this->once())->method('getAutoresponders')->willReturn($rawAutoresponders);
 
-        $autoresponders = $this->registrationBlock->getAutorespondersForFrontend();
+        $autoresponders = $this->registrationBlock->getAutoRespondersForFrontend();
 
         self::assertTrue(is_array($autoresponders));
 

@@ -1,15 +1,18 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\ListValidator;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CampaignFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
+use GrShareCode\ContactList\AddContactListCommand;
+use GrShareCode\ContactList\ContactListService;
+use GrShareCode\GetresponseApiClient;
+use GrShareCode\GetresponseApiException;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
@@ -29,8 +32,8 @@ class Create extends AbstractController
     /** @var Repository */
     private $repository;
 
-    /** @var GrRepository */
-    private $grRepository;
+    /** @var GetresponseApiClient */
+    private $grApiClient;
 
     /**
      * @param Context $context
@@ -39,6 +42,7 @@ class Create extends AbstractController
      * @param RepositoryFactory $repositoryFactory
      * @param RepositoryValidator $repositoryValidator
      * @throws RepositoryException
+     * @throws \GrShareCode\Api\ApiTypeException
      */
     public function __construct(
         Context $context,
@@ -50,7 +54,7 @@ class Create extends AbstractController
         parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->createRepository();
+        $this->grApiClient = $repositoryFactory->createGetResponseApiClient();
 
         return $this->checkGetResponseConnection();
     }
@@ -85,20 +89,29 @@ class Create extends AbstractController
         }
 
         $data['lang'] = substr($this->repository->getMagentoCountryCode(), 0, 2);
-        $campaign = $this->grRepository->createCampaign(CampaignFactory::createFromArray($data));
 
-        if (isset($campaign['httpStatus']) && (int) $campaign['httpStatus'] >= 400) {
-            $this->messageManager->addErrorMessage(Message::CANNOT_CREATE_LIST . ' - uuid: ' . $campaign['uuid']);
-            $resultPage = $this->resultPageFactory->create();
-            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+        $service = new ContactListService($this->grApiClient);
+        try {
+            $service->createContactList(new AddContactListCommand(
+                $data['campaign_name'],
+                $data['from_field'],
+                $data['reply_to_field'],
+                $data['confirmation_body'],
+                $data['confirmation_subject'],
+                $data['lang']
+            ));
 
-            return $resultPage;
-        } else {
             $this->messageManager->addSuccessMessage(Message::LIST_CREATED);
             $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath($backUrl);
 
             return $resultRedirect;
+
+        } catch (GetresponseApiException $e) {
+            $this->messageManager->addErrorMessage(Message::CANNOT_CREATE_LIST . ' - ' . $e->getMessage());
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+            return $resultPage;
         }
     }
 }

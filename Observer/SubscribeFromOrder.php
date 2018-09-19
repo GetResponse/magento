@@ -1,12 +1,19 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollectionFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Helper\ApiHelper;
+use GrShareCode\Api\ApiTypeException;
+use GrShareCode\Contact\AddContactCommand;
+use GrShareCode\Contact\ContactCustomField;
+use GrShareCode\Contact\ContactCustomFieldsCollection;
+use GrShareCode\Contact\ContactService;
+use GrShareCode\GetresponseApiException;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\ObjectManagerInterface;
@@ -49,6 +56,7 @@ class SubscribeFromOrder implements ObserverInterface
      */
     public function execute(EventObserver $observer)
     {
+        $moveSubscriber = false;
         $registrationSettings = RegistrationSettingsFactory::createFromArray(
             $this->repository->getRegistrationSettings()
         );
@@ -58,32 +66,146 @@ class SubscribeFromOrder implements ObserverInterface
         }
 
         try {
-            $grRepository = $this->repositoryFactory->createRepository();
+            $grApiClient = $this->repositoryFactory->createGetResponseApiClient();
+            $rules = RulesCollectionFactory::createFromRepository(
+                $this->repository->getRules()
+            );
+
+            $orderIds = $observer->getOrderIds();
+            $orderId = (int)(is_array($orderIds) ? array_pop($orderIds) : $orderIds);
+
+            $customFields  = $this->prepareCustomFields($orderId);
+
+            if ($orderId < 1) {
+                return $this;
+            }
+
+            $order = $this->repository->loadOrder($orderId);
+            $customer = $this->repository->loadCustomer($order->getCustomerId());
+            $subscriber = $this->repository->loadSubscriberByEmail($customer->getEmail());
+
+            if (!$subscriber->isSubscribed()) {
+                return $this;
+            }
+            if (!empty($rules->getRules())) {
+                $categoryIds = [];
+                foreach ($rules->getRules() as $rule) {
+                    $categoryIds[$rule->getCategory()] = [
+                        'category_id' => $rule->getCategory(),
+                        'action' => $rule->getAction(),
+                        'campaign_id' => $rule->getCampaign(),
+                        'cycle_day' => $rule->getAutoresponderDay()
+                    ];
+                }
+
+                $automationCategories = array_keys($categoryIds);
+
+                foreach ($order->getItems() as $item) {
+
+                    $productId = $item->getData()['product_id'];
+                    $product = $this->_objectManager->create('Magento\Catalog\Model\Product')->load($productId);
+                    $category = array_intersect($product->getCategoryIds(), $automationCategories);
+
+                    if (!empty($category)) {
+                        foreach ($category as $c) {
+
+                            $this->addContact(
+                                $categoryIds[$c]['campaign_id'],
+                                $customer->getFirstname(),
+                                $customer->getLastname(),
+                                $customer->getEmail(),
+                                $categoobryIds[$c]['cycle_day'],
+                                $customFields
+                            );
+
+                            if ($categoryIds[$c]['action'] == 'move') {
+                                $moveSubscriber = true;
+                                $contact = $grApiClient->getContactByEmail(
+                                    $customer->getEmail(),
+                                    $registrationSettings->getCampaignId()
+                                );
+
+                                if (isset($contact['contactId'])) {
+                                    $grApiClient->deleteContact($contact['contactId']);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (!$moveSubscriber) {
+                $this->addContact(
+                    $registrationSettings->getCampaignId(),
+                    $customer->getFirstname(),
+                    $customer->getLastname(),
+                    $customer->getEmail(),
+                    $registrationSettings->getCycleDay(),
+                    $customFields
+                );
+            }
+
+            return $this;
         } catch (RepositoryException $e) {
             return $this;
-        }
-
-        $rulesCollection = RulesCollectionFactory::createFromRepository($this->repository->getRules());
-
-        $customs = $this->repository->getCustoms();
-
-        $orderId = $observer->getOrderIds();
-        $orderId = (int)(is_array($orderId) ? array_pop($orderId) : $orderId);
-
-        if ($orderId < 1) {
+        } catch (ApiTypeException $e) {
+            return $this;
+        } catch (GetresponseApiException $e) {
             return $this;
         }
+    }
+
+
+    /**
+     * @param string $campaign
+     * @param string $firstName
+     * @param string $lastName
+     * @param string $email
+     * @param null|int $cycleDay
+     * @param array $user_customs
+     */
+    public function addContact($campaign, $firstName, $lastName, $email, $cycleDay = null, $user_customs = [])
+    {
+        try {
+            $grApiClient = $this->repositoryFactory->createGetResponseApiClient();
+            $customFields = new ContactCustomFieldsCollection();
+
+            foreach ($user_customs as $name => $value) {
+                $custom = $grApiClient->getCustomFieldByName($name);
+
+                if (!empty($custom)) {
+                    $customFields->add(new ContactCustomField($custom['customFieldId'], $value));
+                }
+            }
+
+            $service = new ContactService($grApiClient);
+            $service->upsertContact(new AddContactCommand(
+                $email,
+                trim($firstName) . ' ' . trim($lastName),
+                $campaign,
+                $cycleDay,
+                $customFields,
+                Config::ORIGIN_NAME
+            ));
+
+        } catch (RepositoryException $e) {
+        } catch (ApiTypeException $e) {
+        } catch (GetresponseApiException $e) {
+        }
+    }
+
+    /**
+     * @param int $orderId
+     * @return array
+     */
+    private function prepareCustomFields($orderId)
+    {
+        $customFields = [];
+        $customs = $this->repository->getCustoms();
 
         $order = $this->repository->loadOrder($orderId);
-
-        $customer_id = $order->getCustomerId();
-        $customer = $this->repository->loadCustomer($customer_id);
-
+        $customer = $this->repository->loadCustomer( $order->getCustomerId());
         $address = $this->repository->loadCustomerAddress($customer->getDefaultBilling());
-
         $data = array_merge($address->getData(), $customer->getData());
-
-        $customFields = [];
 
         foreach ($customs as $custom) {
             if ($custom->isDefault) {
@@ -102,126 +224,6 @@ class SubscribeFromOrder implements ObserverInterface
             }
         }
 
-        $subscriber = $this->repository->loadSubscriberByEmail($customer->getEmail());
-
-        if ($subscriber->isSubscribed() == true) {
-            $moveSubscriber = false;
-
-            if (!empty($rulesCollection->getRules())) {
-                $categoryIds = [];
-                foreach ($rulesCollection->getRules() as $rule) {
-                    $categoryIds[$rule->getCategory()] = [
-                        'category_id' => $rule->getCategory(),
-                        'action' => $rule->getAction(),
-                        'campaign_id' => $rule->getCampaign(),
-                        'cycle_day' => $rule->getAutoresponderDay()
-                    ];
-                }
-
-                $automations_categories = array_keys($categoryIds);
-
-                foreach ($order->getItems() as $item) {
-                    $product_id = $item->getData()['product_id'];
-                    $product = $this->_objectManager->create('Magento\Catalog\Model\Product')->load($product_id);
-                    $product_categories = $product->getCategoryIds();
-
-                    $category = array_intersect($product_categories, $automations_categories);
-                    if ($category) {
-                        foreach ($category as $c) {
-                            if ($categoryIds[$c]['action'] == 'move') {
-                                $moveSubscriber = true;
-                            }
-
-                            $this->addContact(
-                                $categoryIds[$c]['campaign_id'],
-                                $customer->getFirstname(),
-                                $customer->getLastname(),
-                                $customer->getEmail(),
-                                $categoryIds[$c]['cycle_day'],
-                                $customFields
-                            );
-                        }
-                    }
-                }
-                if ($moveSubscriber) {
-                    $results = $grRepository->getContacts([
-                        'query' => [
-                            'email' => $customer->getEmail(),
-                            'campaignId' => $registrationSettings->getCampaignId()
-                        ]
-                    ]);
-                    $contact = array_pop($results);
-
-                    if (isset($contact['contactId'])) {
-                        $grRepository->deleteContact($contact['contactId']);
-                    }
-                }
-            }
-            if (!$moveSubscriber) {
-                $this->addContact(
-                    $registrationSettings->getCampaignId(),
-                    $customer->getFirstname(),
-                    $customer->getLastname(),
-                    $customer->getEmail(),
-                    $registrationSettings->getCycleDay(),
-                    $customFields
-                );
-            }
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Add (or update) contact to gr campaign
-     *
-     * @param string $campaign
-     * @param string $firstname
-     * @param string $lastname
-     * @param string $email
-     * @param int $cycle_day
-     * @param array $user_customs
-     */
-    public function addContact($campaign, $firstname, $lastname, $email, $cycle_day = 0, $user_customs = [])
-    {
-        try {
-            $grRepository = $this->repositoryFactory->createRepository();
-        } catch (RepositoryException $e) {
-            return $this;
-        }
-
-        $apiHelper = new ApiHelper($grRepository);
-
-        $name = trim($firstname) . ' ' . trim($lastname);
-        $user_customs['origin'] = 'magento2';
-
-        $params = [
-            'name' => $name,
-            'email' => $email,
-            'campaign' => ['campaignId' => $campaign],
-            'ipAddress' => $_SERVER['REMOTE_ADDR']
-        ];
-
-        if (!empty($cycle_day)) {
-            $params['dayOfCycle'] = (int)$cycle_day;
-        }
-
-        $results = $grRepository->getContacts(['query' => ['email' => $email, 'campaignId' => $campaign]]);
-        $contact = array_pop($results);
-
-        if (isset($contact['contactId'])) {
-            $results = $grRepository->getContact($contact['contactId']);
-            if (!empty($results['customFieldValues'])) {
-                $params['customFieldValues'] = $apiHelper->mergeUserCustoms($results['customFieldValues'], $user_customs);
-            } else {
-                $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
-            }
-
-            $grRepository->updateContact($contact['contactId'], $params);
-        } else {
-            $params['customFieldValues'] = $apiHelper->setCustoms($user_customs);
-            $grRepository->addContact($params);
-        }
+        return $customFields;
     }
 }

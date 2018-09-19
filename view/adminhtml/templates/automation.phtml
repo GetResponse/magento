@@ -1,5 +1,5 @@
 <?php /** @var $block \GetResponse\GetResponseIntegration\Block\Rules */
-$autoresponders = $block->getAutoresponders();
+$autoResponders = $block->getAutoresponders();
 $rules = $block->getRulesCollection()->getRules();
 ?>
 
@@ -70,7 +70,7 @@ $rules = $block->getRulesCollection()->getRules();
                                 </td>
 
                                 <td class="campaign">
-                                    <?php $campaign = $block->getCampaign($rule->getCampaign()); ?>
+                                    <?php $campaign = $block->getListById($rule->getCampaign()); ?>
                                     <?php echo isset($campaign['name']) ? $campaign['name'] : ''; ?>
                                 </td>
 
@@ -83,7 +83,7 @@ $rules = $block->getRulesCollection()->getRules();
                                     <?php if (!empty($rule->getAutoresponderDay())):?>
 
                                     (Day: <?php echo $rule->getAutoresponderDay() ?>)
-                                    <?php  echo isset($autoresponders[$rule->getCampaign()][$rule->getAutoresponderId()]) ? $autoresponders[$rule->getCampaign()][$rule->getAutoresponderId()]['name'] : '' ?>
+                                    <?php  echo isset($autoResponders[$rule->getCampaign()][$rule->getAutoresponderId()]) ? $autoResponders[$rule->getCampaign()][$rule->getAutoresponderId()]['name'] : '' ?>
                             <?php endif ?>
                                 </td>
 
@@ -100,4 +100,4 @@ $rules = $block->getRulesCollection()->getRules();
         </div>
     </div>
 </div>
-<input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($autoresponders); ?>'/>
+<input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($autoResponders); ?>'/>

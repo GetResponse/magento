@@ -1,7 +1,12 @@
 <?php /** @var $block \GetResponse\GetResponseIntegration\Block\Rules */
+
+use GrShareCode\ContactList\ContactList;
+use GrShareCode\ContactList\ContactListCollection;
+
 $categories = $block->getStoreCategories();
-$campaigns = $block->getCampaigns();
-$jsAutoresponders = $block->getAutorespondersForFrontend();
+/** @var ContactListCollection $lists */
+$lists = $block->getCampaigns();
+$jsAutoResponders = $block->getAutorespondersForFrontend();
 
 ?>
 
@@ -71,10 +76,12 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                         <div class="admin__field-control _with-tooltip">
                             <select name="campaign" id="campaign_id" class="admin__control-select">
                                 <option value="">Select a list</option>
-                                <?php if (count($campaigns) > 0):?>
-                                    <?php foreach ($campaigns as $campaign): ?>
-                                        <option value="<?php echo $campaign['campaignId']?>">
-                                            <?php echo $campaign['name']?>
+                                <?php if (count($lists) > 0):?>
+                                    <?php
+                                    /** @var ContactList $list */
+                                    foreach ($lists as $list): ?>
+                                        <option value="<?php echo $list->getId()?>">
+                                            <?php echo $list->getName()?>
                                         </option>
                                     <?php endforeach ?>
                                 <?php endif ?>
@@ -113,7 +120,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
         </div>
     </div>
 </form>
-<input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($jsAutoresponders); ?>'/>
+<input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($jsAutoResponders); ?>'/>
 <script>
     require(['createRule']);
 </script>

@@ -1,10 +1,15 @@
 <?php
 /** @var GetResponse\GetResponseIntegration\Block\Rules $block */
+
+use GrShareCode\ContactList\ContactList;
+use GrShareCode\ContactList\ContactListCollection;
+
 /** @var \GetResponse\GetResponseIntegration\Domain\GetResponse\Rule $rule */
 $rule = $block->getCurrentRule();
 $categories = $block->getStoreCategories();
-$campaigns = $block->getCampaigns();
-$jsAutoresponders = $block->getAutorespondersForFrontend();
+/** @var ContactListCollection $lists */
+$lists = $block->getCampaigns();
+$jsAutoResponders = $block->getAutorespondersForFrontend();
 
 ?>
 <form id="editRuleForm" action="" method="POST">
@@ -85,12 +90,14 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                         <div class="admin__field-control _with-tooltip">
                             <select name="campaign" id="campaign_id" class="admin__control-select">
                                 <option value="">Into the contact list</option>
-                                <?php if (count($campaigns) > 0): ?>
-                                    <?php foreach ($campaigns as $campaign): ?>
+                                <?php if (count($lists) > 0): ?>
+                                    <?php
+                                    /** @var ContactList $list */
+                                    foreach ($lists as $list): ?>
                                         <option
-                                            <?php if ($campaign['campaignId'] == $rule->getCampaign()): ?>selected="selected"<?php endif ?>
-                                            value="<?php echo $campaign['campaignId'] ?>">
-                                            <?php echo $campaign['name'] ?>
+                                            <?php if ($list->getId() == $rule->getCampaign()): ?>selected="selected"<?php endif ?>
+                                            value="<?php echo $list->getId() ?>">
+                                            <?php echo $list->getName() ?>
                                         </option>
                                     <?php endforeach ?>
                                 <?php endif ?>
@@ -137,7 +144,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
 <div id="popup-modal" style="display:none">
     <div>Please confirm that you want to delete this rule.</div>
 </div>
-<input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($jsAutoresponders); ?>'/>
+<input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($jsAutoResponders); ?>'/>
 <input type="hidden" id="jsSettingsCycleDayKey" value='<?php echo $rule->getAutoresponderDay() . '_' . $rule->getAutoresponderId(); ?>'/>
 <input type="hidden" id="ruleUrl" value='<?php echo $block->getUrl('getresponse/rules/delete', ['id' => $rule->getId()]); ?>'/>
 <script>

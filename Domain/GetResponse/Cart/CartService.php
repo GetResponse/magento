@@ -1,4 +1,5 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Cart;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductFactory;
@@ -54,12 +55,10 @@ class CartService
     public function exportCart($quoteId, $contactListId, $grShopId)
     {
         $quote = $this->repository->getQuoteById($quoteId);
-
         $cart = $this->getCart($quote);
-
-        $this->grCartService->exportCart(
-            new AddCartCommand($cart, $quote->getCustomerEmail(), $contactListId, $grShopId)
-        );
+        $this->grCartService->exportCart(new AddCartCommand(
+            $cart, $quote->getCustomerEmail(), $contactListId, $grShopId
+        ));
     }
 
     /**
@@ -95,12 +94,10 @@ class CartService
     public function sendCart($quoteId, $contactListId, $grShopId)
     {
         $quote = $this->repository->getQuoteById($quoteId);
-
         $cart = $this->getCart($quote);
-
-        $this->grCartService->sendCart(
-            new AddCartCommand($cart, $quote->getCustomerEmail(), $contactListId, $grShopId)
-        );
+        $this->grCartService->sendCart(new AddCartCommand(
+            $cart, $quote->getCustomerEmail(), $contactListId, $grShopId
+        ));
     }
 
     /**
@@ -110,16 +107,13 @@ class CartService
     private function getQuotePriceInclTax(ProductsCollection $productsCollection)
     {
         $priceInclTax = 0.00;
-
         /** @var Product $product */
         foreach ($productsCollection as $product) {
-
             /** @var Variant $variant */
             foreach ($product->getVariants() as $variant) {
                 $priceInclTax += $variant->getPriceTax() * $variant->getQuantity();
             }
         }
-
         return (float)$priceInclTax;
     }
 

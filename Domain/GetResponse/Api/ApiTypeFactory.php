@@ -2,8 +2,8 @@
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Api;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
-use GrShareCode\Api\ApiType;
 use GrShareCode\Api\ApiTypeException;
+use GrShareCode\Api\Authorization;
 
 /**
  * Class ApiTypeFactory
@@ -12,19 +12,19 @@ use GrShareCode\Api\ApiTypeException;
 class ApiTypeFactory
 {
     /**
-     * @param string $domainUrl
-     * @return ApiType
+     * @param ConnectionSettings $connectionSettings
+     * @return string
      * @throws ApiTypeException
      */
     public static function createFromConnectionSettings(ConnectionSettings $connectionSettings)
     {
         switch ($connectionSettings->getUrl()) {
             case '':
-                return ApiType::createForSMB();
-            case AccountType::API_URL_MX_PL:
-                return ApiType::createForMxPl($connectionSettings->getDomain());
-            case AccountType::API_URL_MX_US:
-                return ApiType::createForMxUs($connectionSettings->getDomain());
+                return Authorization::SMB;
+            case Authorization::MX_PL:
+                return Authorization::MX_PL;
+            case Authorization::MX_US:
+                return Authorization::MX_US;
         }
 
         throw ApiTypeException::createForInvalidApiType();

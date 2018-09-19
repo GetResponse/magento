@@ -1,8 +1,10 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository as MagentoRepository;
+use GrShareCode\Api\ApiTypeException;
+use GrShareCode\GetresponseApiClient;
+use GrShareCode\GetresponseApiException;
 use Magento\Framework\Controller\ResultFactory;
 
 
@@ -42,25 +44,24 @@ class RepositoryValidator
     public function validate()
     {
         try {
-            return $this->validateGrRepository($this->repositoryFactory->createRepository());
+            $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+            $apiClient->checkConnection();
+            return true;
         } catch (RepositoryException $e) {
+            return false;
+        } catch (ApiTypeException $e) {
+            return false;
+        } catch (GetresponseApiException $e) {
             return false;
         }
     }
 
     /**
-     * @param GrRepository $grRepository
-     *
-     * @return bool
+     * @param GetresponseApiClient $apiClient
+     * @throws GetresponseApiException
      */
-    public function validateGrRepository(GrRepository $grRepository)
+    public function validateGrRepository(GetresponseApiClient $apiClient)
     {
-        $response = $grRepository->ping();
-
-        if (isset($response['httpStatus']) && (int) $response['httpStatus'] >= 400 && (int) $response['httpStatus'] < 500) {
-            return false;
-        }
-
-        return true;
+        $apiClient->checkConnection();
     }
 }

@@ -1,9 +1,16 @@
 <?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */
 
-$campaigns = $block->getCampaigns();
+use GrShareCode\ContactList\ContactList;
+use GrShareCode\ContactList\ContactListCollection;
+use GrShareCode\Shop\Shop;
+use GrShareCode\Shop\ShopsCollection;
+
+/** @var ContactListCollection $lists */
+$lists = $block->getCampaigns();
 $settings = $block->getExportSettings();
+/** @var ShopsCollection $shops */
 $shops = $block->getShops();
-$jsAutoresponders = $block->getAutorespondersForFrontend();
+$jsAutoresponders = $block->getAutoRespondersForFrontend();
 ?>
 
 <form method="post" action="<?php echo $block->getUrl('getresponse/export/process'); ?>" style="margin-top: 20px;">
@@ -51,13 +58,13 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                             <div class="admin__field">
                                 <select name="campaign_id" id="campaign_id" class="select admin__control-select" aria-required="true">
                                     <option value="">Select a list</option>
-                                    <?php
-                                        if (count($campaigns) > 0) {
-                                            foreach ($campaigns as $campaign) {
-                                                echo '<option value="' . $campaign['campaignId'] . '">' . $campaign['name'] . '</option>';
-                                            }
-                                        }
-                                    ?>
+                                    <?php if (count($lists) > 0): ?>
+                                        <?php
+                                        /** @var ContactList $list */
+                                        foreach ($lists as $list): ?>
+                                            <option value="<?php echo $list->getId()?>"><?php echo $list->getName()?></option>
+                                        <?php endforeach ?>
+                                    <?php endif ?>
                                 </select>
                             </div>
                         </div>
@@ -116,13 +123,13 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                             <div class="admin__field">
                                 <select name="store_id" id="store_id" class="select admin__control-select" aria-required="true">
                                     <option value="">Select a store</option>
-                                    <?php
-                                    if (count($shops) > 0) {
-                                        foreach ($shops as $shop) {
-                                            echo '<option value="' . $shop['shopId'] . '">' . $shop['name'] . '</option>';
-                                        }
-                                    }
-                                    ?>
+                                    <?php if (count($shops) > 0): ?>
+                                        <?php
+                                        /** @var Shop $shop */
+                                        foreach ($shops as $shop): ?>
+                                            <option value="<?php echo $shop->getId()?>"><?php echo $shop->getName() ?></option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </select>
                             </div>
                         </div>

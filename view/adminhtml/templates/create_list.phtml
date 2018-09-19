@@ -1,7 +1,10 @@
 <?php
 use GetResponse\GetResponseIntegration\Block\Lists;
+use GrShareCode\ContactList\FromFields;
+use GrShareCode\ContactList\FromFieldsCollection;
 
 /** @var Lists $block */
+/** @var FromFieldsCollection $fromFields */
 $fromFields = $block->getAccountFromFields();
 $confirmationSubjects = $block->getSubscriptionConfirmationsSubject();
 $confirmationBodies = $block->getSubscriptionConfirmationsBody();
@@ -52,13 +55,13 @@ $confirmationBodies = $block->getSubscriptionConfirmationsBody();
                         <div class="admin__field-control control">
                             <select name="from_field" id="from_field" class="select admin__control-select" aria-required="true">
                                 <option value="">Select from field</option>
-                                <?php
-                                if (isset($fromFields)) {
-                                    foreach ($fromFields as $fromField) {
-                                        echo '<option value="' . $fromField['fromFieldId'] . '">' . $fromField['name'] . ' (' . $fromField['email'] . ')</option>';
-                                    }
-                                }
-                                ?>
+                                <?php if (count($fromFields) > 0): ?>
+                                    <?php
+                                    /** @var FromFields $fromField */
+                                    foreach ($fromFields as $fromField): ?>
+                                        <option value="<?php echo $fromField->getId()?>"><?php echo $fromField->getName()?>(<?php echo $fromField->getEmail()?>)</option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </select>
                             <div class="validation-message"></div>
                         </div>
@@ -71,13 +74,13 @@ $confirmationBodies = $block->getSubscriptionConfirmationsBody();
                         <div class="admin__field-control control">
                             <select name="reply_to_field" id="reply_to_field" class="select admin__control-select" aria-required="true">
                                 <option value="">Select reply-to address</option>
-                                <?php
-                                if (isset($fromFields)) {
-                                    foreach ($fromFields as $fromField) {
-                                        echo '<option value="' . $fromField['fromFieldId'] . '">' . $fromField['name'] . ' (' . $fromField['email'] . ')</option>';
-                                    }
-                                }
-                                ?>
+                                <?php if (count($fromFields) > 0): ?>
+                                    <?php
+                                    /** @var FromFields $fromField */
+                                    foreach ($fromFields as $fromField): ?>
+                                        <option value="<?php echo $fromField->getId()?>"><?php echo $fromField->getName()?>(<?php echo $fromField->getEmail()?>)</option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </select>
                             <div class="validation-message"></div>
                         </div>

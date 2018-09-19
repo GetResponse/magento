@@ -1,5 +1,8 @@
 <?php /** @var $block \GetResponse\GetResponseIntegration\Block\Webform */
-$formsCollection = $block->getWebFormsCollection();
+
+use GrShareCode\WebForm\WebForm;
+
+$webForms = $block->getWebForms();
 $webformSettings = $block->getWebformSettings();
 ?>
 
@@ -47,12 +50,14 @@ $webformSettings = $block->getWebformSettings();
                             <div class="admin__field">
                                 <select name="webformId" id="webform_id" class="select admin__control-select" aria-required="true">
                                     <option value="">Select a form you want to display</option>
-                                    <?php if (!empty($formsCollection->getWebforms())):?>
-                                        <?php foreach ($formsCollection->getWebforms() as $form): ?>
+                                    <?php if (!empty($webForms)):?>
+                                        <?php
+                                        /** @var WebForm $form */
+                                        foreach ($webForms as $form): ?>
                                             <option
-                                                value="<?php echo $form->getId()?>"
-                                                data-url="<?php echo $form->getUrl()?>"
-                                                <?php if($webformSettings->getWebformId() == $form->getId()):?>
+                                                value="<?php echo $form->getWebFormId()?>"
+                                                data-url="<?php echo $form->getScriptUrl()?>"
+                                                <?php if($webformSettings->getWebformId() == $form->getWebFormId()):?>
                                                     selected="selected"
                                                 <?php endif ?>
                                             ><?php echo $form->getName() ?></option>

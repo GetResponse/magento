@@ -1,4 +1,5 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Account;
 
 use Magento\Backend\App\Action;

@@ -55,7 +55,7 @@ class WebformTest extends BaseTestCase
     public function shouldReturnWebFormsCollectionWhenExceptionOccurs()
     {
         $this->grRepository->method('getForms')->willThrowException(new RepositoryException());
-        $collection = $this->webformBlock->getWebFormsCollection();
+        $collection = $this->webformBlock->getWebForms();
 
         self::assertEquals(new WebformsCollection(), $collection);
     }
@@ -74,7 +74,7 @@ class WebformTest extends BaseTestCase
         $this->grRepository->method('getForms')->willReturn($rawFormsData);
         $this->grRepository->method('getWebForms')->willReturn($rawWebformsData);
 
-        $collection = $this->webformBlock->getWebFormsCollection();
+        $collection = $this->webformBlock->getWebForms();
 
         self::assertEquals($expectedCollection, $collection);
     }

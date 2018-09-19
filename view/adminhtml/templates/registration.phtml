@@ -1,9 +1,11 @@
 <?php /** @var $block \GetResponse\GetResponseIntegration\Block\Registration */
 
-$campaigns = $block->getCampaigns();
-$registrationSettings = $block->getRegistrationSettings();
-$jsAutoresponders = $block->getAutorespondersForFrontend();
+use GrShareCode\ContactList\ContactList;
+use GrShareCode\ContactList\ContactListCollection;
 
+/** @var ContactListCollection $lists */
+$lists = $block->getCampaigns();
+$registrationSettings = $block->getRegistrationSettings();
 ?>
 
 <form method="post" action="<?php echo $block->getUrl('getresponse/registration/save'); ?>">
@@ -53,14 +55,16 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
                             <div class="admin__field">
                                 <select name="campaign_id" id="campaign_id" class="select admin__control-select" aria-required="true">
                                     <option value="">Select a list</option>
-                                    <?php if (count($campaigns) > 0): ?>
-                                        <?php foreach ($campaigns as $campaign): ?>
+                                    <?php if (count($lists) > 0): ?>
+                                        <?php
+                                        /** @var ContactList $list */
+                                        foreach ($lists as $list): ?>
                                             <option
-                                                value="<?php echo $campaign['campaignId'] ?>"
-                                                <?php if ($registrationSettings->getCampaignId() == $campaign['campaignId']): ?>
+                                                value="<?php echo $list->getId() ?>"
+                                                <?php if ($registrationSettings->getCampaignId() == $list->getId()): ?>
                                                     selected="selected"
                                                 <?php endif ?>>
-                                            <?php echo $campaign['name'] ?>
+                                            <?php echo $list->getName() ?>
                                             </option>
                                         <?php endforeach ?>
                                     <?php endif ?>
@@ -126,7 +130,7 @@ $jsAutoresponders = $block->getAutorespondersForFrontend();
         </div>
     </div>
 </form>
-<input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($jsAutoresponders); ?>'/>
+<input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($block->getAutoRespondersForFrontend()); ?>'/>
 <input type="hidden" id="jsSettingsCycleDayKey" value='<?php echo $registrationSettings->getCycleDay() . '_' . $registrationSettings->getAutoresponderId(); ?>'/>
 <script>
     require(['registration']);

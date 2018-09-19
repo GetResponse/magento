@@ -2,7 +2,6 @@
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
-use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GrShareCode\Contact\Contact;
@@ -73,10 +72,7 @@ class Ecommerce
     {
         $cache = $this->objectManager->get(CacheInterface::class);
 
-        $settings = RegistrationSettingsFactory::createFromArray(
-            $this->repository->getRegistrationSettings()
-        );
-        $contactListId = $settings->getCampaignId();
+        $contactListId = $this->repository->getEcommerceListId();
         $contactEmail = $this->customerSession->getCustomer()->getEmail();
 
         $cacheKey = md5($contactEmail . $contactListId);
@@ -89,7 +85,7 @@ class Ecommerce
         try {
             $contact = $this->contactService->getContactByEmail($contactEmail, $contactListId);
         } catch (ContactNotFoundException $e) {
-            $contact = null;
+            return null;
         }
 
         $cache->save(serialize($contact), $cacheKey, [Config::CACHE_KEY], Config::CACHE_TIME);

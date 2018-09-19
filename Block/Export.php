@@ -6,8 +6,13 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
-use Magento\Framework\ObjectManagerInterface;
+use GrShareCode\Api\ApiTypeException;
+use GrShareCode\ContactList\ContactListCollection;
+use GrShareCode\ContactList\ContactListService;
+use GrShareCode\GetresponseApiClient;
+use GrShareCode\GetresponseApiException;
+use GrShareCode\Shop\ShopsCollection;
+use GrShareCode\Shop\ShopService;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Framework\View\Element\Template;
 
@@ -20,31 +25,30 @@ class Export extends Template
     /** @var Repository */
     private $repository;
 
-    /** @var GrRepository */
-    private $grRepository;
+    /** @var GetresponseApiClient */
+    private $grApiClient;
 
     /** @var Getresponse */
-    private $getresponseBlock;
+    private $getResponseBlock;
 
     /**
      * @param Context $context
-     * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
-     * @param Getresponse $getresponseBlock
+     * @param Getresponse $getResponseBlock
      * @throws RepositoryException
+     * @throws ApiTypeException
      */
     public function __construct(
         Context $context,
-        ObjectManagerInterface $objectManager,
         Repository $repository,
         RepositoryFactory $repositoryFactory,
-        Getresponse $getresponseBlock
+        Getresponse $getResponseBlock
     ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->createRepository();
-        $this->getresponseBlock = $getresponseBlock;
+        $this->grApiClient = $repositoryFactory->createGetResponseApiClient();
+        $this->getResponseBlock = $getResponseBlock;
     }
 
     /**
@@ -52,7 +56,7 @@ class Export extends Template
      */
     public function getExportSettings()
     {
-        return $this->getresponseBlock->getRegistrationSettings();
+        return $this->getResponseBlock->getRegistrationSettings();
     }
 
     /**
@@ -68,30 +72,34 @@ class Export extends Template
      */
     public function getCustoms()
     {
-        return $this->getresponseBlock->getCustoms();
+        return $this->getResponseBlock->getCustoms();
     }
 
     /**
-     * @return array
+     * @return ContactListCollection
+     * @throws GetresponseApiException
      */
     public function getCampaigns()
     {
-        return $this->grRepository->getCampaigns(['sort' => ['name' => 'asc']]);
+        $service = new ContactListService($this->grApiClient);
+        return $service->getAllContactLists();
     }
 
     /**
-     * @return array
+     * @return ShopsCollection
+     * @throws GetresponseApiException
      */
     public function getShops()
     {
-        return $this->grRepository->getShops();
+        $service = new ShopService($this->grApiClient);
+        return $service->getAllShops();
     }
 
     /**
      * @return array
      */
-    public function getAutorespondersForFrontend()
+    public function getAutoRespondersForFrontend()
     {
-        return $this->getresponseBlock->getAutorespondersForFrontend();
+        return $this->getResponseBlock->getAutoRespondersForFrontend();
     }
 }
