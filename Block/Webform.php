@@ -60,7 +60,7 @@ class Webform extends Template
      */
     public function getWebForms()
     {
-        $grRepository = $this->repositoryFactory->createGetResponseApiClient();
-        return (new WebFormService($grRepository))->getAllWebForms();
+        $grApiClient = $this->repositoryFactory->createGetResponseApiClient();
+        return (new WebFormService($grApiClient))->getAllWebForms();
     }
 }

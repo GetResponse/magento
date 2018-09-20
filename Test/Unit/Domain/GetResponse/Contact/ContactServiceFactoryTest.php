@@ -5,6 +5,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
+use GrShareCode\Api\Authorization;
 use GrShareCode\Contact\ContactService as GrContactService;
 use GrShareCode\GetresponseApiClient;
 
@@ -32,7 +33,7 @@ class ContactServiceFactoryTest extends BaseTestCase
             ->expects(self::once())
             ->method('getConnectionSettings')
             ->willReturn([
-                'url' => 'https://api3.getresponse360.pl/v3',
+                'url' => '',
                 'domain' => 'https://my_private_custom_page_url',
                 'apiKey' => 'GetResponseApiKey'
             ]);

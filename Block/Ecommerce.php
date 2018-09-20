@@ -81,8 +81,7 @@ class Ecommerce extends Template
      */
     public function getShops()
     {
-        $service = new ShopService($this->grApiClient);
-        return $service->getAllShops();
+        return (new ShopService($this->grApiClient))->getAllShops();
     }
 
     /**
@@ -99,7 +98,6 @@ class Ecommerce extends Template
      */
     public function getCampaigns()
     {
-        $service = new ContactListService($this->grApiClient);
-        return $service->getAllContactLists();
+        return (new ContactListService($this->grApiClient))->getAllContactLists();
     }
 }

@@ -102,7 +102,7 @@ class Rules extends Template
     /**
      * @return array
      */
-    public function getAutoresponders()
+    public function getAutoResponders()
     {
         return $this->getResponseBlock->getAutoResponders();
     }
@@ -110,7 +110,7 @@ class Rules extends Template
     /**
      * @return array
      */
-    public function getAutorespondersForFrontend()
+    public function getAutoRespondersForFrontend()
     {
         return $this->getResponseBlock->getAutoRespondersForFrontend();
     }

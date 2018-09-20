@@ -8,11 +8,10 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollection;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
+use GrShareCode\GetresponseApiClient;
 use Magento\Framework\ObjectManagerInterface;
-use PHPUnit\Framework\TestCase;
 use Magento\Framework\View\Element\Template\Context;
 use PHPUnit_Framework_MockObject_MockObject;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 
 /**
@@ -33,7 +32,7 @@ class RulesTest extends BaseTestCase
     /** @var RulesBlock */
     private $ruleBlock;
 
-    /** @var GrRepository|PHPUnit_Framework_MockObject_MockObject */
+    /** @var GetresponseApiClient|PHPUnit_Framework_MockObject_MockObject */
     private $grRepository;
 
     /** @var ObjectManagerInterface|PHPUnit_Framework_MockObject_MockObject */
@@ -45,11 +44,11 @@ class RulesTest extends BaseTestCase
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
         $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
         $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
-        $this->grRepository = $this->getMockWithoutConstructing(GrRepository::class);
-        $this->repositoryFactory->method('createRepository')->willReturn($this->grRepository);
+        $this->grRepository = $this->getMockWithoutConstructing(GetresponseApiClient::class);
+        $this->repositoryFactory->method('createGetResponseApiClient')->willReturn($this->grRepository);
 
         $getresponseBlock = new Getresponse($this->repository, $this->repositoryFactory);
-        $this->ruleBlock = new RulesBlock($this->context, $this->objectManager, $this->repository, $this->repositoryFactory, $getresponseBlock);
+        $this->ruleBlock = new RulesBlock($this->context,$this->repository, $this->repositoryFactory, $getresponseBlock);
     }
 
     /**
@@ -73,15 +72,16 @@ class RulesTest extends BaseTestCase
     public function shouldReturnCurrentRuleProvider()
     {
         return [
-            [[], new Rule(0, 0, '', '', 0)],
+            [[], new Rule(0, 0, '', '', 0, '')],
             [
                 [
                     'id' => 3,
                     'category' => 4,
                     'action' => 'action',
                     'campaign' => 'x4g',
-                    'cycle_day' => 8
-                ], new Rule(3, 4, 'action', 'x4g', 8)
+                    'cycle_day' => 8,
+                    'autoresponderId' => 'XyD'
+                ], new Rule(3, 4, 'action', 'x4g', 8, 'XyD')
             ]
         ];
     }
@@ -112,9 +112,10 @@ class RulesTest extends BaseTestCase
         $rule->action = 'simple-action';
         $rule->campaign = 'x4g';
         $rule->cycle_day = 8;
+        $rule->autoresponderId = 'u7A';
 
         $collection = new RulesCollection();
-        $collection->add(new Rule(4, 3, 'simple-action', 'x4g', 8));
+        $collection->add(new Rule(4, 3, 'simple-action', 'x4g', 8,  'u7A'));
 
         return [
             [[], new RulesCollection()],
@@ -125,34 +126,41 @@ class RulesTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldReturnAutoresponders()
+    public function shouldReturnAutoResponders()
     {
         $campaignId = 'x3v';
         $name = 'testName';
         $subject = 'testSubject';
         $dayOfCycle = 5;
+        $responderId = 'q31';
 
-        $triggerSettings = new \stdClass();
-        $triggerSettings->selectedCampaigns = [$campaignId];
-        $triggerSettings->dayOfCycle = $dayOfCycle;
-
-        $rawAutoresponder = new \stdClass();
-        $rawAutoresponder->triggerSettings = $triggerSettings;
-        $rawAutoresponder->name = $name;
-        $rawAutoresponder->subject = $subject;
-
-        $rawAutoresponders = [
-            $rawAutoresponder
+        $triggerSettings = [
+            'selectedCampaigns' => [$campaignId],
+            'dayOfCycle' => $dayOfCycle
         ];
-        $this->grRepository->expects($this->once())->method('getAutoresponders')->willReturn($rawAutoresponders);
 
-        $autoresponders = $this->ruleBlock->getAutoresponders();
-        self::assertTrue(is_array($autoresponders));
+        $rawAutoResponder = [
+            'autoresponderId' => $responderId,
+            'campaignId' => $campaignId,
+            'status' => 'enabled',
+            'triggerSettings' => $triggerSettings,
+            'name' => $name,
+            'subject' => $subject
+        ];
 
-        if (count($autoresponders) > 0) {
-            self::assertEquals($name, $autoresponders[$campaignId][$dayOfCycle]['name']);
-            self::assertEquals($subject, $autoresponders[$campaignId][$dayOfCycle]['subject']);
-            self::assertEquals($dayOfCycle, $autoresponders[$campaignId][$dayOfCycle]['dayOfCycle']);
+        $rawAutoResponders = [
+            $responderId => $rawAutoResponder
+        ];
+
+        $this->grRepository->expects($this->once())->method('getAutoresponders')->willReturn($rawAutoResponders);
+
+        $autoResponders = $this->ruleBlock->getAutoResponders();
+        self::assertTrue(is_array($autoResponders));
+
+        if (count($autoResponders) > 0) {
+            self::assertEquals($name, $autoResponders[$campaignId][$responderId]['name']);
+            self::assertEquals($subject, $autoResponders[$campaignId][$responderId]['subject']);
+            self::assertEquals($dayOfCycle, $autoResponders[$campaignId][$responderId]['dayOfCycle']);
         }
     }
 
@@ -165,29 +173,36 @@ class RulesTest extends BaseTestCase
         $name = 'testName';
         $subject = 'testSubject';
         $dayOfCycle = 5;
+        $responderId = 'q31';
 
-        $triggerSettings = new \stdClass();
-        $triggerSettings->selectedCampaigns = [$campaignId];
-        $triggerSettings->dayOfCycle = $dayOfCycle;
-
-        $rawAutoresponder = new \stdClass();
-        $rawAutoresponder->triggerSettings = $triggerSettings;
-        $rawAutoresponder->name = $name;
-        $rawAutoresponder->subject = $subject;
-
-        $rawAutoresponders = [
-            $rawAutoresponder
+        $triggerSettings = [
+            'selectedCampaigns' => [$campaignId],
+            'dayOfCycle' => $dayOfCycle
         ];
-        $this->grRepository->expects($this->once())->method('getAutoresponders')->willReturn($rawAutoresponders);
 
-        $autoresponders = $this->ruleBlock->getAutorespondersForFrontend();
+        $rawAutoResponder = [
+            'autoresponderId' => $responderId,
+            'campaignId' => $campaignId,
+            'status' => 'enabled',
+            'triggerSettings' => $triggerSettings,
+            'name' => $name,
+            'subject' => $subject
+        ];
 
-        self::assertTrue(is_array($autoresponders));
+        $rawAutoResponders = [
+            $responderId => $rawAutoResponder
+        ];
 
-        if (count($autoresponders) > 0) {
-            self::assertEquals($name, $autoresponders[$campaignId][0]['name']);
-            self::assertEquals($subject, $autoresponders[$campaignId][0]['subject']);
-            self::assertEquals($dayOfCycle, $autoresponders[$campaignId][0]['dayOfCycle']);
+        $this->grRepository->expects($this->once())->method('getAutoresponders')->willReturn($rawAutoResponders);
+
+        $autoResponders = $this->ruleBlock->getAutoRespondersForFrontend();
+
+        self::assertTrue(is_array($autoResponders));
+
+        if (count($autoResponders) > 0) {
+            self::assertEquals($name, $autoResponders[$campaignId][$responderId]['name']);
+            self::assertEquals($subject, $autoResponders[$campaignId][$responderId]['subject']);
+            self::assertEquals($dayOfCycle, $autoResponders[$campaignId][$responderId]['dayOfCycle']);
         }
     }
 

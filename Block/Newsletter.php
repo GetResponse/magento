@@ -57,8 +57,7 @@ class Newsletter extends Template
      */
     public function getLists()
     {
-        $service = new ContactListService($this->grApiClient);
-        return $service->getAllContactLists();
+        return (new ContactListService($this->grApiClient))->getAllContactLists();
     }
 
     /**

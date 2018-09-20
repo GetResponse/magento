@@ -47,21 +47,6 @@ class CartService
     }
 
     /**
-     * @param int $quoteId
-     * @param string $contactListId
-     * @param string $grShopId
-     * @throws GetresponseApiException
-     */
-    public function exportCart($quoteId, $contactListId, $grShopId)
-    {
-        $quote = $this->repository->getQuoteById($quoteId);
-        $cart = $this->getCart($quote);
-        $this->grCartService->exportCart(new AddCartCommand(
-            $cart, $quote->getCustomerEmail(), $contactListId, $grShopId
-        ));
-    }
-
-    /**
      * @param Quote $quote
      * @return Cart
      */

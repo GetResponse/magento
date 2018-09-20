@@ -59,8 +59,7 @@ class Registration extends Template
      */
     public function getCampaigns()
     {
-        $service = new ContactListService($this->grApiClient);
-        return $service->getAllContactLists();
+        return (new ContactListService($this->grApiClient))->getAllContactLists();
     }
 
     /**
@@ -68,9 +67,7 @@ class Registration extends Template
      */
     public function getConnectionSettings()
     {
-        return ConnectionSettingsFactory::createFromArray(
-            $this->repository->getConnectionSettings()
-        );
+        return ConnectionSettingsFactory::createFromArray($this->repository->getConnectionSettings());
     }
 
     /**

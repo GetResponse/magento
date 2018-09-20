@@ -1,4 +1,5 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
@@ -81,8 +82,7 @@ class Export extends Template
      */
     public function getCampaigns()
     {
-        $service = new ContactListService($this->grApiClient);
-        return $service->getAllContactLists();
+        return (new ContactListService($this->grApiClient))->getAllContactLists();
     }
 
     /**
@@ -91,8 +91,7 @@ class Export extends Template
      */
     public function getShops()
     {
-        $service = new ShopService($this->grApiClient);
-        return $service->getAllShops();
+        return (new ShopService($this->grApiClient))->getAllShops();
     }
 
     /**

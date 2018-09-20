@@ -1,16 +1,14 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Test\Unit\Block;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use GetResponse\GetResponseIntegration\Block\Webform as WebformBlock;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Webform;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\WebformsCollection;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
+use GrShareCode\GetresponseApiClient;
+use GrShareCode\WebForm\WebForm;
+use GrShareCode\WebForm\WebFormCollection;
 use Magento\Framework\ObjectManagerInterface;
-use PHPUnit\Framework\TestCase;
 use Magento\Framework\View\Element\Template\Context;
 use PHPUnit_Framework_MockObject_MockObject;
 
@@ -35,8 +33,8 @@ class WebformTest extends BaseTestCase
     /** @var WebformBlock */
     private $webformBlock;
 
-    /** @var GrRepository|PHPUnit_Framework_MockObject_MockObject */
-    private $grRepository;
+    /** @var GetresponseApiClient|PHPUnit_Framework_MockObject_MockObject */
+    private $grApiClient;
 
     public function setUp()
     {
@@ -44,20 +42,9 @@ class WebformTest extends BaseTestCase
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
         $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
         $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
-        $this->grRepository = $this->getMockWithoutConstructing(GrRepository::class);
-        $this->repositoryFactory->expects($this->once())->method('createRepository')->willReturn($this->grRepository);
-        $this->webformBlock = new WebformBlock($this->context, $this->objectManager, $this->repository, $this->repositoryFactory);
-    }
-
-    /**
-     * @test
-     */
-    public function shouldReturnWebFormsCollectionWhenExceptionOccurs()
-    {
-        $this->grRepository->method('getForms')->willThrowException(new RepositoryException());
-        $collection = $this->webformBlock->getWebForms();
-
-        self::assertEquals(new WebformsCollection(), $collection);
+        $this->grApiClient = $this->getMockWithoutConstructing(GetresponseApiClient::class);
+        $this->repositoryFactory->expects($this->once())->method('createGetResponseApiClient')->willReturn($this->grApiClient);
+        $this->webformBlock = new WebformBlock($this->context, $this->repository, $this->repositoryFactory);
     }
 
     /**
@@ -65,14 +52,14 @@ class WebformTest extends BaseTestCase
      *
      * @param array $rawFormsData
      * @param array $rawWebformsData
-     * @param WebformsCollection $expectedCollection
+     * @param WebformCollection $expectedCollection
      *
      * @dataProvider shouldReturnValidWebFormsCollectionProvider
      */
-    public function shouldReturnValidWebFormsCollection(array $rawFormsData, array $rawWebformsData,  WebformsCollection $expectedCollection)
+    public function shouldReturnValidWebFormsCollection(array $rawFormsData, array $rawWebformsData,  WebformCollection $expectedCollection)
     {
-        $this->grRepository->method('getForms')->willReturn($rawFormsData);
-        $this->grRepository->method('getWebForms')->willReturn($rawWebformsData);
+        $this->grApiClient->method('getForms')->willReturn($rawFormsData);
+        $this->grApiClient->method('getWebForms')->willReturn($rawWebformsData);
 
         $collection = $this->webformBlock->getWebForms();
 
@@ -84,21 +71,40 @@ class WebformTest extends BaseTestCase
      */
     public function shouldReturnValidWebFormsCollectionProvider()
     {
-        $form = new \stdClass();
-        $form->formId = '4d39';
-        $form->name = 'testForm';
-        $form->scriptUrl = 'testFormUrl';
+        $firstFormId = '4d39';
+        $firstFormName = 'testForm';
+        $firstFormScriptUrl = 'testFormUrl';
+        $firstFormCampaignName = 'testForm';
+        $firstFormStatus = 'published';
 
-        $webForm = new \stdClass();
-        $webForm->webformId = '4x09';
-        $webForm->name = 'testWebForm';
-        $webForm->scriptUrl = 'testWebFormUrl';
+        $secondFormId = 'd3Ei';
+        $secondFormName = 'testForm';
+        $secondFormScriptUrl = 'testWebFormUrl';
+        $secondFormCampaignName = 'testWebForm';
+        $secondFormStatus = WebForm::STATUS_DISABLED;
 
-        $collection = new WebformsCollection();
-        $collection->add(new Webform('4d39', 'testForm', 'testFormUrl'));
-        $collection->add(new Webform('4x09', 'testWebForm', 'testWebFormUrl'));
+        $form = [
+            'webformId' => $firstFormId,
+            'name' => $firstFormName,
+            'scriptUrl' => $firstFormScriptUrl,
+            'campaign' => ['name' => $firstFormCampaignName],
+            'status' => $firstFormStatus
+        ];
+
+        $webForm = [
+            'webformId' => $secondFormId,
+            'name' => $secondFormName,
+            'scriptUrl' => $secondFormScriptUrl,
+            'campaign' => ['name' => $secondFormCampaignName],
+            'status' => $secondFormStatus
+        ];
+
+        $collection = new WebformCollection();
+        $collection->add(new Webform($secondFormId, $secondFormName, $secondFormScriptUrl, $secondFormCampaignName, Webform::STATUS_DISABLED));
+        $collection->add(new Webform($firstFormId, $firstFormName, $firstFormScriptUrl, $firstFormCampaignName, Webform::STATUS_ENABLED));
+
         return [
-            [[], [], new WebformsCollection()],
+            [[], [], new WebformCollection()],
             [[$form], [$webForm], $collection]
         ];
     }
