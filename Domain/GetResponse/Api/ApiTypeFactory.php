@@ -21,9 +21,9 @@ class ApiTypeFactory
         switch ($connectionSettings->getUrl()) {
             case '':
                 return Authorization::SMB;
-            case Authorization::MX_PL:
+            case Authorization::API_URL_MX_PL:
                 return Authorization::MX_PL;
-            case Authorization::MX_US:
+            case Authorization::API_URL_MX_US:
                 return Authorization::MX_US;
         }
 
