@@ -7,7 +7,6 @@ use GrShareCode\Shop\ShopsCollection;
 
 /** @var ContactListCollection $lists */
 $lists = $block->getCampaigns();
-$settings = $block->getExportSettings();
 /** @var ShopsCollection $shops */
 $shops = $block->getShops();
 $jsAutoresponders = $block->getAutoRespondersForFrontend();
@@ -79,7 +78,6 @@ $jsAutoresponders = $block->getAutoRespondersForFrontend();
                                        name="gr_autoresponder"
                                        id="gr_autoresponder"
                                        value="1"
-                                        <?php if ($settings->getCycleDay() !== 0):?> checked="checked"<?php endif ?>
                                 />
                                 <label class="admin__field-label" for="gr_autoresponder">Add to autoresponder cycle</label>
                             </div>
@@ -144,11 +142,6 @@ $jsAutoresponders = $block->getAutoRespondersForFrontend();
                                         name="gr_sync_order_data"
                                         id="gr_sync_order_data"
                                         value="1"
-                                    <?php
-                                    if ($settings->isCustomFieldsModified()) {
-                                        echo ' checked="checked"';
-                                    }
-                                    ?>
                                 >
                                 <label class="admin__field-label" for="gr_sync_order_data">Update contact info</label>
                                 <div class="note admin__field-note" id="gr_sync_order_data-note">
@@ -158,7 +151,7 @@ $jsAutoresponders = $block->getAutoRespondersForFrontend();
                         </div>
                     </div>
                 </fieldset>
-                <div id="customNameFieldsRow" class="forms config admin__scope-old <?php if (!$settings->isCustomFieldsModified()):?>hidden<?php endif ?>">
+                <div id="customNameFieldsRow" class="forms config admin__scope-old">
                     <div id="customNameFields">
                         <?php include 'customs_grid.phtml'; ?>
                         <div class="note admin__field-note">You can use lowercase English alphabet characters, numbers, and underscore ("_"). Maximum 32 characters</div>
