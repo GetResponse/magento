@@ -46,7 +46,6 @@ class ExportTest extends BaseTestCase
         $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
         $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
         $this->grApiClient = $this->getMockWithoutConstructing(GetresponseApiClient::class);
-        $this->repositoryFactory->expects($this->atLeastOnce())->method('createGetResponseApiClient')->willReturn($this->grApiClient);
 
         $getresponseBlock = new Getresponse($this->repository, $this->repositoryFactory);
         $this->exportBlock = new ExportBlock($this->context, $this->repository, $this->repositoryFactory, $getresponseBlock);

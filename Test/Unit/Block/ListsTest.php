@@ -43,8 +43,6 @@ class ListsTest extends BaseTestCase
         $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
         $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
         $this->grApiClient = $this->getMockWithoutConstructing(GetresponseApiClient::class);
-
-        $this->repositoryFactory->expects($this->once())->method('createGetResponseApiClient')->willReturn($this->grApiClient);
         $this->listsBlock = new ListsBlock($this->context, $this->repository, $this->repositoryFactory);
     }
 
