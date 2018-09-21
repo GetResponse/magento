@@ -108,7 +108,7 @@ class Create extends AbstractController
             return $resultRedirect;
 
         } catch (GetresponseApiException $e) {
-            $this->messageManager->addErrorMessage(Message::CANNOT_CREATE_LIST . ' - ' . $e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
             return $resultPage;

@@ -91,7 +91,6 @@ class Process extends AbstractController
 
     /**
      * @return ResponseInterface|ResultInterface|Page
-     * @throws GetresponseApiException
      */
     public function execute()
     {
@@ -118,49 +117,55 @@ class Process extends AbstractController
 
         $subscribers = $this->repository->getFullCustomersDetails();
 
-        /** @var Subscriber $subscriber */
-        foreach ($subscribers as $subscriber) {
+        try {
+            /** @var Subscriber $subscriber */
+            foreach ($subscribers as $subscriber) {
 
-            $this->stats['count']++;
-            $custom_fields = [];
-            foreach ($customs as $field => $name) {
-                if (!empty($customer[$field])) {
-                    $custom_fields[$name] = $customer[$field];
+                $this->stats['count']++;
+                $custom_fields = [];
+                foreach ($customs as $field => $name) {
+                    if (!empty($customer[$field])) {
+                        $custom_fields[$name] = $customer[$field];
+                    }
+                }
+
+                $cycle_day = (isset($data['gr_autoresponder']) && $data['cycle_day'] != '') ? (int)$data['cycle_day'] : 0;
+
+                $this->addContact(
+                    $contactListId,
+                    $subscriber['firstname'],
+                    $subscriber['lastname'],
+                    $subscriber['subscriber_email'],
+                    $cycle_day,
+                    $custom_fields
+                );
+
+                if (empty($data['ecommerce'])) {
+                    continue;
+                }
+
+                /** @var Order $order */
+                foreach ($this->repository->getOrderByCustomerId($subscriber->getCustomerId()) as $order) {
+                    $grShopId = $data['store_id'];
+                    try {
+                        $this->orderService->exportOrder($order, $contactListId, $grShopId);
+                    } catch (\Exception $e) {
+                        $this->handleException($e);
+                    }
                 }
             }
 
-            $cycle_day = (isset($data['gr_autoresponder']) && $data['cycle_day'] != '') ? (int)$data['cycle_day'] : 0;
+            $this->messageManager->addSuccessMessage(Message::DATA_EXPORTED);
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+            return $resultPage;
 
-            $this->addContact(
-                $contactListId,
-                $subscriber['firstname'],
-                $subscriber['lastname'],
-                $subscriber['subscriber_email'],
-                $cycle_day,
-                $custom_fields
-            );
-
-            if (empty($data['ecommerce'])) {
-                continue;
-            }
-
-            /** @var Order $order */
-            foreach ($this->repository->getOrderByCustomerId($subscriber->getCustomerId()) as $order) {
-                $grShopId = $data['store_id'];
-                try {
-                    $this->orderService->exportOrder($order, $contactListId, $grShopId);
-                } catch (\Exception $e) {
-                    $this->handleException($e);
-                }
-            }
+        } catch (GetresponseApiException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+            return $resultPage;
         }
-
-        $this->messageManager->addSuccessMessage(Message::DATA_EXPORTED);
-
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-
-        return $resultPage;
     }
 
     /**
