@@ -3,7 +3,6 @@
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GrShareCode\Account\Account;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
@@ -90,25 +89,6 @@ class Repository
         return $this->_objectManager
             ->create(Category::class)
             ->load($categoryId);
-    }
-
-    /**
-     * @param int $category_id
-     * @return mixed
-     */
-    public function getCategoryName($category_id)
-    {
-        $_categoryHelper = $this->_objectManager->create('\Magento\Catalog\Model\Category');
-        return $_categoryHelper->load($category_id)->getName();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getStoreCategories()
-    {
-        $_categoryHelper = $this->_objectManager->create('\Magento\Catalog\Helper\Category');
-        return $_categoryHelper->getStoreCategories(true, false, true);
     }
 
     /**
@@ -253,122 +233,6 @@ class Repository
     public function getConnectionSettings()
     {
         return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_CONNECTION_SETTINGS));
-    }
-
-    /**
-     * @param int $id
-     */
-    public function deleteRule($id)
-    {
-        if (empty($id)) {
-            return;
-        }
-
-        $rules = $this->getRules();
-
-        if (0 === count($rules)) {
-            return;
-        }
-
-        foreach ($rules as $i => $rule) {
-            if ($rule->id == $id) {
-                unset($rules[$i]);
-            }
-        }
-
-        $this->configWriter->save(
-            Config::CONFIG_DATA_RULES,
-            json_encode($rules),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->cacheManager->clean(['config']);
-    }
-
-    /**
-     * @return array
-     */
-    public function getRules()
-    {
-        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_RULES));
-    }
-
-    /**
-     * @param Rule $rule
-     */
-    public function createRule(Rule $rule)
-    {
-        $rules = $this->getRules();
-        $rules[] = $rule->asArray();
-
-        $this->configWriter->save(
-            Config::CONFIG_DATA_RULES,
-            json_encode($rules),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->cacheManager->clean(['config']);
-    }
-
-    /**
-     * @param $id
-     *
-     * @return mixed|null
-     */
-    public function getRuleById($id)
-    {
-        if (empty($id)) {
-            return null;
-        }
-
-        $rules = $this->getRules();
-
-        if (0 === count($rules)) {
-            return null;
-        }
-
-        foreach ($rules as $rule) {
-            if ($rule->id == $id) {
-                return $rule;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param int $id
-     * @param Rule $rule
-     */
-    public function updateRule($id, Rule $rule)
-    {
-        $rules = $this->getRules();
-
-        if (empty($rules)) {
-            return;
-        }
-
-        /** @var  $_rule */
-        foreach ($rules as $_rule) {
-            if ($_rule->id === $id) {
-                $_rule->category = $rule->getCategory();
-                $_rule->action = $rule->getAction();
-                $_rule->campaign = $rule->getCampaign();
-                $_rule->cycle_day = $rule->getAutoresponderDay();
-                $_rule->autoresponderId = $rule->getAutoresponderId();
-            }
-        }
-
-        $this->configWriter->save(
-            Config::CONFIG_DATA_RULES,
-            json_encode($rules),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->cacheManager->clean(['config']);
     }
 
     /**
@@ -567,7 +431,6 @@ class Repository
         $this->clearRegistrationSettings();
         $this->clearAccountDetails();
         $this->clearWebforms();
-        $this->clearRules();
         $this->clearWebEventTracking();
         $this->clearCustoms();
         $this->clearEcommerceSettings();
@@ -622,15 +485,6 @@ class Repository
         );
 
         $this->cacheManager->clean(['config']);
-    }
-
-    public function clearRules()
-    {
-        $this->configWriter->delete(
-            Config::CONFIG_DATA_RULES,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
     }
 
     public function clearWebEventTracking()

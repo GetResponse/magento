@@ -20,7 +20,7 @@ use Magento\Framework\App\Request\Http;
 
 /**
  * Class Create
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Rules
+ * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists
  */
 class Create extends AbstractController
 {

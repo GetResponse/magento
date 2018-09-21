@@ -5,7 +5,6 @@ namespace GetResponse\GetResponseIntegration\Observer;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RulesCollectionFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\Api\ApiTypeException;
@@ -67,14 +66,11 @@ class SubscribeFromOrder implements ObserverInterface
 
         try {
             $grApiClient = $this->repositoryFactory->createGetResponseApiClient();
-            $rules = RulesCollectionFactory::createFromRepository(
-                $this->repository->getRules()
-            );
 
             $orderIds = $observer->getOrderIds();
             $orderId = (int)(is_array($orderIds) ? array_pop($orderIds) : $orderIds);
 
-            $customFields  = $this->prepareCustomFields($orderId);
+            $customFields = $this->prepareCustomFields($orderId);
 
             if ($orderId < 1) {
                 return $this;
@@ -87,62 +83,15 @@ class SubscribeFromOrder implements ObserverInterface
             if (!$subscriber->isSubscribed()) {
                 return $this;
             }
-            if (!empty($rules->getRules())) {
-                $categoryIds = [];
-                foreach ($rules->getRules() as $rule) {
-                    $categoryIds[$rule->getCategory()] = [
-                        'category_id' => $rule->getCategory(),
-                        'action' => $rule->getAction(),
-                        'campaign_id' => $rule->getCampaign(),
-                        'cycle_day' => $rule->getAutoresponderDay()
-                    ];
-                }
 
-                $automationCategories = array_keys($categoryIds);
-
-                foreach ($order->getItems() as $item) {
-
-                    $productId = $item->getData()['product_id'];
-                    $product = $this->_objectManager->create('Magento\Catalog\Model\Product')->load($productId);
-                    $category = array_intersect($product->getCategoryIds(), $automationCategories);
-
-                    if (!empty($category)) {
-                        foreach ($category as $c) {
-
-                            $this->addContact(
-                                $categoryIds[$c]['campaign_id'],
-                                $customer->getFirstname(),
-                                $customer->getLastname(),
-                                $customer->getEmail(),
-                                $categoobryIds[$c]['cycle_day'],
-                                $customFields
-                            );
-
-                            if ($categoryIds[$c]['action'] == 'move') {
-                                $moveSubscriber = true;
-                                $contact = $grApiClient->getContactByEmail(
-                                    $customer->getEmail(),
-                                    $registrationSettings->getCampaignId()
-                                );
-
-                                if (isset($contact['contactId'])) {
-                                    $grApiClient->deleteContact($contact['contactId']);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if (!$moveSubscriber) {
-                $this->addContact(
-                    $registrationSettings->getCampaignId(),
-                    $customer->getFirstname(),
-                    $customer->getLastname(),
-                    $customer->getEmail(),
-                    $registrationSettings->getCycleDay(),
-                    $customFields
-                );
-            }
+            $this->addContact(
+                $registrationSettings->getCampaignId(),
+                $customer->getFirstname(),
+                $customer->getLastname(),
+                $customer->getEmail(),
+                $registrationSettings->getCycleDay(),
+                $customFields
+            );
 
             return $this;
         } catch (RepositoryException $e) {
@@ -203,7 +152,7 @@ class SubscribeFromOrder implements ObserverInterface
         $customs = $this->repository->getCustoms();
 
         $order = $this->repository->loadOrder($orderId);
-        $customer = $this->repository->loadCustomer( $order->getCustomerId());
+        $customer = $this->repository->loadCustomer($order->getCustomerId());
         $address = $this->repository->loadCustomerAddress($customer->getDefaultBilling());
         $data = array_merge($address->getData(), $customer->getData());
 
