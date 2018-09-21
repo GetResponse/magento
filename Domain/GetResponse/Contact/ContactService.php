@@ -4,7 +4,6 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Contact;
 use GrShareCode\Api\ApiTypeException;
 use GrShareCode\Contact\Contact;
 use GrShareCode\Contact\ContactNotFoundException;
-use GrShareCode\Contact\ContactService as GrContactService;
 use GrShareCode\GetresponseApiException;
 
 /**
@@ -13,16 +12,15 @@ use GrShareCode\GetresponseApiException;
  */
 class ContactService
 {
-    /** @var GrContactService */
-    private $grContactService;
+    /** @var ContactServiceFactory */
+    private $contactServiceFactory;
 
     /**
      * @param ContactServiceFactory $contactServiceFactory
-     * @throws ApiTypeException
      */
     public function __construct(ContactServiceFactory $contactServiceFactory)
     {
-        $this->grContactService = $contactServiceFactory->create();
+        $this->contactServiceFactory = $contactServiceFactory;
     }
 
     /**
@@ -31,9 +29,11 @@ class ContactService
      * @return Contact
      * @throws ContactNotFoundException
      * @throws GetresponseApiException
+     * @throws ApiTypeException
      */
     public function getContactByEmail($email, $contactListId)
     {
-        return $this->grContactService->getContactByEmail($email, $contactListId);
+        $contactService = $this->contactServiceFactory->create();
+        return $contactService->getContactByEmail($email, $contactListId);
     }
 }

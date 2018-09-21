@@ -8,7 +8,6 @@ use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\Api\ApiTypeException;
-use GrShareCode\GetresponseApiClient;
 use GrShareCode\GetresponseApiException;
 use GrShareCode\Shop\AddShopCommand;
 use GrShareCode\Shop\ShopService;
@@ -26,8 +25,8 @@ class CreateShop extends AbstractController
     /** @var Repository */
     private $repository;
 
-    /** @var GetresponseApiClient */
-    private $grApiClient;
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /** @var JsonFactory */
     private $resultJsonFactory;
@@ -38,8 +37,6 @@ class CreateShop extends AbstractController
      * @param Repository $repository
      * @param JsonFactory $resultJsonFactory
      * @param RepositoryValidator $repositoryValidator
-     * @throws RepositoryException
-     * @throws ApiTypeException
      */
     public function __construct(
         Context $context,
@@ -50,7 +47,7 @@ class CreateShop extends AbstractController
     ) {
         parent::__construct($context, $repositoryValidator);
         $this->repository = $repository;
-        $this->grApiClient = $repositoryFactory->createGetResponseApiClient();
+        $this->repositoryFactory = $repositoryFactory;
         $this->resultJsonFactory = $resultJsonFactory;
 
         return $this->checkGetResponseConnection();
@@ -69,16 +66,20 @@ class CreateShop extends AbstractController
             return $this->resultJsonFactory->create()->setData(['error' => Message::INCORRECT_SHOP_NAME]);
         }
 
-        $countryCode = $this->repository->getMagentoCountryCode();
-        $lang = substr($countryCode, 0, 2);
-        $currency = $this->repository->getMagentoCurrencyCode();
-
-        $service = new ShopService($this->grApiClient);
-
         try {
+            $countryCode = $this->repository->getMagentoCountryCode();
+            $lang = substr($countryCode, 0, 2);
+            $currency = $this->repository->getMagentoCurrencyCode();
+
+            $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+            $service = new ShopService($apiClient);
             $shop = $service->addShop(new AddShopCommand($data['shop_name'], $lang, $currency));
             return $this->resultJsonFactory->create()->setData($shop);
         } catch (GetresponseApiException $e) {
+            return $this->resultJsonFactory->create()->setData(['error' => $e->getMessage()]);
+        } catch (RepositoryException $e) {
+            return $this->resultJsonFactory->create()->setData(['error' => $e->getMessage()]);
+        } catch (ApiTypeException $e) {
             return $this->resultJsonFactory->create()->setData(['error' => $e->getMessage()]);
         }
 

@@ -5,7 +5,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GrShareCode\Api\ApiTypeException;
 use GrShareCode\ContactList\ContactListCollection;
 use GrShareCode\ContactList\ContactListService;
-use GrShareCode\GetresponseApiClient;
 use GrShareCode\GetresponseApiException;
 use Magento\Framework\View\Element\Template;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -24,9 +23,6 @@ class Newsletter extends Template
     /** @var RepositoryFactory */
     private $repositoryFactory;
 
-    /** @var GetresponseApiClient */
-    private $grApiClient;
-
     /** @var Getresponse */
     private $getResponseBlock;
 
@@ -35,8 +31,6 @@ class Newsletter extends Template
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
      * @param Getresponse $getResponseBlock
-     * @throws RepositoryException
-     * @throws ApiTypeException
      */
     public function __construct(
         Context $context,
@@ -47,17 +41,18 @@ class Newsletter extends Template
         parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
-        $this->grApiClient = $repositoryFactory->createGetResponseApiClient();
         $this->getResponseBlock = $getResponseBlock;
     }
 
     /**
      * @return ContactListCollection
+     * @throws ApiTypeException
      * @throws GetresponseApiException
+     * @throws RepositoryException
      */
     public function getLists()
     {
-        return (new ContactListService($this->grApiClient))->getAllContactLists();
+        return (new ContactListService($this->repositoryFactory->createGetResponseApiClient()))->getAllContactLists();
     }
 
     /**

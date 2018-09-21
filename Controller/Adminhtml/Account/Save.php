@@ -28,11 +28,8 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 class Save extends Action
 {
     const BACK_URL = 'getresponse/account/index';
-
     const PAGE_TITLE = 'GetResponse account';
-
     const API_ERROR_MESSAGE = 'The API key seems incorrect. Please check if you typed or pasted it correctly. If you recently generated a new key, please make sure you’re using the right one';
-
     const API_EMPTY_VALUE_MESSAGE = 'You need to enter API key. This field can\'t be empty';
 
     /** @var PageFactory */

@@ -48,14 +48,11 @@ class SubscribeFromOrder implements ObserverInterface
     }
 
     /**
-     * Save order into registry to use it in the overloaded controller.
-     *
      * @param EventObserver $observer
      * @return $this
      */
     public function execute(EventObserver $observer)
     {
-        $moveSubscriber = false;
         $registrationSettings = RegistrationSettingsFactory::createFromArray(
             $this->repository->getRegistrationSettings()
         );
@@ -65,8 +62,6 @@ class SubscribeFromOrder implements ObserverInterface
         }
 
         try {
-            $grApiClient = $this->repositoryFactory->createGetResponseApiClient();
-
             $orderIds = $observer->getOrderIds();
             $orderId = (int)(is_array($orderIds) ? array_pop($orderIds) : $orderIds);
 

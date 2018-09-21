@@ -8,7 +8,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GrShareCode\Api\ApiTypeException;
 use GrShareCode\ContactList\ContactListCollection;
 use GrShareCode\ContactList\ContactListService;
-use GrShareCode\GetresponseApiClient;
+use GrShareCode\GetresponseApiException;
 use Magento\Framework\View\Element\Template;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
@@ -26,9 +26,6 @@ class Registration extends Template
     /** @var RepositoryFactory */
     private $repositoryFactory;
 
-    /** @var GetresponseApiClient */
-    private $grApiClient;
-
     /** @var Getresponse */
     private $getresponseBlock;
 
@@ -37,8 +34,6 @@ class Registration extends Template
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
      * @param Getresponse $getResponseBlock
-     * @throws RepositoryException
-     * @throws ApiTypeException
      */
     public function __construct(
         Context $context,
@@ -49,17 +44,18 @@ class Registration extends Template
         parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
-        $this->grApiClient = $repositoryFactory->createGetResponseApiClient();
         $this->getresponseBlock = $getResponseBlock;
     }
 
     /**
      * @return ContactListCollection
-     * @throws \GrShareCode\GetresponseApiException
+     * @throws ApiTypeException
+     * @throws RepositoryException
+     * @throws GetresponseApiException
      */
     public function getCampaigns()
     {
-        return (new ContactListService($this->grApiClient))->getAllContactLists();
+        return (new ContactListService($this->repositoryFactory->createGetResponseApiClient()))->getAllContactLists();
     }
 
     /**

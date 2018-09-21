@@ -18,7 +18,6 @@ use GrShareCode\Contact\AddContactCommand;
 use GrShareCode\Contact\ContactCustomField;
 use GrShareCode\Contact\ContactCustomFieldsCollection;
 use GrShareCode\Contact\ContactService;
-use GrShareCode\GetresponseApiClient;
 use GrShareCode\GetresponseApiException;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
@@ -50,8 +49,8 @@ class Process extends AbstractController
     /** @var Repository */
     private $repository;
 
-    /** @var GetresponseApiClient */
-    private $grApiClient;
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /** @var CartService */
     private $cartService;
@@ -67,8 +66,6 @@ class Process extends AbstractController
      * @param RepositoryValidator $repositoryValidator
      * @param CartService $cartService
      * @param OrderService $orderService
-     * @throws RepositoryException
-     * @throws ApiTypeException
      */
     public function __construct(
         Context $context,
@@ -81,7 +78,7 @@ class Process extends AbstractController
     ) {
         parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
-        $this->grApiClient = $repositoryFactory->createGetResponseApiClient();
+        $this->repositoryFactory = $repositoryFactory;
         $this->repository = $repository;
         $this->cartService = $cartService;
         $this->orderService = $orderService;
@@ -161,10 +158,11 @@ class Process extends AbstractController
             return $resultPage;
 
         } catch (GetresponseApiException $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
-            $resultPage = $this->resultPageFactory->create();
-            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-            return $resultPage;
+            return $this->handleException($e);
+        } catch (RepositoryException $e) {
+            return $this->handleException($e);
+        } catch (ApiTypeException $e) {
+            return $this->handleException($e);
         }
     }
 
@@ -204,8 +202,6 @@ class Process extends AbstractController
     }
 
     /**
-     * Add (or update) contact to gr campaign
-     *
      * @param string $campaignId
      * @param string $firstName
      * @param string $lastName
@@ -213,13 +209,16 @@ class Process extends AbstractController
      * @param int $cycleDay
      * @param array $userCustoms
      * @throws GetresponseApiException
+     * @throws RepositoryException
+     * @throws ApiTypeException
      */
-    public function addContact($campaignId, $firstName, $lastName, $email, $cycleDay = null, $userCustoms = [])
+    private function addContact($campaignId, $firstName, $lastName, $email, $cycleDay = null, $userCustoms = [])
     {
         $customFields = new ContactCustomFieldsCollection();
+        $apiClient = $this->repositoryFactory->createGetResponseApiClient();
 
         foreach ($userCustoms as $name => $value) {
-            $custom = $this->grApiClient->getCustomFieldByName($name);
+            $custom = $apiClient->getCustomFieldByName($name);
 
             if (!empty($custom)) {
                 $customFields->add(new ContactCustomField($custom['customFieldId'], $value));
@@ -228,7 +227,7 @@ class Process extends AbstractController
 
         $name = trim($firstName . ' ' . $lastName);
 
-        $service = new ContactService($this->grApiClient);
+        $service = new ContactService($apiClient);
         $service->upsertContact(new AddContactCommand(
             $email,
             !empty($name) ? $name : null,

@@ -7,7 +7,6 @@ use GrShareCode\Api\ApiTypeException;
 use GrShareCode\GetresponseApiException;
 use GrShareCode\Order\AddOrderCommand;
 use GrShareCode\Order\Order as GrOrder;
-use GrShareCode\Order\OrderService as GrOrderService;
 use GrShareCode\Product\ProductsCollection;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Item;
@@ -18,8 +17,8 @@ use Magento\Sales\Model\Order\Item;
  */
 class OrderService
 {
-    /** @var GrOrderService */
-    private $grOrderService;
+    /** @var OrderServiceFactory */
+    private $orderServiceFactory;
 
     /** @var ProductFactory */
     private $productFactory;
@@ -31,14 +30,13 @@ class OrderService
      * @param OrderServiceFactory $orderServiceFactory
      * @param ProductFactory $productFactory
      * @param AddressFactory $addressFactory
-     * @throws ApiTypeException
      */
     public function __construct(
         OrderServiceFactory $orderServiceFactory,
         ProductFactory $productFactory,
         AddressFactory $addressFactory
     ) {
-        $this->grOrderService = $orderServiceFactory->create();
+        $this->orderServiceFactory = $orderServiceFactory;
         $this->productFactory = $productFactory;
         $this->addressFactory = $addressFactory;
     }
@@ -48,6 +46,7 @@ class OrderService
      * @param string $contactListId
      * @param string $grShopId
      * @throws GetresponseApiException
+     * @throws ApiTypeException
      */
     public function exportOrder(Order $order, $contactListId, $grShopId)
     {
@@ -60,7 +59,8 @@ class OrderService
 
         $addCommandOrder->setToSkipAutomation();
 
-        $this->grOrderService->sendOrder($addCommandOrder);
+        $orderService = $this->orderServiceFactory->create();
+        $orderService->sendOrder($addCommandOrder);
     }
 
     /**
@@ -93,6 +93,7 @@ class OrderService
      * @param string $contactListId
      * @param string $grShopId
      * @throws GetresponseApiException
+     * @throws ApiTypeException
      */
     public function sendOrder(Order $order, $contactListId, $grShopId)
     {
@@ -103,7 +104,8 @@ class OrderService
             $grShopId
         );
 
-        $this->grOrderService->sendOrder($addOrderCommand);
+        $orderService = $this->orderServiceFactory->create();
+        $orderService->sendOrder($addOrderCommand);
     }
 
 }

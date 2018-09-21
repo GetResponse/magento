@@ -27,7 +27,7 @@ class Export extends Template
     private $repository;
 
     /** @var GetresponseApiClient */
-    private $grApiClient;
+    private $repositoryFactory;
 
     /** @var Getresponse */
     private $getResponseBlock;
@@ -37,8 +37,6 @@ class Export extends Template
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
      * @param Getresponse $getResponseBlock
-     * @throws RepositoryException
-     * @throws ApiTypeException
      */
     public function __construct(
         Context $context,
@@ -48,7 +46,7 @@ class Export extends Template
     ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->grApiClient = $repositoryFactory->createGetResponseApiClient();
+        $this->repositoryFactory = $repositoryFactory;
         $this->getResponseBlock = $getResponseBlock;
     }
 
@@ -78,20 +76,24 @@ class Export extends Template
 
     /**
      * @return ContactListCollection
+     * @throws ApiTypeException
      * @throws GetresponseApiException
+     * @throws RepositoryException
      */
     public function getCampaigns()
     {
-        return (new ContactListService($this->grApiClient))->getAllContactLists();
+        return (new ContactListService($this->repositoryFactory->createGetResponseApiClient()))->getAllContactLists();
     }
 
     /**
      * @return ShopsCollection
+     * @throws ApiTypeException
      * @throws GetresponseApiException
+     * @throws RepositoryException
      */
     public function getShops()
     {
-        return (new ShopService($this->grApiClient))->getAllShops();
+        return (new ShopService($this->repositoryFactory->createGetResponseApiClient()))->getAllShops();
     }
 
     /**

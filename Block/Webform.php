@@ -30,7 +30,6 @@ class Webform extends Template
      * @param Context $context
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
-     * @internal param GrRepository $grRepository
      */
     public function __construct(
         Context $context,
@@ -45,7 +44,7 @@ class Webform extends Template
     /**
      * @return WebformSettings
      */
-    public function getWebformSettings()
+    public function getWebFormSettings()
     {
         return WebformSettingsFactory::createFromArray(
             $this->repository->getWebformSettings()
@@ -60,7 +59,6 @@ class Webform extends Template
      */
     public function getWebForms()
     {
-        $grApiClient = $this->repositoryFactory->createGetResponseApiClient();
-        return (new WebFormService($grApiClient))->getAllWebForms();
+        return (new WebFormService($this->repositoryFactory->createGetResponseApiClient()))->getAllWebForms();
     }
 }

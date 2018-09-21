@@ -6,7 +6,7 @@
     }
 </style>
 <?php
-$webform = $block->getWebformSettings();
+$webform = $block->getWebFormSettings();
 
 if ($webform->isEnabled() && $webform->getSidebar() == 'content') {
     echo '<script type="text/javascript" src="' . $webform->getUrl() .'"></script>';

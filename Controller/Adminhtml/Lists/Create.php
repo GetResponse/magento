@@ -9,12 +9,13 @@ use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GrShareCode\Api\ApiTypeException;
 use GrShareCode\ContactList\AddContactListCommand;
 use GrShareCode\ContactList\ContactListService;
-use GrShareCode\GetresponseApiClient;
 use GrShareCode\GetresponseApiException;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Request\Http;
 
@@ -32,8 +33,8 @@ class Create extends AbstractController
     /** @var Repository */
     private $repository;
 
-    /** @var GetresponseApiClient */
-    private $grApiClient;
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /**
      * @param Context $context
@@ -41,8 +42,6 @@ class Create extends AbstractController
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
      * @param RepositoryValidator $repositoryValidator
-     * @throws RepositoryException
-     * @throws \GrShareCode\Api\ApiTypeException
      */
     public function __construct(
         Context $context,
@@ -54,15 +53,13 @@ class Create extends AbstractController
         parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
-        $this->grApiClient = $repositoryFactory->createGetResponseApiClient();
+        $this->repositoryFactory = $repositoryFactory;
 
         return $this->checkGetResponseConnection();
     }
 
     /**
-     * Dispatch request
-     *
-     * @return \Magento\Framework\Controller\ResultInterface|ResponseInterface
+     * @return ResultInterface|ResponseInterface
      */
     public function execute()
     {
@@ -90,8 +87,9 @@ class Create extends AbstractController
 
         $data['lang'] = substr($this->repository->getMagentoCountryCode(), 0, 2);
 
-        $service = new ContactListService($this->grApiClient);
         try {
+            $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+            $service = new ContactListService($apiClient);
             $service->createContactList(new AddContactListCommand(
                 $data['campaign_name'],
                 $data['from_field'],
@@ -108,6 +106,16 @@ class Create extends AbstractController
             return $resultRedirect;
 
         } catch (GetresponseApiException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+            return $resultPage;
+        } catch (RepositoryException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+            return $resultPage;
+        } catch (ApiTypeException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);

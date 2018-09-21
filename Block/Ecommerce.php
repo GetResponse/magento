@@ -24,8 +24,8 @@ class Ecommerce extends Template
     /** @var Repository */
     private $repository;
 
-    /** @var GetresponseApiClient */
-    private $grApiClient;
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /** @var Getresponse */
     private $getResponseBlock;
@@ -35,9 +35,6 @@ class Ecommerce extends Template
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
      * @param Getresponse $getResponseBlock
-     *
-     * @throws RepositoryException
-     * @throws ApiTypeException
      */
     public function __construct(
         Context $context,
@@ -47,7 +44,7 @@ class Ecommerce extends Template
     ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->grApiClient = $repositoryFactory->createGetResponseApiClient();
+        $this->repositoryFactory = $repositoryFactory;
         $this->getResponseBlock = $getResponseBlock;
     }
 
@@ -77,11 +74,14 @@ class Ecommerce extends Template
 
     /**
      * @return ShopsCollection
+     * @throws ApiTypeException
      * @throws GetresponseApiException
+     * @throws RepositoryException
      */
     public function getShops()
     {
-        return (new ShopService($this->grApiClient))->getAllShops();
+        $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+        return (new ShopService($apiClient))->getAllShops();
     }
 
     /**
@@ -94,10 +94,12 @@ class Ecommerce extends Template
 
     /**
      * @return ContactListCollection
+     * @throws ApiTypeException
      * @throws GetresponseApiException
+     * @throws RepositoryException
      */
     public function getCampaigns()
     {
-        return (new ContactListService($this->grApiClient))->getAllContactLists();
+        return (new ContactListService($this->repositoryFactory->createGetResponseApiClient()))->getAllContactLists();
     }
 }
