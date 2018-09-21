@@ -52,7 +52,6 @@ class Save extends AbstractController
 
     /**
      * @return ResponseInterface|Redirect
-     * @throws CustomFieldFactoryException
      */
     public function execute()
     {
@@ -65,49 +64,52 @@ class Save extends AbstractController
         $autoresponder = (isset($data['gr_autoresponder']) && $data['gr_autoresponder'] == 1) ? $data['autoresponder'] : '';
         $isEnabled = isset($data['gr_enabled']) && 1 == $data['gr_enabled'] ? true : false;
 
-        if (!$isEnabled) {
-            $this->repository->clearRegistrationSettings();
-        } else {
-            $campaignId = $data['campaign_id'];
+        try {
+            if (!$isEnabled) {
+                $this->repository->clearRegistrationSettings();
+            } else {
+                $campaignId = $data['campaign_id'];
 
-            if (empty($campaignId)) {
-                $this->messageManager->addErrorMessage(Message::SELECT_CONTACT_LIST);
+                if (empty($campaignId)) {
+                    $this->messageManager->addErrorMessage(Message::SELECT_CONTACT_LIST);
 
-                return $resultRedirect;
-            }
-
-            if ($updateCustomFields) {
-                $customs = CustomFieldFactory::createFromArray($data);
-
-                foreach ($customs as $field => $name) {
-                    if (false == preg_match('/^[_a-zA-Z0-9]{2,32}$/m', $name)) {
-                        $this->messageManager->addErrorMessage(sprintf(Message::INVALID_CUSTOM_FIELD_VALUE, $name));
-
-                        return $resultRedirect;
-                    }
+                    return $resultRedirect;
                 }
 
-                $customs = CustomFieldsCollectionFactory::createFromUserPayload(
-                    $customs,
-                    $this->repository->getCustoms()
-                );
+                if ($updateCustomFields) {
+                    $customs = CustomFieldFactory::createFromArray($data);
 
-                $this->repository->updateCustoms($customs);
+                    foreach ($customs as $field => $name) {
+                        if (false == preg_match('/^[_a-zA-Z0-9]{2,32}$/m', $name)) {
+                            $this->messageManager->addErrorMessage(sprintf(Message::INVALID_CUSTOM_FIELD_VALUE, $name));
+
+                            return $resultRedirect;
+                        }
+                    }
+
+                    $customs = CustomFieldsCollectionFactory::createFromUserPayload(
+                        $customs,
+                        $this->repository->getCustoms()
+                    );
+
+                    $this->repository->updateCustoms($customs);
+                }
+
+                $registrationSettings = RegistrationSettingsFactory::createFromArray([
+                    'status' => $isEnabled,
+                    'customFieldsStatus' => $updateCustomFields,
+                    'campaignId' => $campaignId,
+                    'cycleDay' => !empty($autoresponder) ? explode('_', $autoresponder)[0] : '',
+                    'autoresponderId' => !empty($autoresponder) ? explode('_', $autoresponder)[1] : '',
+                ]);
+
+                $this->repository->saveRegistrationSettings($registrationSettings);
             }
-
-            $registrationSettings = RegistrationSettingsFactory::createFromArray([
-                'status' => $isEnabled,
-                'customFieldsStatus' => $updateCustomFields,
-                'campaignId' => $campaignId,
-                'cycleDay' => !empty($autoresponder) ? explode('_', $autoresponder)[0] : '',
-                'autoresponderId' => !empty($autoresponder) ? explode('_', $autoresponder)[1] : '',
-            ]);
-
-            $this->repository->saveRegistrationSettings($registrationSettings);
+            $this->messageManager->addSuccessMessage(Message::SETTINGS_SAVED);
+            return $resultRedirect;
+        } catch (CustomFieldFactoryException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $resultRedirect;
         }
-
-        $this->messageManager->addSuccessMessage(Message::SETTINGS_SAVED);
-
-        return $resultRedirect;
     }
 }

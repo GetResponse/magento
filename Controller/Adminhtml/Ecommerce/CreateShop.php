@@ -58,7 +58,6 @@ class CreateShop extends AbstractController
 
     /**
      * @return Json
-     * @throws GetresponseApiException
      */
     public function execute()
     {
@@ -76,7 +75,12 @@ class CreateShop extends AbstractController
 
         $service = new ShopService($this->grApiClient);
 
-        $shop = $service->addShop(new AddShopCommand($data['shop_name'], $lang, $currency));
-        return $this->resultJsonFactory->create()->setData($shop);
+        try {
+            $shop = $service->addShop(new AddShopCommand($data['shop_name'], $lang, $currency));
+            return $this->resultJsonFactory->create()->setData($shop);
+        } catch (GetresponseApiException $e) {
+            return $this->resultJsonFactory->create()->setData(['error' => $e->getMessage()]);
+        }
+
     }
 }

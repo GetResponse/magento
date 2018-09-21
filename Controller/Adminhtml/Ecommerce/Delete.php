@@ -45,7 +45,6 @@ class Delete extends AbstractController
 
     /**
      * @return ResponseInterface|Redirect
-     * @throws GetresponseApiException
      */
     public function execute()
     {
@@ -58,9 +57,15 @@ class Delete extends AbstractController
             return $resultRedirect;
         }
 
-        $service = new ShopService($this->grApiClient);
-        $service->deleteShop($id);
-        $resultRedirect->setPath(self::BACK_URL);
-        return $resultRedirect;
+        try {
+            $service = new ShopService($this->grApiClient);
+            $service->deleteShop($id);
+            $resultRedirect->setPath(self::BACK_URL);
+            return $resultRedirect;
+        } catch (GetresponseApiException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            $resultRedirect->setPath(self::BACK_URL);
+            return $resultRedirect;
+        }
     }
 }
