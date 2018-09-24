@@ -148,6 +148,7 @@ class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Ab
      * @param int $shopId
      *
      * @throws Varien_Exception
+     * @throws Zend_Cache_Exception
      */
 	public function disconnectIntegration($shopId)
 	{
@@ -167,6 +168,10 @@ class GetresponseIntegration_Getresponse_Helper_Data extends Mage_Core_Helper_Ab
         $automationRulesRepository->delete();
 
 		Mage::getModel('getresponse/customs')->disconnect($shopId);
+
+		/** @var GetresponseIntegration_Getresponse_Model_Cache $cache */
+        $cache = Mage::getSingleton('getresponse/cache');
+        $cache->clean();
 	}
 
     /**
