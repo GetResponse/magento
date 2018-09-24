@@ -114,20 +114,20 @@ class Process extends AbstractController
 
         $subscribers = $this->repository->getFullCustomersDetails();
 
-        try {
-            /** @var Subscriber $subscriber */
-            foreach ($subscribers as $subscriber) {
+        /** @var Subscriber $subscriber */
+        foreach ($subscribers as $subscriber) {
 
-                $this->stats['count']++;
-                $custom_fields = [];
-                foreach ($customs as $field => $name) {
-                    if (!empty($customer[$field])) {
-                        $custom_fields[$name] = $customer[$field];
-                    }
+            $this->stats['count']++;
+            $custom_fields = [];
+            foreach ($customs as $field => $name) {
+                if (!empty($customer[$field])) {
+                    $custom_fields[$name] = $customer[$field];
                 }
+            }
 
-                $cycle_day = (isset($data['gr_autoresponder']) && $data['cycle_day'] != '') ? (int)$data['cycle_day'] : 0;
+            $cycle_day = (isset($data['gr_autoresponder']) && $data['cycle_day'] != '') ? (int)$data['cycle_day'] : 0;
 
+            try {
                 $this->addContact(
                     $contactListId,
                     $subscriber['firstname'],
@@ -136,34 +136,33 @@ class Process extends AbstractController
                     $cycle_day,
                     $custom_fields
                 );
-
-                if (empty($data['ecommerce'])) {
-                    continue;
-                }
-
-                /** @var Order $order */
-                foreach ($this->repository->getOrderByCustomerId($subscriber->getCustomerId()) as $order) {
-                    $grShopId = $data['store_id'];
-                    try {
-                        $this->orderService->exportOrder($order, $contactListId, $grShopId);
-                    } catch (\Exception $e) {
-                        $this->handleException($e);
-                    }
-                }
+            } catch (RepositoryException $e) {
+                return $this->handleException($e);
+            } catch (ApiTypeException $e) {
+                return $this->handleException($e);
+            } catch (GetresponseApiException $e) {
+                //skip all API errors
             }
 
-            $this->messageManager->addSuccessMessage(Message::DATA_EXPORTED);
-            $resultPage = $this->resultPageFactory->create();
-            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-            return $resultPage;
+            if (empty($data['ecommerce'])) {
+                continue;
+            }
 
-        } catch (GetresponseApiException $e) {
-            return $this->handleException($e);
-        } catch (RepositoryException $e) {
-            return $this->handleException($e);
-        } catch (ApiTypeException $e) {
-            return $this->handleException($e);
+            /** @var Order $order */
+            foreach ($this->repository->getOrderByCustomerId($subscriber->getCustomerId()) as $order) {
+                $grShopId = $data['store_id'];
+                try {
+                    $this->orderService->exportOrder($order, $contactListId, $grShopId);
+                } catch (\Exception $e) {
+                    $this->handleException($e);
+                }
+            }
         }
+
+        $this->messageManager->addSuccessMessage(Message::DATA_EXPORTED);
+        $resultPage = $this->resultPageFactory->create();
+        $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+        return $resultPage;
     }
 
     /**
