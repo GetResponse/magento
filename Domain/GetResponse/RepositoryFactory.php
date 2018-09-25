@@ -9,7 +9,6 @@ use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository as MagentoRepository;
 use GrShareCode\Api\ApiTypeException;
 use GrShareCode\GetresponseApiClient;
-use GrShareCode\GetresponseApiClientFactory;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\ObjectManagerInterface;
 

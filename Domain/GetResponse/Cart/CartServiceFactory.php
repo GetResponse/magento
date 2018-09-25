@@ -3,13 +3,13 @@
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Cart;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiTypeFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductServiceFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
 use GrShareCode\Api\ApiTypeException;
 use GrShareCode\Cart\CartService as GrCartService;
-use GrShareCode\GetresponseApiClientFactory;
 
 /**
  * Class CartServiceFactory
