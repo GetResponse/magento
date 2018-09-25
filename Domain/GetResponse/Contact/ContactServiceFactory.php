@@ -13,6 +13,7 @@ use GrShareCode\Api\UserAgentHeader;
 use GrShareCode\Contact\ContactService as GrContactService;
 use GrShareCode\GetresponseApi;
 use GrShareCode\GetresponseApiClient;
+use GrShareCode\GetresponseApiClientFactory;
 
 /**
  * Class ContactServiceFactory
@@ -42,24 +43,13 @@ class ContactServiceFactory
      */
     public function create()
     {
-        $connectionSettings = ConnectionSettingsFactory::createFromArray(
-            $this->magentoRepository->getConnectionSettings()
-        );
-
-        $getResponseApi = new GetresponseApiClient(
-            new GetresponseApi(
-                new ApiKeyAuthorization(
-                    $connectionSettings->getApiKey(),
-                    ApiTypeFactory::createFromConnectionSettings($connectionSettings),
-                    $connectionSettings->getDomain()
-                ),
-                Config::X_APP_ID,
-                new UserAgentHeader(
-                    Config::SERVICE_NAME,
-                    Config::SERVICE_VERSION,
-                    $this->magentoRepository->getGetResponsePluginVersion()
-                )
-            ), $this->shareCodeRepository
+        $settings = ConnectionSettingsFactory::createFromArray($this->magentoRepository->getConnectionSettings());
+        $getResponseApi = GetresponseApiClientFactory::createFromParams(
+            $settings->getApiKey(),
+            ApiTypeFactory::createFromConnectionSettings($settings),
+            $settings->getDomain(),
+            $this->shareCodeRepository,
+            $this->magentoRepository->getGetResponsePluginVersion()
         );
 
         return new GrContactService($getResponseApi);
