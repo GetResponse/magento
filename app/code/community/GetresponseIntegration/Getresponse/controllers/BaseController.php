@@ -44,11 +44,7 @@ class GetresponseIntegration_Getresponse_BaseController extends Mage_Adminhtml_C
      */
     protected function isConnectedToGetResponse()
     {
-        if (empty($this->settings->api['apiKey'])) {
-            return false;
-        }
-
-        return true;
+        return !empty($this->settings->api['apiKey']);
     }
 
     protected function redirectToLoginPage()
