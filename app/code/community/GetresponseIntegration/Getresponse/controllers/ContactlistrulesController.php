@@ -21,6 +21,12 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
     public function indexAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $this->_title($this->__('Campaign rules'))->_title($this->__('GetResponse'));
 
         $this->settings->campaign_days = Mage::helper('getresponse/api')->getCampaignDays();
@@ -47,6 +53,12 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
     public function addAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $this->_title($this->__('New Rule'))->_title($this->__('GetResponse'));
 
         /** @var Mage_Core_Block_Abstract $autoresponderBlock */
@@ -78,6 +90,12 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
     public function editAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $this->_title($this->__('New Rule'))->_title($this->__('GetResponse'));
 
         $id = $this->getRequest()->getParam('id');
@@ -128,6 +146,11 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
     {
         $this->_initAction();
 
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $params = $this->getRequest()->getParams();
 
         $isAutoresponderOn = $this->getRequest()->getParam('gr_autoresponder', 0);
@@ -169,6 +192,11 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
     public function updateAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
 
         $id = $this->getRequest()->getParam('id');
 
@@ -223,6 +251,11 @@ class GetresponseIntegration_Getresponse_ContactlistrulesController extends Getr
      */
     public function deleteAction()
     {
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $id = $this->getRequest()->getParam('id');
         if (empty($id)) {
             $this->_getSession()->addError('Rule not found');

@@ -23,6 +23,12 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
     public function indexAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $this->_title($this->__('Export customers'))
             ->_title($this->__('GetResponse'));
 
@@ -63,6 +69,11 @@ class GetresponseIntegration_Getresponse_ExportController extends GetresponseInt
     public function runAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
 
         $campaign_id = $this->getRequest()->getParam('campaign_id');
 

@@ -10,7 +10,7 @@ class GetresponseIntegration_Getresponse_Domain_SettingsFactory
      * @param array $data
      * @return GetresponseIntegration_Getresponse_Domain_Settings
      */
-    public static function createFromArray($data = [])
+    public static function createFromArray($data)
     {
         return new Settings(
             isset($data['apiKey']) ? $data['apiKey'] : '',

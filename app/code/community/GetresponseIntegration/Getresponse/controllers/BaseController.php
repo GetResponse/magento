@@ -1,4 +1,5 @@
 <?php
+
 use GetresponseIntegration_Getresponse_Domain_AccountRepository as AccountRepository;
 use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
 use GetresponseIntegration_Getresponse_Domain_WebformRepository as WebformRepository;
@@ -32,25 +33,31 @@ class GetresponseIntegration_Getresponse_BaseController extends Mage_Adminhtml_C
         return true;
     }
 
-    /**
-     * @return $this
-     */
     protected function _initAction()
     {
         $this->settingsHandler();
         $this->loadLayout();
+    }
 
-        if (empty($this->settings->api['apiKey'])) {
-
-            if ('account' !== $this->getRequest()->getControllerName() || 'index' !== $this->getRequest()
-                    ->getActionName()) {
-                $this->_getSession()->addError('Access denied - module is not connected to GetResponse Account');
-                $this->getResponse()->setRedirect($this->getUrl('getresponse/account/index'))->sendResponse();
-                exit;
-            }
+    /**
+     * @return bool
+     */
+    protected function isConnectedToGetResponse()
+    {
+        if (empty($this->settings->api['apiKey'])
+            && 'account' === $this->getRequest()->getControllerName()
+            && 'index' === $this->getRequest()->getActionName()
+        ) {
+            return true;
         }
 
-        return $this;
+        return false;
+    }
+
+    protected function redirectToLoginPage()
+    {
+        $this->_getSession()->addError('Access denied - module is not connected to GetResponse Account');
+        $this->getResponse()->setRedirect($this->getUrl('getresponse/account/index'))->sendResponse();
     }
 
     /**
