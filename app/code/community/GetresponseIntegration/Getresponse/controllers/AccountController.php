@@ -19,7 +19,7 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
         $this->_initAction();
         $this->_title($this->__('API Key settings'))->_title($this->__('GetResponse'));
 
-        if ((!empty($this->settings->api['apiKey']))) {
+        if ($this->isConnectedToGetResponse()) {
             $this->displayAccountDataPage();
         } else {
             $this->displayConnectPage();
