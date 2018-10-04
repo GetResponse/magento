@@ -30,6 +30,12 @@ class GetresponseIntegration_Getresponse_WebformController extends GetresponseIn
     public function indexAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $this->_title($this->__('Subscription via a form'))->_title($this->__('GetResponse'));
 
         $this->settings->layout_positions = $this->layout_positions;
@@ -61,6 +67,11 @@ class GetresponseIntegration_Getresponse_WebformController extends GetresponseIn
     public function saveAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
 
         $isEnabled = $this->getRequest()->getParam('active_subscription', 0);
         $params = $this->getRequest()->getParams();

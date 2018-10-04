@@ -2,7 +2,7 @@
 <config>
     <modules>
         <GetresponseIntegration_Getresponse>
-            <version>19.1.12</version>
+            <version>19.1.13</version>
         </GetresponseIntegration_Getresponse>
     </modules>
     <crontab>

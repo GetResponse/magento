@@ -1,5 +1,11 @@
 # Changelog
 
+## 19.1.13
+*(2018-10-04)*
+
+#### Refactoring
+* redirect to account page when user is not connected to GetResponse
+
 ## 19.1.12
 *(2018-04-25)*
 

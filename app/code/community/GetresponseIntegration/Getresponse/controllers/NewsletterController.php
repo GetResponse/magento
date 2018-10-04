@@ -17,6 +17,12 @@ class GetresponseIntegration_Getresponse_NewsletterController
     public function indexAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $this->_title($this->__('Subscription via newsletter'))->_title(
             $this->__('GetResponse')
         );
@@ -56,6 +62,11 @@ class GetresponseIntegration_Getresponse_NewsletterController
     public function saveAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
 
         $isEnabled = (int)$this->getRequest()->getParam(
             'newsletter_subscription', 0
