@@ -18,6 +18,12 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
     public function indexAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $this->_title($this->__('Subscription via registration page'))->_title($this->__('GetResponse'));
 
         try {
@@ -55,6 +61,12 @@ class GetresponseIntegration_Getresponse_SubscriptionController extends Getrespo
     public function saveAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $campaignId = $this->getRequest()->getParam('campaign_id', 0);
         $activeSubscription = $this->getRequest()->getParam('active_subscription', 0);
         $syncOrderData = $this->getRequest()->getParam('gr_sync_order_data', 0);

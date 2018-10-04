@@ -17,6 +17,12 @@ class GetresponseIntegration_Getresponse_EcommerceController
     public function indexAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $this->_title($this->__('Shop'))->_title($this->__('GetResponse'));
         $shopRepository = new ShopRepository($this->currentShopId);
         $ecommerceSettings = $shopRepository->getShop()->toArray();
@@ -60,6 +66,11 @@ class GetresponseIntegration_Getresponse_EcommerceController
      */
     public function saveAction()
     {
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $isEnabled = (int)$this->getRequest()->getParam('shop_enabled', 0);
         $shopId = $this->getRequest()->getParam('shop_id');
         $isScheduleOptimizationEnabled = $this->getRequest()->getParam(
@@ -98,6 +109,11 @@ class GetresponseIntegration_Getresponse_EcommerceController
      */
     public function add_shopAction()
     {
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $this->_initAction();
         $shopName = $this->getRequest()->getParam('name');
 
@@ -139,6 +155,11 @@ class GetresponseIntegration_Getresponse_EcommerceController
      */
     public function delete_shopAction()
     {
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $this->_initAction();
 
         if (false === $this->api->deleteShop(
