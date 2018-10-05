@@ -4,16 +4,6 @@
   "license": "OSL-3.0",
   "version": "1.0.0",
   "type": "metapackage",
-  "repositories": {
-    "getresponse-shared-code": {
-      "type": "vcs",
-      "url": "https://github.com/GetResponse/share-code-plugin.git"
-    },
-    "getresponse-magento-plugin": {
-      "type": "vcs",
-      "url": "https://github.com/GetResponse/magento.git"
-    }
-  },
   "require": {
     "getresponse/magento2-module": "^20.3.0",
     "getresponse/share-code-plugin": "^3.0.3"
