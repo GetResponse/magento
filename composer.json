@@ -1,18 +1,14 @@
 {
-    "name": "getresponse/magento2-module",
+    "name": "getresponse/magento2",
     "description": "GetResponse Integration for Magento2",
-    "version": "20.3.0",
+    "version": "20.3.1",
     "license": "OSL-3.0",
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "type": "magento2-module",
     "repositories": [
         {
             "type": "composer",
             "url": "https://repo.magento.com/"
-        },
-        {
-            "type": "git",
-            "url": "https://github.com/GetResponse/share-code-plugin.git"
         }
     ],
     "require": {
