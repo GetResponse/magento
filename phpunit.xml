@@ -22,7 +22,12 @@
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">./</directory>
             <exclude>
+                <directory suffix=".php">./etc</directory>
+                <directory suffix=".php">./Logger</directory>
+                <directory suffix=".php">./Model</directory>
+                <directory suffix=".php">./Setup</directory>
                 <directory suffix=".php">./Test</directory>
+                <directory suffix=".php">./view</directory>
             </exclude>
         </whitelist>
     </filter>

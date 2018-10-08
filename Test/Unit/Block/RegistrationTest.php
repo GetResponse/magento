@@ -96,12 +96,14 @@ class RegistrationTest extends BaseTestCase
         $name = 'testName';
         $subject = 'testSubject';
         $dayOfCycle = 5;
+        $autoresponderId = 'x3';
 
         $triggerSettings = new \stdClass();
         $triggerSettings->selectedCampaigns = [$campaignId];
         $triggerSettings->dayOfCycle = $dayOfCycle;
 
         $rawAutoresponder = new \stdClass();
+        $rawAutoresponder->autoresponderId = $autoresponderId;
         $rawAutoresponder->triggerSettings = $triggerSettings;
         $rawAutoresponder->name = $name;
         $rawAutoresponder->subject = $subject;
@@ -115,9 +117,9 @@ class RegistrationTest extends BaseTestCase
         self::assertTrue(is_array($autoresponders));
 
         if (count($autoresponders) > 0) {
-            self::assertEquals($name, $autoresponders[$campaignId][$dayOfCycle]['name']);
-            self::assertEquals($subject, $autoresponders[$campaignId][$dayOfCycle]['subject']);
-            self::assertEquals($dayOfCycle, $autoresponders[$campaignId][$dayOfCycle]['dayOfCycle']);
+            self::assertEquals($name, $autoresponders[$campaignId][$autoresponderId]['name']);
+            self::assertEquals($subject, $autoresponders[$campaignId][$autoresponderId]['subject']);
+            self::assertEquals($dayOfCycle, $autoresponders[$campaignId][$autoresponderId]['dayOfCycle']);
         }
     }
 
@@ -130,12 +132,14 @@ class RegistrationTest extends BaseTestCase
         $name = 'testName';
         $subject = 'testSubject';
         $dayOfCycle = 5;
+        $autoresponderId = 'x3w';
 
         $triggerSettings = new \stdClass();
         $triggerSettings->selectedCampaigns = [$campaignId];
         $triggerSettings->dayOfCycle = $dayOfCycle;
 
         $rawAutoresponder = new \stdClass();
+        $rawAutoresponder->autoresponderId = $autoresponderId;
         $rawAutoresponder->triggerSettings = $triggerSettings;
         $rawAutoresponder->name = $name;
         $rawAutoresponder->subject = $subject;
@@ -150,9 +154,9 @@ class RegistrationTest extends BaseTestCase
         self::assertTrue(is_array($autoresponders));
 
         if (count($autoresponders) > 0) {
-            self::assertEquals($name, $autoresponders[$campaignId][0]['name']);
-            self::assertEquals($subject, $autoresponders[$campaignId][0]['subject']);
-            self::assertEquals($dayOfCycle, $autoresponders[$campaignId][0]['dayOfCycle']);
+            self::assertEquals($name, $autoresponders[$campaignId][$autoresponderId]['name']);
+            self::assertEquals($subject, $autoresponders[$campaignId][$autoresponderId]['subject']);
+            self::assertEquals($dayOfCycle, $autoresponders[$campaignId][$autoresponderId]['dayOfCycle']);
         }
     }
 
@@ -177,14 +181,15 @@ class RegistrationTest extends BaseTestCase
     public function shouldReturnRegistrationsSettingsProvider()
     {
         return [
-            [[], new RegistrationSettings(0, 0, '', 0)],
+            [[], new RegistrationSettings(0, 0, '', 0, '')],
             [
                 [
                     'status' => 1,
                     'customFieldsStatus' => 0,
                     'campaignId' => '1v4',
-                    'cycleDay' => 6
-                ], new RegistrationSettings(1, 0, '1v4', 6)
+                    'cycleDay' => 6,
+                    'autoresponderId' => 'x3'
+                ], new RegistrationSettings(1, 0, '1v4', 6, 'x3')
             ]
         ];
     }
