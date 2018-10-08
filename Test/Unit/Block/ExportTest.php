@@ -79,8 +79,8 @@ class ExportTest extends BaseTestCase
                     'customFieldsStatus' => 0,
                     'campaignId' => '1v4',
                     'cycleDay' => 6,
-                    'autoresponderId' => ''
-                ], new RegistrationSettings(1, 0, '1v4', 6, '')
+                    'autoresponderId' => 'x3'
+                ], new RegistrationSettings(1, 0, '1v4', 6, 'x3')
             ]
         ];
     }

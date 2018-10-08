@@ -67,15 +67,15 @@ class EcommerceTest extends BaseTestCase
     public function shouldReturnValidRegistrationSettingsProvider()
     {
         return [
-            [[], new RegistrationSettings(0, 0, '', 0, '')],
+            [[], new RegistrationSettings(0, 0, '', 0, 'x3')],
             [
                 [
                     'status' => '1',
                     'customFieldsStatus' => '1',
                     'campaignId' => 9,
                     'cycleDay' => 2,
-                    'autoresponderId' => ''
-                ], new RegistrationSettings(1, 1, '9', 2, '')
+                    'autoresponderId' => 'x3'
+                ], new RegistrationSettings(1, 1, '9', 2, 'x3')
             ]
         ];
     }

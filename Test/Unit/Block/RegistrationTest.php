@@ -98,21 +98,18 @@ class RegistrationTest extends BaseTestCase
         $name = 'testName';
         $subject = 'testSubject';
         $dayOfCycle = 5;
-        $responderId = 'q31';
+        $autoresponderId = 'x3';
 
         $triggerSettings = [
             'selectedCampaigns' => [$campaignId],
             'dayOfCycle' => $dayOfCycle
         ];
 
-        $rawAutoResponder = [
-            'autoresponderId' => $responderId,
-            'campaignId' => $campaignId,
-            'status' => 'enabled',
-            'triggerSettings' => $triggerSettings,
-            'name' => $name,
-            'subject' => $subject
-        ];
+        $rawAutoresponder = new \stdClass();
+        $rawAutoresponder->autoresponderId = $autoresponderId;
+        $rawAutoresponder->triggerSettings = $triggerSettings;
+        $rawAutoresponder->name = $name;
+        $rawAutoresponder->subject = $subject;
 
         $rawAutoResponders = [
             $responderId => $rawAutoResponder
@@ -122,11 +119,10 @@ class RegistrationTest extends BaseTestCase
 
         $autoResponders = $this->registrationBlock->getAutoResponders();
 
-        self::assertTrue(is_array($autoResponders));
-
-        if (count($autoResponders) > 0) {
-            self::assertEquals($name, $autoResponders[$campaignId][$responderId]['name']);
-            self::assertEquals($subject, $autoResponders[$campaignId][$responderId]['subject']);
+        if (count($autoresponders) > 0) {
+            self::assertEquals($name, $autoresponders[$campaignId][$autoresponderId]['name']);
+            self::assertEquals($subject, $autoresponders[$campaignId][$autoresponderId]['subject']);
+            self::assertEquals($dayOfCycle, $autoresponders[$campaignId][$autoresponderId]['dayOfCycle']);
         }
     }
 
@@ -139,21 +135,18 @@ class RegistrationTest extends BaseTestCase
         $name = 'testName';
         $subject = 'testSubject';
         $dayOfCycle = 5;
-        $responderId = 'q31';
+        $autoresponderId = 'x3w';
 
         $triggerSettings = [
             'selectedCampaigns' => [$campaignId],
             'dayOfCycle' => $dayOfCycle
         ];
 
-        $rawAutoResponder = [
-            'autoresponderId' => $responderId,
-            'campaignId' => $campaignId,
-            'status' => 'enabled',
-            'triggerSettings' => $triggerSettings,
-            'name' => $name,
-            'subject' => $subject
-        ];
+        $rawAutoresponder = new \stdClass();
+        $rawAutoresponder->autoresponderId = $autoresponderId;
+        $rawAutoresponder->triggerSettings = $triggerSettings;
+        $rawAutoresponder->name = $name;
+        $rawAutoresponder->subject = $subject;
 
         $rawAutoResponders = [
             $responderId => $rawAutoResponder
@@ -165,10 +158,10 @@ class RegistrationTest extends BaseTestCase
 
         self::assertTrue(is_array($autoResponders));
 
-        if (count($autoResponders) > 0) {
-            self::assertEquals($name, $autoResponders[$campaignId][$responderId]['name']);
-            self::assertEquals($subject, $autoResponders[$campaignId][$responderId]['subject']);
-            self::assertEquals($dayOfCycle, $autoResponders[$campaignId][$responderId]['dayOfCycle']);
+        if (count($autoresponders) > 0) {
+            self::assertEquals($name, $autoresponders[$campaignId][$autoresponderId]['name']);
+            self::assertEquals($subject, $autoresponders[$campaignId][$autoresponderId]['subject']);
+            self::assertEquals($dayOfCycle, $autoresponders[$campaignId][$autoresponderId]['dayOfCycle']);
         }
     }
 
@@ -200,9 +193,8 @@ class RegistrationTest extends BaseTestCase
                     'customFieldsStatus' => 0,
                     'campaignId' => '1v4',
                     'cycleDay' => 6,
-                    'autoresponderId' => 'xyZ'
-                ],
-                new RegistrationSettings(1, 0, '1v4', 6, 'xyZ')
+                    'autoresponderId' => 'x3'
+                ], new RegistrationSettings(1, 0, '1v4', 6, 'x3')
             ]
         ];
     }
