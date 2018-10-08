@@ -1,13 +1,12 @@
 <?php
+
 namespace Domain\GetResponse\Order;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderServiceFactory;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Order\AddOrderCommand;
-use GrShareCode\Order\Order;
 use GrShareCode\Order\OrderService as GrOrderService;
-use GrShareCode\Order\Order as GrOrder;
 
 /**
  * Class OrderServiceTest
@@ -16,36 +15,43 @@ use GrShareCode\Order\Order as GrOrder;
 class OrderServiceTest extends BaseTestCase
 {
     /** @var GrOrderService|\PHPUnit_Framework_MockObject_MockObject */
-    private $grOrderService;
+    private $grOrderServiceMock;
 
-    /** @var ProductFactory|\PHPUnit_Framework_MockObject_MockObject */
-    private $productFactory;
-
-    /** @var AddressFactory|\PHPUnit_Framework_MockObject_MockObject */
-    private $addressFactory;
-
-    /** @var Order|\PHPUnit_Framework_MockObject_MockObject */
-    private $order;
+    /** @var OrderServiceFactory|\PHPUnit_Framework_MockObject_MockObject */
+    private $orderServiceFactoryMock;
 
     public function setUp()
     {
-        $this->grOrderService = $this->getMockWithoutConstructing(GrOrderService::class);
-        $this->order = $this->getMockWithoutConstructing(\Magento\Sales\Model\Order::class);
+        $this->grOrderServiceMock = $this->getMockWithoutConstructing(GrOrderService::class);
+        $this->orderServiceFactoryMock = $this->getMockWithoutConstructing(OrderServiceFactory::class);
     }
 
     /**
      * @test
      */
-    public function sendOrderTest()
+    public function shouldSendOrderTest()
     {
-        $email = 'test@test.com';
-        $contactListId = 'Xdk3';
-        $grShopId = 'e93D';
-        $grOrder = new GrOrder();
+        $this->orderServiceFactoryMock->expects($this->once())->method('create')->willReturn($this->grOrderServiceMock);
 
-        $addOrderCommand = new AddOrderCommand($grOrder, $email, $contactListId, $grShopId);
-        $this->grOrderService->expects($this->once())->method('sendOrder')->with($addOrderCommand);
+        /** @var AddOrderCommand|\PHPUnit_Framework_MockObject_MockObject $addOrderCommand */
+        $addOrderCommand = $this->getMockWithoutConstructing(AddOrderCommand::class);
 
-        $orderService = new OrderService();
+        $orderService = new OrderService($this->orderServiceFactoryMock);
+        $orderService->sendOrder($addOrderCommand);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldExportOrderTest()
+    {
+        $this->orderServiceFactoryMock->expects($this->once())->method('create')->willReturn($this->grOrderServiceMock);
+
+        /** @var AddOrderCommand|\PHPUnit_Framework_MockObject_MockObject $addOrderCommand */
+        $addOrderCommand = $this->getMockWithoutConstructing(AddOrderCommand::class);
+        $addOrderCommand->expects($this->once())->method('setToSkipAutomation');
+
+        $orderService = new OrderService($this->orderServiceFactoryMock);
+        $orderService->exportOrder($addOrderCommand);
     }
 }

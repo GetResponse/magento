@@ -7,6 +7,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Cart\CartService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactoryException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\AddOrderCommandFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
@@ -58,6 +59,9 @@ class Process extends AbstractController
     /** @var OrderService */
     private $orderService;
 
+    /** @var AddOrderCommandFactory */
+    private $addOrderCommandFactory;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
@@ -66,6 +70,7 @@ class Process extends AbstractController
      * @param RepositoryValidator $repositoryValidator
      * @param CartService $cartService
      * @param OrderService $orderService
+     * @param AddOrderCommandFactory $addOrderCommandFactory
      */
     public function __construct(
         Context $context,
@@ -74,7 +79,8 @@ class Process extends AbstractController
         RepositoryFactory $repositoryFactory,
         RepositoryValidator $repositoryValidator,
         CartService $cartService,
-        OrderService $orderService
+        OrderService $orderService,
+        AddOrderCommandFactory $addOrderCommandFactory
     ) {
         parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
@@ -82,6 +88,7 @@ class Process extends AbstractController
         $this->repository = $repository;
         $this->cartService = $cartService;
         $this->orderService = $orderService;
+        $this->addOrderCommandFactory = $addOrderCommandFactory;
 
         return $this->checkGetResponseConnection();
     }
@@ -120,8 +127,8 @@ class Process extends AbstractController
             $this->stats['count']++;
             $custom_fields = [];
             foreach ($customs as $field => $name) {
-                if (!empty($customer[$field])) {
-                    $custom_fields[$name] = $customer[$field];
+                if (!empty($subscriber[$field])) {
+                    $custom_fields[$name] = $subscriber[$field];
                 }
             }
 
@@ -152,7 +159,11 @@ class Process extends AbstractController
             foreach ($this->repository->getOrderByCustomerId($subscriber->getCustomerId()) as $order) {
                 $grShopId = $data['store_id'];
                 try {
-                    $this->orderService->exportOrder($order, $contactListId, $grShopId);
+                    $this->orderService->exportOrder(
+                        $this->addOrderCommandFactory->createForOrderService(
+                            $order, $contactListId, $grShopId
+                        )
+                    );
                 } catch (\Exception $e) {
                     $this->handleException($e);
                 }

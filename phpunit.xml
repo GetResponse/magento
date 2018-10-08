@@ -19,17 +19,14 @@
 
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./Block</directory>
-            <directory suffix=".php">./Controller</directory>
-            <directory suffix=".php">./Domain</directory>
-            <directory suffix=".php">./Observer</directory>
+            <directory suffix=".php">*</directory>
             <exclude>
-                <directory suffix=".php">./etc</directory>
-                <directory suffix=".php">./Logger</directory>
-                <directory suffix=".php">./Model</directory>
-                <directory suffix=".php">./Setup</directory>
-                <directory suffix=".php">./Test</directory>
-                <directory suffix=".php">./view</directory>
+                <directory suffix=".php">etc</directory>
+                <directory suffix=".php">Logger</directory>
+                <directory suffix=".php">Model</directory>
+                <directory suffix=".php">Setup</directory>
+                <directory suffix=".php">Test</directory>
+                <directory suffix=".php">view</directory>
             </exclude>
         </whitelist>
     </filter>

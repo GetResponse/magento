@@ -79,14 +79,6 @@ class Save extends AbstractController
                 if ($updateCustomFields) {
                     $customs = CustomFieldFactory::createFromArray($data);
 
-                    foreach ($customs as $field => $name) {
-                        if (false == preg_match('/^[_a-zA-Z0-9]{2,32}$/m', $name)) {
-                            $this->messageManager->addErrorMessage(sprintf(Message::INVALID_CUSTOM_FIELD_VALUE, $name));
-
-                            return $resultRedirect;
-                        }
-                    }
-
                     $customs = CustomFieldsCollectionFactory::createFromUserPayload(
                         $customs,
                         $this->repository->getCustoms()

@@ -98,31 +98,33 @@ class RegistrationTest extends BaseTestCase
         $name = 'testName';
         $subject = 'testSubject';
         $dayOfCycle = 5;
-        $autoresponderId = 'x3';
+        $autoResponderId = 'x3';
+        $status = 'enabled';
 
         $triggerSettings = [
             'selectedCampaigns' => [$campaignId],
             'dayOfCycle' => $dayOfCycle
         ];
 
-        $rawAutoresponder = new \stdClass();
-        $rawAutoresponder->autoresponderId = $autoresponderId;
-        $rawAutoresponder->triggerSettings = $triggerSettings;
-        $rawAutoresponder->name = $name;
-        $rawAutoresponder->subject = $subject;
-
         $rawAutoResponders = [
-            $responderId => $rawAutoResponder
+            [
+                'autoresponderId' => $autoResponderId,
+                'triggerSettings' => $triggerSettings,
+                'name' => $name,
+                'subject' => $subject,
+                'campaignId' => $campaignId,
+                'status' => $status
+            ]
         ];
 
         $this->grApiClient->expects($this->once())->method('getAutoresponders')->willReturn($rawAutoResponders);
 
         $autoResponders = $this->registrationBlock->getAutoResponders();
 
-        if (count($autoresponders) > 0) {
-            self::assertEquals($name, $autoresponders[$campaignId][$autoresponderId]['name']);
-            self::assertEquals($subject, $autoresponders[$campaignId][$autoresponderId]['subject']);
-            self::assertEquals($dayOfCycle, $autoresponders[$campaignId][$autoresponderId]['dayOfCycle']);
+        if (count($autoResponders) > 0) {
+            self::assertEquals($name, $autoResponders[$campaignId][$autoResponderId]['name']);
+            self::assertEquals($subject, $autoResponders[$campaignId][$autoResponderId]['subject']);
+            self::assertEquals($dayOfCycle, $autoResponders[$campaignId][$autoResponderId]['dayOfCycle']);
         }
     }
 
@@ -135,21 +137,23 @@ class RegistrationTest extends BaseTestCase
         $name = 'testName';
         $subject = 'testSubject';
         $dayOfCycle = 5;
-        $autoresponderId = 'x3w';
+        $autoResponderId = 'x3w';
+        $status = 'enabled';
 
         $triggerSettings = [
             'selectedCampaigns' => [$campaignId],
             'dayOfCycle' => $dayOfCycle
         ];
 
-        $rawAutoresponder = new \stdClass();
-        $rawAutoresponder->autoresponderId = $autoresponderId;
-        $rawAutoresponder->triggerSettings = $triggerSettings;
-        $rawAutoresponder->name = $name;
-        $rawAutoresponder->subject = $subject;
-
         $rawAutoResponders = [
-            $responderId => $rawAutoResponder
+            [
+                'autoresponderId' => $autoResponderId,
+                'triggerSettings' => $triggerSettings,
+                'name' => $name,
+                'subject' => $subject,
+                'campaignId' => $campaignId,
+                'status' => $status
+            ]
         ];
 
         $this->grApiClient->expects($this->once())->method('getAutoresponders')->willReturn($rawAutoResponders);
@@ -158,10 +162,10 @@ class RegistrationTest extends BaseTestCase
 
         self::assertTrue(is_array($autoResponders));
 
-        if (count($autoresponders) > 0) {
-            self::assertEquals($name, $autoresponders[$campaignId][$autoresponderId]['name']);
-            self::assertEquals($subject, $autoresponders[$campaignId][$autoresponderId]['subject']);
-            self::assertEquals($dayOfCycle, $autoresponders[$campaignId][$autoresponderId]['dayOfCycle']);
+        if (count($autoResponders) > 0) {
+            self::assertEquals($name, $autoResponders[$campaignId][$autoResponderId]['name']);
+            self::assertEquals($subject, $autoResponders[$campaignId][$autoResponderId]['subject']);
+            self::assertEquals($dayOfCycle, $autoResponders[$campaignId][$autoResponderId]['dayOfCycle']);
         }
     }
 

@@ -3,6 +3,7 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\AddOrderCommandFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
@@ -31,6 +32,9 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
     /** @var Logger */
     private $logger;
 
+    /** @var AddOrderCommandFactory */
+    private $addOrderCommandFactory;
+
     /**
      * @param ObjectManagerInterface $objectManager
      * @param Session $customerSession
@@ -39,6 +43,7 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
      * @param OrderService $orderService
      * @param ContactService $contactService
      * @param Logger $getResponseLogger
+     * @param AddOrderCommandFactory $addOrderCommandFactory
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
@@ -47,12 +52,14 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
         Repository $repository,
         OrderService $orderService,
         ContactService $contactService,
-        Logger $getResponseLogger
+        Logger $getResponseLogger,
+        AddOrderCommandFactory $addOrderCommandFactory
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->orderService = $orderService;
         $this->magentoRepository = $repository;
         $this->logger = $getResponseLogger;
+        $this->addOrderCommandFactory = $addOrderCommandFactory;
 
         parent::__construct(
             $objectManager,
@@ -76,9 +83,11 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
             }
 
             $this->orderService->sendOrder(
-                $observer->getEvent()->getOrder(),
-                $this->scopeConfig->getValue(Config::CONFIG_DATA_ECOMMERCE_LIST_ID),
-                $shopId
+                $this->addOrderCommandFactory->createForOrderService(
+                    $observer->getEvent()->getOrder(),
+                    $this->scopeConfig->getValue(Config::CONFIG_DATA_ECOMMERCE_LIST_ID),
+                    $shopId
+                )
             );
 
         } catch (Exception $e) {
