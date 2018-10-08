@@ -16,7 +16,7 @@ $settings = $block->getRegistrationSettings();
 $campaigns = $block->getCampaigns();
 ?>
 
-<form method="post" action="<?php echo $block->getUrl('getresponse/ecommerce/saveshop'); ?>">
+<form method="post" action="<?php echo $block->getUrl('getresponse/ecommerce/save'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
 
     <div class="page-main-actions">
@@ -45,7 +45,7 @@ $campaigns = $block->getCampaigns();
                         <label class="label admin__field-label" for="e_commerce_status"></label>
                         <div class="admin__field-control control">
                             <div class="admin__field admin__field-option e_commerce_status__field">
-                                <input id="e_commerce_status" name="e_commerce_status"
+                                <input id="e_commerce_status" name="ecommerce_status"
                                        class="admin__control-checkbox" type="checkbox" value="1"
                                     <?php if ('enabled' === $shopStatus): ?> checked="checked" <?php endif ?>
                                 />
@@ -86,7 +86,7 @@ $campaigns = $block->getCampaigns();
                             <div class="admin__field">
                                 <select name="list_id" id="list_id" class="select admin__control-select"
                                         aria-required="true">
-                                    <option value="">Select a store</option>
+                                    <option value="">Select a list</option>
                                     <?php
                                     /** @var ContactList $campaign */
                                     foreach ($campaigns as $campaign): ?>

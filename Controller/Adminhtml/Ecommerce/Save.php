@@ -3,7 +3,9 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
+use GetResponse\GetResponseIntegration\Domain\Magento\EcommerceSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\ValidationException;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Cache\TypeListInterface;
@@ -12,10 +14,10 @@ use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\App\Request\Http;
 
 /**
- * Class SaveShop
+ * Class Save
  * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce
  */
-class SaveShop extends AbstractController
+class Save extends AbstractController
 {
     const BACK_URL = 'getresponse/ecommerce/index';
 
@@ -52,29 +54,20 @@ class SaveShop extends AbstractController
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::BACK_URL);
 
-        /** @var Http $request */
-        $request = $this->getRequest();
-        $data = $request->getPostValue();
+        try {
+            /** @var Http $request */
+            $request = $this->getRequest();
+            $settings = EcommerceSettingsFactory::createFromPost($request->getPostValue());
 
-        if (isset($data['e_commerce_status']) && '1' === $data['e_commerce_status']) {
-            if (empty($data['shop_id'])) {
-                $this->messageManager->addErrorMessage(Message::STORE_CHOOSE);
-                return $resultRedirect;
-            }
+            $this->repository->saveShopStatus($settings->getStatus());
+            $this->repository->saveShopId($settings->getStoreId());
+            $this->repository->saveEcommerceListId($settings->getListId());
 
-            $status = (isset($data['e_commerce_status']) && '1' === $data['e_commerce_status']) ? 'enabled' : 'disabled';
-
-            $this->repository->saveShopStatus($status);
-            $this->repository->saveShopId($data['shop_id']);
-            $this->repository->saveEcommerceListId($data['list_id']);
-        } else {
-            $this->repository->saveShopStatus('disabled');
-            $this->repository->saveShopId(null);
-            $this->repository->saveEcommerceListId(null);
+            $this->cache->cleanType('config');
+            $this->messageManager->addSuccessMessage(Message::ECOMMERCE_SAVED);
+        } catch (ValidationException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
         }
-
-        $this->cache->cleanType('config');
-        $this->messageManager->addSuccessMessage(Message::ECOMMERCE_SAVED);
 
         return $resultRedirect;
     }
