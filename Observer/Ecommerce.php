@@ -2,9 +2,9 @@
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
-use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GrShareCode\Api\ApiTypeException;
 use GrShareCode\Contact\Contact;
 use GrShareCode\Contact\ContactNotFoundException;
 use GrShareCode\GetresponseApiException;
@@ -55,6 +55,7 @@ class Ecommerce
     /**
      * @return bool
      * @throws GetresponseApiException
+     * @throws ApiTypeException
      */
     protected function canHandleECommerceEvent()
     {
@@ -68,15 +69,13 @@ class Ecommerce
     /**
      * @return null|Contact
      * @throws GetresponseApiException
+     * @throws ApiTypeException
      */
     private function getContactFromGetResponse()
     {
         $cache = $this->objectManager->get(CacheInterface::class);
 
-        $settings = RegistrationSettingsFactory::createFromArray(
-            $this->repository->getRegistrationSettings()
-        );
-        $contactListId = $settings->getCampaignId();
+        $contactListId = $this->repository->getEcommerceListId();
         $contactEmail = $this->customerSession->getCustomer()->getEmail();
 
         $cacheKey = md5($contactEmail . $contactListId);
@@ -89,7 +88,7 @@ class Ecommerce
         try {
             $contact = $this->contactService->getContactByEmail($contactEmail, $contactListId);
         } catch (ContactNotFoundException $e) {
-            $contact = null;
+            return null;
         }
 
         $cache->save(serialize($contact), $cacheKey, [Config::CACHE_KEY], Config::CACHE_TIME);

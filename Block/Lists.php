@@ -3,10 +3,12 @@ namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use Magento\Framework\ObjectManagerInterface;
+use GrShareCode\Api\ApiTypeException;
+use GrShareCode\ContactList\ContactListService;
+use GrShareCode\ContactList\FromFieldsCollection;
+use GrShareCode\GetresponseApiException;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use Magento\Framework\View\Element\Template;
 
 /**
@@ -18,60 +20,66 @@ class Lists extends Template
     /** @var Repository */
     private $repository;
 
-    /** @var GrRepository */
-    private $grRepository;
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /**
      * @param Context $context
-     * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
-     * @throws RepositoryException
      */
     public function __construct(
         Context $context,
-        ObjectManagerInterface $objectManager,
         Repository $repository,
         RepositoryFactory $repositoryFactory
     ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->createRepository();
+        $this->repositoryFactory = $repositoryFactory;
     }
 
     /**
-     * @return mixed
+     * @return FromFieldsCollection
+     * @throws GetresponseApiException
+     * @throws RepositoryException
+     * @throws ApiTypeException
      */
     public function getAccountFromFields()
     {
-        return $this->grRepository->getAccountFromFields();
+        $service = new ContactListService($this->repositoryFactory->createGetResponseApiClient());
+        return $service->getFromFields();
     }
 
     /**
-     * @return mixed
+     * @return array
+     * @throws ApiTypeException
+     * @throws GetresponseApiException
+     * @throws RepositoryException
      */
     public function getSubscriptionConfirmationsSubject()
     {
         $countryCode = $this->repository->getMagentoCountryCode();
         $lang = substr($countryCode, 0, 2);
-
-        return $this->grRepository->getSubscriptionConfirmationsSubject($lang);
+        $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+        return $apiClient->getSubscriptionConfirmationSubject($lang);
     }
 
     /**
-     * @return mixed
+     * @return array
+     * @throws ApiTypeException
+     * @throws GetresponseApiException
+     * @throws RepositoryException
      */
     public function getSubscriptionConfirmationsBody()
     {
         $countryCode = $this->repository->getMagentoCountryCode();
         $lang = substr($countryCode, 0, 2);
-
-        return $this->grRepository->getSubscriptionConfirmationsBody($lang);
+        $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+        return $apiClient->getSubscriptionConfirmationBody($lang);
     }
 
     /**
      * @param string $backUrl
-     *
      * @return string
      */
     public function getBackUrl($backUrl = null)
@@ -85,7 +93,6 @@ class Lists extends Template
 
     /**
      * @param string $back
-     *
      * @return string
      */
     private function createBackUrl($back)
@@ -103,7 +110,6 @@ class Lists extends Template
                 return 'getresponse/newsletter/index';
                 break;
         }
-
         return '';
     }
 }

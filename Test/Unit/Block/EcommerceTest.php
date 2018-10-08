@@ -40,7 +40,7 @@ class EcommerceTest extends BaseTestCase
         $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
 
         $getresponseBlock = new Getresponse($this->repository, $this->repositoryFactory);
-        $this->accountBlock = new EcommerceBlock($this->context, $this->objectManager, $this->repository, $this->repositoryFactory, $getresponseBlock);
+        $this->accountBlock = new EcommerceBlock($this->context, $this->repository, $this->repositoryFactory, $getresponseBlock);
     }
 
     /**

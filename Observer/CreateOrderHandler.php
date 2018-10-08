@@ -86,15 +86,17 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
                 return;
             }
 
-            $contactListId = $this->magentoRepository->getRegistrationSettings()['campaignId'];
-
             /** @var Order $order */
             $order = $this->orderFactory->load(
                 $observer->getEvent()->getOrderIds()[0]
             );
 
 
-            $this->orderService->sendOrder($order, $contactListId, $shopId);
+            $this->orderService->sendOrder(
+                $order,
+                $this->scopeConfig->getValue(Config::CONFIG_DATA_ECOMMERCE_LIST_ID),
+                $shopId
+            );
 
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);

@@ -2,16 +2,13 @@
 
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Contact;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiTypeFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
 use GrShareCode\Api\ApiTypeException;
-use GrShareCode\Api\UserAgentHeader;
 use GrShareCode\Contact\ContactService as GrContactService;
-use GrShareCode\GetresponseApi;
-use GrShareCode\GetresponseApiClient;
 
 /**
  * Class ContactServiceFactory
@@ -27,6 +24,7 @@ class ContactServiceFactory
 
     /**
      * @param Repository $magentoRepository
+     * @param RepositoryForSharedCode $shareCodeRepository
      */
     public function __construct(Repository $magentoRepository, RepositoryForSharedCode $shareCodeRepository)
     {
@@ -40,28 +38,15 @@ class ContactServiceFactory
      */
     public function create()
     {
-        $connectionSettings = ConnectionSettingsFactory::createFromArray(
-            $this->magentoRepository->getConnectionSettings()
-        );
-
-        $pluginVersion = $this->magentoRepository->getGetResponsePluginVersion();
-
-        $apiType = ApiTypeFactory::createFromConnectionSettings($connectionSettings);
-
-        $getResponseApi = new GetresponseApiClient(
-            new GetresponseApi(
-                $connectionSettings->getApiKey(),
-                $apiType,
-                Config::X_APP_ID,
-                new UserAgentHeader(
-                    Config::SERVICE_NAME,
-                    Config::SERVICE_VERSION,
-                    $pluginVersion
-                )
-            ), $this->shareCodeRepository
+        $settings = ConnectionSettingsFactory::createFromArray($this->magentoRepository->getConnectionSettings());
+        $getResponseApi = GetresponseApiClientFactory::createFromParams(
+            $settings->getApiKey(),
+            ApiTypeFactory::createFromConnectionSettings($settings),
+            $settings->getDomain(),
+            $this->shareCodeRepository,
+            $this->magentoRepository->getGetResponsePluginVersion()
         );
 
         return new GrContactService($getResponseApi);
-
     }
 }

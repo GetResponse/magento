@@ -7,7 +7,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Logger\Logger;
-use GetResponse\GetResponseIntegration\Model\ProductMapFactory;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event\Observer as EventObserver;
@@ -76,9 +75,11 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
                 return;
             }
 
-            $contactListId = $this->magentoRepository->getRegistrationSettings()['campaignId'];
-
-            $this->orderService->sendOrder($observer->getEvent()->getOrder(), $contactListId, $shopId);
+            $this->orderService->sendOrder(
+                $observer->getEvent()->getOrder(),
+                $this->scopeConfig->getValue(Config::CONFIG_DATA_ECOMMERCE_LIST_ID),
+                $shopId
+            );
 
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);

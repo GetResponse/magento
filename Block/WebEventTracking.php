@@ -31,8 +31,6 @@ class WebEventTracking extends Template
      */
     public function getWebEventTracking()
     {
-        return WebEventTrackingSettingsFactory::createFromArray(
-            $this->repository->getWebEventTracking()
-        );
+        return WebEventTrackingSettingsFactory::createFromArray($this->repository->getWebEventTracking());
     }
 }

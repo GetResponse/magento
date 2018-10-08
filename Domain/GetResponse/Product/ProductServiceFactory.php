@@ -3,7 +3,7 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Product;
 
 use GrShareCode\DbRepositoryInterface;
 use GrShareCode\GetresponseApiClient;
-use GrShareCode\Product\ProductService as GrProductService;
+use GrShareCode\Product\ProductService;
 
 /**
  * Class ProductServiceFactory
@@ -28,11 +28,11 @@ class ProductServiceFactory
     }
 
     /**
-     * @return GrProductService
+     * @return ProductService
      */
     public function create()
     {
-        return new GrProductService(
+        return new ProductService(
             $this->getResponseApiClient,
             $this->repository
         );

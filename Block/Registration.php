@@ -5,11 +5,14 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
+use GrShareCode\Api\ApiTypeException;
+use GrShareCode\ContactList\ContactListCollection;
+use GrShareCode\ContactList\ContactListService;
+use GrShareCode\GetresponseApiException;
 use Magento\Framework\View\Element\Template;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use Magento\Framework\View\Element\Template\Context;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class Registration
@@ -23,9 +26,6 @@ class Registration extends Template
     /** @var RepositoryFactory */
     private $repositoryFactory;
 
-    /** @var GrRepository */
-    private $grRepository;
-
     /** @var Getresponse */
     private $getresponseBlock;
 
@@ -33,28 +33,29 @@ class Registration extends Template
      * @param Context $context
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
-     * @param Getresponse $getresponseBlock
-     * @throws RepositoryException
+     * @param Getresponse $getResponseBlock
      */
     public function __construct(
         Context $context,
         Repository $repository,
         RepositoryFactory $repositoryFactory,
-        Getresponse $getresponseBlock
+        Getresponse $getResponseBlock
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
-        $this->grRepository = $repositoryFactory->createRepository();
-        $this->getresponseBlock = $getresponseBlock;
+        $this->getresponseBlock = $getResponseBlock;
     }
 
     /**
-     * @return mixed
+     * @return ContactListCollection
+     * @throws ApiTypeException
+     * @throws RepositoryException
+     * @throws GetresponseApiException
      */
     public function getCampaigns()
     {
-        return $this->grRepository->getCampaigns(['sort' => ['name' => 'asc']]);
+        return (new ContactListService($this->repositoryFactory->createGetResponseApiClient()))->getAllContactLists();
     }
 
     /**
@@ -62,25 +63,23 @@ class Registration extends Template
      */
     public function getConnectionSettings()
     {
-        return ConnectionSettingsFactory::createFromArray(
-            $this->repository->getConnectionSettings()
-        );
+        return ConnectionSettingsFactory::createFromArray($this->repository->getConnectionSettings());
     }
 
     /**
      * @return array
      */
-    public function getAutoresponders()
+    public function getAutoResponders()
     {
-       return $this->getresponseBlock->getAutoresponders();
+       return $this->getresponseBlock->getAutoResponders();
     }
 
     /**
      * @return array
      */
-    public function getAutorespondersForFrontend()
+    public function getAutoRespondersForFrontend()
     {
-        return $this->getresponseBlock->getAutorespondersForFrontend();
+        return $this->getresponseBlock->getAutoRespondersForFrontend();
     }
 
     /**

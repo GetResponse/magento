@@ -1,4 +1,5 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Block;
 
 use GetResponse\GetResponseIntegration\Block\Getresponse;
@@ -10,11 +11,10 @@ use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
+use GrShareCode\GetresponseApiClient;
 use Magento\Framework\ObjectManagerInterface;
-use PHPUnit\Framework\TestCase;
 use Magento\Framework\View\Element\Template\Context;
 use PHPUnit_Framework_MockObject_MockObject;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 
 /**
@@ -35,8 +35,8 @@ class RegistrationTest extends BaseTestCase
     /** @var RegistrationBlock registrationBlock */
     private $registrationBlock;
 
-    /** @var GrRepository|PHPUnit_Framework_MockObject_MockObject */
-    private $grRepository;
+    /** @var GetresponseApiClient|PHPUnit_Framework_MockObject_MockObject */
+    private $grApiClient;
 
     /** @var ObjectManagerInterface|PHPUnit_Framework_MockObject_MockObject */
     private $objectManager;
@@ -47,11 +47,12 @@ class RegistrationTest extends BaseTestCase
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
         $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
         $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
-        $this->grRepository = $this->getMockWithoutConstructing(GrRepository::class);
-        $this->repositoryFactory->method('createRepository')->willReturn($this->grRepository);
+        $this->grApiClient = $this->getMockWithoutConstructing(GetresponseApiClient::class);
+        $this->repositoryFactory->method('createGetResponseApiClient')->willReturn($this->grApiClient);
 
         $getresponseBlock = new Getresponse($this->repository, $this->repositoryFactory);
-        $this->registrationBlock = new RegistrationBlock($this->context, $this->repository, $this->repositoryFactory, $getresponseBlock);
+        $this->registrationBlock = new RegistrationBlock($this->context, $this->repository, $this->repositoryFactory,
+            $getresponseBlock);
     }
 
     /**
@@ -82,7 +83,8 @@ class RegistrationTest extends BaseTestCase
                     'apiKey' => 'testApiKey',
                     'url' => 'testUrl',
                     'domain' => 'testDomain'
-                ], new ConnectionSettings('testApiKey', 'testUrl', 'testDomain')
+                ],
+                new ConnectionSettings('testApiKey', 'testUrl', 'testDomain')
             ],
         ];
     }
@@ -90,7 +92,7 @@ class RegistrationTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldReturnAutoresponders()
+    public function shouldReturnAutoResponders()
     {
         $campaignId = 'x3v';
         $name = 'testName';
@@ -98,9 +100,10 @@ class RegistrationTest extends BaseTestCase
         $dayOfCycle = 5;
         $autoresponderId = 'x3';
 
-        $triggerSettings = new \stdClass();
-        $triggerSettings->selectedCampaigns = [$campaignId];
-        $triggerSettings->dayOfCycle = $dayOfCycle;
+        $triggerSettings = [
+            'selectedCampaigns' => [$campaignId],
+            'dayOfCycle' => $dayOfCycle
+        ];
 
         $rawAutoresponder = new \stdClass();
         $rawAutoresponder->autoresponderId = $autoresponderId;
@@ -108,13 +111,13 @@ class RegistrationTest extends BaseTestCase
         $rawAutoresponder->name = $name;
         $rawAutoresponder->subject = $subject;
 
-        $rawAutoresponders = [
-            $rawAutoresponder
+        $rawAutoResponders = [
+            $responderId => $rawAutoResponder
         ];
-        $this->grRepository->expects($this->once())->method('getAutoresponders')->willReturn($rawAutoresponders);
 
-        $autoresponders = $this->registrationBlock->getAutoresponders();
-        self::assertTrue(is_array($autoresponders));
+        $this->grApiClient->expects($this->once())->method('getAutoresponders')->willReturn($rawAutoResponders);
+
+        $autoResponders = $this->registrationBlock->getAutoResponders();
 
         if (count($autoresponders) > 0) {
             self::assertEquals($name, $autoresponders[$campaignId][$autoresponderId]['name']);
@@ -126,7 +129,7 @@ class RegistrationTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldReturnAutorespondersForFrontend()
+    public function shouldReturnAutoRespondersForFrontend()
     {
         $campaignId = 'x3v';
         $name = 'testName';
@@ -134,9 +137,10 @@ class RegistrationTest extends BaseTestCase
         $dayOfCycle = 5;
         $autoresponderId = 'x3w';
 
-        $triggerSettings = new \stdClass();
-        $triggerSettings->selectedCampaigns = [$campaignId];
-        $triggerSettings->dayOfCycle = $dayOfCycle;
+        $triggerSettings = [
+            'selectedCampaigns' => [$campaignId],
+            'dayOfCycle' => $dayOfCycle
+        ];
 
         $rawAutoresponder = new \stdClass();
         $rawAutoresponder->autoresponderId = $autoresponderId;
@@ -144,14 +148,15 @@ class RegistrationTest extends BaseTestCase
         $rawAutoresponder->name = $name;
         $rawAutoresponder->subject = $subject;
 
-        $rawAutoresponders = [
-            $rawAutoresponder
+        $rawAutoResponders = [
+            $responderId => $rawAutoResponder
         ];
-        $this->grRepository->expects($this->once())->method('getAutoresponders')->willReturn($rawAutoresponders);
 
-        $autoresponders = $this->registrationBlock->getAutorespondersForFrontend();
+        $this->grApiClient->expects($this->once())->method('getAutoresponders')->willReturn($rawAutoResponders);
 
-        self::assertTrue(is_array($autoresponders));
+        $autoResponders = $this->registrationBlock->getAutoRespondersForFrontend();
+
+        self::assertTrue(is_array($autoResponders));
 
         if (count($autoresponders) > 0) {
             self::assertEquals($name, $autoresponders[$campaignId][$autoresponderId]['name']);
@@ -244,7 +249,7 @@ class RegistrationTest extends BaseTestCase
         $customField = new CustomField($id, $customField, $customValue, $customName, $isDefault, $isActive);
 
         return [
-            [[], new CustomField(0, '','','',0, 0)],
+            [[], new CustomField(0, '', '', '', 0, 0)],
             [
                 [$rawCustomField],
                 $customField

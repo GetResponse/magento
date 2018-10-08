@@ -1,10 +1,9 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Setup;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettings;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomField;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
 use Magento\Framework\App\Cache\Manager;
@@ -52,11 +51,11 @@ class UpgradeData implements UpgradeDataInterface
     ) {
         $setup->startSetup();
 
-        if (version_compare($context->getVersion(), '1', '>') && version_compare($context->getVersion(), '20.1.1', '<=')) {
+        if (version_compare($context->getVersion(), '1', '>') && version_compare($context->getVersion(), '20.1.1',
+                '<=')) {
             $this->ver2011updateConnectionSettings($setup);
             $this->ver2011updateRegistrationSettings($setup);
             $this->ver2011migrateAccountSettings($setup);
-            $this->ver2011migrateRulesSettings($setup);
             $this->ver2011migrateCustomFieldsSettings($setup);
             $this->ver2011migrateWebformSettings($setup);
             $this->ver2011migrateWebEventTrackingSettings($setup);
@@ -109,60 +108,25 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         foreach ($data as $row) {
-            $account = new Account(
-                $row['account_id'],
-                $row['first_name'],
-                $row['last_name'],
-                $row['email'],
-                $row['company_name'],
-                $row['phone'],
-                $row['state'],
-                $row['city'],
-                $row['street'],
-                $row['zip_code'],
-                $row['country_code']
-            );
+
+
+            $data = [
+                'firstName' => $row['first_name'],
+                'lastName' => $row['first_name'],
+                'email' => $row['email'],
+                'phone' => $row['phone'],
+                'companyName' => $row['company_name'],
+                'city' => $row['city'],
+                'street' => $row['street']
+            ];
 
             $this->configWriter->save(
                 Config::CONFIG_DATA_ACCOUNT,
-                json_encode($account->toArray()),
+                json_encode($data),
                 ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
                 Store::DEFAULT_STORE_ID
             );
         }
-    }
-
-    /**
-     * @param ModuleDataSetupInterface $setup
-     */
-    private function ver2011migrateRulesSettings(ModuleDataSetupInterface $setup)
-    {
-        $sql = "SELECT * FROM " . $setup->getTable('getresponse_automation');
-        $data = $setup->getConnection()->fetchAll($sql);
-
-        if (0 === count($data)) {
-            return;
-        }
-
-        $rules = [];
-        foreach ($data as $row) {
-            $rule = new Rule(
-                uniqid(),
-                $row['category_id'],
-                $row['action'],
-                $row['campaign_id'],
-                $row['cycle_day']
-            );
-
-            $rules[] = $rule->asArray();
-        }
-
-        $this->configWriter->save(
-            Config::CONFIG_DATA_RULES,
-            json_encode($rules),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
     }
 
     /**

@@ -59,7 +59,6 @@ class SaveShop extends AbstractController
         if (isset($data['e_commerce_status']) && '1' === $data['e_commerce_status']) {
             if (empty($data['shop_id'])) {
                 $this->messageManager->addErrorMessage(Message::STORE_CHOOSE);
-
                 return $resultRedirect;
             }
 
@@ -67,9 +66,11 @@ class SaveShop extends AbstractController
 
             $this->repository->saveShopStatus($status);
             $this->repository->saveShopId($data['shop_id']);
+            $this->repository->saveEcommerceListId($data['list_id']);
         } else {
             $this->repository->saveShopStatus('disabled');
             $this->repository->saveShopId(null);
+            $this->repository->saveEcommerceListId(null);
         }
 
         $this->cache->cleanType('config');

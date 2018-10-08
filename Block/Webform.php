@@ -1,13 +1,15 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\WebformCollectionFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\WebformsCollection;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettingsFactory;
-use Magento\Framework\ObjectManagerInterface;
+use GrShareCode\Api\ApiTypeException;
+use GrShareCode\GetresponseApiException;
+use GrShareCode\WebForm\WebFormCollection;
+use GrShareCode\WebForm\WebFormService;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Framework\View\Element\Template;
@@ -26,14 +28,11 @@ class Webform extends Template
 
     /**
      * @param Context $context
-     * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
-     * @internal param GrRepository $grRepository
      */
     public function __construct(
         Context $context,
-        ObjectManagerInterface $objectManager,
         Repository $repository,
         RepositoryFactory $repositoryFactory
     ) {
@@ -45,7 +44,7 @@ class Webform extends Template
     /**
      * @return WebformSettings
      */
-    public function getWebformSettings()
+    public function getWebFormSettings()
     {
         return WebformSettingsFactory::createFromArray(
             $this->repository->getWebformSettings()
@@ -53,18 +52,13 @@ class Webform extends Template
     }
 
     /**
-     * @return WebformsCollection
+     * @return WebFormCollection
+     * @throws ApiTypeException
+     * @throws GetresponseApiException
+     * @throws RepositoryException
      */
-    public function getWebFormsCollection()
+    public function getWebForms()
     {
-        try {
-            $grRepository = $this->repositoryFactory->createRepository();
-            return WebformCollectionFactory::createFromApiResponse(
-                (array)$grRepository->getForms(['query' => ['status' => 'enabled']]),
-                (array)$grRepository->getWebForms()
-            );
-        } catch (RepositoryException $e) {
-            return new WebformsCollection();
-        }
+        return (new WebFormService($this->repositoryFactory->createGetResponseApiClient()))->getAllWebForms();
     }
 }
