@@ -128,7 +128,6 @@ $campaigns = $block->getCampaigns();
                             </tr>
                             </thead>
                             <tbody id="storesDataBody">
-                            <?php if (count($shops) > 0): ?>
                                 <?php foreach ($shops as $key => $shop): ?>
                                     <tr class="data-row <?php if ($key % 2): ?>_odd-row<?php endif ?>">
                                         <td>
@@ -139,7 +138,6 @@ $campaigns = $block->getCampaigns();
                                         </td>
                                     </tr>
                                 <?php endforeach ?>
-                            <?php endif ?>
                             </tbody>
                         </table>
                     </div>

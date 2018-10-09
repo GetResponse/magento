@@ -55,9 +55,7 @@ $registrationSettings = $block->getRegistrationSettings();
                             <div class="admin__field">
                                 <select name="campaign_id" id="campaign_id" class="select admin__control-select" aria-required="true">
                                     <option value="">Select a list</option>
-                                    <?php if (count($lists) > 0): ?>
-                                        <?php
-                                        /** @var ContactList $list */
+                                        <?php /** @var ContactList $list */
                                         foreach ($lists as $list): ?>
                                             <option
                                                 value="<?php echo $list->getId() ?>"
@@ -67,7 +65,6 @@ $registrationSettings = $block->getRegistrationSettings();
                                             <?php echo $list->getName() ?>
                                             </option>
                                         <?php endforeach ?>
-                                    <?php endif ?>
                                 </select>
                             </div>
                         </div>
