@@ -13,6 +13,14 @@ class ConnectionSettingsFactory
      */
     public static function createFromArray(array $resource)
     {
+        if (!isset($resource['apiKey'], $resource['url'], $resource['domain'])) {
+            throw ConnectionSettingsException::createForIncorrectSettings();
+        }
+
+        if (empty($resource['apiKey'])) {
+            throw ConnectionSettingsException::createForIncorrectSettings();
+        }
+
         return new ConnectionSettings(
             isset($resource['apiKey']) ? $resource['apiKey'] : '',
             isset($resource['url']) ? $resource['url'] : '',

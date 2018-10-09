@@ -56,22 +56,6 @@ class RegistrationTest extends BaseTestCase
     }
 
     /**
-     * @test
-     *
-     * @param array $rawSettings
-     * @param ConnectionSettings $expectedSettings
-     *
-     * @dataProvider shouldReturnConnectionSettingsProvider
-     */
-    public function shouldReturnConnectionSettings(array $rawSettings, ConnectionSettings $expectedSettings)
-    {
-        $this->repository->expects($this->once())->method('getConnectionSettings')->willReturn($rawSettings);
-        $settings = $this->registrationBlock->getConnectionSettings();
-
-        self::assertEquals($expectedSettings, $settings);
-    }
-
-    /**
      * @return array
      */
     public function shouldReturnConnectionSettingsProvider()
