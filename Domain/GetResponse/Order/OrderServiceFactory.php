@@ -5,6 +5,7 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Order;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiTypeFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductServiceFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
@@ -36,6 +37,7 @@ class OrderServiceFactory
     /**
      * @return GrOrderService
      * @throws ApiTypeException
+     * @throws ConnectionSettingsException
      */
     public function create()
     {

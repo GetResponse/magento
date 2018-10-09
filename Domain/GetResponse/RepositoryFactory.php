@@ -4,6 +4,7 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiTypeFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository as MagentoRepository;
@@ -51,25 +52,25 @@ class RepositoryFactory
     /**
      * @return GetresponseApiClient
      * @throws RepositoryException
-     * @throws ApiTypeException
      */
     public function createGetResponseApiClient()
     {
-        $settings = ConnectionSettingsFactory::createFromArray(
-            $this->repository->getConnectionSettings()
-        );
-
-        if (empty($settings->getApiKey())) {
+        try {
+            $settings = ConnectionSettingsFactory::createFromArray(
+                $this->repository->getConnectionSettings()
+            );
+            return GetresponseApiClientFactory::createFromParams(
+                $settings->getApiKey(),
+                ApiTypeFactory::createFromConnectionSettings($settings),
+                $settings->getDomain(),
+                $this->sharedCodeRepository,
+                $this->repository->getGetResponsePluginVersion()
+            );
+        } catch (ConnectionSettingsException $e) {
+            throw RepositoryException::buildForInvalidApiKey();
+        } catch (ApiTypeException $e) {
             throw RepositoryException::buildForInvalidApiKey();
         }
-
-        return GetresponseApiClientFactory::createFromParams(
-            $settings->getApiKey(),
-            ApiTypeFactory::createFromConnectionSettings($settings),
-            $settings->getDomain(),
-            $this->sharedCodeRepository,
-            $this->repository->getGetResponsePluginVersion()
-        );
     }
 
     /**

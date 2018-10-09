@@ -4,6 +4,7 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Contact;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiTypeFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
@@ -35,6 +36,7 @@ class ContactServiceFactory
     /**
      * @return GrContactService
      * @throws ApiTypeException
+     * @throws ConnectionSettingsException
      */
     public function create()
     {

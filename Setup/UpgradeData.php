@@ -2,6 +2,7 @@
 
 namespace GetResponse\GetResponseIntegration\Setup;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettings;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomField;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
@@ -84,14 +85,16 @@ class UpgradeData implements UpgradeDataInterface
                 'domain' => $row['api_domain']
             ];
 
-            $settings = ConnectionSettingsFactory::createFromArray($payload);
-
-            $this->configWriter->save(
-                Config::CONFIG_DATA_CONNECTION_SETTINGS,
-                json_encode($settings->toArray()),
-                ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-                Store::DEFAULT_STORE_ID
-            );
+            try {
+                $settings = ConnectionSettingsFactory::createFromArray($payload);
+                $this->configWriter->save(
+                    Config::CONFIG_DATA_CONNECTION_SETTINGS,
+                    json_encode($settings->toArray()),
+                    ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+                    Store::DEFAULT_STORE_ID
+                );
+            } catch (ConnectionSettingsException $e) {
+            }
         }
     }
 
