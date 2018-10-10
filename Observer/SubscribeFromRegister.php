@@ -1,11 +1,17 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Helper\ApiHelper;
+use GrShareCode\Api\ApiTypeException;
+use GrShareCode\Contact\AddContactCommand;
+use GrShareCode\Contact\ContactCustomFieldsCollection;
+use GrShareCode\Contact\ContactService;
+use GrShareCode\GetresponseApiException;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\ObjectManagerInterface;
@@ -56,30 +62,26 @@ class SubscribeFromRegister implements ObserverInterface
             return $this;
         }
 
-        try {
-            $grRepository = $this->repositoryFactory->createRepository();
-        } catch (RepositoryException $e) {
-            return $this;
-        }
-
-        $apiHelper = new ApiHelper($grRepository);
-
         $customer = $observer->getEvent()->getCustomer();
-
         $subscriber = $this->repository->loadSubscriberByEmail($customer->getEmail());
 
         if ($subscriber->isSubscribed() == true) {
-            $params = [];
-            $params['campaign'] = ['campaignId' => $registrationSettings->getCampaignId()];
-            $params['name'] = $customer->getFirstname() . ' ' . $customer->getLastname();
-            $params['email'] = $customer->getEmail();
 
-            if ($registrationSettings->getCycleDay()) {
-                $params['dayOfCycle'] = (int)$registrationSettings->getCycleDay();
+            try {
+                $grApiClient = $this->repositoryFactory->createGetResponseApiClient();
+                $service = new ContactService($grApiClient);
+                $service->createContact(new AddContactCommand(
+                    $customer->getEmail(),
+                    $customer->getFirstname() . ' ' . $customer->getLastname(),
+                    $registrationSettings->getCampaignId(),
+                    $registrationSettings->getCycleDay(),
+                    new ContactCustomFieldsCollection(),
+                    Config::ORIGIN_NAME
+                ));
+            } catch (RepositoryException $e) {
+            } catch (ApiTypeException $e) {
+            } catch (GetresponseApiException $e) {
             }
-
-            $params['customFieldValues'] = $apiHelper->setCustoms(['origin' => 'magento2']);
-            $grRepository->addContact($params);
         }
 
         return $this;

@@ -3,6 +3,7 @@ namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account as AccountBlock;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
@@ -28,18 +29,18 @@ class Account extends Template
      * @param Context $context
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
-     * @param Getresponse $getresponseBlock
+     * @param Getresponse $getResponseBlock
      */
     public function __construct(
         Context $context,
         Repository $repository,
         RepositoryFactory $repositoryFactory,
-        Getresponse $getresponseBlock
+        Getresponse $getResponseBlock
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
-        $this->getresponseBlock = $getresponseBlock;
+        $this->getresponseBlock = $getResponseBlock;
     }
 
     /**
@@ -126,12 +127,11 @@ class Account extends Template
      */
     public function getHiddenApiKey()
     {
-        $connectionSettings = ConnectionSettingsFactory::createFromArray($this->repository->getConnectionSettings());
-
-        if (0 === strlen($connectionSettings->getApiKey())) {
+        try {
+            $connectionSettings = ConnectionSettingsFactory::createFromArray($this->repository->getConnectionSettings());
+            return str_repeat("*", strlen($connectionSettings->getApiKey()) - 6) . substr($connectionSettings->getApiKey(), -6);
+        } catch (ConnectionSettingsException $e) {
             return '';
         }
-
-        return str_repeat("*", strlen($connectionSettings->getApiKey()) - 6) . substr($connectionSettings->getApiKey(), -6);
     }
 }

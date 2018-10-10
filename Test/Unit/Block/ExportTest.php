@@ -10,11 +10,10 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
+use GrShareCode\GetresponseApiClient;
 use Magento\Framework\ObjectManagerInterface;
-use PHPUnit\Framework\TestCase;
 use Magento\Framework\View\Element\Template\Context;
 use PHPUnit_Framework_MockObject_MockObject;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class ExportTest
@@ -37,8 +36,8 @@ class ExportTest extends BaseTestCase
     /** @var ObjectManagerInterface */
     private $objectManager;
 
-    /** @var GrRepository|PHPUnit_Framework_MockObject_MockObject */
-    private $grRepository;
+    /** @var GetresponseApiClient|PHPUnit_Framework_MockObject_MockObject */
+    private $grApiClient;
 
     public function setUp()
     {
@@ -46,11 +45,10 @@ class ExportTest extends BaseTestCase
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
         $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
         $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
-        $this->grRepository = $this->getMockWithoutConstructing(GrRepository::class);
-        $this->repositoryFactory->expects($this->atLeastOnce())->method('createRepository')->willReturn($this->grRepository);
+        $this->grApiClient = $this->getMockWithoutConstructing(GetresponseApiClient::class);
 
         $getresponseBlock = new Getresponse($this->repository, $this->repositoryFactory);
-        $this->exportBlock = new ExportBlock($this->context, $this->objectManager, $this->repository, $this->repositoryFactory, $getresponseBlock);
+        $this->exportBlock = new ExportBlock($this->context, $this->repository, $this->repositoryFactory, $getresponseBlock);
     }
 
     /**
@@ -74,14 +72,15 @@ class ExportTest extends BaseTestCase
     public function shouldReturnExportSettingsProvider()
     {
         return [
-            [[], new RegistrationSettings(0, 0, '', 0)],
+            [[], new RegistrationSettings(0, 0, '', 0, '')],
             [
                 [
                     'status' => 1,
                     'customFieldsStatus' => 0,
                     'campaignId' => '1v4',
-                    'cycleDay' => 6
-                ], new RegistrationSettings(1, 0, '1v4', 6)
+                    'cycleDay' => 6,
+                    'autoresponderId' => 'x3'
+                ], new RegistrationSettings(1, 0, '1v4', 6, 'x3')
             ]
         ];
     }

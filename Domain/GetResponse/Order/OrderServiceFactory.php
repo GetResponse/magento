@@ -3,15 +3,13 @@
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Order;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiTypeFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductServiceFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
 use GrShareCode\Api\ApiTypeException;
-use GrShareCode\Api\UserAgentHeader;
-use GrShareCode\GetresponseApi;
-use GrShareCode\GetresponseApiClient;
 use GrShareCode\Order\OrderService as GrOrderService;
 
 /**
@@ -39,42 +37,21 @@ class OrderServiceFactory
     /**
      * @return GrOrderService
      * @throws ApiTypeException
+     * @throws ConnectionSettingsException
      */
     public function create()
     {
-        $connectionSettings = ConnectionSettingsFactory::createFromArray(
-            $this->magentoRepository->getConnectionSettings()
-        );
-
-        $pluginVersion = $this->magentoRepository->getGetResponsePluginVersion();
-
-        $apiType = ApiTypeFactory::createFromConnectionSettings($connectionSettings);
-
-        $getResponseApi = new GetresponseApiClient(
-            new GetresponseApi(
-                $connectionSettings->getApiKey(),
-                $apiType,
-                Config::X_APP_ID,
-                new UserAgentHeader(
-                    Config::SERVICE_NAME,
-                    Config::SERVICE_VERSION,
-                    $pluginVersion
-                )
-            ),
-            $this->sharedCodeRepository
-        );
-
-        $productService = new ProductServiceFactory(
-            $getResponseApi,
-            $this->sharedCodeRepository
-        );
-
-        return new GrOrderService(
-            $getResponseApi,
+        $settings = ConnectionSettingsFactory::createFromArray($this->magentoRepository->getConnectionSettings());
+        $getResponseApi = GetresponseApiClientFactory::createFromParams(
+            $settings->getApiKey(),
+            ApiTypeFactory::createFromConnectionSettings($settings),
+            $settings->getDomain(),
             $this->sharedCodeRepository,
-            $productService->create()
+            $this->magentoRepository->getGetResponsePluginVersion()
         );
 
+        $productService = new ProductServiceFactory($getResponseApi, $this->sharedCodeRepository);
+        return new GrOrderService($getResponseApi, $this->sharedCodeRepository, $productService->create());
     }
 
 }

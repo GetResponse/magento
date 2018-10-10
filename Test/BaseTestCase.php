@@ -2,9 +2,7 @@
 
 namespace GetResponse\GetResponseIntegration\Test;
 
-use PHPUnit_Framework_TestCase;
-
-class BaseTestCase extends PHPUnit_Framework_TestCase
+class BaseTestCase extends \PHPUnit\Framework\TestCase
 {
 
     /**

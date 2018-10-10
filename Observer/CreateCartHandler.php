@@ -80,11 +80,9 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
                 return $this;
             }
 
-            $contactListId = $this->magentoRepository->getRegistrationSettings()['campaignId'];
-
             $this->cartService->sendCart(
                 $observer->getCart()->getQuote()->getId(),
-                $contactListId,
+                $this->scopeConfig->getValue(Config::CONFIG_DATA_ECOMMERCE_LIST_ID),
                 $shopId
             );
 

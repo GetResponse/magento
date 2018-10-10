@@ -20,9 +20,7 @@ class ImagesFactory
         $imagesCollection = new ImagesCollection();
 
         foreach ($magentoProduct->getMediaGalleryImages() as $image) {
-            $imagesCollection->add(
-                new Image($image->getUrl(), (int)$image->getPosition())
-            );
+            $imagesCollection->add(new Image($image->getUrl(), (int)$image->getPosition()));
         }
 
         return $imagesCollection;

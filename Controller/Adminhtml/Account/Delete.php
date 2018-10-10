@@ -1,7 +1,6 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Account;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Backend\App\Action\Context;
@@ -34,14 +33,12 @@ class Delete extends Action
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
      * @param Manager $cacheManager
-     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         Repository $repository,
-        Manager $cacheManager,
-        RepositoryValidator $repositoryValidator
+        Manager $cacheManager
     ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;

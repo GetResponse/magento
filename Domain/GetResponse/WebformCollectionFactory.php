@@ -24,9 +24,9 @@ class WebformCollectionFactory
         if (count($forms) > 0) {
             foreach ($forms as $row) {
                 $collection->add(new Webform(
-                    $row->formId,
-                    $row->name,
-                    $row->scriptUrl
+                    $row['formId'],
+                    $row['name'],
+                    $row['scriptUrl']
                 ));
             }
         }
@@ -34,9 +34,9 @@ class WebformCollectionFactory
         if (count($webForms) > 0) {
             foreach ($webForms as $row) {
                 $collection->add(new Webform(
-                    $row->webformId,
-                    $row->name,
-                    $row->scriptUrl
+                    $row['webformId'],
+                    $row['name'],
+                    $row['scriptUrl']
                 ));
             }
         }
