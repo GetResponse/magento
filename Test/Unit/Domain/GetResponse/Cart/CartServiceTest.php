@@ -45,59 +45,6 @@ class CartServiceTest extends BaseTestCase
         $this->sut = new CartService($this->cartServiceFactory, $this->magentoRepository, $this->productFactory);
     }
 
-
-    /**
-     * @test
-     */
-    public function shouldExportCart()
-    {
-        $quoteId = '1';
-
-        $product = $this->getMockWithoutConstructing(Product::class);
-
-        $product->expects(self::once())
-            ->method('getVariants')
-            ->willReturn([]);
-
-        /** @var Quote|\PHPUnit_Framework_MockObject_MockObject $quote */
-        $quote = $this->getMockWithoutConstructing(Quote::class);
-
-        $quote->expects(self::once())
-            ->method('getId')
-            ->willReturn($quoteId);
-
-        $quote->expects(self::exactly(3))
-            ->method('__call')
-            ->withConsecutive(['getQuoteCurrencyCode'], ['getGrandTotal'], ['getCustomerEmail'])
-            ->willReturnOnConsecutiveCalls('PLN', 123, 'jan.kowalski@getresponse.com');
-
-
-        /** @var Quote\Item $quoteItem */
-        $quoteItem = $this->getMockWithoutConstructing(Quote\Item::class);
-
-        $quote->expects(self::once())
-            ->method('getAllVisibleItems')
-            ->willReturn([$quoteItem]);
-
-        $this->productFactory
-            ->expects(self::once())
-            ->method('fromMagentoQuoteItem')
-            ->with($quoteItem)
-            ->willReturn($product);
-
-        $this->magentoRepository
-            ->expects(self::once())
-            ->method('getQuoteById')
-            ->with($quoteId)
-            ->willReturn($quote);
-
-        $this->grCartService
-            ->expects(self::once())
-            ->method('exportCart');
-
-        $this->sut->exportCart($quoteId, 'contactListId', 'grShopId');
-    }
-
     /**
      * @test
      */

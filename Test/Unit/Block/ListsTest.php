@@ -5,6 +5,7 @@ use GetResponse\GetResponseIntegration\Block\Lists as ListsBlock;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
+use GrShareCode\GetresponseApiClient;
 use Magento\Framework\ObjectManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Magento\Framework\View\Element\Template\Context;
@@ -32,8 +33,8 @@ class ListsTest extends BaseTestCase
     /** @var ObjectManagerInterface|PHPUnit_Framework_MockObject_MockObject */
     private $objectManager;
 
-    /** @var GrRepository|PHPUnit_Framework_MockObject_MockObject */
-    private $grRepository;
+    /** @var GetresponseApiClient|PHPUnit_Framework_MockObject_MockObject */
+    private $grApiClient;
 
     public function setUp()
     {
@@ -41,10 +42,8 @@ class ListsTest extends BaseTestCase
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
         $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
         $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
-        $this->grRepository = $this->getMockWithoutConstructing(GrRepository::class);
-
-        $this->repositoryFactory->expects($this->once())->method('createRepository')->willReturn($this->grRepository);
-        $this->listsBlock = new ListsBlock($this->context, $this->objectManager, $this->repository, $this->repositoryFactory);
+        $this->grApiClient = $this->getMockWithoutConstructing(GetresponseApiClient::class);
+        $this->listsBlock = new ListsBlock($this->context, $this->repository, $this->repositoryFactory);
     }
 
     /**

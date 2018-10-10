@@ -1,10 +1,15 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiTypeFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
-use GetResponse\GetResponseIntegration\Helper\GetResponseAPI3;
+use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository as MagentoRepository;
+use GrShareCode\Api\ApiTypeException;
+use GrShareCode\GetresponseApiClient;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\ObjectManagerInterface;
 
@@ -17,6 +22,9 @@ class RepositoryFactory
     /** @var MagentoRepository */
     private $repository;
 
+    /** @var RepositoryForSharedCode */
+    private $sharedCodeRepository;
+
     /** @var ObjectManagerInterface */
     private $objectManager;
 
@@ -26,60 +34,63 @@ class RepositoryFactory
     /**
      * @param ObjectManagerInterface $objectManager
      * @param MagentoRepository $repository
+     * @param RepositoryForSharedCode $sharedCodeRepository
      * @param CacheInterface $cache
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
         MagentoRepository $repository,
+        RepositoryForSharedCode $sharedCodeRepository,
         CacheInterface $cache
     ) {
         $this->objectManager = $objectManager;
         $this->repository = $repository;
+        $this->sharedCodeRepository = $sharedCodeRepository;
         $this->cache = $cache;
     }
 
     /**
-     * @return Repository
+     * @return GetresponseApiClient
      * @throws RepositoryException
      */
-    public function createRepository()
+    public function createGetResponseApiClient()
     {
-        $settings = $this->repository->getConnectionSettings();
+        try {
+            $settings = ConnectionSettingsFactory::createFromArray(
+                $this->repository->getConnectionSettings()
+            );
+            return GetresponseApiClientFactory::createFromParams(
+                $settings->getApiKey(),
+                ApiTypeFactory::createFromConnectionSettings($settings),
+                $settings->getDomain(),
+                $this->sharedCodeRepository,
+                $this->repository->getGetResponsePluginVersion()
+            );
+        } catch (ConnectionSettingsException $e) {
+            throw RepositoryException::buildForInvalidApiKey();
+        } catch (ApiTypeException $e) {
+            throw RepositoryException::buildForInvalidApiKey();
+        }
+    }
 
-        if (empty($settings)) {
+    /**
+     * @param ConnectionSettings $settings
+     * @return GetresponseApiClient
+     * @throws ApiTypeException
+     * @throws RepositoryException
+     */
+    public function createApiClientFromConnectionSettings(ConnectionSettings $settings)
+    {
+        if (empty($settings->getApiKey())) {
             throw RepositoryException::buildForInvalidApiKey();
         }
 
-        return RepositoryFactory::createFromConnectionSettings(
-            ConnectionSettingsFactory::createFromArray($settings)
+        return GetresponseApiClientFactory::createFromParams(
+            $settings->getApiKey(),
+            ApiTypeFactory::createFromConnectionSettings($settings),
+            $settings->getDomain(),
+            $this->sharedCodeRepository,
+            $this->repository->getGetResponsePluginVersion()
         );
-    }
-
-    /**
-     * @param ConnectionSettings $connectionSettings
-     *
-     * @return Repository
-     */
-    public function createFromConnectionSettings(ConnectionSettings $connectionSettings)
-    {
-        return new Repository(
-            new GetResponseAPI3(
-                $connectionSettings->getApiKey(),
-                $connectionSettings->getUrl(),
-                $connectionSettings->getDomain(),
-                $this->getVersion()
-            ),
-            $this->cache
-        );
-    }
-    /**
-     * @return string
-     */
-    private function getVersion()
-    {
-        $moduleInfo = $this->objectManager->get('Magento\Framework\Module\ModuleList')
-            ->getOne('GetResponse_GetResponseIntegration');
-
-        return isset($moduleInfo['setup_version']) ? $moduleInfo['setup_version'] : '';
     }
 }

@@ -2,13 +2,13 @@
 
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
+use Exception;
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
+use GrShareCode\Shop\ShopService;
 use Magento\Backend\App\Action\Context;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect;
 
@@ -20,14 +20,13 @@ class Delete extends AbstractController
 {
     const BACK_URL = 'getresponse/ecommerce/index';
 
-    /** @var GrRepository */
-    private $grRepository;
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /**
      * @param Context $context
      * @param RepositoryFactory $repositoryFactory
      * @param RepositoryValidator $repositoryValidator
-     * @throws RepositoryException
      */
     public function __construct(
         Context $context,
@@ -35,8 +34,7 @@ class Delete extends AbstractController
         RepositoryValidator $repositoryValidator
     ) {
         parent::__construct($context, $repositoryValidator);
-        $this->grRepository = $repositoryFactory->createRepository();
-
+        $this->repositoryFactory = $repositoryFactory;
         return $this->checkGetResponseConnection();
     }
 
@@ -45,27 +43,32 @@ class Delete extends AbstractController
      */
     public function execute()
     {
-        $resultRedirect = $this->resultRedirectFactory->create();
+        try {
+            $id = $this->getRequest()->getParam('id');
 
-        $id = $this->getRequest()->getParam('id');
+            if (empty($id)) {
+                throw new Exception(Message::INCORRECT_SHOP);
+            }
 
-        if (empty($id)) {
-            $this->messageManager->addErrorMessage(Message::INCORRECT_SHOP);
+            $service = new ShopService($this->repositoryFactory->createGetResponseApiClient());
+            $service->deleteShop($id);
+            $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath(self::BACK_URL);
-
             return $resultRedirect;
+        } catch (Exception $e) {
+            return $this->handleException($e);
         }
+    }
 
-        $response = $this->grRepository->deleteShop($id);
-
-        if (isset($response->httpStatus) && $response->httpStatus > 204) {
-            $this->messageManager->addErrorMessage(Message::DELETE_SHOP_ERROR . ' - uuid: ' . $response->uuid);
-        } else {
-            $this->messageManager->addSuccessMessage(Message::STORE_REMOVED);
-        }
-
+    /**
+     * @param Exception $e
+     * @return Redirect
+     */
+    private function handleException(Exception $e)
+    {
+        $resultRedirect = $this->resultRedirectFactory->create();
+        $this->messageManager->addErrorMessage($e->getMessage());
         $resultRedirect->setPath(self::BACK_URL);
-
         return $resultRedirect;
     }
 }

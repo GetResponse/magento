@@ -1,10 +1,10 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Rule;
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GrShareCode\Account\Account;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Directory\Model\Country;
 use Magento\Framework\App\Cache\Manager;
@@ -59,7 +59,6 @@ class Repository
     public function getShopId()
     {
         $id = $this->_scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
-
         return strlen($id) > 0 ? $id : '';
     }
 
@@ -69,7 +68,6 @@ class Repository
     public function getShopStatus()
     {
         $status = $this->_scopeConfig->getValue(Config::CONFIG_DATA_SHOP_STATUS);
-
         return 'enabled' === $status ? 'enabled' : 'disabled';
     }
 
@@ -79,40 +77,18 @@ class Repository
     public function getCustomers()
     {
         $customers = $this->_objectManager->get('Magento\Customer\Model\Customer');
-
         return $customers->getCollection()->getData();
     }
 
     /**
      * @param string $categoryId
-     * @return Category[]
+     * @return Category
      */
     public function getCategoryById($categoryId)
     {
         return $this->_objectManager
             ->create(Category::class)
             ->load($categoryId);
-    }
-
-    /**
-     * @param int $category_id
-     * @return mixed
-     */
-    public function getCategoryName($category_id)
-    {
-        $_categoryHelper = $this->_objectManager->create('\Magento\Catalog\Model\Category');
-
-        return $_categoryHelper->load($category_id)->getName();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getStoreCategories()
-    {
-        $_categoryHelper = $this->_objectManager->create('\Magento\Catalog\Helper\Category');
-
-        return $_categoryHelper->getStoreCategories(true, false, true);
     }
 
     /**
@@ -124,8 +100,10 @@ class Repository
         $customers = $customers->getCollection();
 
         $customers->getSelect()
-            ->joinLeft(['customer_entity' => 'customer_entity'], 'customer_entity.entity_id=main_table.customer_id', ['*'])
-            ->joinLeft(['customer_address_entity' => 'customer_address_entity'], 'customer_address_entity.entity_id=default_billing', ['*'])
+            ->joinLeft(['customer_entity' => 'customer_entity'], 'customer_entity.entity_id=main_table.customer_id',
+                ['*'])
+            ->joinLeft(['customer_address_entity' => 'customer_address_entity'],
+                'customer_address_entity.entity_id=default_billing', ['*'])
             ->where('subscriber_status=1');
 
         return $customers;
@@ -153,7 +131,6 @@ class Repository
     public function getMagentoCurrencyCode()
     {
         $storeManager = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface');
-
         return $storeManager->getStore()->getCurrentCurrencyCode();
     }
 
@@ -179,7 +156,6 @@ class Repository
     public function loadOrder($id)
     {
         $order_object = $this->_objectManager->create('Magento\Sales\Model\Order');
-
         return $order_object->load($id);
     }
 
@@ -191,7 +167,6 @@ class Repository
     public function loadCustomer($id)
     {
         $customer_object = $this->_objectManager->create('Magento\Customer\Model\Customer');
-
         return $customer_object->load($id);
     }
 
@@ -202,7 +177,6 @@ class Repository
     public function getProductById($productId)
     {
         $productObject = $this->_objectManager->create(\Magento\Catalog\Model\Product::class);
-
         return $productObject->load($productId);
     }
 
@@ -213,7 +187,6 @@ class Repository
     public function getProductParentConfigurableById($productId)
     {
         $productObject = $this->_objectManager->create(Configurable::class);
-
         return $productObject->getParentIdsByChild($productId);
     }
 
@@ -224,7 +197,6 @@ class Repository
     public function getProductConfigurableChildrenById($productId)
     {
         $productObject = $this->_objectManager->create(Configurable::class);
-
         return $productObject->getChildrenIds($productId);
     }
 
@@ -261,122 +233,6 @@ class Repository
     public function getConnectionSettings()
     {
         return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_CONNECTION_SETTINGS));
-    }
-
-    /**
-     * @param int $id
-     */
-    public function deleteRule($id)
-    {
-        if (empty($id)) {
-            return;
-        }
-
-        $rules = $this->getRules();
-
-        if (0 === count($rules)) {
-            return;
-        }
-
-        foreach ($rules as $i => $rule) {
-            if ($rule->id == $id) {
-                unset($rules[$i]);
-            }
-        }
-
-        $this->configWriter->save(
-            Config::CONFIG_DATA_RULES,
-            json_encode($rules),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->cacheManager->clean(['config']);
-    }
-
-    /**
-     * @return array
-     */
-    public function getRules()
-    {
-        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_RULES));
-    }
-
-    /**
-     * @param Rule $rule
-     */
-    public function createRule(Rule $rule)
-    {
-        $rules = $this->getRules();
-        $rules[] = $rule->asArray();
-
-        $this->configWriter->save(
-            Config::CONFIG_DATA_RULES,
-            json_encode($rules),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->cacheManager->clean(['config']);
-    }
-
-    /**
-     * @param $id
-     *
-     * @return mixed|null
-     */
-    public function getRuleById($id)
-    {
-        if (empty($id)) {
-            return null;
-        }
-
-        $rules = $this->getRules();
-
-        if (0 === count($rules)) {
-            return null;
-        }
-
-        foreach ($rules as $rule) {
-            if ($rule->id == $id) {
-                return $rule;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param int $id
-     * @param Rule $rule
-     */
-    public function updateRule($id, Rule $rule)
-    {
-        $rules = $this->getRules();
-
-        if (empty($rules)) {
-            return;
-        }
-
-        /** @var  $_rule */
-        foreach ($rules as $_rule) {
-            if ($_rule->id === $id) {
-                $_rule->category = $rule->getCategory();
-                $_rule->action = $rule->getAction();
-                $_rule->campaign = $rule->getCampaign();
-                $_rule->cycle_day = $rule->getAutoresponderDay();
-                $_rule->autoresponderId = $rule->getAutoresponderId();
-            }
-        }
-
-        $this->configWriter->save(
-            Config::CONFIG_DATA_RULES,
-            json_encode($rules),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->cacheManager->clean(['config']);
     }
 
     /**
@@ -434,13 +290,29 @@ class Repository
     }
 
     /**
+     * @param string $listId
+     *
+     */
+    public function saveEcommerceListId($listId)
+    {
+        $this->configWriter->save(
+            Config::CONFIG_DATA_ECOMMERCE_LIST_ID,
+            $listId,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+
+        $this->cacheManager->clean(['config']);
+    }
+
+    /**
      * @param Account $account
      */
     public function saveAccountDetails(Account $account)
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_ACCOUNT,
-            json_encode($account->toArray()),
+            json_encode($this->getAccountAsArray($account)),
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
@@ -559,7 +431,6 @@ class Repository
         $this->clearRegistrationSettings();
         $this->clearAccountDetails();
         $this->clearWebforms();
-        $this->clearRules();
         $this->clearWebEventTracking();
         $this->clearCustoms();
         $this->clearEcommerceSettings();
@@ -616,15 +487,6 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    public function clearRules()
-    {
-        $this->configWriter->delete(
-            Config::CONFIG_DATA_RULES,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-    }
-
     public function clearWebEventTracking()
     {
         $this->configWriter->delete(
@@ -653,6 +515,12 @@ class Repository
 
         $this->configWriter->delete(
             Config::CONFIG_DATA_SHOP_ID,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+
+        $this->configWriter->delete(
+            Config::CONFIG_DATA_ECOMMERCE_LIST_ID,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
@@ -732,5 +600,32 @@ class Repository
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getEcommerceListId()
+    {
+        $id = $this->_scopeConfig->getValue(Config::CONFIG_DATA_ECOMMERCE_LIST_ID);
+        return strlen($id) > 0 ? $id : '';
+    }
+
+    /**
+     * @param Account $account
+     * @return array
+     */
+    private function getAccountAsArray(Account $account)
+    {
+        return [
+            'firstName' => $account->getFirstName(),
+            'lastName' => $account->getLastName(),
+            'email' => $account->getEmail(),
+            'phone' => $account->getPhone(),
+            'companyName' => $account->getCompanyName(),
+            'city' => $account->getCity(),
+            'street' => $account->getStreet(),
+            'zipCode' => $account->getZipCode()
+        ];
     }
 }

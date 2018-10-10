@@ -10,14 +10,18 @@ class ConnectionSettingsFactory
     /**
      * @param array $resource
      * @return ConnectionSettings
+     * @throws ConnectionSettingsException
      */
     public static function createFromArray(array $resource)
     {
-        return new ConnectionSettings(
-            isset($resource['apiKey']) ? $resource['apiKey'] : '',
-            isset($resource['url']) ? $resource['url'] : '',
-            isset($resource['domain']) ? $resource['domain'] : ''
-        );
+
+        if (!isset($resource['apiKey'])) {
+            throw ConnectionSettingsException::createForIncorrectSettings();
+        }
+        if (empty($resource['apiKey'])) {
+            throw ConnectionSettingsException::createForIncorrectSettings();
+        }
+        return new ConnectionSettings($resource['apiKey'], $resource['url'], $resource['domain']);
     }
 
     /**
@@ -27,16 +31,8 @@ class ConnectionSettingsFactory
     public static function createFromPost(array $resource)
     {
         if (isset($resource['is_mx']) && 1 === (int) $resource['is_mx']) {
-            return new ConnectionSettings(
-                isset($resource['apiKey']) ? $resource['apiKey'] : '',
-                isset($resource['url']) ? $resource['url'] : '',
-                isset($resource['domain']) ? $resource['domain'] : ''
-            );
+            return new ConnectionSettings($resource['apiKey'], $resource['url'], $resource['domain']);
         }
-        return new ConnectionSettings(
-            isset($resource['apiKey']) ? $resource['apiKey'] : '',
-            null,
-            null
-        );
+        return new ConnectionSettings($resource['apiKey'], '', '');
     }
 }

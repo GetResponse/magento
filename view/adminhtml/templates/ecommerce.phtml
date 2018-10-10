@@ -1,12 +1,22 @@
 <?php /** @var $block \GetResponse\GetResponseIntegration\Block\Ecommerce */
 
+use GrShareCode\ContactList\ContactList;
+use GrShareCode\ContactList\ContactListCollection;
+use GrShareCode\Shop\Shop;
+use GrShareCode\Shop\ShopsCollection;
+
+/** @var ShopsCollection $shops */
 $shops = $block->getShops();
 $shopStatus = $block->getShopStatus();
 $currentShopId = $block->getCurrentShopId();
+$currentListId = $block->getEcommerceListId();
 $settings = $block->getRegistrationSettings();
+
+/** @var ContactListCollection $campaigns */
+$campaigns = $block->getCampaigns();
 ?>
 
-<form method="post" action="<?php echo $block->getUrl('getresponse/ecommerce/saveshop'); ?>">
+<form method="post" action="<?php echo $block->getUrl('getresponse/ecommerce/save'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
 
     <div class="page-main-actions">
@@ -16,15 +26,13 @@ $settings = $block->getRegistrationSettings();
         <div class="page-actions">
             <div class="page-actions-inner">
                 <div class="page-actions-buttons">
-                    <?php if ($settings->isEnabled()): ?>
-                        <button title="Export" type="submit"
-                                class="action-default scalable save primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                                role="button" aria-disabled="false">
+                    <button title="Save" type="submit"
+                            class="action-default scalable save primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                            role="button" aria-disabled="false">
                         <span class="ui-button-text">
                             <span>Save</span>
                         </span>
-                        </button>
-                    <?php endif ?>
+                    </button>
                 </div>
             </div>
         </div>
@@ -32,98 +40,108 @@ $settings = $block->getRegistrationSettings();
     <div id="page:main-container" class="page-columns">
         <div class="admin__old">
             <div id="container" class="main-col">
-                <?php if (!$settings->isEnabled()): ?>
-                    <div id="messages">
-                        <div class="messages">
-                            <div class="message message-notice notice">
-                                <div data-ui-id="messages-message-notice">
-                                    Make sure to enable adding contacts during registration to start sending ecommerce
-                                    data to GetResponse
-                                </div>
+                <fieldset class="fieldset admin__fieldset" id="gr_enabled_fieldset">
+                    <div class="admin__field field field-basic_e_commerce_status required _required">
+                        <label class="label admin__field-label" for="e_commerce_status"></label>
+                        <div class="admin__field-control control">
+                            <div class="admin__field admin__field-option e_commerce_status__field">
+                                <input id="e_commerce_status" name="ecommerce_status"
+                                       class="admin__control-checkbox" type="checkbox" value="1"
+                                    <?php if ('enabled' === $shopStatus): ?> checked="checked" <?php endif ?>
+                                />
+                                <label class="admin__field-label" for="e_commerce_status">Send ecommerce data to
+                                    GetResponse</label>
                             </div>
                         </div>
                     </div>
-                <?php else: ?>
-                    <fieldset class="fieldset admin__fieldset" id="gr_enabled_fieldset">
-                        <div class="admin__field field field-basic_e_commerce_status required _required">
-                            <label class="label admin__field-label" for="e_commerce_status"></label>
-                            <div class="admin__field-control control">
-                                <div class="admin__field admin__field-option e_commerce_status__field">
-                                    <input id="e_commerce_status" name="e_commerce_status"
-                                           class="admin__control-checkbox" type="checkbox" value="1"
-                                        <?php if ('enabled' === $shopStatus): ?> checked="checked" <?php endif ?>
-                                    />
-                                    <label class="admin__field-label" for="e_commerce_status">Send ecommerce data to
-                                        GetResponse</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="admin__field field field-basic_campaign required _required forms addNewShopRow
+                    <div class="admin__field field field-basic_campaign required _required forms addNewShopRow
                             <?php if ('disabled' === $shopStatus): ?>hidden<?php endif ?>">
-                            <label class="label admin__field-label" for="shop_id">
-                                <span>Store</span>
-                            </label>
-                            <div class="admin__field-control control">
-                                <div class="admin__field">
-                                    <select name="shop_id" id="shop_id" class="select admin__control-select"
-                                            aria-required="true">
-                                        <option value="">Select a store</option>
-                                        <?php foreach ($shops as $shop): ?>
-                                            <option
-                                                <?php if ($shop->shopId === $currentShopId): ?> selected="selected" <?php endif ?>
-                                                    value="<?php echo $shop->shopId ?>">
-                                                <?php echo $shop->name ?>
-                                            </option>
-                                        <?php endforeach ?>
-                                    </select>
-                                </div>
+                        <label class="label admin__field-label" for="shop_id">
+                            <span>Store</span>
+                        </label>
+                        <div class="admin__field-control control">
+                            <div class="admin__field">
+                                <select name="shop_id" id="shop_id" class="select admin__control-select"
+                                        aria-required="true">
+                                    <option value="">Select a store</option>
+                                    <?php
+                                    /** @var Shop $shop */
+                                    foreach ($shops as $shop): ?>
+                                        <option
+                                            <?php if ($shop->getId() === $currentShopId): ?> selected="selected" <?php endif ?>
+                                                value="<?php echo $shop->getId() ?>">
+                                            <?php echo $shop->getName() ?>
+                                        </option>
+                                    <?php endforeach ?>
+                                </select>
                             </div>
                         </div>
-                    </fieldset>
+                    </div>
+                    <div class="admin__field field field-basic_campaign required _required forms addNewShopRow
+                            <?php if ('disabled' === $shopStatus): ?>hidden<?php endif ?>">
+                        <label class="label admin__field-label" for="shop_id">
+                            <span>Target list</span>
+                        </label>
+                        <div class="admin__field-control control">
+                            <div class="admin__field">
+                                <select name="list_id" id="list_id" class="select admin__control-select"
+                                        aria-required="true">
+                                    <option value="">Select a list</option>
+                                    <?php
+                                    /** @var ContactList $campaign */
+                                    foreach ($campaigns as $campaign): ?>
+                                        <option
+                                            <?php if ($campaign->getId() === $currentListId): ?> selected="selected" <?php endif ?>
+                                                value="<?php echo $campaign->getId() ?>">
+                                            <?php echo $campaign->getName() ?>
+                                        </option>
+                                    <?php endforeach ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
 
-                    <div class="addNewShopRow <?php if ('disabled' === $shopStatus): ?>hidden<?php endif ?>">
+                <div class="addNewShopRow <?php if ('disabled' === $shopStatus): ?>hidden<?php endif ?>">
 
-                        <h2>Store list</h2>
+                    <h2>Store list</h2>
 
-                        <div class="admin__data-grid-header admin__data-grid-toolbar">
-                            <button id="addNewStoreBtn" title="Add New Store" class="action- scalable action-secondary" type="button">
+                    <div class="admin__data-grid-header admin__data-grid-toolbar">
+                        <button id="addNewStoreBtn" title="Add New Store" class="action- scalable action-secondary"
+                                type="button">
                                 <span class="ui-button-text">
                                     <span>Add New Store</span>
                                 </span>
-                            </button>
-                        </div>
-                        <input type="hidden" name="enableGrEcommerce" value="1"/>
-                        <div class="admin__data-grid-wrap admin__data-grid-wrap-static">
-                            <table class="data-grid" data-role="grid">
-                                <thead>
-                                <tr>
-                                    <th class="data-grid-th">
-                                        <span class="data-grid-cell-content">Store name</span>
-                                    </th>
-                                    <th class="data-grid-th">
-                                        <span class="data-grid-cell-content">Action</span>
-                                    </th>
-                                </tr>
-                                </thead>
-                                <tbody id="storesDataBody">
-                                    <?php if (count($shops) > 0): ?>
-                                        <?php foreach ($shops as $key => $shop): ?>
-                                            <tr class="data-row <?php if ($key % 2): ?>_odd-row<?php endif ?>">
-                                                <td>
-                                                    <?php echo $shop->name ?>
-                                                </td>
-                                                <td>
-                                                    <a href="#" data-id="<?php echo $shop->shopId ?>" class="deleteStoreBtn">Delete</a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach ?>
-                                    <?php endif ?>
-                                </tbody>
-                            </table>
-                        </div>
+                        </button>
                     </div>
-
-                <?php endif ?>
+                    <input type="hidden" name="enableGrEcommerce" value="1"/>
+                    <div class="admin__data-grid-wrap admin__data-grid-wrap-static">
+                        <table class="data-grid" data-role="grid">
+                            <thead>
+                            <tr>
+                                <th class="data-grid-th">
+                                    <span class="data-grid-cell-content">Store name</span>
+                                </th>
+                                <th class="data-grid-th">
+                                    <span class="data-grid-cell-content">Action</span>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody id="storesDataBody">
+                                <?php foreach ($shops as $key => $shop): ?>
+                                    <tr class="data-row <?php if ($key % 2): ?>_odd-row<?php endif ?>">
+                                        <td>
+                                            <?php echo $shop->getName() ?>
+                                        </td>
+                                        <td>
+                                            <a href="#" data-id="<?php echo $shop->getId() ?>" class="deleteStoreBtn">Delete</a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
