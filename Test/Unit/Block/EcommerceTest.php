@@ -40,7 +40,7 @@ class EcommerceTest extends BaseTestCase
         $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
 
         $getresponseBlock = new Getresponse($this->repository, $this->repositoryFactory);
-        $this->accountBlock = new EcommerceBlock($this->context, $this->objectManager, $this->repository, $this->repositoryFactory, $getresponseBlock);
+        $this->accountBlock = new EcommerceBlock($this->context, $this->repository, $this->repositoryFactory, $getresponseBlock);
     }
 
     /**
@@ -67,14 +67,15 @@ class EcommerceTest extends BaseTestCase
     public function shouldReturnValidRegistrationSettingsProvider()
     {
         return [
-            [[], new RegistrationSettings(0, 0, '', 0)],
+            [[], new RegistrationSettings(0, 0, '', 0, 'x3')],
             [
                 [
                     'status' => '1',
                     'customFieldsStatus' => '1',
                     'campaignId' => 9,
-                    'cycleDay' => 2
-                ], new RegistrationSettings(1, 1, '9', 2)
+                    'cycleDay' => 2,
+                    'autoresponderId' => 'x3'
+                ], new RegistrationSettings(1, 1, '9', 2, 'x3')
             ]
         ];
     }

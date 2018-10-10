@@ -55,10 +55,10 @@ class Save extends AbstractController
      */
     public function execute()
     {
-        $webform = WebformSettingsFactory::createFromArray($this->request->getPostValue());
+        $webForm = WebformSettingsFactory::createFromArray($this->request->getPostValue());
 
-        if ($webform->isEnabled()) {
-            $error = $this->validateWebformData($webform);
+        if ($webForm->isEnabled()) {
+            $error = $this->validateWebFormData($webForm);
 
             if (!empty($error)) {
                 $this->messageManager->addErrorMessage($error);
@@ -69,9 +69,9 @@ class Save extends AbstractController
             }
         }
 
-        $this->repository->saveWebformSettings($webform);
+        $this->repository->saveWebformSettings($webForm);
 
-        $this->messageManager->addSuccessMessage($webform->isEnabled() ? Message::FORM_PUBLISHED : Message::FORM_UNPUBLISHED);
+        $this->messageManager->addSuccessMessage($webForm->isEnabled() ? Message::FORM_PUBLISHED : Message::FORM_UNPUBLISHED);
 
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::BACK_URL);
@@ -80,20 +80,20 @@ class Save extends AbstractController
     }
 
     /**
-     * @param WebformSettings $webform
+     * @param WebformSettings $webForm
      * @return string
      */
-    private function validateWebformData(WebformSettings $webform)
+    private function validateWebFormData(WebformSettings $webForm)
     {
-        if (strlen($webform->getWebformId()) === 0 && strlen($webform->getSidebar()) === 0) {
+        if (strlen($webForm->getWebformId()) === 0 && strlen($webForm->getSidebar()) === 0) {
             return Message::SELECT_FORM_POSITION_AND_PLACEMENT;
         }
 
-        if (strlen($webform->getWebformId()) === 0) {
+        if (strlen($webForm->getWebformId()) === 0) {
             return Message::SELECT_FORM;
         }
 
-        if (strlen($webform->getSidebar()) === 0) {
+        if (strlen($webForm->getSidebar()) === 0) {
             return Message::SELECT_FORM_POSITION;
         }
 

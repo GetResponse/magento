@@ -1,10 +1,13 @@
 <?php
 use GetResponse\GetResponseIntegration\Block\Lists;
+use GrShareCode\ContactList\FromFields;
+use GrShareCode\ContactList\FromFieldsCollection;
 
 /** @var Lists $block */
-$from_fields = $block->getAccountFromFields();
-$confirmation_subjects = $block->getSubscriptionConfirmationsSubject();
-$confirmation_bodies = $block->getSubscriptionConfirmationsBody();
+/** @var FromFieldsCollection $fromFields */
+$fromFields = $block->getAccountFromFields();
+$confirmationSubjects = $block->getSubscriptionConfirmationsSubject();
+$confirmationBodies = $block->getSubscriptionConfirmationsBody();
 ?>
 
 <form id="createNewListForm" action="<?php echo $block->getUrl('getresponse/lists/create'); ?>" method="POST">
@@ -52,13 +55,13 @@ $confirmation_bodies = $block->getSubscriptionConfirmationsBody();
                         <div class="admin__field-control control">
                             <select name="from_field" id="from_field" class="select admin__control-select" aria-required="true">
                                 <option value="">Select from field</option>
-                                <?php
-                                if (isset($from_fields)) {
-                                    foreach ($from_fields as $from_field) {
-                                        echo '<option value="' . $from_field->fromFieldId . '">' . $from_field->name . ' (' . $from_field->email . ')</option>';
-                                    }
-                                }
-                                ?>
+                                <?php if (count($fromFields) > 0): ?>
+                                    <?php
+                                    /** @var FromFields $fromField */
+                                    foreach ($fromFields as $fromField): ?>
+                                        <option value="<?php echo $fromField->getId()?>"><?php echo $fromField->getName()?>(<?php echo $fromField->getEmail()?>)</option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </select>
                             <div class="validation-message"></div>
                         </div>
@@ -71,13 +74,13 @@ $confirmation_bodies = $block->getSubscriptionConfirmationsBody();
                         <div class="admin__field-control control">
                             <select name="reply_to_field" id="reply_to_field" class="select admin__control-select" aria-required="true">
                                 <option value="">Select reply-to address</option>
-                                <?php
-                                if (isset($from_fields)) {
-                                    foreach ($from_fields as $from_field) {
-                                        echo '<option value="' . $from_field->fromFieldId . '">' . $from_field->name . ' (' . $from_field->email . ')</option>';
-                                    }
-                                }
-                                ?>
+                                <?php if (count($fromFields) > 0): ?>
+                                    <?php
+                                    /** @var FromFields $fromField */
+                                    foreach ($fromFields as $fromField): ?>
+                                        <option value="<?php echo $fromField->getId()?>"><?php echo $fromField->getName()?>(<?php echo $fromField->getEmail()?>)</option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </select>
                             <div class="validation-message"></div>
                         </div>
@@ -91,9 +94,9 @@ $confirmation_bodies = $block->getSubscriptionConfirmationsBody();
                             <select name="confirmation_subject" id="confirmation_subject" class="select admin__control-select" aria-required="true">
                                 <option value="">Select confirmation message subject</option>
                                 <?php
-                                if (isset($confirmation_subjects)) {
-                                    foreach ($confirmation_subjects as $subject) {
-                                        echo '<option value="' . $subject->subscriptionConfirmationSubjectId . '">' . $subject->subject . '</option>';
+                                if (isset($confirmationSubjects)) {
+                                    foreach ($confirmationSubjects as $subject) {
+                                        echo '<option value="' . $subject['subscriptionConfirmationSubjectId'] . '">' . $subject['subject'] . '</option>';
                                     }
                                 }
                                 ?>
@@ -110,9 +113,9 @@ $confirmation_bodies = $block->getSubscriptionConfirmationsBody();
                             <select name="confirmation_body" id="confirmation_body" class="select admin__control-select" aria-required="true">
                                 <option value="">Select confirmation message body template</option>
                                 <?php
-                                    if (isset($confirmation_bodies)) {
-                                        foreach ($confirmation_bodies as $body) {
-                                            echo '<option value="' . $body->subscriptionConfirmationBodyId . '">(' . $body->name . ') ' . $body->contentPlain . '</option>';
+                                    if (isset($confirmationBodies)) {
+                                        foreach ($confirmationBodies as $body) {
+                                            echo '<option value="' . $body['subscriptionConfirmationBodyId'] . '">(' . $body['name'] . ') ' . $body['contentPlain'] . '</option>';
                                         }
                                     }
                                 ?>

@@ -1,17 +1,20 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Account;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
 use GetResponse\GetResponseIntegration\Helper\Message;
+use GrShareCode\Account\AccountService;
+use GrShareCode\Api\ApiTypeException;
+use GrShareCode\GetresponseApiException;
+use GrShareCode\TrackingCode\TrackingCodeService;
 use Magento\Backend\App\Action;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\DefaultCustomFieldsFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
@@ -25,11 +28,8 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 class Save extends Action
 {
     const BACK_URL = 'getresponse/account/index';
-
     const PAGE_TITLE = 'GetResponse account';
-
     const API_ERROR_MESSAGE = 'The API key seems incorrect. Please check if you typed or pasted it correctly. If you recently generated a new key, please make sure you’re using the right one';
-
     const API_EMPTY_VALUE_MESSAGE = 'You need to enter API key. This field can\'t be empty';
 
     /** @var PageFactory */
@@ -52,7 +52,6 @@ class Save extends Action
      * @param PageFactory $resultPageFactory
      * @param RepositoryFactory $repositoryFactory
      * @param Repository $repository
-     * @param Manager $cacheManager
      * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
@@ -60,7 +59,6 @@ class Save extends Action
         PageFactory $resultPageFactory,
         RepositoryFactory $repositoryFactory,
         Repository $repository,
-        Manager $cacheManager,
         RepositoryValidator $repositoryValidator
     ) {
         parent::__construct($context);
@@ -78,9 +76,6 @@ class Save extends Action
      */
     public function execute()
     {
-        $featureTracking = false;
-        $trackingCodeSnippet = $apiUrl = $domain = '';
-
         $connectionSettings = ConnectionSettingsFactory::createFromPost($this->request->getPostValue());
 
         if ('' == $connectionSettings->getApiKey()) {
@@ -88,44 +83,41 @@ class Save extends Action
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
 
-        $grRepository = $this->repositoryFactory->createFromConnectionSettings($connectionSettings);
-        if (false === $this->repositoryValidator->validateGrRepository($grRepository)) {
+        try {
+            $grApiClient = $this->repositoryFactory->createApiClientFromConnectionSettings($connectionSettings);
+            $grApiClient->checkConnection();
+
+            $accountService = new AccountService($grApiClient);
+            $account = $accountService->getAccount();
+
+            $trackingCodeService = new TrackingCodeService($grApiClient);
+
+            $trackingCode = $trackingCodeService->getTrackingCode();
+
+            $this->repository->saveConnectionSettings($connectionSettings);
+
+            $this->repository->saveWebEventTracking(
+                WebEventTrackingSettingsFactory::createFromArray([
+                    'isEnabled' => false,
+                    'isFeatureTrackingEnabled' => $trackingCode->isFeatureEnabled(),
+                    'codeSnippet' => $trackingCode->getSnippet()
+                ])
+            );
+            $this->repository->saveAccountDetails($account);
+            $this->repository->setCustomsOnInit(DefaultCustomFieldsFactory::createDefaultCustomsMap());
+            $this->messageManager->addSuccessMessage(Message::ACCOUNT_CONNECTED);
+
+            return $this->_redirect(self::BACK_URL);
+
+        } catch (GetresponseApiException $e) {
+            $this->messageManager->addErrorMessage(self::API_ERROR_MESSAGE);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        } catch (RepositoryException $e) {
+            $this->messageManager->addErrorMessage(self::API_ERROR_MESSAGE);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        } catch (ApiTypeException $e) {
             $this->messageManager->addErrorMessage(self::API_ERROR_MESSAGE);
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
-
-        $account = AccountFactory::createFromArray($grRepository->getAccountDetails());
-
-        if (empty($account->getAccountId())) {
-            $this->messageManager->addErrorMessage(self::API_ERROR_MESSAGE);
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
-        $features = $grRepository->getFeatures();
-
-        if ($features instanceof \stdClass && $features->feature_tracking == 1) {
-            $featureTracking = true;
-
-            $trackingCode = (array)$grRepository->getTrackingCode();
-
-            if (!empty($trackingCode) && is_object($trackingCode[0]) && 0 < strlen($trackingCode[0]->snippet)) {
-                $trackingCodeSnippet = $trackingCode[0]->snippet;
-            }
-        }
-
-        $this->repository->saveConnectionSettings($connectionSettings);
-
-        $this->repository->saveWebEventTracking(
-            WebEventTrackingSettingsFactory::createFromArray([
-                'isEnabled' => false,
-                'isFeatureTrackingEnabled' => $featureTracking,
-                'codeSnippet' => $trackingCodeSnippet
-            ])
-        );
-        $this->repository->saveAccountDetails($account);
-        $this->repository->setCustomsOnInit(DefaultCustomFieldsFactory::createDefaultCustomsMap());
-        $this->messageManager->addSuccessMessage(Message::ACCOUNT_CONNECTED);
-
-        return $this->_redirect(self::BACK_URL);
     }
 }

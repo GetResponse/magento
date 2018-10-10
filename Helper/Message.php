@@ -15,12 +15,6 @@ class Message
 
     const INVALID_CUSTOM_FIELD_VALUE = 'The custom field %s contains invalid characters. You can use lowercase English alphabet characters, numbers, and underscore (\'_\')';
 
-    const CANNOT_DELETE_RULE = 'We couldn\'t delete the rule. Please try again. If the problem persists, please contact the GetResponse dev team';
-
-    const CANNOT_EDIT_RULE = 'We couldn\'t update the rule. Please try again. If the problem persists, please contact the GetResponse dev team';
-
-    const RULE_UPDATED = 'Rule updated';
-
     const EMPTY_API_KEY = 'You need to enter the API key. This field can\'t be empty';
 
     const SELECT_FORM = 'You need to select a form';
@@ -55,16 +49,6 @@ class Message
     const LIST_VALIDATION_CONFIRMATION_SUBJECT_ERROR = 'Confirmation subject is a required field';
 
     const LIST_VALIDATION_CONFIRMATION_BODY = 'Confirmation body is a required field';
-
-    const RULE_ADDED = 'Rule added';
-
-    const RULE_DELETED = 'Rule deleted';
-
-    const SELECT_RULE_CATEGORY = 'You need to select your product category';
-
-    const SELECT_RULE_ACTION = 'You need to select what to do with the customer';
-
-    const SELECT_RULE_TARGET_LIST = 'You need to select a target list';
 
     const ACCOUNT_DISCONNECTED = 'GetResponse account disconnected';
 

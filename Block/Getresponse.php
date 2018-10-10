@@ -1,4 +1,5 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account as GrAccount;
@@ -12,6 +13,10 @@ use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GrShareCode\Api\ApiTypeException;
+use GrShareCode\ContactList\Autoresponder;
+use GrShareCode\ContactList\ContactListService;
+use GrShareCode\GetresponseApiException;
 
 /**
  * Class Getresponse
@@ -40,28 +45,30 @@ class Getresponse
     /**
      * @return array
      */
-    public function getAutoresponders()
+    public function getAutoResponders()
     {
         try {
-            $grRepository = $this->repositoryFactory->createRepository();
-            $params = ['query' => ['triggerType' => 'onday', 'status' => 'active']];
-            $result = $grRepository->getAutoresponders($params);
-            $autoresponders = [];
+            $result = [];
+            $grApiClient = $this->repositoryFactory->createGetResponseApiClient();
 
-            if (!empty($result)) {
-                foreach ($result as $autoresponder) {
-                    if (isset($autoresponder->triggerSettings->selectedCampaigns[0])) {
-                        $autoresponders[$autoresponder->triggerSettings->selectedCampaigns[0]][$autoresponder->autoresponderId] = [
-                            'name' => $autoresponder->name,
-                            'subject' => $autoresponder->subject,
-                            'dayOfCycle' => $autoresponder->triggerSettings->dayOfCycle
-                        ];
-                    }
-                }
+            $service = new ContactListService($grApiClient);
+            $responders = $service->getAutoresponders();
+
+            /** @var Autoresponder $responder */
+            foreach ($responders as $responder) {
+                $result[$responder->getCampaignId()][$responder->getId()] = [
+                    'name' => $responder->getName(),
+                    'subject' => $responder->getSubject(),
+                    'dayOfCycle' => $responder->getCycleDay()
+                ];
             }
 
-            return $autoresponders;
+            return $result;
         } catch (RepositoryException $e) {
+            return [];
+        } catch (ApiTypeException $e) {
+            return [];
+        } catch (GetresponseApiException $e) {
             return [];
         }
     }
@@ -69,15 +76,13 @@ class Getresponse
     /**
      * @return array
      */
-    public function getAutorespondersForFrontend()
+    public function getAutoRespondersForFrontend()
     {
-        $autoresponders = $this->getAutoresponders();
-
-        if (empty($autoresponders)) {
+        $responders = $this->getAutoResponders();
+        if (empty($responders)) {
             return [];
         }
-
-        return $autoresponders;
+        return $responders;
     }
 
     /**

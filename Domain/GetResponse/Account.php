@@ -166,24 +166,4 @@ class Account
     {
         return $this->countryCode;
     }
-
-    /**
-     * @return array
-     */
-    public function toArray()
-    {
-        return [
-            'accountId' => $this->accountId,
-            'firstName' => $this->firstName,
-            'lastName' => $this->lastName,
-            'email' => $this->email,
-            'phone' => $this->phone,
-            'companyName' => $this->companyName,
-            'state' => $this->state,
-            'city' => $this->street,
-            'street' => $this->street,
-            'zipCode' => $this->zipCode,
-            'countryCode' => $this->countryCode,
-        ];
-    }
 }
