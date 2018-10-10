@@ -1,16 +1,9 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Order;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Address\AddressFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductFactory;
 use GrShareCode\Api\ApiTypeException;
 use GrShareCode\GetresponseApiException;
 use GrShareCode\Order\AddOrderCommand;
-use GrShareCode\Order\Order as GrOrder;
-use GrShareCode\Order\OrderService as GrOrderService;
-use GrShareCode\Product\ProductsCollection;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Item;
 
 /**
  * Class OrderService
@@ -18,92 +11,37 @@ use Magento\Sales\Model\Order\Item;
  */
 class OrderService
 {
-    /** @var GrOrderService */
-    private $grOrderService;
-
-    /** @var ProductFactory */
-    private $productFactory;
-
-    /** @var AddressFactory */
-    private $addressFactory;
+    /** @var OrderServiceFactory */
+    private $orderServiceFactory;
 
     /**
      * @param OrderServiceFactory $orderServiceFactory
-     * @param ProductFactory $productFactory
-     * @param AddressFactory $addressFactory
+     */
+    public function __construct(OrderServiceFactory $orderServiceFactory) {
+        $this->orderServiceFactory = $orderServiceFactory;
+    }
+
+    /**
+     * @param AddOrderCommand $addOrderCommand
      * @throws ApiTypeException
-     */
-    public function __construct(
-        OrderServiceFactory $orderServiceFactory,
-        ProductFactory $productFactory,
-        AddressFactory $addressFactory
-    ) {
-        $this->grOrderService = $orderServiceFactory->create();
-        $this->productFactory = $productFactory;
-        $this->addressFactory = $addressFactory;
-    }
-
-    /**
-     * @param Order $order
-     * @param string $contactListId
-     * @param string $grShopId
      * @throws GetresponseApiException
      */
-    public function exportOrder(Order $order, $contactListId, $grShopId)
+    public function exportOrder(AddOrderCommand $addOrderCommand)
     {
-        $addCommandOrder = new AddOrderCommand(
-            $this->getOrderForCommand($order),
-            $order->getCustomerEmail(),
-            $contactListId,
-            $grShopId
-        );
-
-        $addCommandOrder->setToSkipAutomation();
-
-        $this->grOrderService->sendOrder($addCommandOrder);
+        $addOrderCommand->setToSkipAutomation();
+        $orderService = $this->orderServiceFactory->create();
+        $orderService->sendOrder($addOrderCommand);
     }
 
     /**
-     * @param Order $order
-     * @return GrOrder
-     */
-    private function getOrderForCommand(Order $order)
-    {
-        $productCollection = new ProductsCollection();
-
-        /** @var Item $orderItem */
-        foreach ($order->getAllVisibleItems() as $orderItem) {
-            $productCollection->add(
-                $this->productFactory->fromMagentoOrderItem($orderItem)
-            );
-        }
-
-        $orderForCommand = OrderFactory::fromMagentoOrder(
-            $order,
-            $productCollection,
-            $this->addressFactory->createShippingAddressFromMagentoOrder($order),
-            $this->addressFactory->createBillingAddressFromMagentoOrder($order)
-        );
-
-        return $orderForCommand;
-    }
-
-    /**
-     * @param Order $order
-     * @param string $contactListId
-     * @param string $grShopId
+     * @param AddOrderCommand $addOrderCommand
+     * @throws ApiTypeException
      * @throws GetresponseApiException
      */
-    public function sendOrder(Order $order, $contactListId, $grShopId)
+    public function sendOrder(AddOrderCommand $addOrderCommand)
     {
-        $addOrderCommand = new AddOrderCommand(
-            $this->getOrderForCommand($order),
-            $order->getCustomerEmail(),
-            $contactListId,
-            $grShopId
-        );
-
-        $this->grOrderService->sendOrder($addOrderCommand);
+        $orderService = $this->orderServiceFactory->create();
+        $orderService->sendOrder($addOrderCommand);
     }
 
 }

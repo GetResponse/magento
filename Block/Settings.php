@@ -25,18 +25,18 @@ class Settings extends Template
      * @param Context $context
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
-     * @param Getresponse $getresponseBlock
+     * @param Getresponse $getResponseBlock
      */
     public function __construct(
         Context $context,
         Repository $repository,
         RepositoryFactory $repositoryFactory,
-        Getresponse $getresponseBlock
+        Getresponse $getResponseBlock
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
-        $this->getresponseBlock = $getresponseBlock;
+        $this->getresponseBlock = $getResponseBlock;
     }
 
     /**

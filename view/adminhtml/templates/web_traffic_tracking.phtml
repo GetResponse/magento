@@ -26,13 +26,12 @@ if ($webTrafficTracking->isFeatureTrackingEnabled()): ?>
                name="web_traffic"
                id="web_traffic"
                value="1"
-            <?php
-            if ($webTrafficTracking->isEnabled()) {
-                echo ' checked="checked"';
-            }
-            ?>
+               class="admin__control-checkbox"
+            <?php if ($webTrafficTracking->isEnabled()):?>
+               checked="checked"
+            <?php endif ?>
         />
-        <label for="web_traffic">Send web event data to GetResponse</label>
+        <label class="admin__field-label" for="web_traffic">Send web event data to GetResponse</label>
     </main>
     <input type="hidden" name="updateWebTraffic" value="1" />
 </form>

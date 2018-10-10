@@ -5,8 +5,13 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
-use Magento\Framework\ObjectManagerInterface;
+use GrShareCode\Api\ApiTypeException;
+use GrShareCode\ContactList\ContactListCollection;
+use GrShareCode\ContactList\ContactListService;
+use GrShareCode\GetresponseApiClient;
+use GrShareCode\GetresponseApiException;
+use GrShareCode\Shop\ShopsCollection;
+use GrShareCode\Shop\ShopService;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Framework\View\Element\Template;
 
@@ -19,32 +24,28 @@ class Ecommerce extends Template
     /** @var Repository */
     private $repository;
 
-    /** @var GrRepository */
-    private $grRepository;
+    /** @var RepositoryFactory */
+    private $repositoryFactory;
 
     /** @var Getresponse */
-    private $getresponseBlock;
+    private $getResponseBlock;
 
     /**
      * @param Context $context
-     * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
-     * @param Getresponse $getresponseBlock
-     *
-     * @throws RepositoryException
+     * @param Getresponse $getResponseBlock
      */
     public function __construct(
         Context $context,
-        ObjectManagerInterface $objectManager,
         Repository $repository,
         RepositoryFactory $repositoryFactory,
-        Getresponse $getresponseBlock
+        Getresponse $getResponseBlock
     ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->grRepository = $repositoryFactory->createRepository();
-        $this->getresponseBlock = $getresponseBlock;
+        $this->repositoryFactory = $repositoryFactory;
+        $this->getResponseBlock = $getResponseBlock;
     }
 
     /**
@@ -64,11 +65,23 @@ class Ecommerce extends Template
     }
 
     /**
-     * @return array
+     * @return string
+     */
+    public function getEcommerceListId()
+    {
+        return $this->repository->getEcommerceListId();
+    }
+
+    /**
+     * @return ShopsCollection
+     * @throws ApiTypeException
+     * @throws GetresponseApiException
+     * @throws RepositoryException
      */
     public function getShops()
     {
-        return (array)$this->grRepository->getShops();
+        $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+        return (new ShopService($apiClient))->getAllShops();
     }
 
     /**
@@ -76,6 +89,17 @@ class Ecommerce extends Template
      */
     public function getRegistrationSettings()
     {
-        return $this->getresponseBlock->getRegistrationSettings();
+        return $this->getResponseBlock->getRegistrationSettings();
+    }
+
+    /**
+     * @return ContactListCollection
+     * @throws ApiTypeException
+     * @throws GetresponseApiException
+     * @throws RepositoryException
+     */
+    public function getCampaigns()
+    {
+        return (new ContactListService($this->repositoryFactory->createGetResponseApiClient()))->getAllContactLists();
     }
 }
