@@ -2,7 +2,6 @@
 
 use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
 use GetresponseIntegration_Getresponse_Domain_WebformRepository as WebformRepository;
-use GetresponseIntegration_Getresponse_Domain_AutomationRulesCollectionRepository as AutomationRulesCollectionRepository;
 use GetresponseIntegration_Getresponse_Domain_GetresponseException as GetresponseException;
 
 /**
@@ -276,103 +275,6 @@ class GetresponseIntegration_Getresponse_Model_Observer
                 $this->customsModel->mapCustoms($user_customs, $customs)
             );
         } catch (GetresponseException $e) {
-        }
-    }
-
-    /**
-     * @param Varien_Event_Observer $observer
-     */
-    public function automationHandler(Varien_Event_Observer $observer)
-    {
-        if (!$this->getresponseHelper->isEnabled()) {
-            return;
-        }
-
-        /** @var Varien_Event $event */
-        $event = $observer->getEvent();
-
-        /** @var Mage_Sales_Model_Order $order */
-        $order = $event->getData('order');
-
-        if ($order->isEmpty()) {
-            return;
-        }
-
-        try {
-            $categories = $this->getresponseHelper->getCategoriesByOrder(
-                $order
-            );
-        } catch (Varien_Exception $e) {
-            $categories = array();
-        }
-
-        try {
-            $api = $this->buildApiInstance();
-        } catch (GetresponseIntegration_Getresponse_Domain_GetresponseException $e) {
-            return;
-        }
-
-        $settingsRepository = new SettingsRepository($this->shopId);
-        $accountSettings = $settingsRepository->getAccount();
-
-
-        if (empty($accountSettings['apiKey']) || $accountSettings['activeSubscription'] != '1' || empty($accountSettings['campaignId'])) {
-            return;
-        }
-
-        /** @var Mage_Customer_Model_Customer $customer */
-        $customer = Mage::getModel('customer/customer')->load($order->getCustomerId());
-
-        $billing = $customer->getPrimaryBillingAddress();
-
-        $user_customs = array();
-
-        if (is_object($billing)) {
-            $user_customs = $billing->getData();
-            $user_customs['country'] = $user_customs['country_id'];
-        }
-
-        $customs = $this->customsModel->getCustoms($this->shopId);
-
-        $rules = array();
-        $ruleRepository = new AutomationRulesCollectionRepository($this->shopId);
-        $ruleCollectionDb = $ruleRepository->getCollection();
-
-        foreach ($ruleCollectionDb as $rule) {
-            if (false !== array_search($rule['categoryId'], $categories)) {
-                $rules[] = $rule;
-            }
-        }
-
-        if (empty($rules)) {
-            return;
-        }
-
-        foreach ($rules as $automation) {
-
-            if ('move' === $automation['action']) {
-
-                $grContact = $api->getContact($customer->getData('email'), $accountSettings['campaignId']);
-
-                if (!empty($grContact['contactId'])) {
-                    $api->updateContact(
-                        $grContact['contactId'],
-                        $automation['campaignId'],
-                        $grContact['email'],
-                        $grContact['name'],
-                        $grContact['dayOfCycle'],
-                        $grContact['customFieldValues']
-                    );
-                }
-            } else {
-                $api->upsertContact(
-                    $automation['campaignId'],
-                    $customer->getName(),
-                    $customer->getData('email'),
-                    $automation['cycleDay'],
-                    $this->customsModel->mapCustoms($user_customs, $customs)
-                );
-            }
         }
     }
 
