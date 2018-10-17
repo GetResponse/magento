@@ -4,7 +4,10 @@ namespace GetResponse\GetResponseIntegration\Domain\Magento;
 use GrShareCode\Cache\CacheInterface as GrShareCodeCacheInterface;
 use Magento\Framework\App\CacheInterface;
 
-
+/**
+ * Class ShareCodeCache
+ * @package GetResponse\GetResponseIntegration\Domain\Magento
+ */
 class ShareCodeCache implements GrShareCodeCacheInterface
 {
     /** @var CacheInterface */
