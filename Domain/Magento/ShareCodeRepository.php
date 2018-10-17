@@ -16,10 +16,10 @@ use Magento\Store\Model\Store;
 
 
 /**
- * Class RepositoryForSharedCode
+ * Class ShareCodeRepository
  * @package GetResponse\GetResponseIntegration\Domain\Magento
  */
-class RepositoryForSharedCode implements DbRepositoryInterface
+class ShareCodeRepository implements DbRepositoryInterface
 {
     /** @var ObjectManagerInterface */
     private $objectManager;

@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Contact;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GrShareCode\Api\ApiTypeException;
 use GrShareCode\Contact\Contact;
 use GrShareCode\Contact\ContactNotFoundException;
@@ -27,9 +28,10 @@ class ContactService
      * @param string $email
      * @param string $contactListId
      * @return Contact
+     * @throws ApiTypeException
      * @throws ContactNotFoundException
      * @throws GetresponseApiException
-     * @throws ApiTypeException
+     * @throws ConnectionSettingsException
      */
     public function getContactByEmail($email, $contactListId)
     {

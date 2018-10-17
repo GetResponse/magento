@@ -4,7 +4,7 @@ namespace Domain\GetResponse\Order;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderServiceFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
+use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\Api\ApiKeyAuthorization;
@@ -25,13 +25,13 @@ class OrderServiceFactoryTest extends BaseTestCase
     /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $magentoRepositoryMock;
 
-    /** @var RepositoryForSharedCode|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var ShareCodeRepository|\PHPUnit_Framework_MockObject_MockObject */
     private $sharedCodeRepositoryMock;
 
     public function setUp()
     {
         $this->magentoRepositoryMock = $this->getMockWithoutConstructing(Repository::class);
-        $this->sharedCodeRepositoryMock = $this->getMockWithoutConstructing(RepositoryForSharedCode::class);
+        $this->sharedCodeRepositoryMock = $this->getMockWithoutConstructing(ShareCodeRepository::class);
     }
 
     /**

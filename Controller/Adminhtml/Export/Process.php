@@ -14,7 +14,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GrShareCode\Api\ApiTypeException;
 use GrShareCode\Contact\AddContactCommand;
 use GrShareCode\Contact\ContactCustomField;
 use GrShareCode\Contact\ContactCustomFieldsCollection;
@@ -145,8 +144,6 @@ class Process extends AbstractController
                 );
             } catch (RepositoryException $e) {
                 return $this->handleException($e);
-            } catch (ApiTypeException $e) {
-                return $this->handleException($e);
             } catch (GetresponseApiException $e) {
                 //skip all API errors
             }
@@ -220,7 +217,6 @@ class Process extends AbstractController
      * @param array $userCustoms
      * @throws GetresponseApiException
      * @throws RepositoryException
-     * @throws ApiTypeException
      */
     private function addContact($campaignId, $firstName, $lastName, $email, $cycleDay = null, $userCustoms = [])
     {

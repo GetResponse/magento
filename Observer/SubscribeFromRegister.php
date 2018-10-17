@@ -7,7 +7,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GrShareCode\Api\ApiTypeException;
 use GrShareCode\Contact\AddContactCommand;
 use GrShareCode\Contact\ContactCustomFieldsCollection;
 use GrShareCode\Contact\ContactService;
@@ -79,9 +78,7 @@ class SubscribeFromRegister implements ObserverInterface
                     Config::ORIGIN_NAME
                 ));
             } catch (RepositoryException $e) {
-            } catch (ApiTypeException $e) {
-            } catch (GetresponseApiException $e) {
-            }
+            } catch (GetresponseApiException $e) {}
         }
 
         return $this;

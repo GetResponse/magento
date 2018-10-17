@@ -13,7 +13,6 @@ use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GrShareCode\Api\ApiTypeException;
 use GrShareCode\ContactList\Autoresponder;
 use GrShareCode\ContactList\ContactListService;
 use GrShareCode\GetresponseApiException;
@@ -65,8 +64,6 @@ class Getresponse
 
             return $result;
         } catch (RepositoryException $e) {
-            return [];
-        } catch (ApiTypeException $e) {
             return [];
         } catch (GetresponseApiException $e) {
             return [];

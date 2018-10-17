@@ -6,7 +6,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiTypeFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
+use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository as MagentoRepository;
 use GrShareCode\Api\ApiTypeException;
 use GrShareCode\GetresponseApiClient;
@@ -22,7 +22,7 @@ class RepositoryFactory
     /** @var MagentoRepository */
     private $repository;
 
-    /** @var RepositoryForSharedCode */
+    /** @var ShareCodeRepository */
     private $sharedCodeRepository;
 
     /** @var ObjectManagerInterface */
@@ -34,13 +34,13 @@ class RepositoryFactory
     /**
      * @param ObjectManagerInterface $objectManager
      * @param MagentoRepository $repository
-     * @param RepositoryForSharedCode $sharedCodeRepository
+     * @param ShareCodeRepository $sharedCodeRepository
      * @param CacheInterface $cache
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
         MagentoRepository $repository,
-        RepositoryForSharedCode $sharedCodeRepository,
+        ShareCodeRepository $sharedCodeRepository,
         CacheInterface $cache
     ) {
         $this->objectManager = $objectManager;
