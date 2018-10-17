@@ -13,6 +13,12 @@ class GetresponseIntegration_Getresponse_ListController extends GetresponseInteg
     public function indexAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $this->_title($this->__('New List'))->_title($this->__('GetResponse'));
 
         $langCode = strtoupper(substr(Mage::app()->getLocale()->getDefaultLocale(), 0, 2));
@@ -43,6 +49,12 @@ class GetresponseIntegration_Getresponse_ListController extends GetresponseInteg
     public function saveAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         $params = $this->getRequest()->getParams();
 
         $error = $this->validateNewListParameters($params);

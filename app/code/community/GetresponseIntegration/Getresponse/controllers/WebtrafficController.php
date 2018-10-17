@@ -8,19 +8,21 @@ require_once 'BaseController.php';
 /**
  * Class GetresponseIntegration_Getresponse_WebtrafficController
  */
-class GetresponseIntegration_Getresponse_WebtrafficController
-    extends GetresponseIntegration_Getresponse_BaseController
+class GetresponseIntegration_Getresponse_WebtrafficController extends GetresponseIntegration_Getresponse_BaseController
 {
-
     /**
      * GET getresponse/webtraffic/index
      */
     public function indexAction()
     {
         $this->_initAction();
-        $this->_title($this->__('Web Traffic Tracking'))->_title(
-            $this->__('GetResponse')
-        );
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
+        $this->_title($this->__('Web Traffic Tracking'))->_title($this->__('GetResponse'));
 
         $this->_addContent(
             $this->getLayout()
@@ -38,21 +40,19 @@ class GetresponseIntegration_Getresponse_WebtrafficController
     public function saveAction()
     {
         $this->_initAction();
-        $hasActiveTrafficModule = (int)$this->getRequest()->getParam(
-            'hasGrTrafficFeatureEnabled', 0
-        );
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
+        $hasActiveTrafficModule = (int)$this->getRequest()->getParam('hasGrTrafficFeatureEnabled', 0);
 
         $settingsRepository = new SettingsRepository($this->currentShopId);
-        $newSettings = SettingsFactory::createFromArray(
-            array(
-                'hasActiveTrafficModule' => $hasActiveTrafficModule
-            )
-        );
+        $newSettings = SettingsFactory::createFromArray(array('hasActiveTrafficModule' => $hasActiveTrafficModule));
         $settingsRepository->update($newSettings);
 
-        $message = $hasActiveTrafficModule == 0
-            ? 'Web event traffic tracking disabled'
-            : 'Web event traffic tracking enabled';
+        $message = $hasActiveTrafficModule == 0 ? 'Web event traffic tracking disabled' : 'Web event traffic tracking enabled';
 
         $this->_getSession()->addSuccess($message);
         $this->_redirect('*/*/index');

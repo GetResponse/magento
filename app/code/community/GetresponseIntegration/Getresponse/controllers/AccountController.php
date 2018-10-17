@@ -19,7 +19,7 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
         $this->_initAction();
         $this->_title($this->__('API Key settings'))->_title($this->__('GetResponse'));
 
-        if ((!empty($this->settings->api['apiKey']))) {
+        if ($this->isConnectedToGetResponse()) {
             $this->displayAccountDataPage();
         } else {
             $this->displayConnectPage();
@@ -32,6 +32,12 @@ class GetresponseIntegration_Getresponse_AccountController extends GetresponseIn
     public function disconnectAction()
     {
         $this->_initAction();
+
+        if (!$this->isConnectedToGetResponse()) {
+            $this->redirectToLoginPage();
+            return;
+        }
+
         Mage::helper('getresponse')->disconnectIntegration($this->currentShopId);
         $this->_getSession()->addSuccess('GetResponse account disconnected');
         $this->_redirect('*/*/index');
