@@ -129,6 +129,8 @@ class GetresponseIntegration_Getresponse_EcommerceController
      */
     public function add_shopAction()
     {
+        $this->_initAction();
+
         if (!$this->isConnectedToGetResponse()) {
             $this->redirectToLoginPage();
             return;
