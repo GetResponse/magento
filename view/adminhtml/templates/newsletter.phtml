@@ -81,7 +81,7 @@ $jsAutoResponders = $block->getAutoRespondersForFrontend();
                                        name="gr_autoresponder"
                                        id="gr_autoresponder"
                                        value="1"
-                                    <?php if ($newsletter->getCycleDay() !== ''):?> checked="checked"<?php endif ?>
+                                    <?php if ($newsletter->getCycleDay() !== null):?> checked="checked"<?php endif ?>
                                 />
                                 <label class="admin__field-label" for="gr_autoresponder">Add to autoresponder cycle</label>
                             </div>
@@ -103,7 +103,7 @@ $jsAutoResponders = $block->getAutoRespondersForFrontend();
     </div>
 </form>
 <input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($jsAutoResponders); ?>'/>
-<input type="hidden" id="jsSettingsCycleDayKey" value='<?php echo $newsletter->getCycleDay() . '_' . $newsletter->getAutoresponderId(); ?>'/>
+<input type="hidden" id="jsSettingsCycleDayKey" value='<?php echo (string) $newsletter->getCycleDay() . '_' . $newsletter->getAutoresponderId(); ?>'/>
 <script>
     require(['registration']);
 </script>

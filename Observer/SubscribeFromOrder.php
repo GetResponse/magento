@@ -2,16 +2,15 @@
 
 namespace GetResponse\GetResponseIntegration\Observer;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\Api\ApiTypeException;
-use GrShareCode\Contact\AddContactCommand;
 use GrShareCode\Contact\ContactCustomField;
 use GrShareCode\Contact\ContactCustomFieldsCollection;
-use GrShareCode\Contact\ContactService;
 use GrShareCode\GetresponseApiException;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer as EventObserver;
@@ -32,19 +31,25 @@ class SubscribeFromOrder implements ObserverInterface
     /** @var Repository */
     private $repository;
 
+    /** @var ContactService */
+    private $contactService;
+
     /**
      * @param ObjectManagerInterface $objectManager
      * @param RepositoryFactory $repositoryFactory
      * @param Repository $repository
+     * @param ContactService $contactService
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
         RepositoryFactory $repositoryFactory,
-        Repository $repository
+        Repository $repository,
+        ContactService $contactService
     ) {
         $this->_objectManager = $objectManager;
         $this->repositoryFactory = $repositoryFactory;
         $this->repository = $repository;
+        $this->contactService = $contactService;
     }
 
     /**
@@ -61,41 +66,33 @@ class SubscribeFromOrder implements ObserverInterface
             return $this;
         }
 
-        try {
-            $orderIds = $observer->getOrderIds();
-            $orderId = (int)(is_array($orderIds) ? array_pop($orderIds) : $orderIds);
+        $orderIds = $observer->getOrderIds();
+        $orderId = (int)(is_array($orderIds) ? array_pop($orderIds) : $orderIds);
 
-            $customFields = $this->prepareCustomFields($orderId);
+        $customFields = $this->prepareCustomFields($orderId);
 
-            if ($orderId < 1) {
-                return $this;
-            }
-
-            $order = $this->repository->loadOrder($orderId);
-            $customer = $this->repository->loadCustomer($order->getCustomerId());
-            $subscriber = $this->repository->loadSubscriberByEmail($customer->getEmail());
-
-            if (!$subscriber->isSubscribed()) {
-                return $this;
-            }
-
-            $this->addContact(
-                $registrationSettings->getCampaignId(),
-                $customer->getFirstname(),
-                $customer->getLastname(),
-                $customer->getEmail(),
-                $registrationSettings->getCycleDay(),
-                $customFields
-            );
-
-            return $this;
-        } catch (RepositoryException $e) {
-            return $this;
-        } catch (ApiTypeException $e) {
-            return $this;
-        } catch (GetresponseApiException $e) {
+        if ($orderId < 1) {
             return $this;
         }
+
+        $order = $this->repository->loadOrder($orderId);
+        $customer = $this->repository->loadCustomer($order->getCustomerId());
+        $subscriber = $this->repository->loadSubscriberByEmail($customer->getEmail());
+
+        if (!$subscriber->isSubscribed()) {
+            return $this;
+        }
+
+        $this->addContact(
+            $registrationSettings->getCampaignId(),
+            $customer->getFirstname(),
+            $customer->getLastname(),
+            $customer->getEmail(),
+            $registrationSettings->getCycleDay(),
+            $customFields
+        );
+
+        return $this;
     }
 
 
@@ -121,19 +118,19 @@ class SubscribeFromOrder implements ObserverInterface
                 }
             }
 
-            $service = new ContactService($grApiClient);
-            $service->upsertContact(new AddContactCommand(
+            $this->contactService->createContact(
                 $email,
-                trim($firstName) . ' ' . trim($lastName),
+                $firstName,
+                $lastName,
                 $campaign,
                 $cycleDay,
-                $customFields,
-                Config::ORIGIN_NAME
-            ));
+                $customFields
+            );
 
         } catch (RepositoryException $e) {
         } catch (ApiTypeException $e) {
         } catch (GetresponseApiException $e) {
+        } catch (ConnectionSettingsException $e) {
         }
     }
 

@@ -3,16 +3,18 @@
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GrShareCode\Api\ApiTypeException;
 use GrShareCode\Contact\AddContactCommand;
 use GrShareCode\Contact\ContactCustomFieldsCollection;
-use GrShareCode\Contact\ContactService;
 use GrShareCode\GetresponseApiException;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Event\Observer as EventObserver;
+use Magento\Framework\Event\Observer;
 use Magento\Framework\ObjectManagerInterface;
 
 /**
@@ -30,28 +32,32 @@ class SubscribeFromRegister implements ObserverInterface
     /** @var RepositoryFactory */
     private $repositoryFactory;
 
+    /** @var ContactService */
+    private $contactService;
+
     /**
      * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
+     * @param ContactService $contactService
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
         Repository $repository,
-        RepositoryFactory $repositoryFactory
+        RepositoryFactory $repositoryFactory,
+        ContactService $contactService
     ) {
         $this->_objectManager = $objectManager;
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
+        $this->contactService = $contactService;
     }
 
     /**
-     * Save order into registry to use it in the overloaded controller.
-     *
-     * @param EventObserver $observer
+     * @param Observer $observer
      * @return $this
      */
-    public function execute(EventObserver $observer)
+    public function execute(Observer $observer)
     {
         $registrationSettings = RegistrationSettingsFactory::createFromArray(
             $this->repository->getRegistrationSettings()
@@ -67,18 +73,18 @@ class SubscribeFromRegister implements ObserverInterface
         if ($subscriber->isSubscribed() == true) {
 
             try {
-                $grApiClient = $this->repositoryFactory->createGetResponseApiClient();
-                $service = new ContactService($grApiClient);
-                $service->createContact(new AddContactCommand(
+                $this->contactService->createContact(
                     $customer->getEmail(),
-                    $customer->getFirstname() . ' ' . $customer->getLastname(),
+                    $customer->getFirstname(),
+                    $customer->getLastname(),
                     $registrationSettings->getCampaignId(),
                     $registrationSettings->getCycleDay(),
-                    new ContactCustomFieldsCollection(),
-                    Config::ORIGIN_NAME
-                ));
-            } catch (RepositoryException $e) {
-            } catch (GetresponseApiException $e) {}
+                    new ContactCustomFieldsCollection()
+                );
+            } catch (GetresponseApiException $e) {
+            } catch (ConnectionSettingsException $e) {
+            } catch (ApiTypeException $e) {
+            }
         }
 
         return $this;
