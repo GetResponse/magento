@@ -8,7 +8,7 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
 class CustomFieldsCollection
 {
     /** @var array|CustomField[] */
-    private $customs;
+    private $customs = [];
 
     /**
      * @param CustomField $custom

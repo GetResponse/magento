@@ -7,7 +7,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GrShareCode\Api\ApiTypeException;
 use GrShareCode\GetresponseApiException;
 use GrShareCode\Shop\AddShopCommand;
 use GrShareCode\Shop\ShopService;
@@ -73,15 +72,12 @@ class CreateShop extends AbstractController
 
             $apiClient = $this->repositoryFactory->createGetResponseApiClient();
             $service = new ShopService($apiClient);
-            $shop = $service->addShop(new AddShopCommand($data['shop_name'], $lang, $currency));
-            return $this->resultJsonFactory->create()->setData($shop);
+            $shopId = $service->addShop(new AddShopCommand($data['shop_name'], $lang, $currency));
+            return $this->resultJsonFactory->create()->setData(['shopId' => $shopId, 'name' => $data['shop_name']]);
         } catch (GetresponseApiException $e) {
             return $this->resultJsonFactory->create()->setData(['error' => $e->getMessage()]);
         } catch (RepositoryException $e) {
             return $this->resultJsonFactory->create()->setData(['error' => $e->getMessage()]);
-        } catch (ApiTypeException $e) {
-            return $this->resultJsonFactory->create()->setData(['error' => $e->getMessage()]);
         }
-
     }
 }

@@ -7,7 +7,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFa
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
+use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
 use GrShareCode\Api\ApiTypeException;
 use GrShareCode\Contact\ContactService as GrContactService;
 
@@ -20,14 +20,14 @@ class ContactServiceFactory
     /** @var Repository */
     private $magentoRepository;
 
-    /** @var RepositoryForSharedCode */
+    /** @var ShareCodeRepository */
     private $shareCodeRepository;
 
     /**
      * @param Repository $magentoRepository
-     * @param RepositoryForSharedCode $shareCodeRepository
+     * @param ShareCodeRepository $shareCodeRepository
      */
-    public function __construct(Repository $magentoRepository, RepositoryForSharedCode $shareCodeRepository)
+    public function __construct(Repository $magentoRepository, ShareCodeRepository $shareCodeRepository)
     {
         $this->magentoRepository = $magentoRepository;
         $this->shareCodeRepository = $shareCodeRepository;

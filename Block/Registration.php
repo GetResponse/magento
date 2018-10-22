@@ -3,9 +3,6 @@ namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
-use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
-use GrShareCode\Api\ApiTypeException;
 use GrShareCode\ContactList\ContactListCollection;
 use GrShareCode\ContactList\ContactListService;
 use GrShareCode\GetresponseApiException;
@@ -49,7 +46,6 @@ class Registration extends Template
 
     /**
      * @return ContactListCollection
-     * @throws ApiTypeException
      * @throws RepositoryException
      * @throws GetresponseApiException
      */

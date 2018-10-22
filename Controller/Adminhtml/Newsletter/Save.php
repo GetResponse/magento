@@ -74,7 +74,7 @@ class Save extends AbstractController
             $newsletterSettings = NewsletterSettingsFactory::createFromArray([
                 'status' => $isEnabled,
                 'campaignId' => $campaignId,
-                'cycleDay' => !empty($autoresponder) ? explode('_', $autoresponder)[0] : 0,
+                'cycleDay' => !empty($autoresponder) ? explode('_', $autoresponder)[0] : '',
                 'autoresponderId' => !empty($autoresponder) ? explode('_', $autoresponder)[1] : '',
             ]);
 

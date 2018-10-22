@@ -5,10 +5,11 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Cart;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiTypeFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductServiceFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeCache;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
+use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
 use GrShareCode\Api\ApiTypeException;
 use GrShareCode\Cart\CartService as GrCartService;
 
@@ -21,17 +22,25 @@ class CartServiceFactory
     /** @var Repository */
     private $magentoRepository;
 
-    /** @var RepositoryForSharedCode */
-    private $sharedCodeRepository;
+    /** @var ShareCodeRepository */
+    private $shareCodeRepository;
+
+    /** @var ShareCodeCache */
+    private $shareCodeCache;
 
     /**
      * @param Repository $magentoRepository
-     * @param RepositoryForSharedCode $sharedCodeRepository
+     * @param ShareCodeRepository $shareCodeRepository
+     * @param ShareCodeCache $shareCodeCache
      */
-    public function __construct(Repository $magentoRepository, RepositoryForSharedCode $sharedCodeRepository)
-    {
+    public function __construct(
+        Repository $magentoRepository,
+        ShareCodeRepository $shareCodeRepository,
+        ShareCodeCache $shareCodeCache
+    ) {
         $this->magentoRepository = $magentoRepository;
-        $this->sharedCodeRepository = $sharedCodeRepository;
+        $this->shareCodeRepository = $shareCodeRepository;
+        $this->shareCodeCache = $shareCodeCache;
     }
 
     /**
@@ -46,11 +55,16 @@ class CartServiceFactory
             $settings->getApiKey(),
             ApiTypeFactory::createFromConnectionSettings($settings),
             $settings->getDomain(),
-            $this->sharedCodeRepository,
+            $this->shareCodeRepository,
             $this->magentoRepository->getGetResponsePluginVersion()
         );
 
-        $productService = new ProductServiceFactory($getResponseApiClient, $this->sharedCodeRepository);
-        return new GrCartService($getResponseApiClient, $this->sharedCodeRepository, $productService->create());
+        $productService = new ProductServiceFactory($getResponseApiClient, $this->shareCodeRepository);
+        return new GrCartService(
+            $getResponseApiClient,
+            $this->shareCodeRepository,
+            $productService->create(),
+            $this->shareCodeCache
+        );
     }
 }

@@ -8,7 +8,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductService
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
+use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
 use GrShareCode\Api\ApiTypeException;
 use GrShareCode\Order\OrderService as GrOrderService;
 
@@ -21,14 +21,14 @@ class OrderServiceFactory
     /** @var Repository */
     private $magentoRepository;
 
-    /** @var RepositoryForSharedCode */
+    /** @var ShareCodeRepository */
     private $sharedCodeRepository;
 
     /**
      * @param Repository $magentoRepository
-     * @param RepositoryForSharedCode $sharedCodeRepository
+     * @param ShareCodeRepository $sharedCodeRepository
      */
-    public function __construct(Repository $magentoRepository, RepositoryForSharedCode $sharedCodeRepository)
+    public function __construct(Repository $magentoRepository, ShareCodeRepository $sharedCodeRepository)
     {
         $this->magentoRepository = $magentoRepository;
         $this->sharedCodeRepository = $sharedCodeRepository;

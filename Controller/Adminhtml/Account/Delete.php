@@ -20,9 +20,7 @@ class Delete extends Action
     /** @var Repository */
     private $repository;
 
-    /**
-     * @var PageFactory
-     */
+    /** @var PageFactory */
     protected $resultPageFactory;
 
     /** @var Manager */

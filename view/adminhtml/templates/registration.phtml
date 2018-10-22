@@ -79,7 +79,7 @@ $registrationSettings = $block->getRegistrationSettings();
                                        name="gr_autoresponder"
                                        id="gr_autoresponder"
                                        value="1"
-                                    <?php if ($registrationSettings->getCycleDay() !== ''):?> checked="checked"<?php endif ?>
+                                    <?php if ($registrationSettings->getCycleDay() !== null):?> checked="checked"<?php endif ?>
                                 />
                                 <label class="admin__field-label" for="gr_autoresponder">Add to autoresponder cycle</label>
                             </div>
@@ -128,7 +128,7 @@ $registrationSettings = $block->getRegistrationSettings();
     </div>
 </form>
 <input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($block->getAutoRespondersForFrontend()); ?>'/>
-<input type="hidden" id="jsSettingsCycleDayKey" value='<?php echo $registrationSettings->getCycleDay() . '_' . $registrationSettings->getAutoresponderId(); ?>'/>
+<input type="hidden" id="jsSettingsCycleDayKey" value='<?php echo (string)$registrationSettings->getCycleDay() . '_' . $registrationSettings->getAutoresponderId(); ?>'/>
 <script>
     require(['registration']);
 </script>
