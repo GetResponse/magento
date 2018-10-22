@@ -10,7 +10,6 @@ use GrShareCode\WebForm\WebForm;
 use GrShareCode\WebForm\WebFormCollection;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
-use PHPUnit_Framework_MockObject_MockObject;
 
 /**
  * Class WebformTest
@@ -18,22 +17,22 @@ use PHPUnit_Framework_MockObject_MockObject;
  */
 class WebformTest extends BaseTestCase
 {
-    /** @var Context|PHPUnit_Framework_MockObject_MockObject */
+    /** @var Context|\PHPUnit_Framework_MockObject_MockObject */
     private $context;
 
-    /** @var Repository|PHPUnit_Framework_MockObject_MockObject */
+    /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $repository;
 
-    /** @var RepositoryFactory|PHPUnit_Framework_MockObject_MockObject */
+    /** @var RepositoryFactory|\PHPUnit_Framework_MockObject_MockObject */
     private $repositoryFactory;
 
-    /** @var ObjectManagerInterface|PHPUnit_Framework_MockObject_MockObject */
+    /** @var ObjectManagerInterface|\PHPUnit_Framework_MockObject_MockObject */
     private $objectManager;
 
     /** @var WebformBlock */
     private $webformBlock;
 
-    /** @var GetresponseApiClient|PHPUnit_Framework_MockObject_MockObject */
+    /** @var GetresponseApiClient|\PHPUnit_Framework_MockObject_MockObject */
     private $grApiClient;
 
     public function setUp()

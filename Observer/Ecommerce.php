@@ -2,6 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GrShareCode\Api\ApiTypeException;
@@ -54,8 +55,9 @@ class Ecommerce
 
     /**
      * @return bool
-     * @throws GetresponseApiException
      * @throws ApiTypeException
+     * @throws ConnectionSettingsException
+     * @throws GetresponseApiException
      */
     protected function canHandleECommerceEvent()
     {
@@ -68,8 +70,9 @@ class Ecommerce
 
     /**
      * @return null|Contact
-     * @throws GetresponseApiException
      * @throws ApiTypeException
+     * @throws GetresponseApiException
+     * @throws ConnectionSettingsException
      */
     private function getContactFromGetResponse()
     {

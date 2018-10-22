@@ -3,7 +3,8 @@ namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Cart;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Cart\CartServiceFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
+use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeCache;
+use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Cart\CartService as GrCartService;
 use GrShareCode\DbRepositoryInterface;
@@ -16,11 +17,27 @@ class CartServiceFactoryTest extends BaseTestCase
     /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $magentoRepository;
 
-    /** @var RepositoryForSharedCode|\PHPUnit_Framework_MockObject_MockObject */
-    private $repositoryForSharedCode;
+    /** @var ShareCodeRepository|\PHPUnit_Framework_MockObject_MockObject */
+    private $shareCodeRepository;
 
     /** @var CartServiceFactory */
     private $cartServiceFactory;
+
+    /** @var ShareCodeCache */
+    private $shareCodeCache;
+
+    protected function setUp()
+    {
+        $this->magentoRepository = $this->getMockWithoutConstructing(Repository::class);
+        $this->shareCodeRepository = $this->getMockWithoutConstructing(ShareCodeRepository::class);
+        $this->shareCodeCache = $this->getMockWithoutConstructing(ShareCodeCache::class);
+
+        $this->cartServiceFactory = new CartServiceFactory(
+            $this->magentoRepository,
+            $this->shareCodeRepository,
+            $this->shareCodeCache
+        );
+    }
 
     /**
      * @test
@@ -59,14 +76,5 @@ class CartServiceFactoryTest extends BaseTestCase
             DbRepositoryInterface::class,
             $this->getObjectAttribute($result, 'dbRepository')
         );
-
-    }
-
-    protected function setUp()
-    {
-        $this->magentoRepository = $this->getMockWithoutConstructing(Repository::class);
-        $this->repositoryForSharedCode = $this->getMockWithoutConstructing(RepositoryForSharedCode::class);
-
-        $this->cartServiceFactory = new CartServiceFactory($this->magentoRepository, $this->repositoryForSharedCode);
     }
 }

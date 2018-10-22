@@ -89,6 +89,10 @@ class RegistrationSettings
      */
     public function getCycleDay()
     {
-        return $this->cycleDay;
+        if (strlen($this->cycleDay) > 0) {
+            return (int) $this->cycleDay;
+        }
+
+        return null;
     }
 }

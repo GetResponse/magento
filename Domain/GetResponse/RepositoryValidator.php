@@ -2,7 +2,6 @@
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository as MagentoRepository;
-use GrShareCode\Api\ApiTypeException;
 use GrShareCode\GetresponseApiClient;
 use GrShareCode\GetresponseApiException;
 use Magento\Framework\Controller\ResultFactory;
@@ -48,8 +47,6 @@ class RepositoryValidator
             $apiClient->checkConnection();
             return true;
         } catch (RepositoryException $e) {
-            return false;
-        } catch (ApiTypeException $e) {
             return false;
         } catch (GetresponseApiException $e) {
             return false;
