@@ -80,10 +80,13 @@ class ContactServiceTest extends BaseTestCase
             ->method('create')
             ->willReturn($this->grContactServiceMock);
 
+
         $this->grContactServiceMock
             ->expects(self::once())
             ->method('createContact')
-            ->with($expectedAddContactCommand);
+            ->with($this->callback(function(AddContactCommand $addContactCommand) use ($expectedAddContactCommand) {
+                return $addContactCommand == $expectedAddContactCommand && $addContactCommand->getDayOfCycle() === $expectedAddContactCommand->getDayOfCycle();
+            }));
 
         $this->contactService->createContact(
             $email,
@@ -123,7 +126,7 @@ class ContactServiceTest extends BaseTestCase
                     'simple@example.com',
                     'John Bravo',
                     'D4K4',
-                    NULL,
+                    null,
                     new ContactCustomFieldsCollection(),
                     Config::ORIGIN_NAME
                 ),
