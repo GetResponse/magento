@@ -8,6 +8,9 @@ class GetresponseIntegration_Getresponse_Domain_Shop
     /** @var string */
     private $grShopId;
 
+    /** @var string */
+    private $grListId;
+
     /** @var bool */
     private $isEnabled;
 
@@ -16,12 +19,14 @@ class GetresponseIntegration_Getresponse_Domain_Shop
 
     /**
      * @param string $grShopId
+     * @param string $grListId
      * @param bool $isEnabled
      * @param bool $isScheduleOptimizationEnabled
      */
-    public function __construct($grShopId, $isEnabled, $isScheduleOptimizationEnabled)
+    public function __construct($grShopId, $grListId, $isEnabled, $isScheduleOptimizationEnabled)
     {
         $this->grShopId = $grShopId;
+        $this->grListId = $grListId;
         $this->isEnabled = $isEnabled;
         $this->isScheduleOptimizationEnabled = $isScheduleOptimizationEnabled;
     }
@@ -33,6 +38,7 @@ class GetresponseIntegration_Getresponse_Domain_Shop
     {
         return array(
             'grShopId' => $this->grShopId,
+            'grListId' => $this->grListId,
             'isEnabled' => $this->isEnabled,
             'isScheduleOptimizationEnabled' => $this->isScheduleOptimizationEnabled
         );

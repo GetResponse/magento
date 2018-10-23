@@ -34,14 +34,18 @@ class GetresponseIntegration_Getresponse_EcommerceController
 
         try {
             $shops = $this->api->getShops();
+            $lists = $this->api->getCampaigns();
+
         } catch (GetresponseIntegration_Getresponse_Domain_GetresponseException $e) {
             $shops = array();
+            $lists = array();
         }
 
         $this->_addContent(
             $block
                 ->setTemplate('getresponse/shop.phtml')
                 ->assign('gr_shops', $shops)
+                ->assign('gr_lists', $lists)
                 ->assign(
                     'shop_enabled', isset($ecommerceSettings['isEnabled'])
                     ? $ecommerceSettings['isEnabled'] : 0
@@ -49,6 +53,9 @@ class GetresponseIntegration_Getresponse_EcommerceController
                 ->assign(
                     'current_shop_id', isset($ecommerceSettings['grShopId'])
                     ? $ecommerceSettings['grShopId'] : null
+                )->assign(
+                    'current_list_id', isset($ecommerceSettings['grListId'])
+                    ? $ecommerceSettings['grListId'] : null
                 )
                 ->assign(
                     'schedule_optimization',
@@ -66,6 +73,8 @@ class GetresponseIntegration_Getresponse_EcommerceController
      */
     public function saveAction()
     {
+        $this->_initAction();
+
         if (!$this->isConnectedToGetResponse()) {
             $this->redirectToLoginPage();
             return;
@@ -73,6 +82,7 @@ class GetresponseIntegration_Getresponse_EcommerceController
 
         $isEnabled = (int)$this->getRequest()->getParam('shop_enabled', 0);
         $shopId = $this->getRequest()->getParam('shop_id');
+        $listId = $this->getRequest()->getParam('list_id');
         $isScheduleOptimizationEnabled = $this->getRequest()->getParam(
             'schedule_optimization'
         );
@@ -87,10 +97,20 @@ class GetresponseIntegration_Getresponse_EcommerceController
             return;
         }
 
+        if (empty($listId)) {
+            $this->_getSession()->addError(
+                'You first need to select a list you want to send ecommerce data from'
+            );
+            $this->_redirect('*/*/index');
+
+            return;
+        }
+
         if (1 === $isEnabled) {
             $data = array(
-                'isEnabled'                     => 1,
-                'grShopId'                      => $shopId,
+                'isEnabled' => 1,
+                'grShopId' => $shopId,
+                'grListId' => $listId,
                 'isScheduleOptimizationEnabled' => $isScheduleOptimizationEnabled
             );
 
@@ -109,6 +129,8 @@ class GetresponseIntegration_Getresponse_EcommerceController
      */
     public function add_shopAction()
     {
+        $this->_initAction();
+
         if (!$this->isConnectedToGetResponse()) {
             $this->redirectToLoginPage();
             return;

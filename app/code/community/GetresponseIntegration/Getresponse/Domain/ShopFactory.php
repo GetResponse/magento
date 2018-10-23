@@ -14,6 +14,7 @@ class GetresponseIntegration_Getresponse_Domain_ShopFactory
     {
         return new Shop(
             $data['grShopId'],
+            $data['grListId'],
             $data['isEnabled'],
             isset($data['isScheduleOptimizationEnabled']) ? $data['isScheduleOptimizationEnabled'] : 0
         );
