@@ -70,11 +70,6 @@
                         <method>createAccountOrder</method>
                         <type>singleton</type>
                     </getresponse_order_create_account>
-                    <getresponse_automation>
-                        <class>GetresponseIntegration_Getresponse_Model_Observer</class>
-                        <method>automationHandler</method>
-                        <type>singleton</type>
-                    </getresponse_automation>
                     <getresponse_order_create_handler>
                         <class>GetresponseIntegration_Getresponse_Model_ECommerceObserver</class>
                         <method>createOrderHandler</method>
@@ -210,10 +205,6 @@
                     <title>Add Contacts via GetResponse Forms</title>
                     <action>getresponse/webform/index</action>
                 </viawebform_page>
-                <automation_page module="getresponse">
-                    <title>Contact List Rules</title>
-                    <action>getresponse/contactlistrules/index</action>
-                </automation_page>
                 <newsletter_page module="getresponse">
                     <title>Add to Contact List after Customer Subscribes</title>
                     <action>getresponse/newsletter/index</action>
