@@ -14,7 +14,6 @@ use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\GetresponseApiClient;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
-use PHPUnit_Framework_MockObject_MockObject;
 
 
 /**
@@ -23,22 +22,22 @@ use PHPUnit_Framework_MockObject_MockObject;
  */
 class RegistrationTest extends BaseTestCase
 {
-    /** @var Context|PHPUnit_Framework_MockObject_MockObject */
+    /** @var Context|\PHPUnit_Framework_MockObject_MockObject */
     private $context;
 
-    /** @var Repository|PHPUnit_Framework_MockObject_MockObject */
+    /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $repository;
 
-    /** @var RepositoryFactory|PHPUnit_Framework_MockObject_MockObject */
+    /** @var RepositoryFactory|\PHPUnit_Framework_MockObject_MockObject */
     private $repositoryFactory;
 
     /** @var RegistrationBlock registrationBlock */
     private $registrationBlock;
 
-    /** @var GetresponseApiClient|PHPUnit_Framework_MockObject_MockObject */
+    /** @var GetresponseApiClient|\PHPUnit_Framework_MockObject_MockObject */
     private $grApiClient;
 
-    /** @var ObjectManagerInterface|PHPUnit_Framework_MockObject_MockObject */
+    /** @var ObjectManagerInterface|\PHPUnit_Framework_MockObject_MockObject */
     private $objectManager;
 
     public function setUp()

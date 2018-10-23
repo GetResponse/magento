@@ -7,10 +7,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\GetresponseApiClient;
 use Magento\Framework\ObjectManagerInterface;
-use PHPUnit\Framework\TestCase;
 use Magento\Framework\View\Element\Template\Context;
-use PHPUnit_Framework_MockObject_MockObject;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrRepository;
 
 /**
  * Class ListsTest
@@ -18,22 +15,22 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Repository as GrReposi
  */
 class ListsTest extends BaseTestCase
 {
-    /** @var Context|PHPUnit_Framework_MockObject_MockObject */
+    /** @var Context|\PHPUnit_Framework_MockObject_MockObject */
     private $context;
 
-    /** @var Repository|PHPUnit_Framework_MockObject_MockObject */
+    /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $repository;
 
-    /** @var RepositoryFactory|PHPUnit_Framework_MockObject_MockObject */
+    /** @var RepositoryFactory|\PHPUnit_Framework_MockObject_MockObject */
     private $repositoryFactory;
 
     /** @var ListsBlock */
     private $listsBlock;
 
-    /** @var ObjectManagerInterface|PHPUnit_Framework_MockObject_MockObject */
+    /** @var ObjectManagerInterface|\PHPUnit_Framework_MockObject_MockObject */
     private $objectManager;
 
-    /** @var GetresponseApiClient|PHPUnit_Framework_MockObject_MockObject */
+    /** @var GetresponseApiClient|\PHPUnit_Framework_MockObject_MockObject */
     private $grApiClient;
 
     public function setUp()

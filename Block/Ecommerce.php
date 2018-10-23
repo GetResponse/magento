@@ -5,10 +5,8 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GrShareCode\Api\ApiTypeException;
 use GrShareCode\ContactList\ContactListCollection;
 use GrShareCode\ContactList\ContactListService;
-use GrShareCode\GetresponseApiClient;
 use GrShareCode\GetresponseApiException;
 use GrShareCode\Shop\ShopsCollection;
 use GrShareCode\Shop\ShopService;
@@ -74,7 +72,6 @@ class Ecommerce extends Template
 
     /**
      * @return ShopsCollection
-     * @throws ApiTypeException
      * @throws GetresponseApiException
      * @throws RepositoryException
      */
@@ -94,7 +91,6 @@ class Ecommerce extends Template
 
     /**
      * @return ContactListCollection
-     * @throws ApiTypeException
      * @throws GetresponseApiException
      * @throws RepositoryException
      */
