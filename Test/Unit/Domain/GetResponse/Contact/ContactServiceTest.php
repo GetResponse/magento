@@ -1,9 +1,13 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Cart;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactServiceFactory;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
+use GrShareCode\Contact\AddContactCommand;
+use GrShareCode\Contact\ContactCustomFieldsCollection;
 use GrShareCode\Contact\ContactService as GrContactService;
 
 /**
@@ -13,13 +17,27 @@ use GrShareCode\Contact\ContactService as GrContactService;
 class ContactServiceTest extends BaseTestCase
 {
     /** @var ContactServiceFactory|\PHPUnit_Framework_MockObject_MockObject */
-    private $contactServiceFactory;
+    private $contactServiceFactoryMock;
 
     /** @var GrContactService|\PHPUnit_Framework_MockObject_MockObject */
-    private $grContactService;
+    private $grContactServiceMock;
 
     /** @var ContactService */
-    private $sut;
+    private $contactService;
+
+    protected function setUp()
+    {
+        $this->grContactServiceMock = $this->getMockWithoutConstructing(GrContactService::class);
+
+        $this->contactServiceFactoryMock = $this->getMockWithoutConstructing(ContactServiceFactory::class);
+        $this->contactServiceFactoryMock
+            ->expects(self::once())
+            ->method('create')
+            ->willReturn($this->grContactServiceMock);
+
+        $this->contactService = new ContactService($this->contactServiceFactoryMock);
+
+    }
 
     /**
      * @test
@@ -29,27 +47,114 @@ class ContactServiceTest extends BaseTestCase
         $email = 'kowalski@getresponse.com';
         $contactListId = 'As34d';
 
-        $this->grContactService
+        $this->grContactServiceMock
             ->expects(self::once())
             ->method('getContactByEmail')
             ->with($email, $contactListId);
 
-        $this->sut->getContactByEmail($email, $contactListId);
+        $this->contactService->getContactByEmail($email, $contactListId);
     }
 
-    protected function setUp()
-    {
-        $this->grContactService = $this->getMockWithoutConstructing(GrContactService::class);
-
-        $this->contactServiceFactory = $this->getMockWithoutConstructing(ContactServiceFactory::class);
-        $this->contactServiceFactory
+    /**
+     * @test
+     * @dataProvider shouldCreateValidAddContactCommandProvider
+     * @param AddContactCommand $expectedAddContactCommand
+     * @param $email
+     * @param $firstName
+     * @param $lastName
+     * @param $campaignId
+     * @param $dayOfCycle
+     * @param $customs
+     */
+    public function shouldCreateValidAddContactCommand(
+        AddContactCommand $expectedAddContactCommand,
+        $email,
+        $firstName,
+        $lastName,
+        $campaignId,
+        $dayOfCycle,
+        $customs
+    ) {
+        $this->contactServiceFactoryMock
             ->expects(self::once())
             ->method('create')
-            ->willReturn($this->grContactService);
+            ->willReturn($this->grContactServiceMock);
 
-        $this->sut = new ContactService($this->contactServiceFactory);
 
+        $this->grContactServiceMock
+            ->expects(self::once())
+            ->method('createContact')
+            ->with($this->callback(function(AddContactCommand $addContactCommand) use ($expectedAddContactCommand) {
+                return $addContactCommand == $expectedAddContactCommand && $addContactCommand->getDayOfCycle() === $expectedAddContactCommand->getDayOfCycle();
+            }));
+
+        $this->contactService->createContact(
+            $email,
+            $firstName,
+            $lastName,
+            $campaignId,
+            $dayOfCycle,
+            $customs
+        );
     }
 
+    /**
+     * @return array
+     */
+    public function shouldCreateValidAddContactCommandProvider()
+    {
+        return [
+            [
+                new AddContactCommand(
+                    'simple@example.com',
+                    'John Bravo',
+                    'D4K4',
+                    1,
+                    new ContactCustomFieldsCollection(),
+                    Config::ORIGIN_NAME
+                ),
+                'simple@example.com',
+                'John',
+                'Bravo',
+                'D4K4',
+                1,
+                new ContactCustomFieldsCollection()
+            ],
+            // zabezpieczenie przed tym, aby w api day of cycle nie był ustawiony na ''
+            [
+                new AddContactCommand(
+                    'simple@example.com',
+                    'John Bravo',
+                    'D4K4',
+                    null,
+                    new ContactCustomFieldsCollection(),
+                    Config::ORIGIN_NAME
+                ),
+                'simple@example.com',
+                'John',
+                'Bravo',
+                'D4K4',
+                '',
+                new ContactCustomFieldsCollection()
+            ],
+            // empty name
+            [
+                new AddContactCommand(
+                    'simple@example.com',
+                    '',
+                    'D4K4',
+                    1,
+                    new ContactCustomFieldsCollection(),
+                    Config::ORIGIN_NAME
+                ),
+                'simple@example.com',
+                '',
+                '',
+                'D4K4',
+                1,
+                new ContactCustomFieldsCollection()
+            ]
+        ];
+    }
 
 }

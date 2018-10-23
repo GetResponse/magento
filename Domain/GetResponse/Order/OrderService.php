@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Order;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GrShareCode\Api\ApiTypeException;
 use GrShareCode\GetresponseApiException;
 use GrShareCode\Order\AddOrderCommand;
@@ -25,6 +26,7 @@ class OrderService
      * @param AddOrderCommand $addOrderCommand
      * @throws ApiTypeException
      * @throws GetresponseApiException
+     * @throws ConnectionSettingsException
      */
     public function exportOrder(AddOrderCommand $addOrderCommand)
     {
@@ -36,6 +38,7 @@ class OrderService
     /**
      * @param AddOrderCommand $addOrderCommand
      * @throws ApiTypeException
+     * @throws ConnectionSettingsException
      * @throws GetresponseApiException
      */
     public function sendOrder(AddOrderCommand $addOrderCommand)

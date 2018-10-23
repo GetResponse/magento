@@ -2,7 +2,6 @@
 namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GrShareCode\Api\ApiTypeException;
 use GrShareCode\ContactList\ContactListCollection;
 use GrShareCode\ContactList\ContactListService;
 use GrShareCode\GetresponseApiException;
@@ -46,7 +45,6 @@ class Newsletter extends Template
 
     /**
      * @return ContactListCollection
-     * @throws ApiTypeException
      * @throws GetresponseApiException
      * @throws RepositoryException
      */

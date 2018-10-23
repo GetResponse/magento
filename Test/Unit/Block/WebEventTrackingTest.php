@@ -6,9 +6,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettings;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
-use PHPUnit\Framework\TestCase;
 use Magento\Framework\View\Element\Template\Context;
-use PHPUnit_Framework_MockObject_MockObject;
 
 /**
  * Class WebEventTrackingTest
@@ -16,13 +14,13 @@ use PHPUnit_Framework_MockObject_MockObject;
  */
 class WebEventTrackingTest extends BaseTestCase
 {
-    /** @var Context|PHPUnit_Framework_MockObject_MockObject */
+    /** @var Context|\PHPUnit_Framework_MockObject_MockObject */
     private $context;
 
-    /** @var Repository|PHPUnit_Framework_MockObject_MockObject */
+    /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $repository;
 
-    /** @var RepositoryFactory|PHPUnit_Framework_MockObject_MockObject */
+    /** @var RepositoryFactory|\PHPUnit_Framework_MockObject_MockObject */
     private $repositoryFactory;
 
     /** @var WebEventTracking */

@@ -3,9 +3,8 @@ namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Contac
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactServiceFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\RepositoryForSharedCode;
+use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
-use GrShareCode\Api\Authorization;
 use GrShareCode\Contact\ContactService as GrContactService;
 use GrShareCode\GetresponseApiClient;
 
@@ -18,7 +17,7 @@ class ContactServiceFactoryTest extends BaseTestCase
     /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $magentoRepository;
 
-    /** @var RepositoryForSharedCode|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var ShareCodeRepository|\PHPUnit_Framework_MockObject_MockObject */
     private $shareCodeRepository;
 
     /** @var ContactServiceFactory */
@@ -57,7 +56,7 @@ class ContactServiceFactoryTest extends BaseTestCase
     protected function setUp()
     {
         $this->magentoRepository = $this->getMockWithoutConstructing(Repository::class);
-        $this->shareCodeRepository = $this->getMockWithoutConstructing(RepositoryForSharedCode::class);
+        $this->shareCodeRepository = $this->getMockWithoutConstructing(ShareCodeRepository::class);
         $this->contactServiceFactory = new ContactServiceFactory($this->magentoRepository, $this->shareCodeRepository);
     }
 

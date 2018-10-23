@@ -8,8 +8,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Framework\View\Element\Template\Context;
-use PHPUnit\Framework\TestCase;
-use PHPUnit_Framework_MockObject_MockObject;
 
 /**
  * Class SettingsTest
@@ -17,13 +15,13 @@ use PHPUnit_Framework_MockObject_MockObject;
  */
 class SettingsTest extends BaseTestCase
 {
-    /** @var Context|PHPUnit_Framework_MockObject_MockObject */
+    /** @var Context|\PHPUnit_Framework_MockObject_MockObject */
     private $context;
 
-    /** @var Repository|PHPUnit_Framework_MockObject_MockObject */
+    /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $repository;
 
-    /** @var RepositoryFactory|PHPUnit_Framework_MockObject_MockObject */
+    /** @var RepositoryFactory|\PHPUnit_Framework_MockObject_MockObject */
     private $repositoryFactory;
 
     /** @var Settings */

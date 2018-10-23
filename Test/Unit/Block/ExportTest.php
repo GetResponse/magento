@@ -13,7 +13,6 @@ use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\GetresponseApiClient;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
-use PHPUnit_Framework_MockObject_MockObject;
 
 /**
  * Class ExportTest
@@ -21,13 +20,13 @@ use PHPUnit_Framework_MockObject_MockObject;
  */
 class ExportTest extends BaseTestCase
 {
-    /** @var Context|PHPUnit_Framework_MockObject_MockObject */
+    /** @var Context|\PHPUnit_Framework_MockObject_MockObject */
     private $context;
 
-    /** @var Repository|PHPUnit_Framework_MockObject_MockObject */
+    /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $repository;
 
-    /** @var RepositoryFactory|PHPUnit_Framework_MockObject_MockObject */
+    /** @var RepositoryFactory|\PHPUnit_Framework_MockObject_MockObject */
     private $repositoryFactory;
 
     /** @var ExportBlock */
@@ -36,7 +35,7 @@ class ExportTest extends BaseTestCase
     /** @var ObjectManagerInterface */
     private $objectManager;
 
-    /** @var GetresponseApiClient|PHPUnit_Framework_MockObject_MockObject */
+    /** @var GetresponseApiClient|\PHPUnit_Framework_MockObject_MockObject */
     private $grApiClient;
 
     public function setUp()

@@ -3,8 +3,8 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Export;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Cart\CartService;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\AddOrderCommandFactory;
@@ -12,13 +12,12 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GrShareCode\Api\ApiTypeException;
-use GrShareCode\Contact\AddContactCommand;
 use GrShareCode\Contact\ContactCustomField;
 use GrShareCode\Contact\ContactCustomFieldsCollection;
-use GrShareCode\Contact\ContactService;
 use GrShareCode\GetresponseApiException;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
@@ -62,6 +61,12 @@ class Process extends AbstractController
     /** @var AddOrderCommandFactory */
     private $addOrderCommandFactory;
 
+    /** @var ContactService */
+    private $contactService;
+
+    /** @var array */
+    private $customsMapping;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
@@ -71,6 +76,7 @@ class Process extends AbstractController
      * @param CartService $cartService
      * @param OrderService $orderService
      * @param AddOrderCommandFactory $addOrderCommandFactory
+     * @param ContactService $contactService
      */
     public function __construct(
         Context $context,
@@ -80,7 +86,8 @@ class Process extends AbstractController
         RepositoryValidator $repositoryValidator,
         CartService $cartService,
         OrderService $orderService,
-        AddOrderCommandFactory $addOrderCommandFactory
+        AddOrderCommandFactory $addOrderCommandFactory,
+        ContactService $contactService
     ) {
         parent::__construct($context, $repositoryValidator);
         $this->resultPageFactory = $resultPageFactory;
@@ -89,6 +96,7 @@ class Process extends AbstractController
         $this->cartService = $cartService;
         $this->orderService = $orderService;
         $this->addOrderCommandFactory = $addOrderCommandFactory;
+        $this->contactService = $contactService;
 
         return $this->checkGetResponseConnection();
     }
@@ -110,64 +118,70 @@ class Process extends AbstractController
             } else {
                 $customs = [];
             }
-
-            $contactListId = $data['campaign_id'];
-
         } catch (RequestValidationException $e) {
             return $this->handleException($e);
         } catch (CustomFieldFactoryException $e) {
             return $this->handleException($e);
         }
 
+        $contactListId = $data['campaign_id'];
         $subscribers = $this->repository->getFullCustomersDetails();
 
-        /** @var Subscriber $subscriber */
-        foreach ($subscribers as $subscriber) {
+        try {
+            $this->customsMapping = $this->prepareCustomsMapping($customs);
 
-            $this->stats['count']++;
-            $custom_fields = [];
-            foreach ($customs as $field => $name) {
-                if (!empty($subscriber[$field])) {
-                    $custom_fields[$name] = $subscriber[$field];
+            /** @var Subscriber $subscriber */
+            foreach ($subscribers as $subscriber) {
+
+                $this->stats['count']++;
+                $custom_fields = [];
+                foreach ($customs as $field => $name) {
+                    if (!empty($subscriber[$field])) {
+                        $custom_fields[$name] = $subscriber[$field];
+                    }
                 }
-            }
 
-            $cycle_day = (isset($data['gr_autoresponder']) && $data['cycle_day'] != '') ? (int)$data['cycle_day'] : 0;
+                $dayOfCycle = (isset($data['gr_autoresponder']) && $data['cycle_day'] != '') ? (int)$data['cycle_day'] : null;
 
-            try {
-                $this->addContact(
-                    $contactListId,
-                    $subscriber['firstname'],
-                    $subscriber['lastname'],
-                    $subscriber['subscriber_email'],
-                    $cycle_day,
-                    $custom_fields
-                );
-            } catch (RepositoryException $e) {
-                return $this->handleException($e);
-            } catch (ApiTypeException $e) {
-                return $this->handleException($e);
-            } catch (GetresponseApiException $e) {
-                //skip all API errors
-            }
 
-            if (empty($data['ecommerce'])) {
-                continue;
-            }
-
-            /** @var Order $order */
-            foreach ($this->repository->getOrderByCustomerId($subscriber->getCustomerId()) as $order) {
-                $grShopId = $data['store_id'];
                 try {
-                    $this->orderService->exportOrder(
-                        $this->addOrderCommandFactory->createForOrderService(
-                            $order, $contactListId, $grShopId
-                        )
+                    $this->upsertContact(
+                        $contactListId,
+                        $subscriber['firstname'],
+                        $subscriber['lastname'],
+                        $subscriber['subscriber_email'],
+                        $dayOfCycle,
+                        $custom_fields
                     );
-                } catch (\Exception $e) {
-                    $this->handleException($e);
+                } catch (GetresponseApiException $e) {
+                    continue;
+                }
+
+                if (empty($data['ecommerce'])) {
+                    continue;
+                }
+
+                /** @var Order $order */
+                foreach ($this->repository->getOrderByCustomerId($subscriber->getCustomerId()) as $order) {
+                    $grShopId = $data['store_id'];
+                    try {
+                        $this->orderService->exportOrder(
+                            $this->addOrderCommandFactory->createForOrderService(
+                                $order, $contactListId, $grShopId
+                            )
+                        );
+                    } catch (\Exception $e) {
+                        $this->handleException($e);
+                    }
                 }
             }
+
+        } catch (RepositoryException $e) {
+            return $this->handleException($e);
+        } catch (ConnectionSettingsException $e) {
+            return $this->handleException($e);
+        } catch (ApiTypeException $e) {
+            return $this->handleException($e);
         }
 
         $this->messageManager->addSuccessMessage(Message::DATA_EXPORTED);
@@ -189,7 +203,7 @@ class Process extends AbstractController
             throw RequestValidationException::createWithMessage(Message::SELECT_CONTACT_LIST);
         }
 
-        if (!empty($data['gr_autoresponder']) && empty($data['cycle_day'])) {
+        if (!empty($data['gr_autoresponder']) && (strlen($data['cycle_day']) === 0)) {
             throw RequestValidationException::createWithMessage(Message::SELECT_AUTORESPONDER_DAY);
         }
 
@@ -219,35 +233,52 @@ class Process extends AbstractController
      * @param int $cycleDay
      * @param array $userCustoms
      * @throws GetresponseApiException
-     * @throws RepositoryException
+     * @throws ConnectionSettingsException
      * @throws ApiTypeException
      */
-    private function addContact($campaignId, $firstName, $lastName, $email, $cycleDay = null, $userCustoms = [])
+    private function upsertContact($campaignId, $firstName, $lastName, $email, $cycleDay = null, $userCustoms = [])
     {
         $customFields = new ContactCustomFieldsCollection();
-        $apiClient = $this->repositoryFactory->createGetResponseApiClient();
 
         foreach ($userCustoms as $name => $value) {
-            $custom = $apiClient->getCustomFieldByName($name);
-
-            if (!empty($custom)) {
-                $customFields->add(new ContactCustomField($custom['customFieldId'], $value));
+            if (!empty($this->customsMapping[$name])) {
+                $customFields->add(new ContactCustomField($this->customsMapping[$name], $value));
             }
         }
 
-        $name = trim($firstName . ' ' . $lastName);
-
-        $service = new ContactService($apiClient);
-        $service->upsertContact(new AddContactCommand(
+        $this->contactService->upsertContact(
             $email,
-            !empty($name) ? $name : null,
+            $firstName,
+            $lastName,
             $campaignId,
             $cycleDay,
-            $customFields,
-            Config::ORIGIN_NAME
-        ));
+            $customFields
+        );
 
         $this->stats['added']++;
+    }
+
+    /**
+     * @param $customs
+     * @return array
+     * @throws GetresponseApiException
+     * @throws RepositoryException
+     */
+    private function prepareCustomsMapping($customs)
+    {
+        $mapping = [];
+        $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+
+        foreach ($customs as $name => $grCustomName) {
+
+            $custom = $apiClient->getCustomFieldByName($grCustomName);
+
+            if (!empty($custom)) {
+                $mapping[$name] = $custom['customFieldId'];
+            }
+        }
+
+        return $mapping;
     }
 
 }
