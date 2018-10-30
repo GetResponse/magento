@@ -177,6 +177,8 @@ class GetresponseIntegration_Getresponse_EcommerceController
      */
     public function delete_shopAction()
     {
+        $this->_initAction();
+
         if (!$this->isConnectedToGetResponse()) {
             $this->redirectToLoginPage();
             return;
