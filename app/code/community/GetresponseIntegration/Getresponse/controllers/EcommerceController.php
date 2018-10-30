@@ -184,8 +184,6 @@ class GetresponseIntegration_Getresponse_EcommerceController
             return;
         }
 
-        $this->_initAction();
-
         if (false === $this->api->deleteShop(
                 $this->getRequest()->getParam('id')
             )
