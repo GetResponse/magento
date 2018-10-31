@@ -26,9 +26,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
     /** @var Zend_Cache_Core */
     private $cache;
 
-    /** @var array */
-    private $accountSettings;
-
     /** @var string */
     private $shopId;
 
@@ -36,8 +33,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
     {
         $this->customerSessionModel = Mage::getSingleton('customer/session');
         $this->shopId = Mage::helper('getresponse')->getStoreId();
-        $settingsRepository = new SettingsRepository($this->shopId);
-        $this->accountSettings = $settingsRepository->getAccount();
         $shopRepository = new ShopRepository($this->shopId);
         $this->shopsSettings = $shopRepository->getShop()->toArray();
         $this->cache = Mage::app()->getCache();
@@ -52,8 +47,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             if (false === $this->canHandleECommerceEvent()) {
                 return;
             }
-
-            $campaignId = $this->accountSettings['campaignId'];
 
             /** @var Mage_Checkout_Helper_Cart $cartModel */
             $cartModel = Mage::helper('checkout/cart');
@@ -71,7 +64,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                     Scheduler::EXPORT_CART,
                     array(
                         'quote_id' => $cartModel->getCart()->getQuote()->getId(),
-                        'campaign_id' => $campaignId,
+                        'campaign_id' => $this->shopsSettings['grListId'],
                         'subscriber_email' => $customer->getData('email'),
                         'gr_store_id' => $this->shopsSettings['grShopId'],
                         'shop_id' => $this->shopId
@@ -88,7 +81,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                 );
                 $cartHandler->sendCartToGetresponse(
                     $cartModel->getCart()->getQuote(),
-                    $campaignId,
+                    $this->shopsSettings['grListId'],
                     $customer->getData('email'),
                     $this->shopsSettings['grShopId']
                 );
@@ -108,8 +101,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                 return;
             }
 
-            $campaignId = $this->accountSettings['campaignId'];
-
             /** @var Mage_Customer_Model_Customer $customer */
             $customer = $this->customerSessionModel->getCustomer();
 
@@ -127,7 +118,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                     Scheduler::EXPORT_ORDER,
                     array(
                         'order_id' => $order->getId(),
-                        'campaign_id' => $campaignId,
+                        'campaign_id' => $this->shopsSettings['grListId'],
                         'subscriber_email' => $customer->getData('email'),
                         'gr_store_id' => $this->shopsSettings['grShopId'],
                         'shop_id' => $this->shopId
@@ -146,7 +137,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                 $orderHandler->sendOrderToGetresponse(
                     $observer->getEvent()->getData('order'),
                     $customer->getData('email'),
-                    $campaignId,
+                    $this->shopsSettings['grListId'],
                     $getresponseCartId,
                     $this->shopsSettings['grShopId'],
                     true,
@@ -197,8 +188,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                 return;
             }
 
-            $campaignId = $this->accountSettings['campaignId'];
-
             if ($this->shopsSettings['isScheduleOptimizationEnabled']) {
 
                 $scheduler = new Scheduler();
@@ -207,7 +196,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                     Scheduler::EXPORT_ORDER,
                     array(
                         'order_id' => $order->getId(),
-                        'campaign_id' => $campaignId,
+                        'campaign_id' => $this->shopsSettings['grListId'],
                         'subscriber_email' => $order->getCustomerEmail(),
                         'gr_store_id' => $this->shopsSettings['grShopId'],
                         'shop_id' => $this->shopId,
@@ -229,7 +218,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                 $orderHandler->sendOrderToGetresponse(
                     $order,
                     $order->getCustomerEmail(),
-                    $campaignId,
+                    $this->shopsSettings['grListId'],
                     $getresponseCartId,
                     $this->shopsSettings['grShopId'],
                     false,
@@ -275,11 +264,11 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
     private function getContactFromGetResponseByEmail($email)
     {
         try {
-            if (empty($email) || empty($this->accountSettings['campaignId'])) {
+            if (empty($email) || empty($this->shopsSettings['grListId'])) {
                 return array();
             }
 
-            $cacheKey = md5($email . $this->accountSettings['campaignId']);
+            $cacheKey = md5($email . $this->shopsSettings['grListId']);
             $cachedContact = $this->cache->load($cacheKey);
 
             if (false !== $cachedContact) {
@@ -287,7 +276,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             }
 
             $api = $this->buildApiInstance();
-            $response = $api->getContact($email, $this->accountSettings['campaignId']);
+            $response = $api->getContact($email, $this->shopsSettings['grListId']);
 
             $this->cache->save(serialize($response), $cacheKey, array(self::CACHE_KEY), 5 * 60);
 
@@ -402,7 +391,10 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
      */
     private function buildApiInstance()
     {
-        if (empty($this->accountSettings['apiKey'])) {
+        $settingsRepository = new SettingsRepository($this->shopId);
+        $accountSettings = $settingsRepository->getAccount();
+
+        if (empty($accountSettings['apiKey'])) {
             throw GetresponseException::create_when_api_key_not_found();
         }
 
@@ -410,9 +402,9 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
         $api = Mage::helper('getresponse/api');
 
         $api->setApiDetails(
-            $this->accountSettings['apiKey'],
-            $this->accountSettings['apiUrl'],
-            $this->accountSettings['apiDomain']
+            $accountSettings['apiKey'],
+            $accountSettings['apiUrl'],
+            $accountSettings['apiDomain']
         );
 
         return $api;
@@ -423,6 +415,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
      */
     private function isCampaignIdSet()
     {
-        return isset($this->accountSettings['campaignId']);
+        return isset($this->shopsSettings['grListId']);
     }
 }

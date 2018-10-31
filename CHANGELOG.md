@@ -1,5 +1,12 @@
 # Changelog
 
+## 19.1.14
+*(2018-10-23)*
+
+#### Bug fixes
+* send autoresponder day 0
+* select list in ecommerce section
+
 ## 19.1.13
 *(2018-10-04)*
 
