@@ -7,6 +7,8 @@ use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
+use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\Message;
 
 /**
  * Class Index
@@ -18,7 +20,9 @@ class Index extends AbstractController
 
     /** @var PageFactory */
     protected $resultPageFactory;
+
     /** @var RepositoryValidator */
+    private $repositoryValidator;
 
     /**
      * @param Context $context
@@ -30,10 +34,9 @@ class Index extends AbstractController
         PageFactory $resultPageFactory,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context, $repositoryValidator);
+        parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
-
-        return $this->checkGetResponseConnection();
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -41,6 +44,11 @@ class Index extends AbstractController
      */
     public function execute()
     {
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 

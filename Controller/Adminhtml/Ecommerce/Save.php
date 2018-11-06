@@ -12,6 +12,7 @@ use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\App\Request\Http;
+use GetResponse\GetResponseIntegration\Helper\Config;
 
 /**
  * Class Save
@@ -27,6 +28,9 @@ class Save extends AbstractController
     /** @var Repository */
     private $repository;
 
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
      * @param Context $context
      * @param TypeListInterface $cache
@@ -39,11 +43,10 @@ class Save extends AbstractController
         Repository $repository,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context, $repositoryValidator);
+        parent::__construct($context);
         $this->cache = $cache;
         $this->repository = $repository;
-
-        return $this->checkGetResponseConnection();
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -55,6 +58,11 @@ class Save extends AbstractController
         $resultRedirect->setPath(self::BACK_URL);
 
         try {
+            if (!$this->repositoryValidator->validate()) {
+                $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
+                return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+            }
+
             /** @var Http $request */
             $request = $this->getRequest();
             $settings = EcommerceSettingsFactory::createFromPost($request->getPostValue());

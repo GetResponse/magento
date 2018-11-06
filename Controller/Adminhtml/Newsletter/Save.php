@@ -11,6 +11,7 @@ use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Request\Http;
+use GetResponse\GetResponseIntegration\Helper\Config;
 
 /**
  * Class RegistrationPost
@@ -29,6 +30,9 @@ class Save extends AbstractController
     /** @var Repository */
     private $repository;
 
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
@@ -41,10 +45,11 @@ class Save extends AbstractController
         Repository $repository,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context, $repositoryValidator);
+        parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -52,6 +57,11 @@ class Save extends AbstractController
      */
     public function execute()
     {
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::BACK_URL);
 

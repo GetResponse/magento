@@ -27,6 +27,7 @@ use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Newsletter\Model\Subscriber;
 use Magento\Sales\Model\Order;
+use GetResponse\GetResponseIntegration\Helper\Config;
 
 /**
  * Class Process
@@ -67,6 +68,9 @@ class Process extends AbstractController
     /** @var array */
     private $customsMapping;
 
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
@@ -89,7 +93,7 @@ class Process extends AbstractController
         AddOrderCommandFactory $addOrderCommandFactory,
         ContactService $contactService
     ) {
-        parent::__construct($context, $repositoryValidator);
+        parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->repositoryFactory = $repositoryFactory;
         $this->repository = $repository;
@@ -97,8 +101,7 @@ class Process extends AbstractController
         $this->orderService = $orderService;
         $this->addOrderCommandFactory = $addOrderCommandFactory;
         $this->contactService = $contactService;
-
-        return $this->checkGetResponseConnection();
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -106,6 +109,11 @@ class Process extends AbstractController
      */
     public function execute()
     {
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();

@@ -12,8 +12,11 @@ use GrShareCode\Shop\AddShopCommand;
 use GrShareCode\Shop\ShopService;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
+use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use GetResponse\GetResponseIntegration\Helper\Config;
+use Magento\Framework\Controller\ResultInterface;
 
 /**
  * Class CreateShop
@@ -30,6 +33,9 @@ class CreateShop extends AbstractController
     /** @var JsonFactory */
     private $resultJsonFactory;
 
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
      * @param Context $context
      * @param RepositoryFactory $repositoryFactory
@@ -44,19 +50,23 @@ class CreateShop extends AbstractController
         JsonFactory $resultJsonFactory,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context, $repositoryValidator);
+        parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
         $this->resultJsonFactory = $resultJsonFactory;
-
-        return $this->checkGetResponseConnection();
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
-     * @return Json
+     * @return ResponseInterface|Json|ResultInterface
      */
     public function execute()
     {
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();

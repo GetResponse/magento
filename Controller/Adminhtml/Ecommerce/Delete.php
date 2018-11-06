@@ -11,6 +11,7 @@ use GrShareCode\Shop\ShopService;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect;
+use GetResponse\GetResponseIntegration\Helper\Config;
 
 /**
  * Class Delete
@@ -23,6 +24,9 @@ class Delete extends AbstractController
     /** @var RepositoryFactory */
     private $repositoryFactory;
 
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
      * @param Context $context
      * @param RepositoryFactory $repositoryFactory
@@ -33,9 +37,9 @@ class Delete extends AbstractController
         RepositoryFactory $repositoryFactory,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context, $repositoryValidator);
+        parent::__construct($context);
         $this->repositoryFactory = $repositoryFactory;
-        return $this->checkGetResponseConnection();
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -44,6 +48,11 @@ class Delete extends AbstractController
     public function execute()
     {
         try {
+            if (!$this->repositoryValidator->validate()) {
+                $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
+                return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+            }
+
             $id = $this->getRequest()->getParam('id');
 
             if (empty($id)) {

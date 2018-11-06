@@ -8,9 +8,11 @@ use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFa
 use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
+use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
+use GetResponse\GetResponseIntegration\Helper\Config;
 
 /**
  * Class Index
@@ -30,6 +32,9 @@ class Index extends AbstractController
     /** @var Repository */
     private $repository;
 
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
@@ -42,19 +47,23 @@ class Index extends AbstractController
         Repository $repository,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context, $repositoryValidator);
+        parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
-
-        return $this->checkGetResponseConnection();
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
-     * @return Redirect|Page
+     * @return ResponseInterface|Redirect|Page
      */
     public function execute()
     {
+        if (!$this->repositoryValidator->validate()) {
+            $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
+            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $data = $this->request->getPostValue();
 
         if (isset($data['updateWebTraffic'])) {

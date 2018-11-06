@@ -17,6 +17,7 @@ use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Request\Http;
+use GetResponse\GetResponseIntegration\Helper\Config;
 
 /**
  * Class Create
@@ -35,6 +36,9 @@ class Create extends AbstractController
     /** @var RepositoryFactory */
     private $repositoryFactory;
 
+    /** @var RepositoryValidator */
+    private $repositoryValidator;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
@@ -49,12 +53,11 @@ class Create extends AbstractController
         RepositoryFactory $repositoryFactory,
         RepositoryValidator $repositoryValidator
     ) {
-        parent::__construct($context, $repositoryValidator);
+        parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
-
-        return $this->checkGetResponseConnection();
+        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -63,6 +66,12 @@ class Create extends AbstractController
     public function execute()
     {
         try {
+
+            if (!$this->repositoryValidator->validate()) {
+                $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
+                return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
+            }
+
             $backUrl = $this->getRequest()->getParam('back_url');
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
