@@ -15,6 +15,10 @@ use GrShareCode\Shop\ShopsCollection;
 use GrShareCode\Shop\ShopService;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Framework\View\Element\Template;
+use GetResponse\GetResponseIntegration\Helper\Config;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Message\ManagerInterface;
 
 /**
  * Class Export
@@ -31,22 +35,34 @@ class Export extends Template
     /** @var Getresponse */
     private $getResponseBlock;
 
+    /** @var RedirectFactory */
+    private $redirectFactory;
+
+    /** @var ManagerInterface */
+    private $messageManager;
+
     /**
      * @param Context $context
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
      * @param Getresponse $getResponseBlock
+     * @param RedirectFactory $redirectFactory
+     * @param ManagerInterface $messageManager
      */
     public function __construct(
         Context $context,
         Repository $repository,
         RepositoryFactory $repositoryFactory,
-        Getresponse $getResponseBlock
+        Getresponse $getResponseBlock,
+        RedirectFactory $redirectFactory,
+        ManagerInterface $messageManager
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
         $this->getResponseBlock = $getResponseBlock;
+        $this->redirectFactory = $redirectFactory;
+        $this->messageManager = $messageManager;
     }
 
     /**
@@ -74,23 +90,35 @@ class Export extends Template
     }
 
     /**
-     * @return ContactListCollection
-     * @throws GetresponseApiException
-     * @throws RepositoryException
+     * @return ContactListCollection|Redirect
      */
     public function getCampaigns()
     {
-        return (new ContactListService($this->repositoryFactory->createGetResponseApiClient()))->getAllContactLists();
+        try {
+            return (new ContactListService($this->repositoryFactory->createGetResponseApiClient()))->getAllContactLists();
+        } catch (RepositoryException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
+        } catch (GetresponseApiException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
+        }
     }
 
     /**
-     * @return ShopsCollection
-     * @throws GetresponseApiException
-     * @throws RepositoryException
+     * @return ShopsCollection|Redirect
      */
     public function getShops()
     {
-        return (new ShopService($this->repositoryFactory->createGetResponseApiClient()))->getAllShops();
+        try {
+            return (new ShopService($this->repositoryFactory->createGetResponseApiClient()))->getAllShops();
+        } catch (RepositoryException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
+        } catch (GetresponseApiException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
+        }
     }
 
     /**

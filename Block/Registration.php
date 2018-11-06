@@ -10,6 +10,10 @@ use Magento\Framework\View\Element\Template;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use Magento\Framework\View\Element\Template\Context;
+use GetResponse\GetResponseIntegration\Helper\Config;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Message\ManagerInterface;
 
 /**
  * Class Registration
@@ -26,32 +30,50 @@ class Registration extends Template
     /** @var Getresponse */
     private $getresponseBlock;
 
+    /** @var RedirectFactory */
+    private $redirectFactory;
+
+    /** @var ManagerInterface */
+    private $messageManager;
+
     /**
      * @param Context $context
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
      * @param Getresponse $getResponseBlock
+     * @param RedirectFactory $redirectFactory
+     * @param ManagerInterface $messageManager
      */
     public function __construct(
         Context $context,
         Repository $repository,
         RepositoryFactory $repositoryFactory,
-        Getresponse $getResponseBlock
+        Getresponse $getResponseBlock,
+        RedirectFactory $redirectFactory,
+        ManagerInterface $messageManager
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
         $this->getresponseBlock = $getResponseBlock;
+        $this->redirectFactory = $redirectFactory;
+        $this->messageManager = $messageManager;
     }
 
     /**
-     * @return ContactListCollection
-     * @throws RepositoryException
-     * @throws GetresponseApiException
+     * @return ContactListCollection|Redirect
      */
     public function getCampaigns()
     {
-        return (new ContactListService($this->repositoryFactory->createGetResponseApiClient()))->getAllContactLists();
+        try {
+            return (new ContactListService($this->repositoryFactory->createGetResponseApiClient()))->getAllContactLists();
+        }catch (GetresponseApiException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
+        } catch (RepositoryException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
+        }
     }
 
     /**

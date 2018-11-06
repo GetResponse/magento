@@ -12,6 +12,10 @@ use GrShareCode\Shop\ShopsCollection;
 use GrShareCode\Shop\ShopService;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Framework\View\Element\Template;
+use GetResponse\GetResponseIntegration\Helper\Config;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Message\ManagerInterface;
 
 /**
  * Class Ecommerce
@@ -28,22 +32,34 @@ class Ecommerce extends Template
     /** @var Getresponse */
     private $getResponseBlock;
 
+    /** @var RedirectFactory */
+    private $redirectFactory;
+
+    /** @var ManagerInterface */
+    private $messageManager;
+
     /**
      * @param Context $context
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
      * @param Getresponse $getResponseBlock
+     * @param RedirectFactory $redirectFactory
+     * @param ManagerInterface $messageManager
      */
     public function __construct(
         Context $context,
         Repository $repository,
         RepositoryFactory $repositoryFactory,
-        Getresponse $getResponseBlock
+        Getresponse $getResponseBlock,
+        RedirectFactory $redirectFactory,
+        ManagerInterface $messageManager
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
         $this->getResponseBlock = $getResponseBlock;
+        $this->redirectFactory = $redirectFactory;
+        $this->messageManager = $messageManager;
     }
 
     /**
@@ -71,14 +87,20 @@ class Ecommerce extends Template
     }
 
     /**
-     * @return ShopsCollection
-     * @throws GetresponseApiException
-     * @throws RepositoryException
+     * @return ShopsCollection|Redirect
      */
     public function getShops()
     {
-        $apiClient = $this->repositoryFactory->createGetResponseApiClient();
-        return (new ShopService($apiClient))->getAllShops();
+        try {
+            $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+            return (new ShopService($apiClient))->getAllShops();
+        } catch (RepositoryException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
+        } catch (GetresponseApiException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
+        }
     }
 
     /**

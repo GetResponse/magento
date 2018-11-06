@@ -5,6 +5,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Framework\View\Element\Template;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
 
 /**
  * Class Settings
@@ -40,7 +41,7 @@ class Settings extends Template
     }
 
     /**
-     * @return mixed
+     * @return Account
      */
     public function getAccountInfo()
     {

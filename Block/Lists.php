@@ -9,6 +9,10 @@ use GrShareCode\GetresponseApiException;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Framework\View\Element\Template;
+use GetResponse\GetResponseIntegration\Helper\Config;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Message\ManagerInterface;
 
 /**
  * Class Lists
@@ -22,56 +26,86 @@ class Lists extends Template
     /** @var RepositoryFactory */
     private $repositoryFactory;
 
+    /** @var RedirectFactory */
+    private $redirectFactory;
+
+    /** @var ManagerInterface */
+    private $messageManager;
+
     /**
      * @param Context $context
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
+     * @param RedirectFactory $redirectFactory
+     * @param ManagerInterface $messageManager
      */
     public function __construct(
         Context $context,
         Repository $repository,
-        RepositoryFactory $repositoryFactory
+        RepositoryFactory $repositoryFactory,
+        RedirectFactory $redirectFactory,
+        ManagerInterface $messageManager
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
+        $this->redirectFactory = $redirectFactory;
+        $this->messageManager = $messageManager;
     }
 
     /**
-     * @return FromFieldsCollection
-     * @throws GetresponseApiException
-     * @throws RepositoryException
+     * @return FromFieldsCollection|Redirect
      */
     public function getAccountFromFields()
     {
-        $service = new ContactListService($this->repositoryFactory->createGetResponseApiClient());
-        return $service->getFromFields();
+        try {
+            $service = new ContactListService($this->repositoryFactory->createGetResponseApiClient());
+            return $service->getFromFields();
+        } catch (RepositoryException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
+        } catch (GetresponseApiException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
+        }
     }
 
     /**
-     * @return array
-     * @throws GetresponseApiException
-     * @throws RepositoryException
+     * @return array|Redirect
      */
     public function getSubscriptionConfirmationsSubject()
     {
-        $countryCode = $this->repository->getMagentoCountryCode();
-        $lang = substr($countryCode, 0, 2);
-        $apiClient = $this->repositoryFactory->createGetResponseApiClient();
-        return $apiClient->getSubscriptionConfirmationSubject($lang);
+        try {
+            $countryCode = $this->repository->getMagentoCountryCode();
+            $lang = substr($countryCode, 0, 2);
+            $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+            return $apiClient->getSubscriptionConfirmationSubject($lang);
+        } catch (RepositoryException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
+        } catch (GetresponseApiException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
+        }
     }
 
     /**
-     * @return array
-     * @throws GetresponseApiException
-     * @throws RepositoryException
+     * @return array|Redirect
      */
     public function getSubscriptionConfirmationsBody()
     {
-        $countryCode = $this->repository->getMagentoCountryCode();
-        $lang = substr($countryCode, 0, 2);
-        $apiClient = $this->repositoryFactory->createGetResponseApiClient();
-        return $apiClient->getSubscriptionConfirmationBody($lang);
+        try {
+            $countryCode = $this->repository->getMagentoCountryCode();
+            $lang = substr($countryCode, 0, 2);
+            $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+            return $apiClient->getSubscriptionConfirmationBody($lang);
+        } catch (RepositoryException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
+        } catch (GetresponseApiException $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
+        }
     }
 
     /**
@@ -83,7 +117,6 @@ class Lists extends Template
         if (null === $backUrl) {
             $backUrl = $this->getRequest()->getParam('back');
         }
-
         return $this->createBackUrl($backUrl);
     }
 

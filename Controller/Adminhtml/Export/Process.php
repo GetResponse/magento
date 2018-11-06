@@ -182,6 +182,8 @@ class Process extends AbstractController
             return $this->handleException($e);
         } catch (ApiTypeException $e) {
             return $this->handleException($e);
+        } catch (GetresponseApiException $e) {
+            return $this->handleException($e);
         }
 
         $this->messageManager->addSuccessMessage(Message::DATA_EXPORTED);

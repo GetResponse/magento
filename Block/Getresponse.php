@@ -16,6 +16,10 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\ContactList\Autoresponder;
 use GrShareCode\ContactList\ContactListService;
 use GrShareCode\GetresponseApiException;
+use GetResponse\GetResponseIntegration\Helper\Config;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Message\ManagerInterface;
 
 /**
  * Class Getresponse
@@ -29,20 +33,32 @@ class Getresponse
     /** @var RepositoryFactory */
     private $repositoryFactory;
 
+    /** @var RedirectFactory */
+    private $redirectFactory;
+
+    /** @var ManagerInterface */
+    private $messageManager;
+
     /**
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
+     * @param RedirectFactory $redirectFactory
+     * @param ManagerInterface $messageManager
      */
     public function __construct(
         Repository $repository,
-        RepositoryFactory $repositoryFactory
+        RepositoryFactory $repositoryFactory,
+        RedirectFactory $redirectFactory,
+        ManagerInterface $messageManager
     ) {
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
+        $this->redirectFactory = $redirectFactory;
+        $this->messageManager = $messageManager;
     }
 
     /**
-     * @return array
+     * @return array|Redirect
      */
     public function getAutoResponders()
     {
@@ -64,9 +80,11 @@ class Getresponse
 
             return $result;
         } catch (RepositoryException $e) {
-            return [];
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
         } catch (GetresponseApiException $e) {
-            return [];
+            $this->messageManager->addErrorMessage($e->getMessage());
+            return $this->redirectFactory->create()->setPath(Config::PLUGIN_MAIN_PAGE);
         }
     }
 
