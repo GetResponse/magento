@@ -43,23 +43,6 @@ class SettingsTest extends BaseTestCase
     }
 
     /**
-     * @test
-     *
-     * @param array $rawInfo
-     * @param Account $expectedAccount
-     *
-     * @dataProvider shouldReturnAccountInfoProvider
-     *
-     */
-    public function shouldReturnAccountInfo(array $rawInfo, Account $expectedAccount)
-    {
-        $this->repository->expects($this->once())->method('getAccountInfo')->willReturn($rawInfo);
-        $accountInfo = $this->settingsBlock->getAccountInfo();
-
-        self::assertEquals($expectedAccount, $accountInfo);
-    }
-
-    /**
      * @return array
      */
     public function shouldReturnAccountInfoProvider()

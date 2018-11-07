@@ -51,21 +51,6 @@ class ExportTest extends BaseTestCase
     }
 
     /**
-     * @test
-     * @param array $settings
-     * @param RegistrationSettings $expectedExportSettings
-     *
-     * @dataProvider shouldReturnExportSettingsProvider
-     */
-    public function shouldReturnExportSettings(array $settings, RegistrationSettings $expectedExportSettings)
-    {
-        $this->repository->expects($this->atLeastOnce())->method('getRegistrationSettings')->willReturn($settings);
-        $exportSettings = $this->exportBlock->getExportSettings();
-
-        self::assertEquals($exportSettings, $expectedExportSettings);
-    }
-
-    /**
      * @return array
      */
     public function shouldReturnExportSettingsProvider()

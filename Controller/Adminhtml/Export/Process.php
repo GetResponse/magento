@@ -11,7 +11,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\AddOrderCommandF
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Message;
@@ -27,7 +26,6 @@ use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Newsletter\Model\Subscriber;
 use Magento\Sales\Model\Order;
-use GetResponse\GetResponseIntegration\Helper\Config;
 
 /**
  * Class Process
@@ -68,15 +66,11 @@ class Process extends AbstractController
     /** @var array */
     private $customsMapping;
 
-    /** @var RepositoryValidator */
-    private $repositoryValidator;
-
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
-     * @param RepositoryValidator $repositoryValidator
      * @param CartService $cartService
      * @param OrderService $orderService
      * @param AddOrderCommandFactory $addOrderCommandFactory
@@ -87,7 +81,6 @@ class Process extends AbstractController
         PageFactory $resultPageFactory,
         Repository $repository,
         RepositoryFactory $repositoryFactory,
-        RepositoryValidator $repositoryValidator,
         CartService $cartService,
         OrderService $orderService,
         AddOrderCommandFactory $addOrderCommandFactory,
@@ -101,7 +94,6 @@ class Process extends AbstractController
         $this->orderService = $orderService;
         $this->addOrderCommandFactory = $addOrderCommandFactory;
         $this->contactService = $contactService;
-        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -109,11 +101,6 @@ class Process extends AbstractController
      */
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();

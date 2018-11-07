@@ -4,14 +4,12 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Newsletter;
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Request\Http;
-use GetResponse\GetResponseIntegration\Helper\Config;
 
 /**
  * Class RegistrationPost
@@ -30,26 +28,20 @@ class Save extends AbstractController
     /** @var Repository */
     private $repository;
 
-    /** @var RepositoryValidator */
-    private $repositoryValidator;
-
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
-     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
-        Repository $repository,
-        RepositoryValidator $repositoryValidator
+        Repository $repository
     ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
-        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -57,11 +49,6 @@ class Save extends AbstractController
      */
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath(self::BACK_URL);
 

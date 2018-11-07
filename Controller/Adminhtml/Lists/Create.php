@@ -1,5 +1,4 @@
 <?php
-
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
 use Exception;
@@ -7,7 +6,6 @@ use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\ListValidator;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\ContactList\AddContactListCommand;
 use GrShareCode\ContactList\ContactListService;
@@ -17,7 +15,6 @@ use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Request\Http;
-use GetResponse\GetResponseIntegration\Helper\Config;
 
 /**
  * Class Create
@@ -36,28 +33,22 @@ class Create extends AbstractController
     /** @var RepositoryFactory */
     private $repositoryFactory;
 
-    /** @var RepositoryValidator */
-    private $repositoryValidator;
-
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
      * @param RepositoryFactory $repositoryFactory
-     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         Repository $repository,
-        RepositoryFactory $repositoryFactory,
-        RepositoryValidator $repositoryValidator
+        RepositoryFactory $repositoryFactory
     ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
-        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -66,12 +57,6 @@ class Create extends AbstractController
     public function execute()
     {
         try {
-
-            if (!$this->repositoryValidator->validate()) {
-                $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
-                return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-            }
-
             $backUrl = $this->getRequest()->getParam('back_url');
             $resultPage = $this->resultPageFactory->create();
             $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);

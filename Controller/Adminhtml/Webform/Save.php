@@ -4,7 +4,6 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Webform;
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettingsFactory;
 use Magento\Backend\App\Action\Context;
@@ -13,7 +12,6 @@ use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
-use GetResponse\GetResponseIntegration\Helper\Config;
 
 /**
  * Class Save
@@ -33,26 +31,20 @@ class Save extends AbstractController
     /** @var Repository */
     private $repository;
 
-    /** @var RepositoryValidator */
-    private $repositoryValidator;
-
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
-     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
-        Repository $repository,
-        RepositoryValidator $repositoryValidator
+        Repository $repository
     ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
-        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -60,11 +52,6 @@ class Save extends AbstractController
      */
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         $webForm = WebformSettingsFactory::createFromArray($this->request->getPostValue());
 
         if ($webForm->isEnabled()) {

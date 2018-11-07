@@ -43,24 +43,6 @@ class EcommerceTest extends BaseTestCase
     }
 
     /**
-     * @test
-     *
-     * @param array $dbResponse
-     * @param RegistrationSettings $expectedSettings
-     * @dataProvider shouldReturnValidRegistrationSettingsProvider
-     */
-    public function shouldReturnValidRegistrationSettings(array $dbResponse, RegistrationSettings $expectedSettings)
-    {
-        $this->repository->expects($this->once())->method('getRegistrationSettings')->willReturn($dbResponse);
-        $settings = $this->accountBlock->getRegistrationSettings();
-
-        $this->assertEquals($expectedSettings->isEnabled(), $settings->isEnabled());
-        $this->assertEquals($expectedSettings->isCustomFieldsModified(), $settings->isCustomFieldsModified());
-        $this->assertEquals($expectedSettings->getCampaignId(), $settings->getCampaignId());
-        $this->assertEquals($expectedSettings->getCycleDay(), $settings->getCycleDay());
-    }
-
-    /**
      * @return array
      */
     public function shouldReturnValidRegistrationSettingsProvider()

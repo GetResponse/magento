@@ -3,7 +3,6 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -15,7 +14,6 @@ use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Framework\Controller\ResultInterface;
 
 /**
@@ -33,28 +31,22 @@ class CreateShop extends AbstractController
     /** @var JsonFactory */
     private $resultJsonFactory;
 
-    /** @var RepositoryValidator */
-    private $repositoryValidator;
-
     /**
      * @param Context $context
      * @param RepositoryFactory $repositoryFactory
      * @param Repository $repository
      * @param JsonFactory $resultJsonFactory
-     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         RepositoryFactory $repositoryFactory,
         Repository $repository,
-        JsonFactory $resultJsonFactory,
-        RepositoryValidator $repositoryValidator
+        JsonFactory $resultJsonFactory
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->repositoryFactory = $repositoryFactory;
         $this->resultJsonFactory = $resultJsonFactory;
-        $this->repositoryValidator = $repositoryValidator;
     }
 
     /**
@@ -62,11 +54,6 @@ class CreateShop extends AbstractController
      */
     public function execute()
     {
-        if (!$this->repositoryValidator->validate()) {
-            $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        }
-
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();

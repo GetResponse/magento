@@ -36,29 +36,4 @@ class RepositoryValidator
         $this->repositoryFactory = $repositoryFactory;
         $this->resultFactory = $resultFactory;
     }
-
-    /**
-     * @return bool
-     */
-    public function validate()
-    {
-        try {
-            $apiClient = $this->repositoryFactory->createGetResponseApiClient();
-            $apiClient->checkConnection();
-            return true;
-        } catch (RepositoryException $e) {
-            return false;
-        } catch (GetresponseApiException $e) {
-            return false;
-        }
-    }
-
-    /**
-     * @param GetresponseApiClient $apiClient
-     * @throws GetresponseApiException
-     */
-    public function validateGrRepository(GetresponseApiClient $apiClient)
-    {
-        $apiClient->checkConnection();
-    }
 }
