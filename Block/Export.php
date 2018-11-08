@@ -3,58 +3,46 @@
 namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\ContactList\ContactListCollection;
 use GrShareCode\ContactList\ContactListService;
-use GrShareCode\GetresponseApiClient;
-use GrShareCode\GetresponseApiException;
 use GrShareCode\Shop\ShopsCollection;
 use GrShareCode\Shop\ShopService;
 use Magento\Framework\View\Element\Template\Context;
-use Magento\Framework\View\Element\Template;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Message\ManagerInterface;
 
 /**
  * Class Export
  * @package GetResponse\GetResponseIntegration\Block
  */
-class Export extends Template
+class Export extends GetResponse
 {
     /** @var Repository */
     private $repository;
 
-    /** @var GetresponseApiClient */
-    private $repositoryFactory;
-
-    /** @var Getresponse */
-    private $getResponseBlock;
-
     /**
      * @param Context $context
      * @param Repository $repository
-     * @param RepositoryFactory $repositoryFactory
-     * @param Getresponse $getResponseBlock
+     * @param GetresponseApiClientFactory $apiClientFactory
+     * @param RedirectFactory $redirectFactory
+     * @param ManagerInterface $messageManager
      */
     public function __construct(
         Context $context,
         Repository $repository,
-        RepositoryFactory $repositoryFactory,
-        Getresponse $getResponseBlock
+        GetresponseApiClientFactory $apiClientFactory,
+        RedirectFactory $redirectFactory,
+        ManagerInterface $messageManager
     ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->repositoryFactory = $repositoryFactory;
-        $this->getResponseBlock = $getResponseBlock;
-    }
-
-    /**
-     * @return RegistrationSettings
-     */
-    public function getExportSettings()
-    {
-        return $this->getResponseBlock->getRegistrationSettings();
+        $this->apiClientFactory = $apiClientFactory;
+        $this->redirectFactory = $redirectFactory;
+        $this->messageManager = $messageManager;
     }
 
     /**
@@ -70,34 +58,30 @@ class Export extends Template
      */
     public function getCustoms()
     {
-        return $this->getResponseBlock->getCustoms();
+        return CustomFieldsCollectionFactory::createFromRepository($this->repository->getCustoms());
     }
 
     /**
-     * @return ContactListCollection
-     * @throws GetresponseApiException
-     * @throws RepositoryException
+     * @return ContactListCollection|Redirect
      */
     public function getCampaigns()
     {
-        return (new ContactListService($this->repositoryFactory->createGetResponseApiClient()))->getAllContactLists();
+        try {
+            return (new ContactListService($this->apiClientFactory->createGetResponseApiClient()))->getAllContactLists();
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
     }
 
     /**
-     * @return ShopsCollection
-     * @throws GetresponseApiException
-     * @throws RepositoryException
+     * @return ShopsCollection|Redirect
      */
     public function getShops()
     {
-        return (new ShopService($this->repositoryFactory->createGetResponseApiClient()))->getAllShops();
-    }
-
-    /**
-     * @return array
-     */
-    public function getAutoRespondersForFrontend()
-    {
-        return $this->getResponseBlock->getAutoRespondersForFrontend();
+        try {
+            return (new ShopService($this->apiClientFactory->createGetResponseApiClient()))->getAllShops();
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
     }
 }

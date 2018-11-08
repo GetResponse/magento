@@ -1,68 +1,62 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
+use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
 use GrShareCode\ContactList\ContactListCollection;
 use GrShareCode\ContactList\ContactListService;
-use GrShareCode\GetresponseApiException;
-use Magento\Framework\View\Element\Template;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use Magento\Framework\View\Element\Template\Context;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Message\ManagerInterface;
 
 /**
  * Class Newsletter
  * @package GetResponse\GetResponseIntegration\Block
  */
-class Newsletter extends Template
+class Newsletter extends GetResponse
 {
     /** @var Repository */
     private $repository;
 
-    /** @var RepositoryFactory */
-    private $repositoryFactory;
-
-    /** @var Getresponse */
-    private $getResponseBlock;
-
     /**
      * @param Context $context
      * @param Repository $repository
-     * @param RepositoryFactory $repositoryFactory
-     * @param Getresponse $getResponseBlock
+     * @param GetresponseApiClientFactory $apiClientFactory
+     * @param RedirectFactory $redirectFactory
+     * @param ManagerInterface $messageManager
      */
     public function __construct(
         Context $context,
         Repository $repository,
-        RepositoryFactory $repositoryFactory,
-        Getresponse $getResponseBlock
+        GetresponseApiClientFactory $apiClientFactory,
+        RedirectFactory $redirectFactory,
+        ManagerInterface $messageManager
     ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->repositoryFactory = $repositoryFactory;
-        $this->getResponseBlock = $getResponseBlock;
+        $this->apiClientFactory = $apiClientFactory;
+        $this->redirectFactory = $redirectFactory;
+        $this->messageManager = $messageManager;
     }
 
     /**
-     * @return ContactListCollection
-     * @throws GetresponseApiException
-     * @throws RepositoryException
+     * @return ContactListCollection|Redirect
      */
     public function getLists()
     {
-        return (new ContactListService($this->repositoryFactory->createGetResponseApiClient()))->getAllContactLists();
-    }
-
-    /**
-     * @return array
-     */
-    public function getAutoRespondersForFrontend()
-    {
-        return $this->getResponseBlock->getAutoRespondersForFrontend();
+        try {
+            return (new ContactListService($this->apiClientFactory->createGetResponseApiClient()))->getAllContactLists();
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
     }
 
     public function getNewsletterSettings()
     {
-        return $this->getResponseBlock->getNewsletterSettings();
+        return NewsletterSettingsFactory::createFromArray(
+            $this->repository->getNewsletterSettings()
+        );
     }
 }
