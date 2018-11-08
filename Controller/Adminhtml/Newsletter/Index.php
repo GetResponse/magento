@@ -2,7 +2,6 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Newsletter;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\View\Result\Page;
@@ -22,17 +21,13 @@ class Index extends AbstractController
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
-     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
-        PageFactory $resultPageFactory,
-        RepositoryValidator $repositoryValidator
+        PageFactory $resultPageFactory
     ) {
-        parent::__construct($context, $repositoryValidator);
+        parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
-
-        return $this->checkGetResponseConnection();
     }
 
     /**

@@ -2,7 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Test\Unit\Block;
 
 use GetResponse\GetResponseIntegration\Block\Webform as WebformBlock;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\GetresponseApiClient;
@@ -23,7 +23,7 @@ class WebformTest extends BaseTestCase
     /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $repository;
 
-    /** @var RepositoryFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var GetresponseApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
     private $repositoryFactory;
 
     /** @var ObjectManagerInterface|\PHPUnit_Framework_MockObject_MockObject */
@@ -40,7 +40,7 @@ class WebformTest extends BaseTestCase
         $this->context = $this->getMockWithoutConstructing(Context::class);
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
         $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
-        $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
+        $this->repositoryFactory = $this->getMockWithoutConstructing(GetresponseApiClientFactory::class);
         $this->grApiClient = $this->getMockWithoutConstructing(GetresponseApiClient::class);
         $this->repositoryFactory->expects($this->once())->method('createGetResponseApiClient')->willReturn($this->grApiClient);
         $this->webformBlock = new WebformBlock($this->context, $this->repository, $this->repositoryFactory);

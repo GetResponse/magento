@@ -28,19 +28,25 @@ class CartServiceFactory
     /** @var ShareCodeCache */
     private $shareCodeCache;
 
+    /** @var GetresponseApiClientFactory */
+    private $apiClientFactory;
+
     /**
      * @param Repository $magentoRepository
      * @param ShareCodeRepository $shareCodeRepository
      * @param ShareCodeCache $shareCodeCache
+     * @param GetresponseApiClientFactory $apiClientFactory
      */
     public function __construct(
         Repository $magentoRepository,
         ShareCodeRepository $shareCodeRepository,
-        ShareCodeCache $shareCodeCache
+        ShareCodeCache $shareCodeCache,
+        GetresponseApiClientFactory $apiClientFactory
     ) {
         $this->magentoRepository = $magentoRepository;
         $this->shareCodeRepository = $shareCodeRepository;
         $this->shareCodeCache = $shareCodeCache;
+        $this->apiClientFactory = $apiClientFactory;
     }
 
     /**
@@ -51,12 +57,10 @@ class CartServiceFactory
     public function create()
     {
         $settings = ConnectionSettingsFactory::createFromArray($this->magentoRepository->getConnectionSettings());
-        $getResponseApiClient = GetresponseApiClientFactory::createFromParams(
+        $getResponseApiClient = $this->apiClientFactory->createFromParams(
             $settings->getApiKey(),
             ApiTypeFactory::createFromConnectionSettings($settings),
-            $settings->getDomain(),
-            $this->shareCodeRepository,
-            $this->magentoRepository->getGetResponsePluginVersion()
+            $settings->getDomain()
         );
 
         $productService = new ProductServiceFactory($getResponseApiClient, $this->shareCodeRepository);
