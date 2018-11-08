@@ -3,13 +3,11 @@ namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GrShareCode\ContactList\ContactListCollection;
 use GrShareCode\ContactList\ContactListService;
-use GrShareCode\GetresponseApiException;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\RedirectFactory;
@@ -27,20 +25,20 @@ class Registration extends GetResponse
     /**
      * @param Context $context
      * @param Repository $repository
-     * @param RepositoryFactory $repositoryFactory
+     * @param GetresponseApiClientFactory $apiClientFactory
      * @param RedirectFactory $redirectFactory
      * @param ManagerInterface $messageManager
      */
     public function __construct(
         Context $context,
         Repository $repository,
-        RepositoryFactory $repositoryFactory,
+        GetresponseApiClientFactory $apiClientFactory,
         RedirectFactory $redirectFactory,
         ManagerInterface $messageManager
     ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->repositoryFactory = $repositoryFactory;
+        $this->apiClientFactory = $apiClientFactory;
         $this->redirectFactory = $redirectFactory;
         $this->messageManager = $messageManager;
     }
@@ -51,10 +49,8 @@ class Registration extends GetResponse
     public function getCampaigns()
     {
         try {
-            return (new ContactListService($this->repositoryFactory->createGetResponseApiClient()))->getAllContactLists();
-        }catch (GetresponseApiException $e) {
-            return $this->handleException($e);
-        } catch (RepositoryException $e) {
+            return (new ContactListService($this->apiClientFactory->createGetResponseApiClient()))->getAllContactLists();
+        }catch (\Exception $e) {
             return $this->handleException($e);
         }
     }

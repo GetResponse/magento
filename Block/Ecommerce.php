@@ -1,12 +1,10 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\ContactList\ContactListCollection;
 use GrShareCode\ContactList\ContactListService;
-use GrShareCode\GetresponseApiException;
 use GrShareCode\Shop\ShopsCollection;
 use GrShareCode\Shop\ShopService;
 use Magento\Framework\View\Element\Template\Context;
@@ -26,20 +24,20 @@ class Ecommerce extends GetResponse
     /**
      * @param Context $context
      * @param Repository $repository
-     * @param RepositoryFactory $repositoryFactory
+     * @param GetresponseApiClientFactory $apiClientFactory
      * @param RedirectFactory $redirectFactory
      * @param ManagerInterface $messageManager
      */
     public function __construct(
         Context $context,
         Repository $repository,
-        RepositoryFactory $repositoryFactory,
+        GetresponseApiClientFactory $apiClientFactory,
         RedirectFactory $redirectFactory,
         ManagerInterface $messageManager
     ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->repositoryFactory = $repositoryFactory;
+        $this->apiClientFactory = $apiClientFactory;
         $this->redirectFactory = $redirectFactory;
         $this->messageManager = $messageManager;
     }
@@ -74,11 +72,9 @@ class Ecommerce extends GetResponse
     public function getShops()
     {
         try {
-            $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+            $apiClient = $this->apiClientFactory->createGetResponseApiClient();
             return (new ShopService($apiClient))->getAllShops();
-        } catch (RepositoryException $e) {
-            return $this->handleException($e);
-        } catch (GetresponseApiException $e) {
+        } catch (\Exception $e) {
             return $this->handleException($e);
         }
     }
@@ -89,10 +85,8 @@ class Ecommerce extends GetResponse
     public function getCampaigns()
     {
         try {
-            return (new ContactListService($this->repositoryFactory->createGetResponseApiClient()))->getAllContactLists();
-        } catch (RepositoryException $e) {
-            return $this->handleException($e);
-        } catch (GetresponseApiException $e) {
+            return (new ContactListService($this->apiClientFactory->createGetResponseApiClient()))->getAllContactLists();
+        } catch (\Exception $e) {
             return $this->handleException($e);
         }
     }

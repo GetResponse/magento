@@ -1,12 +1,11 @@
 <?php
+
 namespace GetResponse\GetResponseIntegration\Block;
 
 use Exception;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GrShareCode\ContactList\ContactListService;
-use GrShareCode\GetresponseApiException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\Controller\Result\RedirectFactory;
@@ -25,8 +24,8 @@ class GetResponse extends Template
     /** @var RedirectFactory */
     protected $redirectFactory;
 
-    /** @var RepositoryFactory */
-    protected $repositoryFactory;
+    /** @var GetresponseApiClientFactory */
+    protected $apiClientFactory;
 
     /**
      * @param Exception $e
@@ -57,7 +56,7 @@ class GetResponse extends Template
     {
         try {
             $result = [];
-            $grApiClient = $this->repositoryFactory->createGetResponseApiClient();
+            $grApiClient = $this->apiClientFactory->createGetResponseApiClient();
 
             $service = new ContactListService($grApiClient);
             $responders = $service->getAutoresponders();
@@ -71,9 +70,7 @@ class GetResponse extends Template
                 ];
             }
             return $result;
-        } catch (RepositoryException $e) {
-            return $this->handleException($e);
-        } catch (GetresponseApiException $e) {
+        } catch (\Exception $e) {
             return $this->handleException($e);
         }
     }

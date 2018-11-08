@@ -2,11 +2,9 @@
 
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettingsFactory;
-use GrShareCode\GetresponseApiException;
 use GrShareCode\WebForm\WebFormCollection;
 use GrShareCode\WebForm\WebFormService;
 use Magento\Framework\View\Element\Template\Context;
@@ -27,20 +25,20 @@ class Webform extends GetResponse
     /**
      * @param Context $context
      * @param Repository $repository
-     * @param RepositoryFactory $repositoryFactory
+     * @param GetresponseApiClientFactory $apiClientFactory
      * @param RedirectFactory $redirectFactory
      * @param ManagerInterface $messageManager
      */
     public function __construct(
         Context $context,
         Repository $repository,
-        RepositoryFactory $repositoryFactory,
+        GetresponseApiClientFactory $apiClientFactory,
         RedirectFactory $redirectFactory,
         ManagerInterface $messageManager
     ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->repositoryFactory = $repositoryFactory;
+        $this->apiClientFactory = $apiClientFactory;
         $this->redirectFactory = $redirectFactory;
         $this->messageManager = $messageManager;
     }
@@ -61,10 +59,8 @@ class Webform extends GetResponse
     public function getWebForms()
     {
         try {
-            return (new WebFormService($this->repositoryFactory->createGetResponseApiClient()))->getAllWebForms();
-        } catch (RepositoryException $e) {
-            return $this->handleException($e);
-        } catch (GetresponseApiException $e) {
+            return (new WebFormService($this->apiClientFactory->createGetResponseApiClient()))->getAllWebForms();
+        } catch (\Exception $e) {
             return $this->handleException($e);
         }
     }

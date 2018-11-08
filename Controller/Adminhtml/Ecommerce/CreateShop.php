@@ -4,7 +4,7 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\GetresponseApiException;
 use GrShareCode\Shop\AddShopCommand;
@@ -25,27 +25,27 @@ class CreateShop extends AbstractController
     /** @var Repository */
     private $repository;
 
-    /** @var RepositoryFactory */
-    private $repositoryFactory;
+    /** @var GetresponseApiClientFactory */
+    private $apiClientFactory;
 
     /** @var JsonFactory */
     private $resultJsonFactory;
 
     /**
      * @param Context $context
-     * @param RepositoryFactory $repositoryFactory
+     * @param GetresponseApiClientFactory $apiClientFactory
      * @param Repository $repository
      * @param JsonFactory $resultJsonFactory
      */
     public function __construct(
         Context $context,
-        RepositoryFactory $repositoryFactory,
+        GetresponseApiClientFactory $apiClientFactory,
         Repository $repository,
         JsonFactory $resultJsonFactory
     ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->repositoryFactory = $repositoryFactory;
+        $this->apiClientFactory = $apiClientFactory;
         $this->resultJsonFactory = $resultJsonFactory;
     }
 
@@ -67,7 +67,7 @@ class CreateShop extends AbstractController
             $lang = substr($countryCode, 0, 2);
             $currency = $this->repository->getMagentoCurrencyCode();
 
-            $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+            $apiClient = $this->apiClientFactory->createGetResponseApiClient();
             $service = new ShopService($apiClient);
             $shopId = $service->addShop(new AddShopCommand($data['shop_name'], $lang, $currency));
             return $this->resultJsonFactory->create()->setData(['shopId' => $shopId, 'name' => $data['shop_name']]);

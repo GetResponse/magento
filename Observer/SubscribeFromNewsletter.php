@@ -4,7 +4,7 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\Api\ApiTypeException;
@@ -30,8 +30,8 @@ class SubscribeFromNewsletter implements ObserverInterface
     /** @var Repository */
     private $repository;
 
-    /** @var RepositoryFactory */
-    private $repositoryFactory;
+    /** @var GetresponseApiClientFactory */
+    private $apiClientFactory;
 
     /** @var Session */
     private $session;
@@ -39,18 +39,18 @@ class SubscribeFromNewsletter implements ObserverInterface
     /**
      * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
-     * @param RepositoryFactory $repositoryFactory
+     * @param GetresponseApiClientFactory $apiClientFactory
      * @param Session $session
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
         Repository $repository,
-        RepositoryFactory $repositoryFactory,
+        GetresponseApiClientFactory $apiClientFactory,
         Session $session
     ) {
         $this->_objectManager = $objectManager;
         $this->repository = $repository;
-        $this->repositoryFactory = $repositoryFactory;
+        $this->apiClientFactory = $apiClientFactory;
         $this->session = $session;
     }
 
@@ -70,7 +70,7 @@ class SubscribeFromNewsletter implements ObserverInterface
         }
 
         try {
-            $grApiClient = $this->repositoryFactory->createGetResponseApiClient();
+            $grApiClient = $this->apiClientFactory->createGetResponseApiClient();
 
             /** @var Subscriber $subscriber */
             $subscriber = $observer->getEvent()->getSubscriber();

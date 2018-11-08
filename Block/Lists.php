@@ -1,11 +1,9 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GrShareCode\ContactList\ContactListService;
 use GrShareCode\ContactList\FromFieldsCollection;
-use GrShareCode\GetresponseApiException;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Framework\Controller\Result\Redirect;
@@ -24,20 +22,20 @@ class Lists extends GetResponse
     /**
      * @param Context $context
      * @param Repository $repository
-     * @param RepositoryFactory $repositoryFactory
+     * @param GetresponseApiClientFactory $apiClientFactory
      * @param RedirectFactory $redirectFactory
      * @param ManagerInterface $messageManager
      */
     public function __construct(
         Context $context,
         Repository $repository,
-        RepositoryFactory $repositoryFactory,
+        GetresponseApiClientFactory $apiClientFactory,
         RedirectFactory $redirectFactory,
         ManagerInterface $messageManager
     ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->repositoryFactory = $repositoryFactory;
+        $this->apiClientFactory = $apiClientFactory;
         $this->redirectFactory = $redirectFactory;
         $this->messageManager = $messageManager;
     }
@@ -48,12 +46,10 @@ class Lists extends GetResponse
     public function getAccountFromFields()
     {
         try {
-            $service = new ContactListService($this->repositoryFactory->createGetResponseApiClient());
+            $service = new ContactListService($this->apiClientFactory->createGetResponseApiClient());
             return $service->getFromFields();
-        } catch (RepositoryException $e) {
+        } catch (\Exception $e) {
            return $this->handleException($e);
-        } catch (GetresponseApiException $e) {
-            return $this->handleException($e);
         }
     }
 
@@ -65,11 +61,9 @@ class Lists extends GetResponse
         try {
             $countryCode = $this->repository->getMagentoCountryCode();
             $lang = substr($countryCode, 0, 2);
-            $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+            $apiClient = $this->apiClientFactory->createGetResponseApiClient();
             return $apiClient->getSubscriptionConfirmationSubject($lang);
-        } catch (RepositoryException $e) {
-            return $this->handleException($e);
-        } catch (GetresponseApiException $e) {
+        } catch (\Exception $e) {
             return $this->handleException($e);
         }
     }
@@ -82,11 +76,9 @@ class Lists extends GetResponse
         try {
             $countryCode = $this->repository->getMagentoCountryCode();
             $lang = substr($countryCode, 0, 2);
-            $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+            $apiClient = $this->apiClientFactory->createGetResponseApiClient();
             return $apiClient->getSubscriptionConfirmationBody($lang);
-        } catch (RepositoryException $e) {
-            return $this->handleException($e);
-        } catch (GetresponseApiException $e) {
+        } catch (\Exception $e) {
             return $this->handleException($e);
         }
     }

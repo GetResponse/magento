@@ -6,7 +6,7 @@ use GetResponse\GetResponseIntegration\Block\Getresponse;
 use GetResponse\GetResponseIntegration\Block\Registration as RegistrationBlock;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomField;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -28,8 +28,8 @@ class RegistrationTest extends BaseTestCase
     /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $repository;
 
-    /** @var RepositoryFactory|\PHPUnit_Framework_MockObject_MockObject */
-    private $repositoryFactory;
+    /** @var GetresponseApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
+    private $apiClientFactory;
 
     /** @var RegistrationBlock registrationBlock */
     private $registrationBlock;
@@ -44,13 +44,13 @@ class RegistrationTest extends BaseTestCase
     {
         $this->context = $this->getMockWithoutConstructing(Context::class);
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
-        $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
+        $this->apiClientFactory = $this->getMockWithoutConstructing(GetresponseApiClientFactory::class);
         $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
         $this->grApiClient = $this->getMockWithoutConstructing(GetresponseApiClient::class);
-        $this->repositoryFactory->method('createGetResponseApiClient')->willReturn($this->grApiClient);
+        $this->apiClientFactory->method('createGetResponseApiClient')->willReturn($this->grApiClient);
 
-        $getresponseBlock = new Getresponse($this->repository, $this->repositoryFactory);
-        $this->registrationBlock = new RegistrationBlock($this->context, $this->repository, $this->repositoryFactory,
+        $getresponseBlock = new Getresponse($this->repository, $this->apiClientFactory);
+        $this->registrationBlock = new RegistrationBlock($this->context, $this->repository, $this->apiClientFactory,
             $getresponseBlock);
     }
 
