@@ -23,14 +23,22 @@ class ContactServiceFactory
     /** @var ShareCodeRepository */
     private $shareCodeRepository;
 
+    /** @var GetresponseApiClientFactory */
+    private $apiClientFactory;
+
     /**
      * @param Repository $magentoRepository
      * @param ShareCodeRepository $shareCodeRepository
+     * @param GetresponseApiClientFactory $apiClientFactory
      */
-    public function __construct(Repository $magentoRepository, ShareCodeRepository $shareCodeRepository)
-    {
+    public function __construct(
+        Repository $magentoRepository,
+        ShareCodeRepository $shareCodeRepository,
+        GetresponseApiClientFactory $apiClientFactory
+    ) {
         $this->magentoRepository = $magentoRepository;
         $this->shareCodeRepository = $shareCodeRepository;
+        $this->apiClientFactory = $apiClientFactory;
     }
 
     /**
@@ -41,12 +49,10 @@ class ContactServiceFactory
     public function create()
     {
         $settings = ConnectionSettingsFactory::createFromArray($this->magentoRepository->getConnectionSettings());
-        $getResponseApi = GetresponseApiClientFactory::createFromParams(
+        $getResponseApi = $this->apiClientFactory->createFromParams(
             $settings->getApiKey(),
             ApiTypeFactory::createFromConnectionSettings($settings),
-            $settings->getDomain(),
-            $this->shareCodeRepository,
-            $this->magentoRepository->getGetResponsePluginVersion()
+            $settings->getDomain()
         );
 
         return new GrContactService($getResponseApi);

@@ -1,13 +1,11 @@
 <?php
-
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\ListValidator;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\ContactList\AddContactListCommand;
 use GrShareCode\ContactList\ContactListService;
@@ -32,29 +30,25 @@ class Create extends AbstractController
     /** @var Repository */
     private $repository;
 
-    /** @var RepositoryFactory */
-    private $repositoryFactory;
+    /** @var GetresponseApiClientFactory */
+    private $apiClientFactory;
 
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
-     * @param RepositoryFactory $repositoryFactory
-     * @param RepositoryValidator $repositoryValidator
+     * @param GetresponseApiClientFactory $apiClientFactory
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         Repository $repository,
-        RepositoryFactory $repositoryFactory,
-        RepositoryValidator $repositoryValidator
+        GetresponseApiClientFactory $apiClientFactory
     ) {
-        parent::__construct($context, $repositoryValidator);
+        parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
-        $this->repositoryFactory = $repositoryFactory;
-
-        return $this->checkGetResponseConnection();
+        $this->apiClientFactory = $apiClientFactory;
     }
 
     /**
@@ -83,7 +77,7 @@ class Create extends AbstractController
 
             $data['lang'] = substr($this->repository->getMagentoCountryCode(), 0, 2);
 
-            $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+            $apiClient = $this->apiClientFactory->createGetResponseApiClient();
             $service = new ContactListService($apiClient);
             $service->createContactList(new AddContactListCommand(
                 $data['campaign_name'],

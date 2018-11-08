@@ -1,77 +1,86 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GrShareCode\ContactList\ContactListService;
 use GrShareCode\ContactList\FromFieldsCollection;
-use GrShareCode\GetresponseApiException;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use Magento\Framework\View\Element\Template;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Message\ManagerInterface;
 
 /**
  * Class Lists
  * @package GetResponse\GetResponseIntegration\Block
  */
-class Lists extends Template
+class Lists extends GetResponse
 {
     /** @var Repository */
     private $repository;
 
-    /** @var RepositoryFactory */
-    private $repositoryFactory;
-
     /**
      * @param Context $context
      * @param Repository $repository
-     * @param RepositoryFactory $repositoryFactory
+     * @param GetresponseApiClientFactory $apiClientFactory
+     * @param RedirectFactory $redirectFactory
+     * @param ManagerInterface $messageManager
      */
     public function __construct(
         Context $context,
         Repository $repository,
-        RepositoryFactory $repositoryFactory
+        GetresponseApiClientFactory $apiClientFactory,
+        RedirectFactory $redirectFactory,
+        ManagerInterface $messageManager
     ) {
         parent::__construct($context);
         $this->repository = $repository;
-        $this->repositoryFactory = $repositoryFactory;
+        $this->apiClientFactory = $apiClientFactory;
+        $this->redirectFactory = $redirectFactory;
+        $this->messageManager = $messageManager;
     }
 
     /**
-     * @return FromFieldsCollection
-     * @throws GetresponseApiException
-     * @throws RepositoryException
+     * @return FromFieldsCollection|Redirect
      */
     public function getAccountFromFields()
     {
-        $service = new ContactListService($this->repositoryFactory->createGetResponseApiClient());
-        return $service->getFromFields();
+        try {
+            $service = new ContactListService($this->apiClientFactory->createGetResponseApiClient());
+            return $service->getFromFields();
+        } catch (\Exception $e) {
+           return $this->handleException($e);
+        }
     }
 
     /**
-     * @return array
-     * @throws GetresponseApiException
-     * @throws RepositoryException
+     * @return array|Redirect
      */
     public function getSubscriptionConfirmationsSubject()
     {
-        $countryCode = $this->repository->getMagentoCountryCode();
-        $lang = substr($countryCode, 0, 2);
-        $apiClient = $this->repositoryFactory->createGetResponseApiClient();
-        return $apiClient->getSubscriptionConfirmationSubject($lang);
+        try {
+            $countryCode = $this->repository->getMagentoCountryCode();
+            $lang = substr($countryCode, 0, 2);
+            $apiClient = $this->apiClientFactory->createGetResponseApiClient();
+            return $apiClient->getSubscriptionConfirmationSubject($lang);
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
     }
 
     /**
-     * @return array
-     * @throws GetresponseApiException
-     * @throws RepositoryException
+     * @return array|Redirect
      */
     public function getSubscriptionConfirmationsBody()
     {
-        $countryCode = $this->repository->getMagentoCountryCode();
-        $lang = substr($countryCode, 0, 2);
-        $apiClient = $this->repositoryFactory->createGetResponseApiClient();
-        return $apiClient->getSubscriptionConfirmationBody($lang);
+        try {
+            $countryCode = $this->repository->getMagentoCountryCode();
+            $lang = substr($countryCode, 0, 2);
+            $apiClient = $this->apiClientFactory->createGetResponseApiClient();
+            return $apiClient->getSubscriptionConfirmationBody($lang);
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
     }
 
     /**
@@ -83,7 +92,6 @@ class Lists extends Template
         if (null === $backUrl) {
             $backUrl = $this->getRequest()->getParam('back');
         }
-
         return $this->createBackUrl($backUrl);
     }
 

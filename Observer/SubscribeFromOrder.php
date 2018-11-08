@@ -4,7 +4,7 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -25,8 +25,8 @@ class SubscribeFromOrder implements ObserverInterface
     /** @var ObjectManagerInterface */
     protected $_objectManager;
 
-    /** @var RepositoryFactory */
-    private $repositoryFactory;
+    /** @var GetresponseApiClientFactory */
+    private $apiClientFactory;
 
     /** @var Repository */
     private $repository;
@@ -36,18 +36,18 @@ class SubscribeFromOrder implements ObserverInterface
 
     /**
      * @param ObjectManagerInterface $objectManager
-     * @param RepositoryFactory $repositoryFactory
+     * @param GetresponseApiClientFactory $apiClientFactory
      * @param Repository $repository
      * @param ContactService $contactService
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
-        RepositoryFactory $repositoryFactory,
+        GetresponseApiClientFactory $apiClientFactory,
         Repository $repository,
         ContactService $contactService
     ) {
         $this->_objectManager = $objectManager;
-        $this->repositoryFactory = $repositoryFactory;
+        $this->apiClientFactory = $apiClientFactory;
         $this->repository = $repository;
         $this->contactService = $contactService;
     }
@@ -107,7 +107,7 @@ class SubscribeFromOrder implements ObserverInterface
     public function addContact($campaign, $firstName, $lastName, $email, $cycleDay = null, $user_customs = [])
     {
         try {
-            $grApiClient = $this->repositoryFactory->createGetResponseApiClient();
+            $grApiClient = $this->apiClientFactory->createGetResponseApiClient();
             $customFields = new ContactCustomFieldsCollection();
 
             foreach ($user_customs as $name => $value) {
