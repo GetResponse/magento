@@ -10,8 +10,7 @@ use GrShareCode\GetresponseApiException;
 use GrShareCode\TrackingCode\TrackingCodeService;
 use Magento\Backend\App\Action;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\DefaultCustomFieldsFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action\Context;
@@ -41,33 +40,27 @@ class Save extends Action
     /** @var Repository */
     private $repository;
 
-    /** @var RepositoryFactory */
-    private $repositoryFactory;
-
-    /** @var RepositoryValidator */
-    private $repositoryValidator;
+    /** @var GetresponseApiClientFactory */
+    private $apiClientFactory;
 
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
-     * @param RepositoryFactory $repositoryFactory
+     * @param GetresponseApiClientFactory $apiClientFactory
      * @param Repository $repository
-     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
-        RepositoryFactory $repositoryFactory,
-        Repository $repository,
-        RepositoryValidator $repositoryValidator
+        GetresponseApiClientFactory $apiClientFactory,
+        Repository $repository
     ) {
         parent::__construct($context);
 
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
-        $this->repositoryFactory = $repositoryFactory;
-        $this->repositoryValidator = $repositoryValidator;
+        $this->apiClientFactory = $apiClientFactory;
     }
 
 
@@ -84,7 +77,7 @@ class Save extends Action
         }
 
         try {
-            $grApiClient = $this->repositoryFactory->createApiClientFromConnectionSettings($connectionSettings);
+            $grApiClient = $this->apiClientFactory->createApiClientFromConnectionSettings($connectionSettings);
             $grApiClient->checkConnection();
 
             $accountService = new AccountService($grApiClient);

@@ -4,7 +4,7 @@ namespace GetResponse\GetResponseIntegration\Test\Unit\Block;
 use GetResponse\GetResponseIntegration\Block\Account as AccountBlock;
 use GetResponse\GetResponseIntegration\Block\Getresponse;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Framework\View\Element\Template\Context;
@@ -21,8 +21,8 @@ class AccountTest extends BaseTestCase
     /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $repository;
 
-    /** @var RepositoryFactory|\PHPUnit_Framework_MockObject_MockObject */
-    private $repositoryFactory;
+    /** @var GetresponseApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
+    private $apiClientFactory;
 
     /** @var AccountBlock accountBlock */
     private $accountBlock;
@@ -31,12 +31,12 @@ class AccountTest extends BaseTestCase
     {
         $this->context = $this->getMockWithoutConstructing(Context::class);
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
-        $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
-        $getresponse = new Getresponse($this->repository, $this->repositoryFactory);
+        $this->apiClientFactory = $this->getMockWithoutConstructing(GetresponseApiClientFactory::class);
+        $getresponse = new Getresponse($this->repository, $this->apiClientFactory);
         $this->accountBlock = new AccountBlock(
             $this->context,
             $this->repository,
-            $this->repositoryFactory,
+            $this->apiClientFactory,
             $getresponse
         );
     }

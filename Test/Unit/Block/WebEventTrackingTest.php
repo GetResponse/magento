@@ -2,7 +2,7 @@
 namespace GetResponse\GetResponseIntegration\Test\Unit\Block;
 
 use GetResponse\GetResponseIntegration\Block\WebEventTracking;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettings;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
@@ -20,8 +20,8 @@ class WebEventTrackingTest extends BaseTestCase
     /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $repository;
 
-    /** @var RepositoryFactory|\PHPUnit_Framework_MockObject_MockObject */
-    private $repositoryFactory;
+    /** @var GetresponseApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
+    private $apiClientFactory;
 
     /** @var WebEventTracking */
     private $trackingBlock;
@@ -30,7 +30,7 @@ class WebEventTrackingTest extends BaseTestCase
     {
         $this->context = $this->getMockWithoutConstructing(Context::class);
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
-        $this->repositoryFactory = $this->getMockWithoutConstructing(RepositoryFactory::class);
+        $this->apiClientFactory = $this->getMockWithoutConstructing(GetresponseApiClientFactory::class);
         $this->trackingBlock = new WebEventTracking($this->context, $this->repository);
     }
 

@@ -2,7 +2,6 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\EcommerceSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\ValidationException;
@@ -31,19 +30,15 @@ class Save extends AbstractController
      * @param Context $context
      * @param TypeListInterface $cache
      * @param Repository $repository
-     * @param RepositoryValidator $repositoryValidator
      */
     public function __construct(
         Context $context,
         TypeListInterface $cache,
-        Repository $repository,
-        RepositoryValidator $repositoryValidator
+        Repository $repository
     ) {
-        parent::__construct($context, $repositoryValidator);
+        parent::__construct($context);
         $this->cache = $cache;
         $this->repository = $repository;
-
-        return $this->checkGetResponseConnection();
     }
 
     /**

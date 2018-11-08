@@ -10,8 +10,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactoryExce
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\AddOrderCommandFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Message;
@@ -49,8 +48,8 @@ class Process extends AbstractController
     /** @var Repository */
     private $repository;
 
-    /** @var RepositoryFactory */
-    private $repositoryFactory;
+    /** @var GetresponseApiClientFactory */
+    private $apiClientFactory;
 
     /** @var CartService */
     private $cartService;
@@ -71,8 +70,7 @@ class Process extends AbstractController
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
-     * @param RepositoryFactory $repositoryFactory
-     * @param RepositoryValidator $repositoryValidator
+     * @param GetresponseApiClientFactory $apiClientFactory
      * @param CartService $cartService
      * @param OrderService $orderService
      * @param AddOrderCommandFactory $addOrderCommandFactory
@@ -82,23 +80,20 @@ class Process extends AbstractController
         Context $context,
         PageFactory $resultPageFactory,
         Repository $repository,
-        RepositoryFactory $repositoryFactory,
-        RepositoryValidator $repositoryValidator,
+        GetresponseApiClientFactory $apiClientFactory,
         CartService $cartService,
         OrderService $orderService,
         AddOrderCommandFactory $addOrderCommandFactory,
         ContactService $contactService
     ) {
-        parent::__construct($context, $repositoryValidator);
+        parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
-        $this->repositoryFactory = $repositoryFactory;
+        $this->apiClientFactory = $apiClientFactory;
         $this->repository = $repository;
         $this->cartService = $cartService;
         $this->orderService = $orderService;
         $this->addOrderCommandFactory = $addOrderCommandFactory;
         $this->contactService = $contactService;
-
-        return $this->checkGetResponseConnection();
     }
 
     /**
@@ -181,6 +176,8 @@ class Process extends AbstractController
         } catch (ConnectionSettingsException $e) {
             return $this->handleException($e);
         } catch (ApiTypeException $e) {
+            return $this->handleException($e);
+        } catch (GetresponseApiException $e) {
             return $this->handleException($e);
         }
 
@@ -267,7 +264,7 @@ class Process extends AbstractController
     private function prepareCustomsMapping($customs)
     {
         $mapping = [];
-        $apiClient = $this->repositoryFactory->createGetResponseApiClient();
+        $apiClient = $this->apiClientFactory->createGetResponseApiClient();
 
         foreach ($customs as $name => $grCustomName) {
 
