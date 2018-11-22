@@ -1,6 +1,10 @@
 # Changelog
 
 ## 19.1.15
+*(2018-11-22)*
+* bugfixes in observers
+
+## 19.1.15
 *(2018-11-19)*
 * bugfixes in ecommerce section
 

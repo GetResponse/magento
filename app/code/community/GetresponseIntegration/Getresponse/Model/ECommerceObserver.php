@@ -17,9 +17,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 {
     const CACHE_KEY = 'getresponse_cache';
 
-    /** @var Mage_Customer_Model_Session */
-    private $customerSessionModel;
-
     /** @var Mage_Core_Model_Abstract */
     private $shopsSettings;
 
@@ -31,7 +28,6 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
 
     public function __construct()
     {
-        $this->customerSessionModel = Mage::getSingleton('customer/session');
         $this->shopId = Mage::helper('getresponse')->getStoreId();
         $shopRepository = new ShopRepository($this->shopId);
         $this->shopsSettings = $shopRepository->getShop()->toArray();
@@ -54,7 +50,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             /** @var Mage_Sales_Model_Quote $salesQuote */
             $salesQuote = Mage::getModel('sales/quote');
 
-            $customer = $this->customerSessionModel->getCustomer();
+            $customer = Mage::getSingleton('customer/session')->getCustomer();
 
             if ($this->shopsSettings['isScheduleOptimizationEnabled']) {
 
@@ -102,7 +98,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             }
 
             /** @var Mage_Customer_Model_Customer $customer */
-            $customer = $this->customerSessionModel->getCustomer();
+            $customer = Mage::getSingleton('customer/session')->getCustomer();
 
             /** @var Mage_Sales_Model_Order $order */
             $order = $observer->getEvent()->getData('order');
@@ -379,10 +375,10 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
      */
     private function canHandleECommerceEvent()
     {
-        return $this->customerSessionModel->isLoggedIn()
+        return Mage::getSingleton('customer/session')->isLoggedIn()
             && $this->isStoreEnabled()
             && $this->isCampaignIdSet()
-            && $this->isClientInGetResponse($this->customerSessionModel->getCustomer()->getId());
+            && $this->isClientInGetResponse(Mage::getSingleton('customer/session')->getCustomer()->getId());
     }
 
     /**
