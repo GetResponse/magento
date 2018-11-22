@@ -14,32 +14,19 @@ class GetresponseIntegration_Getresponse_Model_Observer
     /** @var string */
     private $shopId;
 
-    /** @var Mage_Sales_Model_Resource_Order */
-    private $orderModel;
-
     /** @var GetresponseIntegration_Getresponse_Helper_Data */
     private $getresponseHelper;
-
-    /** @var Mage_Customer_Model_Session */
-    private $customerSessionModel;
 
     /** @var Mage_Newsletter_Model_Subscriber */
     private $newsletterModel;
 
-    /** @var Mage_Core_Model_Session */
-    private $sessionModel;
-
     /** @var GetresponseIntegration_Getresponse_Model_Customs  */
     private $customsModel;
 
-
     public function __construct()
     {
-        $this->sessionModel = Mage::getSingleton('core/session');
-        $this->customerSessionModel = Mage::getSingleton('customer/session');
         $this->getresponseHelper = Mage::helper('getresponse');
         $this->shopId = $this->getresponseHelper->getStoreId();
-        $this->orderModel = Mage::getResourceModel('sales/order');
         $this->newsletterModel = Mage::getModel('newsletter/subscriber');
         $this->customsModel = Mage::getModel('getresponse/customs');
     }
@@ -72,9 +59,9 @@ class GetresponseIntegration_Getresponse_Model_Observer
             $block->append($myBlock);
         }
 
-        if ("footer" == $block->getNameInLayout() && $this->customerSessionModel->isLoggedIn()) {
+        if ("footer" == $block->getNameInLayout() && Mage::getSingleton('customer/session')->isLoggedIn()) {
 
-            $customer = $this->customerSessionModel->getCustomer();
+            $customer = Mage::getSingleton('customer/session')->getCustomer();
 
             if (strlen($customer->email) > 0) {
                 /** @var Mage_Core_Block_Text $myBlock */
@@ -313,28 +300,31 @@ class GetresponseIntegration_Getresponse_Model_Observer
             return;
         }
 
+        $session = Mage::getSingleton('core/session');
+
         if (1 === (int) $post['is_subscribed']) {
-            $this->sessionModel->setData('_gr_is_subscribed', true);
-            $this->sessionModel->setData('_subscriber_data', $post['billing']);
+            $session->setData('_gr_is_subscribed', true);
+            $session->setData('_subscriber_data', $post['billing']);
         } else {
-            $this->sessionModel->setData('_gr_is_subscribed', false);
-            $this->sessionModel->setData('_subscriber_data', null);
+            $session->setData('_gr_is_subscribed', false);
+            $session->setData('_subscriber_data', null);
         }
     }
 
     public function checkoutAllAfterFormSubmitted()
     {
-        $isSubscribed = (bool) $this->sessionModel->getData('_gr_is_subscribed');
+        $session = Mage::getSingleton('core/session');
+        $isSubscribed = (bool) $session->getData('_gr_is_subscribed');
 
         if (!$this->getresponseHelper->isEnabled() || 0 === $isSubscribed) {
             return;
         }
 
-        $details = (array) $this->sessionModel->getData('_subscriber_data');
+        $details = (array) $session->getData('_subscriber_data');
 
         // clear session
-        $this->sessionModel->setData('_gr_is_subscribed', null);
-        $this->sessionModel->setData('_subscriber_data', null);
+        $session->setData('_gr_is_subscribed', null);
+        $session->setData('_subscriber_data', null);
 
         if (empty($details['email'])) {
             return;
@@ -388,7 +378,7 @@ class GetresponseIntegration_Getresponse_Model_Observer
         $name = $email = null;
         $post = Mage::app()->getRequest()->getPost();
 
-        $customer = $this->customerSessionModel->getCustomer();
+        $customer = Mage::getSingleton('customer/session')->getCustomer();
 
         // only, if customer is logged in.
         if (!$customer->isEmpty() && strlen($customer->email) > 0 && isset($post['is_subscribed']) && $post['is_subscribed'] === 1) {
