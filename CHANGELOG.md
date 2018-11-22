@@ -1,5 +1,9 @@
 # Changelog
 
+## 19.1.15
+*(2018-11-19)*
+* bugfixes in ecommerce section
+
 ## 19.1.14
 *(2018-10-23)*
 
