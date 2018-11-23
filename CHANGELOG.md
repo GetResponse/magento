@@ -1,6 +1,6 @@
 # Changelog
 
-## 19.1.15
+## 19.1.16
 *(2018-11-22)*
 * bugfixes in observers
 
