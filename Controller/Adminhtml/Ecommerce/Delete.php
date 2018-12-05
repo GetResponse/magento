@@ -4,8 +4,9 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
+use GrShareCode\Shop\Command\DeleteShopCommand;
 use GrShareCode\Shop\ShopService;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
@@ -19,16 +20,16 @@ class Delete extends AbstractController
 {
     const BACK_URL = 'getresponse/ecommerce/index';
 
-    /** @var GetresponseApiClientFactory */
+    /** @var ApiClientFactory */
     private $apiClientFactory;
 
     /**
      * @param Context $context
-     * @param GetresponseApiClientFactory $apiClientFactory
+     * @param ApiClientFactory $apiClientFactory
      */
     public function __construct(
         Context $context,
-        GetresponseApiClientFactory $apiClientFactory
+        ApiClientFactory $apiClientFactory
     ) {
         parent::__construct($context);
         $this->apiClientFactory = $apiClientFactory;
@@ -47,9 +48,11 @@ class Delete extends AbstractController
             }
 
             $service = new ShopService($this->apiClientFactory->createGetResponseApiClient());
-            $service->deleteShop($id);
+            $service->deleteShop(new DeleteShopCommand($id));
+
             $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath(self::BACK_URL);
+
             return $resultRedirect;
         } catch (Exception $e) {
             return $this->handleException($e);

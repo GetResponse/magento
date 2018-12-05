@@ -1,24 +1,23 @@
 {
     "name": "getresponse/magento2",
     "description": "GetResponse Integration for Magento2",
-    "version": "20.3.4",
+    "version": "20.3.5",
     "license": "OSL-3.0",
     "minimum-stability": "stable",
     "type": "magento2-module",
-    "repositories": [
-        {
+    "repositories": {
+        "magento-repository": {
             "type": "composer",
             "url": "https://repo.magento.com/"
         }
-    ],
+    },
     "require": {
-        "getresponse/share-code-plugin": "5.0.2"
+        "getresponse/share-code-plugin": "^7.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^5",
-        "magento/module-backend": "^100.1.0",
         "magento/module-store": "^100.1.0",
-        "magento/framework": "^100.1.0"
+        "monolog/monolog": "^1.17"
     },
     "autoload": {
         "files": [
@@ -27,6 +26,15 @@
         "psr-4": {
             "GetResponse\\GetResponseIntegration\\": ""
         }
+    },
+    "autoload-dev": {
+        "files": [
+            "Test/MissingReferences/Magento/Quote/Api/Data/CartExtensionInterface.php",
+            "Test/MissingReferences/Magento/Quote/Api/Data/CartItemExtensionInterface.php",
+            "Test/MissingReferences/Magento/Catalog/Api/Data/ProductExtensionInterface.php",
+            "Test/MissingReferences/Magento/Env/Api/Data/AttributeExtensionInterface.php",
+            "Test/MissingReferences/Magento/Sales/Api/Data/OrderExtensionInterface.php",
+            "Test/MissingReferences/Magento/Sales/Api/Data/OrderItemExtensionInterface.php"
+        ]
     }
-
 }

@@ -1,10 +1,10 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Order;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
-use GrShareCode\Api\ApiTypeException;
-use GrShareCode\GetresponseApiException;
-use GrShareCode\Order\AddOrderCommand;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
+use GrShareCode\Api\Exception\GetresponseApiException;
+use GrShareCode\Order\Command\AddOrderCommand;
+use GrShareCode\Order\Command\EditOrderCommand;
 
 /**
  * Class OrderService
@@ -18,33 +18,31 @@ class OrderService
     /**
      * @param OrderServiceFactory $orderServiceFactory
      */
-    public function __construct(OrderServiceFactory $orderServiceFactory) {
+    public function __construct(OrderServiceFactory $orderServiceFactory)
+    {
         $this->orderServiceFactory = $orderServiceFactory;
     }
 
     /**
      * @param AddOrderCommand $addOrderCommand
-     * @throws ApiTypeException
      * @throws GetresponseApiException
-     * @throws ConnectionSettingsException
+     * @throws ApiException
      */
-    public function exportOrder(AddOrderCommand $addOrderCommand)
+    public function addOrder(AddOrderCommand $addOrderCommand)
     {
-        $addOrderCommand->setToSkipAutomation();
         $orderService = $this->orderServiceFactory->create();
-        $orderService->sendOrder($addOrderCommand);
+        $orderService->addOrder($addOrderCommand);
     }
 
     /**
-     * @param AddOrderCommand $addOrderCommand
-     * @throws ApiTypeException
-     * @throws ConnectionSettingsException
+     * @param EditOrderCommand $editOrderCommand
      * @throws GetresponseApiException
+     * @throws ApiException
      */
-    public function sendOrder(AddOrderCommand $addOrderCommand)
+    public function updateOrder(EditOrderCommand $editOrderCommand)
     {
         $orderService = $this->orderServiceFactory->create();
-        $orderService->sendOrder($addOrderCommand);
+        $orderService->updateOrder($editOrderCommand);
     }
 
 }

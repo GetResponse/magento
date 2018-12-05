@@ -1,15 +1,12 @@
 <?php
-
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Contact;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiTypeFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
-use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
-use GrShareCode\Api\ApiTypeException;
 use GrShareCode\Contact\ContactService as GrContactService;
+use GrShareCode\Contact\ContactServiceFactory as GrContactServiceFactory;
 
 /**
  * Class ContactServiceFactory
@@ -17,44 +14,42 @@ use GrShareCode\Contact\ContactService as GrContactService;
  */
 class ContactServiceFactory
 {
-    /** @var Repository */
-    private $magentoRepository;
-
     /** @var ShareCodeRepository */
     private $shareCodeRepository;
 
-    /** @var GetresponseApiClientFactory */
+    /** @var ApiClientFactory */
     private $apiClientFactory;
 
+    /** @var GrContactServiceFactory */
+    private $grContactServiceFactory;
+
     /**
-     * @param Repository $magentoRepository
      * @param ShareCodeRepository $shareCodeRepository
-     * @param GetresponseApiClientFactory $apiClientFactory
+     * @param ApiClientFactory $apiClientFactory
+     * @param GrContactServiceFactory $grContactServiceFactory
      */
     public function __construct(
-        Repository $magentoRepository,
         ShareCodeRepository $shareCodeRepository,
-        GetresponseApiClientFactory $apiClientFactory
+        ApiClientFactory $apiClientFactory,
+        GrContactServiceFactory $grContactServiceFactory
     ) {
-        $this->magentoRepository = $magentoRepository;
         $this->shareCodeRepository = $shareCodeRepository;
         $this->apiClientFactory = $apiClientFactory;
+        $this->grContactServiceFactory = $grContactServiceFactory;
     }
 
     /**
      * @return GrContactService
-     * @throws ApiTypeException
-     * @throws ConnectionSettingsException
+     * @throws ApiException
      */
     public function create()
     {
-        $settings = ConnectionSettingsFactory::createFromArray($this->magentoRepository->getConnectionSettings());
-        $getResponseApi = $this->apiClientFactory->createFromParams(
-            $settings->getApiKey(),
-            ApiTypeFactory::createFromConnectionSettings($settings),
-            $settings->getDomain()
-        );
+        $getResponseApi = $this->apiClientFactory->createGetResponseApiClient();
 
-        return new GrContactService($getResponseApi);
+        return $this->grContactServiceFactory->create(
+            $getResponseApi,
+            $this->shareCodeRepository,
+            Config::ORIGIN_NAME
+        );
     }
 }

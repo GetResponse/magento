@@ -1,12 +1,13 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Contact;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactServiceFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
+use GrShareCode\Api\GetresponseApiClient;
 use GrShareCode\Contact\ContactService as GrContactService;
-use GrShareCode\GetresponseApiClient;
+use GrShareCode\Contact\ContactServiceFactory as GrContactServiceFactory;
 
 /**
  * Class ContactServiceFactoryTest
@@ -14,51 +15,52 @@ use GrShareCode\GetresponseApiClient;
  */
 class ContactServiceFactoryTest extends BaseTestCase
 {
-    /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
-    private $magentoRepository;
-
     /** @var ShareCodeRepository|\PHPUnit_Framework_MockObject_MockObject */
     private $shareCodeRepository;
 
+    /** @var ApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
+    private $getResponseApiClientFactory;
+
     /** @var ContactServiceFactory */
     private $contactServiceFactory;
+
+    /** @var GrContactServiceFactory|\PHPUnit_Framework_MockObject_MockObject */
+    private $grContactServiceFactory;
 
     /**
      * @test
      */
     public function shouldCreateContactService()
     {
-        $this->magentoRepository
-            ->expects(self::once())
-            ->method('getConnectionSettings')
-            ->willReturn([
-                'url' => '',
-                'domain' => 'https://my_private_custom_page_url',
-                'apiKey' => 'GetResponseApiKey'
-            ]);
+        $apiClient = $this->getMockWithoutConstructing(GetresponseApiClient::class);
+        $grContactService = $this->getMockWithoutConstructing(GrContactService::class);
 
-        $this->magentoRepository
+        $this->getResponseApiClientFactory
             ->expects(self::once())
-            ->method('getGetResponsePluginVersion')
-            ->willReturn('20.1.1');
+            ->method('createGetResponseApiClient')
+            ->willReturn($apiClient);
+
+        $this->grContactServiceFactory
+            ->expects(self::once())
+            ->method('create')
+            ->with($apiClient, $this->shareCodeRepository, 'magento2')
+            ->willReturn($grContactService);
 
         $result = $this->contactServiceFactory->create();
-
         $this->assertInstanceOf(GrContactService::class, $result);
-
-        $this->assertInstanceOf(
-            GetresponseApiClient::class,
-            $this->getObjectAttribute($result, 'getresponseApiClient')
-        );
-
     }
 
     protected function setUp()
     {
-        $this->magentoRepository = $this->getMockWithoutConstructing(Repository::class);
         $this->shareCodeRepository = $this->getMockWithoutConstructing(ShareCodeRepository::class);
-        $this->contactServiceFactory = new ContactServiceFactory($this->magentoRepository, $this->shareCodeRepository);
-    }
+        $this->getResponseApiClientFactory = $this->getMockWithoutConstructing(ApiClientFactory::class);
+        $this->grContactServiceFactory = $this->getMockWithoutConstructing(GrContactServiceFactory::class);
 
+        $this->contactServiceFactory = new ContactServiceFactory(
+            $this->shareCodeRepository,
+            $this->getResponseApiClientFactory,
+            $this->grContactServiceFactory
+        );
+    }
 
 }

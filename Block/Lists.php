@@ -1,14 +1,16 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
+use Exception;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\ContactList\ContactListService;
 use GrShareCode\ContactList\FromFieldsCollection;
-use Magento\Framework\View\Element\Template\Context;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\View\Element\Template\Context;
 
 /**
  * Class Lists
@@ -21,23 +23,28 @@ class Lists extends GetResponse
 
     /**
      * @param Context $context
-     * @param Repository $repository
-     * @param GetresponseApiClientFactory $apiClientFactory
-     * @param RedirectFactory $redirectFactory
      * @param ManagerInterface $messageManager
+     * @param RedirectFactory $redirectFactory
+     * @param ApiClientFactory $apiClientFactory
+     * @param Logger $logger
+     * @param Repository $repository
      */
     public function __construct(
         Context $context,
-        Repository $repository,
-        GetresponseApiClientFactory $apiClientFactory,
+        ManagerInterface $messageManager,
         RedirectFactory $redirectFactory,
-        ManagerInterface $messageManager
+        ApiClientFactory $apiClientFactory,
+        Logger $logger,
+        Repository $repository
     ) {
-        parent::__construct($context);
+        parent::__construct(
+            $context,
+            $messageManager,
+            $redirectFactory,
+            $apiClientFactory,
+            $logger
+        );
         $this->repository = $repository;
-        $this->apiClientFactory = $apiClientFactory;
-        $this->redirectFactory = $redirectFactory;
-        $this->messageManager = $messageManager;
     }
 
     /**
@@ -46,10 +53,11 @@ class Lists extends GetResponse
     public function getAccountFromFields()
     {
         try {
-            $service = new ContactListService($this->apiClientFactory->createGetResponseApiClient());
+            $service = new ContactListService($this->getApiClientFactory()->createGetResponseApiClient());
+
             return $service->getFromFields();
-        } catch (\Exception $e) {
-           return $this->handleException($e);
+        } catch (Exception $e) {
+            return $this->handleException($e);
         }
     }
 
@@ -61,9 +69,10 @@ class Lists extends GetResponse
         try {
             $countryCode = $this->repository->getMagentoCountryCode();
             $lang = substr($countryCode, 0, 2);
-            $apiClient = $this->apiClientFactory->createGetResponseApiClient();
+            $apiClient = $this->getApiClientFactory()->createGetResponseApiClient();
+
             return $apiClient->getSubscriptionConfirmationSubject($lang);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->handleException($e);
         }
     }
@@ -76,9 +85,10 @@ class Lists extends GetResponse
         try {
             $countryCode = $this->repository->getMagentoCountryCode();
             $lang = substr($countryCode, 0, 2);
-            $apiClient = $this->apiClientFactory->createGetResponseApiClient();
+            $apiClient = $this->getApiClientFactory()->createGetResponseApiClient();
+
             return $apiClient->getSubscriptionConfirmationBody($lang);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->handleException($e);
         }
     }
@@ -92,6 +102,7 @@ class Lists extends GetResponse
         if (null === $backUrl) {
             $backUrl = $this->getRequest()->getParam('back');
         }
+
         return $this->createBackUrl($backUrl);
     }
 
@@ -114,6 +125,7 @@ class Lists extends GetResponse
                 return 'getresponse/newsletter/index';
                 break;
         }
+
         return '';
     }
 }

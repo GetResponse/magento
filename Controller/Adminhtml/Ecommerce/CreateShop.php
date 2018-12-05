@@ -2,12 +2,12 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GrShareCode\GetresponseApiException;
-use GrShareCode\Shop\AddShopCommand;
+use GetResponse\GetResponseIntegration\Helper\Message;
+use GrShareCode\Api\Exception\GetresponseApiException;
+use GrShareCode\Shop\Command\AddShopCommand;
 use GrShareCode\Shop\ShopService;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
@@ -25,7 +25,7 @@ class CreateShop extends AbstractController
     /** @var Repository */
     private $repository;
 
-    /** @var GetresponseApiClientFactory */
+    /** @var ApiClientFactory */
     private $apiClientFactory;
 
     /** @var JsonFactory */
@@ -33,13 +33,13 @@ class CreateShop extends AbstractController
 
     /**
      * @param Context $context
-     * @param GetresponseApiClientFactory $apiClientFactory
+     * @param ApiClientFactory $apiClientFactory
      * @param Repository $repository
      * @param JsonFactory $resultJsonFactory
      */
     public function __construct(
         Context $context,
-        GetresponseApiClientFactory $apiClientFactory,
+        ApiClientFactory $apiClientFactory,
         Repository $repository,
         JsonFactory $resultJsonFactory
     ) {
@@ -73,7 +73,7 @@ class CreateShop extends AbstractController
             return $this->resultJsonFactory->create()->setData(['shopId' => $shopId, 'name' => $data['shop_name']]);
         } catch (GetresponseApiException $e) {
             return $this->resultJsonFactory->create()->setData(['error' => $e->getMessage()]);
-        } catch (RepositoryException $e) {
+        } catch (ApiException $e) {
             return $this->resultJsonFactory->create()->setData(['error' => $e->getMessage()]);
         }
     }

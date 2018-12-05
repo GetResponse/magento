@@ -2,12 +2,12 @@
 
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Cart;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactServiceFactory;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
-use GrShareCode\Contact\AddContactCommand;
-use GrShareCode\Contact\ContactCustomFieldsCollection;
+use GrShareCode\Contact\Command\AddContactCommand;
+use GrShareCode\Contact\Command\FindContactCommand;
+use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
 use GrShareCode\Contact\ContactService as GrContactService;
 
 /**
@@ -36,7 +36,6 @@ class ContactServiceTest extends BaseTestCase
             ->willReturn($this->grContactServiceMock);
 
         $this->contactService = new ContactService($this->contactServiceFactoryMock);
-
     }
 
     /**
@@ -49,31 +48,31 @@ class ContactServiceTest extends BaseTestCase
 
         $this->grContactServiceMock
             ->expects(self::once())
-            ->method('getContactByEmail')
-            ->with($email, $contactListId);
+            ->method('findContact')
+            ->with(new FindContactCommand($email, $contactListId, false));
 
-        $this->contactService->getContactByEmail($email, $contactListId);
+        $this->contactService->findContactByEmail($email, $contactListId);
     }
 
     /**
      * @test
      * @dataProvider shouldCreateValidAddContactCommandProvider
      * @param AddContactCommand $expectedAddContactCommand
-     * @param $email
-     * @param $firstName
-     * @param $lastName
-     * @param $campaignId
-     * @param $dayOfCycle
-     * @param $customs
+     * @param string $email
+     * @param string $firstName
+     * @param string $lastName
+     * @param string $contactListId
+     * @param null|int $dayOfCycle
+     * @param ContactCustomFieldsCollection $customs
      */
     public function shouldCreateValidAddContactCommand(
         AddContactCommand $expectedAddContactCommand,
         $email,
         $firstName,
         $lastName,
-        $campaignId,
+        $contactListId,
         $dayOfCycle,
-        $customs
+        ContactCustomFieldsCollection $customs
     ) {
         $this->contactServiceFactoryMock
             ->expects(self::once())
@@ -83,18 +82,20 @@ class ContactServiceTest extends BaseTestCase
 
         $this->grContactServiceMock
             ->expects(self::once())
-            ->method('createContact')
+            ->method('addContact')
             ->with($this->callback(function(AddContactCommand $addContactCommand) use ($expectedAddContactCommand) {
-                return $addContactCommand == $expectedAddContactCommand && $addContactCommand->getDayOfCycle() === $expectedAddContactCommand->getDayOfCycle();
+                return $addContactCommand == $expectedAddContactCommand
+                    && $addContactCommand->getDayOfCycle() === $expectedAddContactCommand->getDayOfCycle();
             }));
 
-        $this->contactService->createContact(
+        $this->contactService->addContact(
             $email,
             $firstName,
             $lastName,
-            $campaignId,
+            $contactListId,
             $dayOfCycle,
-            $customs
+            $customs,
+            true
         );
     }
 
@@ -111,7 +112,7 @@ class ContactServiceTest extends BaseTestCase
                     'D4K4',
                     1,
                     new ContactCustomFieldsCollection(),
-                    Config::ORIGIN_NAME
+                    true
                 ),
                 'simple@example.com',
                 'John',
@@ -120,15 +121,15 @@ class ContactServiceTest extends BaseTestCase
                 1,
                 new ContactCustomFieldsCollection()
             ],
-            // zabezpieczenie przed tym, aby w api day of cycle nie był ustawiony na ''
+            // zabezpieczenie przed tym, aby w api day of cycle nie był ustawiony na '', jest po stronie shareCode'u
             [
                 new AddContactCommand(
                     'simple@example.com',
                     'John Bravo',
                     'D4K4',
-                    null,
+                    '',
                     new ContactCustomFieldsCollection(),
-                    Config::ORIGIN_NAME
+                    true
                 ),
                 'simple@example.com',
                 'John',
@@ -145,7 +146,7 @@ class ContactServiceTest extends BaseTestCase
                     'D4K4',
                     1,
                     new ContactCustomFieldsCollection(),
-                    Config::ORIGIN_NAME
+                    true
                 ),
                 'simple@example.com',
                 '',

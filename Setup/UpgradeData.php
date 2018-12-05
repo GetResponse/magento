@@ -2,19 +2,19 @@
 
 namespace GetResponse\GetResponseIntegration\Setup;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistration;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettings;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomField;
-use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettings;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
-use Magento\Framework\App\Cache\Manager;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettings;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
 use GetResponse\GetResponseIntegration\Helper\Config;
-use Magento\Framework\Setup\UpgradeDataInterface;
+use Magento\Framework\App\Cache\Manager;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Magento\Framework\App\Config\Storage\WriterInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Store\Model\Store;
 
 /**
@@ -52,8 +52,9 @@ class UpgradeData implements UpgradeDataInterface
     ) {
         $setup->startSetup();
 
-        if (version_compare($context->getVersion(), '1', '>') && version_compare($context->getVersion(), '20.1.1',
-                '<=')) {
+        if (version_compare($context->getVersion(), '1', '>')
+            && version_compare($context->getVersion(), '20.1.1', '<=')) {
+
             $this->ver2011updateConnectionSettings($setup);
             $this->ver2011updateRegistrationSettings($setup);
             $this->ver2011migrateAccountSettings($setup);
@@ -61,6 +62,12 @@ class UpgradeData implements UpgradeDataInterface
             $this->ver2011migrateWebformSettings($setup);
             $this->ver2011migrateWebEventTrackingSettings($setup);
             $this->cacheManager->clean(['config']);
+        }
+
+        if (version_compare($context->getVersion(), '20.1.1', '>=')
+            && version_compare($context->getVersion(), '20.3.4', '<=')) {
+
+            $this->ver2034migrateCustomFieldsMapping();
         }
 
         $setup->endSetup();
@@ -206,7 +213,7 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         foreach ($data as $row) {
-            $registrationSettings = new RegistrationSettings(
+            $registrationSettings = new SubscribeViaRegistration(
                 $row['active_subscription'],
                 $row['update'],
                 $row['campaign_id'],
@@ -248,5 +255,15 @@ class UpgradeData implements UpgradeDataInterface
                 Store::DEFAULT_STORE_ID
             );
         }
+    }
+
+    private function ver2034migrateCustomFieldsMapping()
+    {
+        $this->configWriter->save(
+            Config::CONFIG_DATA_REGISTRATION_CUSTOMS,
+            json_encode(CustomFieldsMappingCollection::createDefaults()->toArray()),
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
     }
 }

@@ -1,14 +1,14 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Account as AccountBlock;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\AccountFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\Account as AccountBlock;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
-use Magento\Framework\View\Element\Template;
-use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Framework\App\Request\Http;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\View\Element\Template\Context;
 
 /**
  * Class Account

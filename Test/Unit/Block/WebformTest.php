@@ -2,12 +2,15 @@
 namespace GetResponse\GetResponseIntegration\Test\Unit\Block;
 
 use GetResponse\GetResponseIntegration\Block\Webform as WebformBlock;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Logger\Logger;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
-use GrShareCode\GetresponseApiClient;
+use GrShareCode\Api\GetresponseApiClient;
 use GrShareCode\WebForm\WebForm;
 use GrShareCode\WebForm\WebFormCollection;
+use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
 
@@ -23,7 +26,7 @@ class WebformTest extends BaseTestCase
     /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $repository;
 
-    /** @var GetresponseApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var \GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
     private $repositoryFactory;
 
     /** @var ObjectManagerInterface|\PHPUnit_Framework_MockObject_MockObject */
@@ -32,18 +35,37 @@ class WebformTest extends BaseTestCase
     /** @var WebformBlock */
     private $webformBlock;
 
-    /** @var GetresponseApiClient|\PHPUnit_Framework_MockObject_MockObject */
-    private $grApiClient;
+    /** @var  ManagerInterface|\PHPUnit_Framework_MockObject_MockObject*/
+    private $messageManager;
+
+    /** @var RedirectFactory|\PHPUnit_Framework_MockObject_MockObject*/
+    private $redirectFactory;
+
+    /** @var \GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
+    private $apiClientFactory;
+
+    /** @var Logger|\PHPUnit_Framework_MockObject_MockObject */
+    private $logger;
 
     public function setUp()
     {
         $this->context = $this->getMockWithoutConstructing(Context::class);
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
         $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
-        $this->repositoryFactory = $this->getMockWithoutConstructing(GetresponseApiClientFactory::class);
-        $this->grApiClient = $this->getMockWithoutConstructing(GetresponseApiClient::class);
-        $this->repositoryFactory->expects($this->once())->method('createGetResponseApiClient')->willReturn($this->grApiClient);
-        $this->webformBlock = new WebformBlock($this->context, $this->repository, $this->repositoryFactory);
+        $this->repositoryFactory = $this->getMockWithoutConstructing(ApiClientFactory::class);
+        $this->messageManager = $this->getMockWithoutConstructing(ManagerInterface::class);
+        $this->redirectFactory = $this->getMockWithoutConstructing(RedirectFactory::class);
+        $this->apiClientFactory = $this->getMockWithoutConstructing(ApiClientFactory::class);
+        $this->logger = $this->getMockWithoutConstructing(Logger::class);
+
+        $this->webformBlock = new WebformBlock(
+            $this->context,
+            $this->messageManager,
+            $this->redirectFactory,
+            $this->apiClientFactory,
+            $this->logger,
+            $this->repository
+        );
     }
 
     /**
@@ -57,8 +79,14 @@ class WebformTest extends BaseTestCase
      */
     public function shouldReturnValidWebFormsCollection(array $rawFormsData, array $rawWebformsData,  WebformCollection $expectedCollection)
     {
-        $this->grApiClient->method('getForms')->willReturn($rawFormsData);
-        $this->grApiClient->method('getWebForms')->willReturn($rawWebformsData);
+        $grApiClient = $this->getMockWithoutConstructing(GetresponseApiClient::class);
+        $grApiClient->method('getForms')->willReturn($rawFormsData);
+        $grApiClient->method('getWebForms')->willReturn($rawWebformsData);
+
+        $this->apiClientFactory
+            ->expects($this->once())
+            ->method('createGetResponseApiClient')
+            ->willReturn($grApiClient);
 
         $collection = $this->webformBlock->getWebForms();
 
@@ -99,8 +127,8 @@ class WebformTest extends BaseTestCase
         ];
 
         $collection = new WebformCollection();
-        $collection->add(new Webform($secondFormId, $secondFormName, $secondFormScriptUrl, $secondFormCampaignName, Webform::STATUS_DISABLED));
-        $collection->add(new Webform($firstFormId, $firstFormName, $firstFormScriptUrl, $firstFormCampaignName, Webform::STATUS_ENABLED));
+        $collection->add(new Webform($secondFormId, $secondFormName, $secondFormScriptUrl, $secondFormCampaignName, Webform::STATUS_DISABLED, Webform::VERSION_V1));
+        $collection->add(new Webform($firstFormId, $firstFormName, $firstFormScriptUrl, $firstFormCampaignName, Webform::STATUS_ENABLED, Webform::VERSION_V2));
 
         return [
             [[], [], new WebformCollection()],

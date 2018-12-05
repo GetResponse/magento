@@ -1,16 +1,15 @@
 <?php
-
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactCustomFieldsCollectionFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
-use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
-use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GrShareCode\Api\ApiTypeException;
-use GrShareCode\Contact\ContactCustomFieldsCollection;
-use GrShareCode\GetresponseApiException;
-use Magento\Framework\Event\ObserverInterface;
+use GrShareCode\Api\Exception\GetresponseApiException;
+use Magento\Customer\Model\Customer;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\ObjectManagerInterface;
 
 /**
@@ -28,19 +27,31 @@ class SubscribeFromRegister implements ObserverInterface
     /** @var ContactService */
     private $contactService;
 
+    /** @var SubscribeViaRegistrationService */
+    private $subscribeViaRegistrationService;
+
+    /** @var ContactCustomFieldsCollectionFactory */
+    private $contactCustomFieldsCollectionFactory;
+
     /**
      * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
      * @param ContactService $contactService
+     * @param SubscribeViaRegistrationService $subscribeViaRegistrationService
+     * @param ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
         Repository $repository,
-        ContactService $contactService
+        ContactService $contactService,
+        SubscribeViaRegistrationService $subscribeViaRegistrationService,
+        ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory
     ) {
         $this->_objectManager = $objectManager;
         $this->repository = $repository;
         $this->contactService = $contactService;
+        $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
+        $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
     }
 
     /**
@@ -49,31 +60,38 @@ class SubscribeFromRegister implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        $registrationSettings = RegistrationSettingsFactory::createFromArray(
-            $this->repository->getRegistrationSettings()
-        );
+        $registrationSettings = $this->subscribeViaRegistrationService->getSettings();
 
         if (!$registrationSettings->isEnabled()) {
             return $this;
         }
 
-        $customer = $observer->getEvent()->getCustomer();
-        $subscriber = $this->repository->loadSubscriberByEmail($customer->getEmail());
+        $customerData = $observer->getEvent()->getCustomer();
+        $subscriber = $this->repository->loadSubscriberByEmail($customerData->getEmail());
 
-        if ($subscriber->isSubscribed() == true) {
+        if ($subscriber->isSubscribed()) {
+
+            /** @var Customer $customer */
+            $customer = $this->repository->loadCustomer($customerData->getId());
+
+            $contactCustomFieldsCollection = $this->contactCustomFieldsCollectionFactory->createForCustomer(
+                $customer,
+                $this->subscribeViaRegistrationService->getCustomFieldMappingSettings(),
+                $registrationSettings->isUpdateCustomFieldsEnalbed()
+            );
 
             try {
-                $this->contactService->createContact(
-                    $customer->getEmail(),
-                    $customer->getFirstname(),
-                    $customer->getLastname(),
+                $this->contactService->addContact(
+                    $customerData->getEmail(),
+                    $customerData->getFirstname(),
+                    $customerData->getLastname(),
                     $registrationSettings->getCampaignId(),
                     $registrationSettings->getCycleDay(),
-                    new ContactCustomFieldsCollection()
+                    $contactCustomFieldsCollection,
+                    $registrationSettings->isUpdateCustomFieldsEnalbed()
                 );
+            } catch (ApiException $e) {
             } catch (GetresponseApiException $e) {
-            } catch (ConnectionSettingsException $e) {
-            } catch (ApiTypeException $e) {
             }
         }
 

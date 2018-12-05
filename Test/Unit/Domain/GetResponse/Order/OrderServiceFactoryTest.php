@@ -1,20 +1,20 @@
 <?php
+namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Order;
 
-namespace Domain\GetResponse\Order;
-
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderServiceFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GrShareCode\Api\ApiKeyAuthorization;
-use GrShareCode\Api\Authorization;
+use GrShareCode\Api\Authorization\ApiKeyAuthorization;
+use GrShareCode\Api\Authorization\Authorization;
+use GrShareCode\Api\GetresponseApi;
+use GrShareCode\Api\GetresponseApiClient;
 use GrShareCode\Api\UserAgentHeader;
-use GrShareCode\GetresponseApi;
-use GrShareCode\GetresponseApiClient;
+use GrShareCode\Order\OrderPayloadFactory;
 use GrShareCode\Order\OrderService;
+use GrShareCode\Order\OrderServiceFactory as GrOrderServiceFactory;
 use GrShareCode\Product\ProductService;
-
 
 /**
  * Class OrderServiceFactoryTest
@@ -22,16 +22,20 @@ use GrShareCode\Product\ProductService;
  */
 class OrderServiceFactoryTest extends BaseTestCase
 {
-    /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
-    private $magentoRepositoryMock;
-
     /** @var ShareCodeRepository|\PHPUnit_Framework_MockObject_MockObject */
     private $sharedCodeRepositoryMock;
 
+    /** @var ApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
+    private $getResponseApiClientFactory;
+
+    /** @var GrOrderServiceFactory|\PHPUnit_Framework_MockObject_MockObject */
+    private $grOrderServiceFactory;
+
     public function setUp()
     {
-        $this->magentoRepositoryMock = $this->getMockWithoutConstructing(Repository::class);
         $this->sharedCodeRepositoryMock = $this->getMockWithoutConstructing(ShareCodeRepository::class);
+        $this->getResponseApiClientFactory = $this->getMockWithoutConstructing(ApiClientFactory::class);
+        $this->grOrderServiceFactory = $this->getMockWithoutConstructing(GrOrderServiceFactory::class);
     }
 
     /**
@@ -40,15 +44,8 @@ class OrderServiceFactoryTest extends BaseTestCase
     public function shouldCreateOrderService()
     {
         $apiKey = '494j49j9j49f';
-        $url = '';
         $domain = 'mx_us';
         $pluginVersion = '1.1';
-
-        $rawSettings = [
-            'apiKey' => $apiKey,
-            'url' => $url,
-            'domain' => $domain
-        ];
 
         $getresponseApiClient = new GetresponseApiClient(
             new GetresponseApi(
@@ -71,21 +68,30 @@ class OrderServiceFactoryTest extends BaseTestCase
             new ProductService(
                 $getresponseApiClient,
                 $this->sharedCodeRepositoryMock
-            )
+            ),
+            new OrderPayloadFactory()
         );
 
-        $this->magentoRepositoryMock->expects($this->once())->method('getConnectionSettings')->willReturn($rawSettings);
-        $this->magentoRepositoryMock->expects($this->once())->method('getGetResponsePluginVersion')->willReturn($pluginVersion);
+        $this->getResponseApiClientFactory
+            ->expects($this->once())
+            ->method('createGetResponseApiClient')
+            ->willReturn($getresponseApiClient);
+
+        $this->grOrderServiceFactory
+            ->expects(self::once())
+            ->method('create')
+            ->with($getresponseApiClient, $this->sharedCodeRepositoryMock)
+            ->willReturn($expectedOrderService);
 
         $orderServiceFactory = new OrderServiceFactory(
-            $this->magentoRepositoryMock,
-            $this->sharedCodeRepositoryMock
+            $this->sharedCodeRepositoryMock,
+            $this->getResponseApiClientFactory,
+            $this->grOrderServiceFactory
         );
 
         $orderService = $orderServiceFactory->create();
 
         $this->assertInstanceOf(OrderService::class, $orderService);
         $this->assertEquals($expectedOrderService, $orderService);
-
     }
 }

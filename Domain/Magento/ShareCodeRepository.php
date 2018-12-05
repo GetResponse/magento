@@ -1,19 +1,18 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
+use Exception;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Model\CartMap;
 use GetResponse\GetResponseIntegration\Model\OrderMap;
 use GetResponse\GetResponseIntegration\Model\ProductMap;
 use GrShareCode\DbRepositoryInterface;
-use GrShareCode\Job\Job;
-use GrShareCode\Job\JobCollection;
 use GrShareCode\ProductMapping\ProductMapping;
+use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
-use GetResponse\GetResponseIntegration\Helper\Config;
+use Magento\Framework\ObjectManagerInterface;
 use Magento\Store\Model\Store;
-
 
 /**
  * Class ShareCodeRepository
@@ -21,6 +20,8 @@ use Magento\Store\Model\Store;
  */
 class ShareCodeRepository implements DbRepositoryInterface
 {
+    const ORIGIN_CUSTOM_FIELD_DELETED = 'deleted';
+
     /** @var ObjectManagerInterface */
     private $objectManager;
 
@@ -30,19 +31,28 @@ class ShareCodeRepository implements DbRepositoryInterface
     /** @var WriterInterface */
     private $configWriter;
 
+    /** @var Manager */
+    private $cacheManager;
+
+    /** @var string */
+    private $singleRequestCachedOriginCustomFieldId;
+
     /**
      * @param ObjectManagerInterface $objectManager
      * @param ScopeConfigInterface $scopeConfig
      * @param WriterInterface $configWriter
+     * @param Manager $cacheManager
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
         ScopeConfigInterface $scopeConfig,
-        WriterInterface $configWriter
+        WriterInterface $configWriter,
+        Manager $cacheManager
     ) {
         $this->objectManager = $objectManager;
         $this->scopeConfig = $scopeConfig;
         $this->configWriter = $configWriter;
+        $this->cacheManager = $cacheManager;
     }
 
     /**
@@ -150,7 +160,7 @@ class ShareCodeRepository implements DbRepositoryInterface
             ->addFieldToFilter('gr_shop_id', $grShopId)
             ->addFieldToFilter('gr_cart_id', $grCartId);
 
-        foreach($cartMappings as $cartMapping){
+        foreach ($cartMappings as $cartMapping) {
             $cartMapping->delete();
         }
     }
@@ -227,33 +237,8 @@ class ShareCodeRepository implements DbRepositoryInterface
     }
 
     /**
-     * @param Job $job
-     * @return null
-     */
-    public function addJob(Job $job)
-    {
-
-    }
-
-    /**
-     * @return JobCollection
-     */
-    public function getJobsToProcess()
-    {
-
-    }
-
-    /**
-     * @param Job $job
-     */
-    public function deleteJob(Job $job)
-    {
-
-    }
-
-
-    /**
      * @param int $accountId
+     * @throws Exception
      */
     public function markAccountAsInvalid($accountId)
     {
@@ -263,10 +248,11 @@ class ShareCodeRepository implements DbRepositoryInterface
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+        $this->cacheManager->clean(['config']);
     }
 
     /**
-     * @param $accountId
+     * @param string $accountId
      */
     public function markAccountAsValid($accountId)
     {
@@ -274,15 +260,16 @@ class ShareCodeRepository implements DbRepositoryInterface
             Config::INVALID_REQUEST_DATE_TIME,
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT
         );
+        $this->cacheManager->clean(['config']);
     }
 
     /**
      * @param int $accountId
+     * @return string
      */
     public function getInvalidAccountFirstOccurrenceDate($accountId)
     {
         return $this->scopeConfig->getValue(Config::INVALID_REQUEST_DATE_TIME);
-
     }
 
     /**
@@ -295,5 +282,49 @@ class ShareCodeRepository implements DbRepositoryInterface
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+        $this->cacheManager->clean(['config']);
     }
+
+    /**
+     * ScopeConfig is build on the beginning of each request.
+     * When we change data with specific key within config and after that we ask for the same key in the same request,
+     * we will get old value, which is unexpected behaviour. This is the reason why singleRequestCachedOriginCustomFieldId
+     * was implemented here, as we want to have always actual value wherever we ask for getOriginCustomFieldId().
+     *
+     * @return string
+     */
+    public function getOriginCustomFieldId()
+    {
+        if (self::ORIGIN_CUSTOM_FIELD_DELETED === $this->singleRequestCachedOriginCustomFieldId) {
+            return null;
+        }
+
+        if ($this->singleRequestCachedOriginCustomFieldId) {
+            return $this->singleRequestCachedOriginCustomFieldId;
+        }
+
+        return $this->scopeConfig->getValue(Config::CONFIG_DATA_ORIGIN_CUSTOM_FIELD_ID);
+    }
+
+    /**
+     * @param string $originCustomFieldId
+     */
+    public function setOriginCustomFieldId($originCustomFieldId)
+    {
+        $this->configWriter->save(Config::CONFIG_DATA_ORIGIN_CUSTOM_FIELD_ID, $originCustomFieldId);
+        $this->cacheManager->clean(['config']);
+        $this->singleRequestCachedOriginCustomFieldId = $originCustomFieldId;
+    }
+
+    public function clearOriginCustomField()
+    {
+        $this->configWriter->delete(
+            Config::CONFIG_DATA_ORIGIN_CUSTOM_FIELD_ID,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
+        $this->cacheManager->clean(['config']);
+        $this->singleRequestCachedOriginCustomFieldId = self::ORIGIN_CUSTOM_FIELD_DELETED;
+    }
+
 }
