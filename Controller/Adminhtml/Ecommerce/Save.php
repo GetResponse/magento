@@ -55,7 +55,7 @@ class Save extends AbstractController
             $settings = EcommerceSettingsFactory::createFromPost($request->getPostValue());
 
             $this->repository->saveShopStatus($settings->getStatus());
-            $this->repository->saveShopId($settings->getStoreId());
+            $this->repository->saveShopId($settings->getShopId());
             $this->repository->saveEcommerceListId($settings->getListId());
 
             $this->cache->cleanType('config');

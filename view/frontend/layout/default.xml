@@ -22,7 +22,7 @@
         </referenceContainer>
 
         <referenceBlock name="head.additional">
-            <block class="GetResponse\GetResponseIntegration\Block\Header" name="getresponse.footer" template="header.phtml" />
+            <block class="GetResponse\GetResponseIntegration\Block\Header" name="getresponse.footer" template="header.phtml" cacheable="false"/>
         </referenceBlock>
     </body>
 </page>

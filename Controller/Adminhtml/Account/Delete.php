@@ -44,7 +44,6 @@ class Delete extends Action
         $this->cacheManager = $cacheManager;
     }
 
-
     /**
      * @return Redirect
      */

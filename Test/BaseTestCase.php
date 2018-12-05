@@ -13,8 +13,8 @@ class BaseTestCase extends \PHPUnit\Framework\TestCase
     protected function getMockWithoutConstructing($name, array $methodsToOverride = [])
     {
         return $this->getMockBuilder($name)
-            ->setMethods($methodsToOverride)
             ->disableOriginalConstructor()
+            ->setMethods($methodsToOverride)
             ->getMock();
     }
 }

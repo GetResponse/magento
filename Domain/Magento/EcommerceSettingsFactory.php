@@ -1,5 +1,4 @@
 <?php
-
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
 /**

@@ -2,15 +2,11 @@
 
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Order;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiTypeFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductServiceFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
-use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
-use GrShareCode\Api\ApiTypeException;
 use GrShareCode\Order\OrderService as GrOrderService;
+use GrShareCode\Order\OrderServiceFactory as GrOrderServiceFactory;
 
 /**
  * Class OrderServiceFactory
@@ -18,45 +14,39 @@ use GrShareCode\Order\OrderService as GrOrderService;
  */
 class OrderServiceFactory
 {
-    /** @var Repository */
-    private $magentoRepository;
-
     /** @var ShareCodeRepository */
     private $sharedCodeRepository;
 
-    /** @var GetresponseApiClientFactory */
+    /** @var ApiClientFactory */
     private $apiClientFactory;
 
+    /** @var GrOrderServiceFactory */
+    private $orderServiceFactory;
+
     /**
-     * @param Repository $magentoRepository
      * @param ShareCodeRepository $sharedCodeRepository
-     * @param GetresponseApiClientFactory $apiClientFactory
+     * @param ApiClientFactory $apiClientFactory
+     * @param GrOrderServiceFactory $orderServiceFactory
      */
     public function __construct(
-        Repository $magentoRepository,
         ShareCodeRepository $sharedCodeRepository,
-        GetresponseApiClientFactory $apiClientFactory
+        ApiClientFactory $apiClientFactory,
+        GrOrderServiceFactory $orderServiceFactory
     ) {
-        $this->magentoRepository = $magentoRepository;
         $this->sharedCodeRepository = $sharedCodeRepository;
         $this->apiClientFactory = $apiClientFactory;
+        $this->orderServiceFactory = $orderServiceFactory;
     }
 
     /**
      * @return GrOrderService
-     * @throws ApiTypeException
-     * @throws ConnectionSettingsException
+     * @throws ApiException
      */
     public function create()
     {
-        $settings = ConnectionSettingsFactory::createFromArray($this->magentoRepository->getConnectionSettings());
-        $getResponseApi = $this->apiClientFactory->createFromParams(
-            $settings->getApiKey(),
-            ApiTypeFactory::createFromConnectionSettings($settings),
-            $settings->getDomain()
+        return $this->orderServiceFactory->create(
+            $this->apiClientFactory->createGetResponseApiClient(),
+            $this->sharedCodeRepository
         );
-
-        $productService = new ProductServiceFactory($getResponseApi, $this->sharedCodeRepository);
-        return new GrOrderService($getResponseApi, $this->sharedCodeRepository, $productService->create());
     }
 }

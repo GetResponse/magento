@@ -1,24 +1,22 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Account;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingService;
+use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
+use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GrShareCode\Account\AccountService;
-use GrShareCode\Api\ApiTypeException;
-use GrShareCode\GetresponseApiException;
+use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\TrackingCode\TrackingCodeService;
 use Magento\Backend\App\Action;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\DefaultCustomFieldsFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
-use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\View\Result\Page;
-use Magento\Framework\View\Result\PageFactory;
-use Magento\Framework\App\Request\Http;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
 /**
  * Class Save
@@ -31,36 +29,36 @@ class Save extends Action
     const API_ERROR_MESSAGE = 'The API key seems incorrect. Please check if you typed or pasted it correctly. If you recently generated a new key, please make sure you’re using the right one';
     const API_EMPTY_VALUE_MESSAGE = 'You need to enter API key. This field can\'t be empty';
 
-    /** @var PageFactory */
-    private $resultPageFactory;
-
     /** @var Http */
     private $request;
 
     /** @var Repository */
     private $repository;
 
-    /** @var GetresponseApiClientFactory */
+    /** @var ApiClientFactory */
     private $apiClientFactory;
+
+    /** @var CustomFieldsMappingService */
+    private $customFieldsMappingService;
 
     /**
      * @param Context $context
-     * @param PageFactory $resultPageFactory
-     * @param GetresponseApiClientFactory $apiClientFactory
+     * @param ApiClientFactory $apiClientFactory
      * @param Repository $repository
+     * @param CustomFieldsMappingService $customFieldsMappingService
      */
     public function __construct(
         Context $context,
-        PageFactory $resultPageFactory,
-        GetresponseApiClientFactory $apiClientFactory,
-        Repository $repository
+        ApiClientFactory $apiClientFactory,
+        Repository $repository,
+        CustomFieldsMappingService $customFieldsMappingService
     ) {
         parent::__construct($context);
 
-        $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
         $this->apiClientFactory = $apiClientFactory;
+        $this->customFieldsMappingService = $customFieldsMappingService;
     }
 
 
@@ -84,7 +82,6 @@ class Save extends Action
             $account = $accountService->getAccount();
 
             $trackingCodeService = new TrackingCodeService($grApiClient);
-
             $trackingCode = $trackingCodeService->getTrackingCode();
 
             $this->repository->saveConnectionSettings($connectionSettings);
@@ -97,7 +94,9 @@ class Save extends Action
                 ])
             );
             $this->repository->saveAccountDetails($account);
-            $this->repository->setCustomsOnInit(DefaultCustomFieldsFactory::createDefaultCustomsMap());
+
+            $this->customFieldsMappingService->setDefaultCustomFields();
+
             $this->messageManager->addSuccessMessage(Message::ACCOUNT_CONNECTED);
 
             return $this->_redirect(self::BACK_URL);
@@ -105,10 +104,7 @@ class Save extends Action
         } catch (GetresponseApiException $e) {
             $this->messageManager->addErrorMessage(self::API_ERROR_MESSAGE);
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        } catch (RepositoryException $e) {
-            $this->messageManager->addErrorMessage(self::API_ERROR_MESSAGE);
-            return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
-        } catch (ApiTypeException $e) {
+        } catch (ApiException $e) {
             $this->messageManager->addErrorMessage(self::API_ERROR_MESSAGE);
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }

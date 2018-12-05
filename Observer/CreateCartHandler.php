@@ -25,9 +25,6 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
     /** @var CartService */
     private $cartService;
 
-    /** @var Repository */
-    private $magentoRepository;
-
     /** @var Logger */
     private $logger;
 
@@ -50,7 +47,6 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
         Logger $getResponseLogger
     ) {
         $this->scopeConfig = $scopeConfig;
-        $this->magentoRepository = $repository;
         $this->cartService = $cartService;
         $this->logger = $getResponseLogger;
 
@@ -70,13 +66,13 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
     {
         try {
 
-            if (!$this->canHandleECommerceEvent()) {
-                return $this;
-            }
-
             $shopId = $this->scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
 
             if (empty($shopId)) {
+                return $this;
+            }
+
+            if (!$this->canHandleECommerceEvent()) {
                 return $this;
             }
 

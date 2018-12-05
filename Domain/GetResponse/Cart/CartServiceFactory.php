@@ -1,17 +1,12 @@
 <?php
-
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Cart;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiTypeFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductServiceFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeCache;
-use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
-use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
-use GrShareCode\Api\ApiTypeException;
 use GrShareCode\Cart\CartService as GrCartService;
+use GrShareCode\Cart\CartServiceFactory as GrCartServiceFactory;
 
 /**
  * Class CartServiceFactory
@@ -19,55 +14,47 @@ use GrShareCode\Cart\CartService as GrCartService;
  */
 class CartServiceFactory
 {
-    /** @var Repository */
-    private $magentoRepository;
-
     /** @var ShareCodeRepository */
     private $shareCodeRepository;
 
     /** @var ShareCodeCache */
     private $shareCodeCache;
 
-    /** @var GetresponseApiClientFactory */
+    /** @var ApiClientFactory */
     private $apiClientFactory;
 
+    /** @var GrCartServiceFactory */
+    private $cartServiceFactory;
+
     /**
-     * @param Repository $magentoRepository
      * @param ShareCodeRepository $shareCodeRepository
      * @param ShareCodeCache $shareCodeCache
-     * @param GetresponseApiClientFactory $apiClientFactory
+     * @param ApiClientFactory $apiClientFactory
+     * @param GrCartServiceFactory $cartServiceFactory
      */
     public function __construct(
-        Repository $magentoRepository,
         ShareCodeRepository $shareCodeRepository,
         ShareCodeCache $shareCodeCache,
-        GetresponseApiClientFactory $apiClientFactory
+        ApiClientFactory $apiClientFactory,
+        GrCartServiceFactory $cartServiceFactory
     ) {
-        $this->magentoRepository = $magentoRepository;
         $this->shareCodeRepository = $shareCodeRepository;
         $this->shareCodeCache = $shareCodeCache;
         $this->apiClientFactory = $apiClientFactory;
+        $this->cartServiceFactory = $cartServiceFactory;
     }
 
     /**
      * @return GrCartService
-     * @throws ApiTypeException
-     * @throws ConnectionSettingsException
+     * @throws ApiException
      */
     public function create()
     {
-        $settings = ConnectionSettingsFactory::createFromArray($this->magentoRepository->getConnectionSettings());
-        $getResponseApiClient = $this->apiClientFactory->createFromParams(
-            $settings->getApiKey(),
-            ApiTypeFactory::createFromConnectionSettings($settings),
-            $settings->getDomain()
-        );
+        $getResponseApiClient = $this->apiClientFactory->createGetResponseApiClient();
 
-        $productService = new ProductServiceFactory($getResponseApiClient, $this->shareCodeRepository);
-        return new GrCartService(
+        return $this->cartServiceFactory->create(
             $getResponseApiClient,
             $this->shareCodeRepository,
-            $productService->create(),
             $this->shareCodeCache
         );
     }

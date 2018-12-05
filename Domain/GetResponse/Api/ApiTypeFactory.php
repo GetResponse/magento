@@ -2,8 +2,8 @@
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Api;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
-use GrShareCode\Api\ApiTypeException;
-use GrShareCode\Api\Authorization;
+use GrShareCode\Api\Authorization\ApiTypeException;
+use GrShareCode\Api\Authorization\Authorization;
 
 /**
  * Class ApiTypeFactory

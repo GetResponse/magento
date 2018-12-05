@@ -1,16 +1,18 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
+use Exception;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\ContactList\ContactListCollection;
 use GrShareCode\ContactList\ContactListService;
 use GrShareCode\Shop\ShopsCollection;
 use GrShareCode\Shop\ShopService;
-use Magento\Framework\View\Element\Template\Context;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\View\Element\Template\Context;
 
 /**
  * Class Ecommerce
@@ -23,23 +25,28 @@ class Ecommerce extends GetResponse
 
     /**
      * @param Context $context
-     * @param Repository $repository
-     * @param GetresponseApiClientFactory $apiClientFactory
-     * @param RedirectFactory $redirectFactory
      * @param ManagerInterface $messageManager
+     * @param RedirectFactory $redirectFactory
+     * @param ApiClientFactory $apiClientFactory
+     * @param Logger $logger
+     * @param Repository $repository
      */
     public function __construct(
         Context $context,
-        Repository $repository,
-        GetresponseApiClientFactory $apiClientFactory,
+        ManagerInterface $messageManager,
         RedirectFactory $redirectFactory,
-        ManagerInterface $messageManager
+        ApiClientFactory $apiClientFactory,
+        Logger $logger,
+        Repository $repository
     ) {
-        parent::__construct($context);
+        parent::__construct(
+            $context,
+            $messageManager,
+            $redirectFactory,
+            $apiClientFactory,
+            $logger
+        );
         $this->repository = $repository;
-        $this->apiClientFactory = $apiClientFactory;
-        $this->redirectFactory = $redirectFactory;
-        $this->messageManager = $messageManager;
     }
 
     /**
@@ -72,9 +79,10 @@ class Ecommerce extends GetResponse
     public function getShops()
     {
         try {
-            $apiClient = $this->apiClientFactory->createGetResponseApiClient();
+            $apiClient = $this->getApiClientFactory()->createGetResponseApiClient();
+
             return (new ShopService($apiClient))->getAllShops();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->handleException($e);
         }
     }
@@ -85,8 +93,8 @@ class Ecommerce extends GetResponse
     public function getCampaigns()
     {
         try {
-            return (new ContactListService($this->apiClientFactory->createGetResponseApiClient()))->getAllContactLists();
-        } catch (\Exception $e) {
+            return (new ContactListService($this->getApiClientFactory()->createGetResponseApiClient()))->getAllContactLists();
+        } catch (Exception $e) {
             return $this->handleException($e);
         }
     }

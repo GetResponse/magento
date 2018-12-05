@@ -10,7 +10,6 @@ use Magento\Framework\App\Cache\Manager;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Store\Model\Store;
 
-
 /**
  * Class Uninstall
  * @package GetResponse\GetResponseIntegration\Setup
