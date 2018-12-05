@@ -1,14 +1,12 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Contact;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
-use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
-use GrShareCode\Api\ApiTypeException;
-use GrShareCode\Contact\AddContactCommand;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
+use GrShareCode\Api\Exception\GetresponseApiException;
+use GrShareCode\Contact\Command\AddContactCommand;
+use GrShareCode\Contact\Command\FindContactCommand;
 use GrShareCode\Contact\Contact;
-use GrShareCode\Contact\ContactCustomFieldsCollection;
-use GrShareCode\Contact\ContactNotFoundException;
-use GrShareCode\GetresponseApiException;
+use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
 
 /**
  * Class ContactService
@@ -30,75 +28,53 @@ class ContactService
     /**
      * @param string $email
      * @param string $contactListId
-     * @return Contact
-     * @throws ApiTypeException
-     * @throws ContactNotFoundException
+     * @return null|Contact
      * @throws GetresponseApiException
-     * @throws ConnectionSettingsException
+     * @throws ApiException
      */
-    public function getContactByEmail($email, $contactListId)
+    public function findContactByEmail($email, $contactListId)
     {
         $contactService = $this->contactServiceFactory->create();
-        return $contactService->getContactByEmail($email, $contactListId);
+
+        return $contactService->findContact(
+            new FindContactCommand($email, $contactListId, false)
+        );
     }
 
     /**
      * @param string $email
      * @param string $firstName
      * @param string $lastName
-     * @param string $campaignId
+     * @param string $contactListId
      * @param int|null $dayOfCycle
      * @param ContactCustomFieldsCollection $customs
-     * @throws ApiTypeException
-     * @throws ConnectionSettingsException
+     * @param bool $updateIfAlreadyExists
      * @throws GetresponseApiException
+     * @throws ApiException
      */
-    public function createContact($email, $firstName, $lastName, $campaignId, $dayOfCycle, ContactCustomFieldsCollection $customs)
-    {
+    public function addContact(
+        $email,
+        $firstName,
+        $lastName,
+        $contactListId,
+        $dayOfCycle,
+        ContactCustomFieldsCollection $customs,
+        $updateIfAlreadyExists
+    ) {
         $name = trim($firstName . ' ' . $lastName);
 
-        if (!is_int($dayOfCycle)) {
-            $dayOfCycle = null;
-        }
-
         $contactService = $this->contactServiceFactory->create();
-        $contactService->createContact(new AddContactCommand(
-            $email,
-            $name,
-            $campaignId,
-            $dayOfCycle,
-            $customs,
-            Config::ORIGIN_NAME
-        ));
+
+        $contactService->addContact(
+            new AddContactCommand(
+                $email,
+                $name,
+                $contactListId,
+                $dayOfCycle,
+                $customs,
+                $updateIfAlreadyExists
+            )
+        );
     }
 
-    /**
-     * @param string $email
-     * @param string $firstName
-     * @param string $lastName
-     * @param string $campaignId
-     * @param int|null $dayOfCycle
-     * @param ContactCustomFieldsCollection $customs
-     * @throws ApiTypeException
-     * @throws ConnectionSettingsException
-     * @throws GetresponseApiException
-     */
-    public function upsertContact($email, $firstName, $lastName, $campaignId, $dayOfCycle, ContactCustomFieldsCollection $customs)
-    {
-        $name = trim($firstName . ' ' . $lastName);
-
-        if (!is_int($dayOfCycle)) {
-            $dayOfCycle = null;
-        }
-
-        $contactService = $this->contactServiceFactory->create();
-        $contactService->upsertContact(new AddContactCommand(
-            $email,
-            $name,
-            $campaignId,
-            $dayOfCycle,
-            $customs,
-            Config::ORIGIN_NAME
-        ));
-    }
 }

@@ -3,7 +3,7 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\AddOrderCommandFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Command\AddOrderCommandFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
@@ -26,9 +26,6 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
 
     /** @var OrderService */
     private $orderService;
-
-    /** @var Repository */
-    private $magentoRepository;
 
     /** @var Order */
     private $orderFactory;
@@ -70,7 +67,6 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
 
         $this->scopeConfig = $scopeConfig;
         $this->orderService = $orderService;
-        $this->magentoRepository = $repository;
         $this->orderFactory = $orderFactory;
         $this->logger = $getResponseLogger;
         $this->addOrderCommandFactory = $addOrderCommandFactory;
@@ -83,13 +79,13 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
     {
         try {
 
-            if (!$this->canHandleECommerceEvent()) {
-                return;
-            }
-
             $shopId = $this->scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
 
             if (empty($shopId)) {
+                return;
+            }
+
+            if (!$this->canHandleECommerceEvent()) {
                 return;
             }
 
@@ -98,9 +94,8 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
                 $observer->getEvent()->getOrderIds()[0]
             );
 
-
-            $this->orderService->sendOrder(
-                $this->addOrderCommandFactory->createForOrderService(
+            $this->orderService->addOrder(
+                $this->addOrderCommandFactory->createForMagentoOrder(
                     $order,
                     $this->scopeConfig->getValue(Config::CONFIG_DATA_ECOMMERCE_LIST_ID),
                     $shopId

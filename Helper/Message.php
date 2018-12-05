@@ -60,4 +60,8 @@ class Message
     const WEB_EVENT_TRAFFIC_DISABLED = 'Web event traffic tracking disabled';
 
     const SELECT_AUTORESPONDER_DAY = 'You need to select a autoresponder day';
+
+    const CUSTOM_FIELDS_MAPPING_VALIDATION_MAGENTO_CUSTOM_DETAILS_EMPTY = 'Mapping: Customer details can not be empty';
+    const CUSTOM_FIELDS_MAPPING_VALIDATION_GETRESPONSE_CUSTOM_FIELD_EMPTY = 'Mapping: GetResponse custom field can not be empty';
+    const CUSTOM_FIELDS_MAPPING_VALIDATION_GETRESPONSE_CUSTOM_FIELD_DUPLICATED = 'Mapping: GetResponse custom field is used more than once';
 }

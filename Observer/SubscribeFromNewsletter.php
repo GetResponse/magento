@@ -1,20 +1,14 @@
 <?php
-
 namespace GetResponse\GetResponseIntegration\Observer;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\RepositoryException;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactCustomFieldsCollectionFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
 use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GrShareCode\Api\ApiTypeException;
-use GrShareCode\Contact\AddContactCommand;
-use GrShareCode\Contact\ContactCustomFieldsCollection;
-use GrShareCode\Contact\ContactService;
-use GrShareCode\GetresponseApiException;
-use Magento\Customer\Model\Session;
-use Magento\Framework\Event\ObserverInterface;
+use GrShareCode\Api\Exception\GetresponseApiException;
 use Magento\Framework\Event\Observer as EventObserver;
+use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Newsletter\Model\Subscriber;
 
@@ -25,39 +19,38 @@ use Magento\Newsletter\Model\Subscriber;
 class SubscribeFromNewsletter implements ObserverInterface
 {
     /** @var ObjectManagerInterface */
-    protected $_objectManager;
+    protected $objectManager;
 
     /** @var Repository */
     private $repository;
 
-    /** @var GetresponseApiClientFactory */
-    private $apiClientFactory;
+    /** @var ContactService */
+    private $contactService;
 
-    /** @var Session */
-    private $session;
+    /** @var ContactCustomFieldsCollectionFactory */
+    private $contactCustomFieldsCollectionFactory;
 
     /**
      * @param ObjectManagerInterface $objectManager
      * @param Repository $repository
-     * @param GetresponseApiClientFactory $apiClientFactory
-     * @param Session $session
+     * @param ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory
+     * @param ContactService $contactService
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
         Repository $repository,
-        GetresponseApiClientFactory $apiClientFactory,
-        Session $session
+        ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory,
+        ContactService $contactService
     ) {
-        $this->_objectManager = $objectManager;
+        $this->objectManager = $objectManager;
         $this->repository = $repository;
-        $this->apiClientFactory = $apiClientFactory;
-        $this->session = $session;
+        $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
+        $this->contactService = $contactService;
     }
 
     /**
      * @param EventObserver $observer
      * @return $this
-     * @throws GetresponseApiException
      */
     public function execute(EventObserver $observer)
     {
@@ -70,7 +63,6 @@ class SubscribeFromNewsletter implements ObserverInterface
         }
 
         try {
-            $grApiClient = $this->apiClientFactory->createGetResponseApiClient();
 
             /** @var Subscriber $subscriber */
             $subscriber = $observer->getEvent()->getSubscriber();
@@ -85,19 +77,17 @@ class SubscribeFromNewsletter implements ObserverInterface
                 return $this;
             }
 
-            $service = new ContactService($grApiClient);
-            $service->upsertContact(new AddContactCommand(
+            $this->contactService->addContact(
                 $email,
-                null,
+                '',
+                '',
                 $newsletterSettings->getCampaignId(),
                 $newsletterSettings->getCycleDay(),
-                new ContactCustomFieldsCollection(),
-                Config::ORIGIN_NAME
-            ));
-        } catch (RepositoryException $e) {
-        } catch (ApiTypeException $e) {
-        } finally {
-            return $this;
+                $this->contactCustomFieldsCollectionFactory->createForSubscriber(),
+                false
+            );
+        } catch (ApiException $e) {
+        } catch (GetresponseApiException $e) {
         }
     }
 }

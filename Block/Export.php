@@ -2,18 +2,22 @@
 
 namespace GetResponse\GetResponseIntegration\Block;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
+use Exception;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomField\CustomFieldService;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingService;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute\MagentoCustomerAttributeCollection;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\ContactList\ContactListCollection;
 use GrShareCode\ContactList\ContactListService;
 use GrShareCode\Shop\ShopsCollection;
 use GrShareCode\Shop\ShopService;
-use Magento\Framework\View\Element\Template\Context;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\View\Element\Template\Context;
 
 /**
  * Class Export
@@ -21,56 +25,55 @@ use Magento\Framework\Message\ManagerInterface;
  */
 class Export extends GetResponse
 {
+    /** @var CustomFieldService */
+    private $customFieldService;
+
+    /** @var CustomFieldsMappingService */
+    private $customFieldsMappingService;
+
     /** @var Repository */
     private $repository;
 
     /**
      * @param Context $context
-     * @param Repository $repository
-     * @param GetresponseApiClientFactory $apiClientFactory
-     * @param RedirectFactory $redirectFactory
      * @param ManagerInterface $messageManager
+     * @param RedirectFactory $redirectFactory
+     * @param ApiClientFactory $apiClientFactory
+     * @param Logger $logger
+     * @param Repository $repository
+     * @param CustomFieldService $customFieldService
+     * @param CustomFieldsMappingService $customFieldsMappingService
      */
     public function __construct(
         Context $context,
-        Repository $repository,
-        GetresponseApiClientFactory $apiClientFactory,
+        ManagerInterface $messageManager,
         RedirectFactory $redirectFactory,
-        ManagerInterface $messageManager
+        ApiClientFactory $apiClientFactory,
+        Logger $logger,
+        Repository $repository,
+        CustomFieldService $customFieldService,
+        CustomFieldsMappingService $customFieldsMappingService
     ) {
-        parent::__construct($context);
+        parent::__construct(
+            $context,
+            $messageManager,
+            $redirectFactory,
+            $apiClientFactory,
+            $logger
+        );
+        $this->customFieldService = $customFieldService;
+        $this->customFieldsMappingService = $customFieldsMappingService;
         $this->repository = $repository;
-        $this->apiClientFactory = $apiClientFactory;
-        $this->redirectFactory = $redirectFactory;
-        $this->messageManager = $messageManager;
     }
 
     /**
-     * @return mixed
+     * @return CustomFieldsMappingCollection
      */
-    public function getCustomers()
+    public function getCustomFieldsMapping()
     {
-        return $this->repository->getCustomers();
-    }
-
-    /**
-     * @return CustomFieldsCollection
-     */
-    public function getCustoms()
-    {
-        return CustomFieldsCollectionFactory::createFromRepository($this->repository->getCustoms());
-    }
-
-    /**
-     * @return ContactListCollection|Redirect
-     */
-    public function getCampaigns()
-    {
-        try {
-            return (new ContactListService($this->apiClientFactory->createGetResponseApiClient()))->getAllContactLists();
-        } catch (\Exception $e) {
-            return $this->handleException($e);
-        }
+        return CustomFieldsMappingCollection::createFromRepository(
+            $this->repository->getCustomFieldsMappingForRegistration()
+        );
     }
 
     /**
@@ -79,9 +82,58 @@ class Export extends GetResponse
     public function getShops()
     {
         try {
-            return (new ShopService($this->apiClientFactory->createGetResponseApiClient()))->getAllShops();
-        } catch (\Exception $e) {
+            $apiClient = $this->getApiClientFactory()->createGetResponseApiClient();
+
+            return (new ShopService($apiClient))->getAllShops();
+        } catch (Exception $e) {
             return $this->handleException($e);
         }
     }
+
+    /**
+     * @return ContactListCollection|Redirect
+     */
+    public function getCampaigns()
+    {
+        try {
+            return (new ContactListService($this->getApiClientFactory()->createGetResponseApiClient()))->getAllContactLists();
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    /**
+     * @return array|Redirect
+     */
+    public function getCustomFieldsFromGetResponse()
+    {
+        $result = [];
+
+        try {
+
+            foreach ($this->customFieldService->getCustomFields() as $customField) {
+                $result[] = [
+                    'id' => $customField->getId(),
+                    'name' => $customField->getName(),
+                ];
+            }
+
+            return $result;
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    /**
+     * @return MagentoCustomerAttributeCollection|Redirect
+     */
+    public function getMagentoCustomerAttributes()
+    {
+        try {
+            return $this->customFieldsMappingService->getMagentoCustomerAttributes();
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
 }

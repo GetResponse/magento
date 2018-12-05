@@ -1,11 +1,13 @@
 <?php
+
 use GetResponse\GetResponseIntegration\Block\Account as AccountBlock;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\Account;
+
 /** @var $block AccountBlock */
 $isApiActive = $block->isConnectedToGetResponse();
 
 if ($isApiActive) {
-    /** @var Account $account */
+    /** @var \GetResponse\GetResponseIntegration\Domain\GetResponse\Account\Account $account */
     $account = $block->getAccountInfo();
 }
 ?>
@@ -145,7 +147,7 @@ if ($isApiActive) {
 </form>
 
 <div id="popup-modal" style="display: none;">
-    <div>When you disconnect you won't be able to get new contacts via forms, comments, or during account registration.</div>
+    <div>When you disconnect, you won’t be able to add new contacts, track site visits, or send ecommerce data to GetResponse.</div>
 </div>
 
 <input type="hidden" id="jsDeleteUrl" value="<?php echo $block->getUrl("getresponse/account/delete"); ?>" />

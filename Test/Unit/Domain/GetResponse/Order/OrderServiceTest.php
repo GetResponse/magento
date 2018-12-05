@@ -1,11 +1,11 @@
 <?php
 
-namespace Domain\GetResponse\Order;
+namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Order;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderServiceFactory;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
-use GrShareCode\Order\AddOrderCommand;
+use GrShareCode\Order\Command\AddOrderCommand;
 use GrShareCode\Order\OrderService as GrOrderService;
 
 /**
@@ -37,21 +37,7 @@ class OrderServiceTest extends BaseTestCase
         $addOrderCommand = $this->getMockWithoutConstructing(AddOrderCommand::class);
 
         $orderService = new OrderService($this->orderServiceFactoryMock);
-        $orderService->sendOrder($addOrderCommand);
+        $orderService->addOrder($addOrderCommand);
     }
 
-    /**
-     * @test
-     */
-    public function shouldExportOrderTest()
-    {
-        $this->orderServiceFactoryMock->expects($this->once())->method('create')->willReturn($this->grOrderServiceMock);
-
-        /** @var AddOrderCommand|\PHPUnit_Framework_MockObject_MockObject $addOrderCommand */
-        $addOrderCommand = $this->getMockWithoutConstructing(AddOrderCommand::class);
-        $addOrderCommand->expects($this->once())->method('setToSkipAutomation');
-
-        $orderService = new OrderService($this->orderServiceFactoryMock);
-        $orderService->exportOrder($addOrderCommand);
-    }
 }
