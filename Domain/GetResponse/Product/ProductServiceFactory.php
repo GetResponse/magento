@@ -1,8 +1,8 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Product;
 
+use GrShareCode\Api\GetresponseApiClient;
 use GrShareCode\DbRepositoryInterface;
-use GrShareCode\GetresponseApiClient;
 use GrShareCode\Product\ProductService;
 
 /**

@@ -2,17 +2,19 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Registration;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactoryException;
-use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollectionFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\RegistrationSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingValidator;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto\CustomFieldMappingDtoCollection;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto\InvalidPrefixException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\PageFactory;
-use Magento\Framework\App\Request\Http;
 
 /**
  * Class RegistrationPost
@@ -31,24 +33,43 @@ class Save extends AbstractController
     /** @var Repository */
     private $repository;
 
+    /** @var CustomFieldsMappingValidator */
+    private $customFieldsMappingValidator;
+
+    /** @var SubscribeViaRegistrationService */
+    private $subscribeViaRegistrationService;
+
+    /** @var CustomFieldsMappingCollection */
+    private $customFieldMappingDtoCollection;
+
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
+     * @param CustomFieldMappingDtoCollection $customFieldMappingDtoCollection
+     * @param CustomFieldsMappingValidator $customFieldsMappingValidator
+     * @param SubscribeViaRegistrationService $subscribeViaRegistrationService
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
-        Repository $repository
+        Repository $repository,
+        CustomFieldMappingDtoCollection $customFieldMappingDtoCollection,
+        CustomFieldsMappingValidator $customFieldsMappingValidator,
+        SubscribeViaRegistrationService $subscribeViaRegistrationService
     ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
-        $this->request = $this->getRequest();
         $this->repository = $repository;
+        $this->customFieldMappingDtoCollection = $customFieldMappingDtoCollection;
+        $this->customFieldsMappingValidator = $customFieldsMappingValidator;
+        $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
+        $this->request = $this->getRequest();
     }
 
     /**
      * @return ResponseInterface|Redirect
+     * @throws InvalidPrefixException
      */
     public function execute()
     {
@@ -61,44 +82,44 @@ class Save extends AbstractController
         $autoresponder = (isset($data['gr_autoresponder']) && $data['gr_autoresponder'] == 1) ? $data['autoresponder'] : '';
         $isEnabled = isset($data['gr_enabled']) && 1 == $data['gr_enabled'] ? true : false;
 
-        try {
-            if (!$isEnabled) {
-                $this->repository->clearRegistrationSettings();
-            } else {
-                $campaignId = $data['campaign_id'];
-
-                if (empty($campaignId)) {
-                    $this->messageManager->addErrorMessage(Message::SELECT_CONTACT_LIST);
-
-                    return $resultRedirect;
-                }
-
-                if ($updateCustomFields) {
-                    $customs = CustomFieldFactory::createFromArray($data);
-
-                    $customs = CustomFieldsCollectionFactory::createFromUserPayload(
-                        $customs,
-                        $this->repository->getCustoms()
-                    );
-
-                    $this->repository->updateCustoms($customs);
-                }
-
-                $registrationSettings = RegistrationSettingsFactory::createFromArray([
-                    'status' => $isEnabled,
-                    'customFieldsStatus' => $updateCustomFields,
-                    'campaignId' => $campaignId,
-                    'cycleDay' => !empty($autoresponder) ? explode('_', $autoresponder)[0] : '',
-                    'autoresponderId' => !empty($autoresponder) ? explode('_', $autoresponder)[1] : '',
-                ]);
-
-                $this->repository->saveRegistrationSettings($registrationSettings);
-            }
+        if (!$isEnabled) {
+            $this->repository->clearRegistrationSettings();
             $this->messageManager->addSuccessMessage(Message::SETTINGS_SAVED);
-            return $resultRedirect;
-        } catch (CustomFieldFactoryException $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
+
             return $resultRedirect;
         }
+
+        $campaignId = $data['campaign_id'];
+
+        if (empty($campaignId)) {
+            $this->messageManager->addErrorMessage(Message::SELECT_CONTACT_LIST);
+
+            return $resultRedirect;
+        }
+
+        $customFieldMappingDtoCollection = $this->customFieldMappingDtoCollection->createFromRequestData($data);
+
+        if (!$this->customFieldsMappingValidator->isValid($customFieldMappingDtoCollection)) {
+            $this->messageManager->addErrorMessage($this->customFieldsMappingValidator->getErrorMessage());
+
+            return $resultRedirect;
+        }
+
+        $this->subscribeViaRegistrationService->saveCustomFieldsMapping(
+            CustomFieldsMappingCollection::createFromDto($customFieldMappingDtoCollection)
+        );
+
+        $registrationSettings = SubscribeViaRegistrationFactory::createFromArray([
+            'status' => $isEnabled,
+            'customFieldsStatus' => $updateCustomFields,
+            'campaignId' => $campaignId,
+            'cycleDay' => !empty($autoresponder) ? explode('_', $autoresponder)[0] : null,
+            'autoresponderId' => !empty($autoresponder) ? explode('_', $autoresponder)[1] : null,
+        ]);
+
+        $this->subscribeViaRegistrationService->saveSettings($registrationSettings);
+        $this->messageManager->addSuccessMessage(Message::SETTINGS_SAVED);
+
+        return $resultRedirect;
     }
 }

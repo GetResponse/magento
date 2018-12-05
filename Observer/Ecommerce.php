@@ -1,14 +1,12 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
-use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
-use GrShareCode\Api\ApiTypeException;
+use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Contact\Contact;
-use GrShareCode\Contact\ContactNotFoundException;
-use GrShareCode\GetresponseApiException;
 use Magento\Customer\Model\Session;
 use Magento\Directory\Model\CountryFactory;
 use Magento\Framework\App\CacheInterface;
@@ -55,8 +53,8 @@ class Ecommerce
 
     /**
      * @return bool
-     * @throws ApiTypeException
-     * @throws ConnectionSettingsException
+     * @throws GetresponseApiException
+     * @throws ApiException
      * @throws GetresponseApiException
      */
     protected function canHandleECommerceEvent()
@@ -70,9 +68,8 @@ class Ecommerce
 
     /**
      * @return null|Contact
-     * @throws ApiTypeException
      * @throws GetresponseApiException
-     * @throws ConnectionSettingsException
+     * @throws ApiException
      */
     private function getContactFromGetResponse()
     {
@@ -88,9 +85,9 @@ class Ecommerce
             return unserialize($cachedCustomer);
         }
 
-        try {
-            $contact = $this->contactService->getContactByEmail($contactEmail, $contactListId);
-        } catch (ContactNotFoundException $e) {
+        $contact = $this->contactService->findContactByEmail($contactEmail, $contactListId);
+
+        if (!$contact) {
             return null;
         }
 

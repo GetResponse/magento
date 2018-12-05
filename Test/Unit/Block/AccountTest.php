@@ -2,11 +2,12 @@
 namespace GetResponse\GetResponseIntegration\Test\Unit\Block;
 
 use GetResponse\GetResponseIntegration\Block\Account as AccountBlock;
-use GetResponse\GetResponseIntegration\Block\Getresponse;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\Account;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
+use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
 
 /**
@@ -21,23 +22,29 @@ class AccountTest extends BaseTestCase
     /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $repository;
 
-    /** @var GetresponseApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var ApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
     private $apiClientFactory;
 
     /** @var AccountBlock accountBlock */
     private $accountBlock;
 
+    /** @var  ManagerInterface|\PHPUnit_Framework_MockObject_MockObject*/
+    private $messageManager;
+
+    /** @var RedirectFactory|\PHPUnit_Framework_MockObject_MockObject*/
+    private $redirectFactory;
+
     public function setUp()
     {
         $this->context = $this->getMockWithoutConstructing(Context::class);
+        $this->messageManager = $this->getMockWithoutConstructing(ManagerInterface::class);
+        $this->redirectFactory = $this->getMockWithoutConstructing(RedirectFactory::class);
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
-        $this->apiClientFactory = $this->getMockWithoutConstructing(GetresponseApiClientFactory::class);
-        $getresponse = new Getresponse($this->repository, $this->apiClientFactory);
+        $this->apiClientFactory = $this->getMockWithoutConstructing(ApiClientFactory::class);
+
         $this->accountBlock = new AccountBlock(
             $this->context,
-            $this->repository,
-            $this->apiClientFactory,
-            $getresponse
+            $this->repository
         );
     }
 
@@ -45,7 +52,7 @@ class AccountTest extends BaseTestCase
      * @test
      *
      * @param array $rawInfo
-     * @param Account $expectedAccount
+     * @param \GetResponse\GetResponseIntegration\Domain\GetResponse\Account\Account $expectedAccount
      *
      * @dataProvider shouldReturnAccountInfoProvider
      *

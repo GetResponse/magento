@@ -1,22 +1,17 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Cart;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Cart\CartServiceFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeCache;
 use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
+use GrShareCode\Api\GetresponseApiClient;
 use GrShareCode\Cart\CartService as GrCartService;
-use GrShareCode\DbRepositoryInterface;
-use GrShareCode\GetresponseApiClient;
-use GrShareCode\Product\ProductService;
+use GrShareCode\Cart\CartServiceFactory as GrCartServiceFactory;
 
 class CartServiceFactoryTest extends BaseTestCase
 {
-
-    /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
-    private $magentoRepository;
-
     /** @var ShareCodeRepository|\PHPUnit_Framework_MockObject_MockObject */
     private $shareCodeRepository;
 
@@ -26,55 +21,46 @@ class CartServiceFactoryTest extends BaseTestCase
     /** @var ShareCodeCache */
     private $shareCodeCache;
 
-    protected function setUp()
-    {
-        $this->magentoRepository = $this->getMockWithoutConstructing(Repository::class);
-        $this->shareCodeRepository = $this->getMockWithoutConstructing(ShareCodeRepository::class);
-        $this->shareCodeCache = $this->getMockWithoutConstructing(ShareCodeCache::class);
+    /** @var ApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
+    private $apiClientFactory;
 
-        $this->cartServiceFactory = new CartServiceFactory(
-            $this->magentoRepository,
-            $this->shareCodeRepository,
-            $this->shareCodeCache
-        );
-    }
+    /** @var GrCartServiceFactory|\PHPUnit_Framework_MockObject_MockObject */
+    private $grCartServiceFactory;
 
     /**
      * @test
      */
     public function shouldCreateCartService()
     {
-        $this->magentoRepository
+        $apiClient = $this->getMockWithoutConstructing(GetresponseApiClient::class);
+        $grCartService = $this->getMockWithoutConstructing(GrCartService::class);
+
+        $this->apiClientFactory
             ->expects(self::once())
-            ->method('getConnectionSettings')
-            ->willReturn([
-                'domain' => '',
-                'url' => '',
-                'apiKey' => 'GetResponseApiKey'
-            ]);
+            ->method('createGetResponseApiClient')
+            ->willReturn($apiClient);
 
-        $this->magentoRepository
+        $this->grCartServiceFactory
             ->expects(self::once())
-            ->method('getGetResponsePluginVersion')
-            ->willReturn('20.1.1');
+            ->method('create')
+            ->with($apiClient, $this->shareCodeRepository, $this->shareCodeCache)
+            ->willReturn($grCartService);
 
-        $result = $this->cartServiceFactory->create();
+        $this->cartServiceFactory->create();
+    }
 
-        $this->assertInstanceOf(GrCartService::class, $result);
+    protected function setUp()
+    {
+        $this->shareCodeRepository = $this->getMockWithoutConstructing(ShareCodeRepository::class);
+        $this->shareCodeCache = $this->getMockWithoutConstructing(ShareCodeCache::class);
+        $this->apiClientFactory = $this->getMockWithoutConstructing(ApiClientFactory::class);
+        $this->grCartServiceFactory = $this->getMockWithoutConstructing(GrCartServiceFactory::class);
 
-        $this->assertInstanceOf(
-            ProductService::class,
-            $this->getObjectAttribute($result, 'productService')
-        );
-
-        $this->assertInstanceOf(
-            GetresponseApiClient::class,
-            $this->getObjectAttribute($result, 'getresponseApiClient')
-        );
-
-        $this->assertInstanceOf(
-            DbRepositoryInterface::class,
-            $this->getObjectAttribute($result, 'dbRepository')
+        $this->cartServiceFactory = new CartServiceFactory(
+            $this->shareCodeRepository,
+            $this->shareCodeCache,
+            $this->apiClientFactory,
+            $this->grCartServiceFactory
         );
     }
 }

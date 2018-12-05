@@ -2,9 +2,11 @@
 
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistration;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GrShareCode\Account\Account;
+use Magento\Catalog\Model\Category;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Directory\Model\Country;
 use Magento\Framework\App\Cache\Manager;
@@ -14,7 +16,6 @@ use Magento\Framework\Module\ModuleList;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\Store;
-use Magento\Catalog\Model\Category;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -337,9 +338,9 @@ class Repository
     }
 
     /**
-     * @param RegistrationSettings $registrationSettings
+     * @param SubscribeViaRegistration $registrationSettings
      */
-    public function saveRegistrationSettings(RegistrationSettings $registrationSettings)
+    public function saveRegistrationSettings(SubscribeViaRegistration $registrationSettings)
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_REGISTRATION_SETTINGS,
@@ -367,9 +368,9 @@ class Repository
     /**
      * @return array
      */
-    public function getCustoms()
+    public function getCustomFieldsMappingForRegistration()
     {
-        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_REGISTRATION_CUSTOMS));
+        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_REGISTRATION_CUSTOMS), true);
     }
 
     /**
@@ -388,13 +389,13 @@ class Repository
     }
 
     /**
-     * @param CustomFieldsCollection $customsCollection
+     * @param CustomFieldsMappingCollection $customFieldsMappingCollection
      */
-    public function updateCustoms(CustomFieldsCollection $customsCollection)
+    public function updateCustoms(CustomFieldsMappingCollection $customFieldsMappingCollection)
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_REGISTRATION_CUSTOMS,
-            json_encode($customsCollection->toArray()),
+            json_encode($customFieldsMappingCollection->toArray()),
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
@@ -436,6 +437,18 @@ class Repository
         $this->clearEcommerceSettings();
         $this->clearUnauthorizedApiCallDate();
         $this->clearNewsletterSettings();
+        $this->clearCustomOrigin();
+
+        $this->cacheManager->clean(['config']);
+    }
+
+    private function clearCustomOrigin()
+    {
+        $this->configWriter->delete(
+            Config::CONFIG_DATA_ORIGIN_CUSTOM_FIELD_ID,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            Store::DEFAULT_STORE_ID
+        );
     }
 
     public function clearConnectionSettings()
@@ -628,4 +641,5 @@ class Repository
             'zipCode' => $account->getZipCode()
         ];
     }
+
 }

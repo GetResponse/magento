@@ -16,21 +16,21 @@ class EcommerceSettings
     private $status;
 
     /** @var string */
-    private $storeId;
+    private $shopId;
 
     /** @var string */
     private $listId;
 
     /**
      * @param string $status
-     * @param string $storeId
+     * @param string $shopId
      * @param string $listId
      * @throws ValidationException
      */
-    public function __construct($status, $storeId, $listId)
+    public function __construct($status, $shopId, $listId)
     {
         $this->setStatus($status);
-        $this->setStoreId($storeId);
+        $this->setShopId($shopId);
         $this->setListId($listId);
     }
 
@@ -45,9 +45,9 @@ class EcommerceSettings
     /**
      * @return string
      */
-    public function getStoreId()
+    public function getShopId()
     {
-        return $this->storeId;
+        return $this->shopId;
     }
 
     /**
@@ -80,15 +80,15 @@ class EcommerceSettings
     }
 
     /**
-     * @param string $storeId
+     * @param string $shopId
      * @throws ValidationException
      */
-    private function setStoreId($storeId)
+    private function setShopId($shopId)
     {
-        if ($this->status === self::STATUS_ENABLED && empty($storeId)) {
+        if ($this->status === self::STATUS_ENABLED && empty($shopId)) {
             throw ValidationException::createForInvalidValue(Message::STORE_CHOOSE);
         }
-        $this->storeId = $storeId;
+        $this->shopId = $shopId;
     }
 
     /**

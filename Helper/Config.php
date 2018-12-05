@@ -17,6 +17,7 @@ class Config
     const CONFIG_DATA_REGISTRATION_CUSTOMS = 'getresponse/registration/customs';
     const CONFIG_DATA_NEWSLETTER_SETTINGS = 'getresponse/newsletter/settings';
     const CONFIG_DATA_WEBFORMS_SETTINGS = 'getresponse/webforms/settings';
+    const CONFIG_DATA_ORIGIN_CUSTOM_FIELD_ID = 'getresponse/origin_custom_field_id';
     const INVALID_REQUEST_DATE_TIME = 'getresponse/invalid_request_date_time';
 
     const PLUGIN_MAIN_PAGE = 'getresponse/account/index';

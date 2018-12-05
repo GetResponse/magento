@@ -3,7 +3,7 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\AddOrderCommandFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Command\EditOrderCommandFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Config;
@@ -26,14 +26,11 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
     /** @var OrderService */
     private $orderService;
 
-    /** @var Repository */
-    private $magentoRepository;
-
     /** @var Logger */
     private $logger;
 
-    /** @var AddOrderCommandFactory */
-    private $addOrderCommandFactory;
+    /** @var EditOrderCommandFactory */
+    private $editOrderCommandFactory;
 
     /**
      * @param ObjectManagerInterface $objectManager
@@ -43,7 +40,7 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
      * @param OrderService $orderService
      * @param ContactService $contactService
      * @param Logger $getResponseLogger
-     * @param AddOrderCommandFactory $addOrderCommandFactory
+     * @param EditOrderCommandFactory $editOrderCommandFactory
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
@@ -53,13 +50,12 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
         OrderService $orderService,
         ContactService $contactService,
         Logger $getResponseLogger,
-        AddOrderCommandFactory $addOrderCommandFactory
+        EditOrderCommandFactory $editOrderCommandFactory
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->orderService = $orderService;
-        $this->magentoRepository = $repository;
         $this->logger = $getResponseLogger;
-        $this->addOrderCommandFactory = $addOrderCommandFactory;
+        $this->editOrderCommandFactory = $editOrderCommandFactory;
 
         parent::__construct(
             $objectManager,
@@ -82,10 +78,9 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
                 return;
             }
 
-            $this->orderService->sendOrder(
-                $this->addOrderCommandFactory->createForOrderService(
+            $this->orderService->updateOrder(
+                $this->editOrderCommandFactory->createForOrderService(
                     $observer->getEvent()->getOrder(),
-                    $this->scopeConfig->getValue(Config::CONFIG_DATA_ECOMMERCE_LIST_ID),
                     $shopId
                 )
             );

@@ -3,18 +3,18 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\ListValidator;
-use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GrShareCode\ContactList\AddContactListCommand;
+use GetResponse\GetResponseIntegration\Helper\Message;
+use GrShareCode\ContactList\Command\AddContactListCommand;
 use GrShareCode\ContactList\ContactListService;
-use Magento\Framework\App\ResponseInterface;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Request\Http;
+use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
-use Magento\Framework\App\Request\Http;
 
 /**
  * Class Create
@@ -30,20 +30,20 @@ class Create extends AbstractController
     /** @var Repository */
     private $repository;
 
-    /** @var GetresponseApiClientFactory */
+    /** @var ApiClientFactory */
     private $apiClientFactory;
 
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
-     * @param GetresponseApiClientFactory $apiClientFactory
+     * @param ApiClientFactory $apiClientFactory
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         Repository $repository,
-        GetresponseApiClientFactory $apiClientFactory
+        ApiClientFactory $apiClientFactory
     ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
@@ -91,6 +91,7 @@ class Create extends AbstractController
             $this->messageManager->addSuccessMessage(Message::LIST_CREATED);
             $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath($backUrl);
+
             return $resultRedirect;
         } catch (Exception $e) {
             return $this->handleException($e);
@@ -106,6 +107,7 @@ class Create extends AbstractController
         $this->messageManager->addErrorMessage($e->getMessage());
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
         return $resultPage;
     }
 }

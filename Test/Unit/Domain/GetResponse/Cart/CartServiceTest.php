@@ -7,6 +7,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductFactory
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Product\Product;
+use Magento\Checkout\Helper\Cart as CartHelper;
 use Magento\Quote\Model\Quote;
 use GrShareCode\Cart\CartService as GrCartService;
 /**
@@ -27,12 +28,16 @@ class CartServiceTest extends BaseTestCase
     /** @var GrCartService|\PHPUnit_Framework_MockObject_MockObject */
     private $grCartService;
 
+    /** @var CartHelper|\PHPUnit_Framework_MockObject_MockObject */
+    private $cartHelper;
+
     /** @var CartService */
     private $sut;
 
     protected function setUp()
     {
         $this->grCartService = $this->getMockWithoutConstructing(GrCartService::class);
+        $this->cartHelper = $this->getMockWithoutConstructing(CartHelper::class);
         $this->cartServiceFactory = $this->getMockWithoutConstructing(CartServiceFactory::class);
         $this->cartServiceFactory
             ->expects(self::once())
@@ -42,7 +47,12 @@ class CartServiceTest extends BaseTestCase
         $this->magentoRepository = $this->getMockWithoutConstructing(Repository::class);
         $this->productFactory = $this->getMockWithoutConstructing(ProductFactory::class);
 
-        $this->sut = new CartService($this->cartServiceFactory, $this->magentoRepository, $this->productFactory);
+        $this->sut = new CartService(
+            $this->cartServiceFactory,
+            $this->magentoRepository,
+            $this->productFactory,
+            $this->cartHelper
+        );
     }
 
     /**
@@ -70,7 +80,6 @@ class CartServiceTest extends BaseTestCase
             ->withConsecutive(['getQuoteCurrencyCode'], ['getGrandTotal'], ['getCustomerEmail'])
             ->willReturnOnConsecutiveCalls('PLN', 123, 'jan.kowalski@getresponse.com');
 
-
         /** @var Quote\Item $quoteItem */
         $quoteItem = $this->getMockWithoutConstructing(Quote\Item::class);
 
@@ -89,6 +98,11 @@ class CartServiceTest extends BaseTestCase
             ->method('getQuoteById')
             ->with($quoteId)
             ->willReturn($quote);
+
+        $this->cartHelper
+            ->expects(self::once())
+            ->method('getCartUrl')
+            ->willReturn('https://my_magento_shop.com/checkout/cart/');
 
         $this->grCartService
             ->expects(self::once())

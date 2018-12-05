@@ -2,18 +2,18 @@
 
 use GetResponse\GetResponseIntegration\Block\Export;
 use GetResponse\GetResponseIntegration\Block\Registration;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomField;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsCollection;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute\MagentoCustomerAttribute;
+use GrShareCode\CustomField\CustomFieldCollection;
 
-/** @var $block Registration */
-/** @var $block Export */
-/** @var CustomField $_custom */
-/** @var CustomFieldsCollection $customsCollection */
-$customsCollection = $block->getCustoms();
-$customNum = 3;
-$customs = $customsCollection->toArray();
-$arr = array_slice($customs, $customNum);
-$firstCustom = reset($arr);
+/** @var $block Registration|Export */
+/** @var CustomFieldsMappingCollection $customFieldsMappingCollection */
+/** @var CustomFieldCollection $customFieldsFromGetResponse */
+/** @var array $magentoCustomerAttributes */
+$customFieldsFromGetResponse = $block->getCustomFieldsFromGetResponse();
+$customFieldsMappingCollection = $block->getCustomFieldsMapping();
+$magentoCustomerAttributes = $block->getMagentoCustomerAttributes();
+$magentoCustomerAttributesArray = $magentoCustomerAttributes->toArray();
 ?>
 <div class="admin__data-grid-header admin__data-grid-toolbar">
     <button id="addNewMappingBtn" title="Add new mapping" type="button" class="action- scalable action-secondary">
@@ -23,58 +23,99 @@ $firstCustom = reset($arr);
 <div class="admin__data-grid-wrap admin__data-grid-wrap-static">
     <table class="data-grid" data-role="grid">
         <thead>
-            <tr>
-                <th class="data-grid-th _draggable">
-                    <span class="data-grid-cell-content">Customer details</span>
-                </th>
-                <th class="data-grid-th _draggable _ascend">
-                    <span class="data-grid-cell-content">Custom fields in GetResponse</span>
-                </th>
-                <th class="data-grid-th">
-                    <span class="data-grid-cell-content">Action</span>
-                </th>
-            </tr>
+        <tr>
+            <th class="data-grid-th _draggable">
+                <span class="data-grid-cell-content">Customer details</span>
+            </th>
+            <th class="data-grid-th _draggable _ascend">
+                <span class="data-grid-cell-content">Custom fields in GetResponse</span>
+            </th>
+            <th class="data-grid-th">
+                <span class="data-grid-cell-content">Action</span>
+            </th>
+        </tr>
         </thead>
         <tbody id="customsDataBody">
-        <?php if (count($customsCollection->getCustoms()) > 0): ?>
-            <?php foreach ($customsCollection->getCustoms() as $key => $custom): ?>
-                <?php if ($custom->isActive()): ?>
-                    <tr class="data-row <?php if ($key % 2): ?>_odd-row<?php endif ?>">
-                        <td>
-                            <div class="data-grid-cell-content">
-                                <select
-                                    <?php if ($custom->isDefault()): ?>disabled<?php endif ?>
-                                    name="custom[]">
-                                    <?php foreach ($customsCollection->getCustoms() as $_custom): ?>
-                                        <option
-                                            <?php if ($_custom->getId() === $custom->getId()): ?>selected="selected"<?php endif ?>
-                                            value="<?php echo $_custom->getCustomField() ?>"><?php echo $_custom->getCustomValue() ?></option>
-                                    <?php endforeach ?>
-                                </select>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="data-grid-cell-content">
-                                <input
-                                    <?php if ($custom->isDefault()): ?>disabled<?php endif ?>
-                                    type="text" name="gr_custom[]" value="<?php echo $custom->getCustomName() ?>">
-                            </div>
-                        </td>
-                        <td>
-                            <div class="data-grid-cell-content">
-                                <?php if (!$custom->isDefault()): ?>
-                                    <a href="#" class="deleteCustomBtn">Delete</a>
-                                <?php endif ?>
-                            </div>
-                        </td>
-                    </tr>
-                <?php endif ?>
-            <?php endforeach ?>
-        <?php endif ?>
+        <?php foreach ($customFieldsMappingCollection as $key => $custom): ?>
+            <?php if ($custom->isDefault()): ?>
+                <tr class="data-row <?php if ($key % 2): ?>_odd-row<?php endif ?>">
+                    <td>
+                        <div class="data-grid-cell-content">
+                            <select disabled name="custom[]">
+                                <option selected="selected"
+                                        value="<?php echo $custom->getMagentoAttributeType() . '_' . $custom->getMagentoAttributeCode() ?>">
+                                    <?php echo $magentoCustomerAttributesArray[$custom->getMagentoAttributeType() . '_' . $custom->getMagentoAttributeCode()] ?>
+                                </option>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="data-grid-cell-content">
+                            <select disabled name="custom[]">
+                                <option selected="selected" value="">
+                                    <?php echo $custom->getGetResponseDefaultLabel() ?>
+                                </option>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="data-grid-cell-content"></div>
+                    </td>
+                </tr>
+
+            <?php else: ?>
+
+                <tr class="data-row <?php if ($key % 2): ?>_odd-row<?php endif ?>">
+                    <td>
+                        <div class="data-grid-cell-content">
+                            <select name="custom[]">
+                                <option value="">Select a Customer Attribute</option>
+                                <?php
+                                /** @var MagentoCustomerAttribute $magentoCustomerAttribute */
+                                foreach ($magentoCustomerAttributes as $magentoCustomerAttribute): ?>
+                                    <option
+                                        <?php if ($custom->getMagentoAttributeCode() === $magentoCustomerAttribute->getAttributeCode()
+                                                && $custom->getMagentoAttributeType() === $magentoCustomerAttribute->getAttributeType()): ?>
+                                            selected="selected"
+                                        <?php endif ?>
+                                            value="<?php echo $custom->getMagentoAttributeType() . '_' . $magentoCustomerAttribute->getAttributeCode() ?>">
+                                        <?php echo $magentoCustomerAttribute->getFrontendLabel() ?>
+                                    </option>
+                                <?php endforeach ?>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="data-grid-cell-content">
+                            <select name="gr_custom[]" class="getResponseCustomFieldSelect">
+                                <option value="">Select a Custom Field</option>
+                                <?php
+                                /** @var \GrShareCode\CustomField\CustomField $customFieldFromGetResponse */
+                                foreach ($customFieldsFromGetResponse as $customFieldFromGetResponse): ?>
+                                    <option
+                                        <?php if ($custom->getGetResponseCustomId() === $customFieldFromGetResponse['id']): ?>
+                                            selected="selected"
+                                        <?php endif ?>
+                                            value="<?php echo $customFieldFromGetResponse['id'] ?>">
+                                        <?php echo $customFieldFromGetResponse['name'] ?>
+                                    </option>
+                                <?php endforeach ?>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="data-grid-cell-content">
+                            <a href="#" class="deleteCustomBtn">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+            <?php endif ?>
+        <?php endforeach ?>
         </tbody>
     </table>
 </div>
-<input type="hidden" id="jsCustoms" value='<?php echo json_encode($customs); ?>'/>
+<input type="hidden" id="jsMagentoCustomerAttributes" value='<?php echo json_encode($magentoCustomerAttributesArray); ?>'/>
+<input type="hidden" id="jsGetResponseCustomFields" value='<?php echo json_encode($customFieldsFromGetResponse); ?>'/>
 <script>
     require(['customsGrid']);
 </script>

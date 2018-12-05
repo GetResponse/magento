@@ -2,10 +2,13 @@
 namespace GetResponse\GetResponseIntegration\Test\Unit\Block;
 
 use GetResponse\GetResponseIntegration\Block\Lists as ListsBlock;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\GetresponseApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Logger\Logger;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
-use GrShareCode\GetresponseApiClient;
+use GrShareCode\Api\GetresponseApiClient;
+use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
 
@@ -21,7 +24,7 @@ class ListsTest extends BaseTestCase
     /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
     private $repository;
 
-    /** @var GetresponseApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var ApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
     private $apiClientFactory;
 
     /** @var ListsBlock */
@@ -33,14 +36,34 @@ class ListsTest extends BaseTestCase
     /** @var GetresponseApiClient|\PHPUnit_Framework_MockObject_MockObject */
     private $grApiClient;
 
+    /** @var  ManagerInterface|\PHPUnit_Framework_MockObject_MockObject*/
+    private $messageManager;
+
+    /** @var RedirectFactory|\PHPUnit_Framework_MockObject_MockObject*/
+    private $redirectFactory;
+
+    /** @var Logger|\PHPUnit_Framework_MockObject_MockObject */
+    private $logger;
+
     public function setUp()
     {
         $this->context = $this->getMockWithoutConstructing(Context::class);
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
-        $this->apiClientFactory = $this->getMockWithoutConstructing(GetresponseApiClientFactory::class);
+        $this->apiClientFactory = $this->getMockWithoutConstructing(ApiClientFactory::class);
         $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
         $this->grApiClient = $this->getMockWithoutConstructing(GetresponseApiClient::class);
-        $this->listsBlock = new ListsBlock($this->context, $this->repository, $this->apiClientFactory);
+        $this->messageManager = $this->getMockWithoutConstructing(ManagerInterface::class);
+        $this->redirectFactory = $this->getMockWithoutConstructing(RedirectFactory::class);
+        $this->logger = $this->getMockWithoutConstructing(Logger::class);
+
+        $this->listsBlock = new ListsBlock(
+            $this->context,
+            $this->messageManager,
+            $this->redirectFactory,
+            $this->apiClientFactory,
+            $this->logger,
+            $this->repository
+        );
     }
 
     /**
