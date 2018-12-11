@@ -19,10 +19,8 @@ class Header extends Template
      * @param Context $context
      * @param Repository $repository
      */
-    public function __construct(
-        Context $context,
-        Repository $repository
-    ) {
+    public function __construct(Context $context, Repository $repository)
+    {
         parent::__construct($context);
         $this->repository = $repository;
     }
