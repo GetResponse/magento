@@ -1,24 +1,11 @@
 <?php
+
 /** @var $block \GetResponse\GetResponseIntegration\Block\Header */
 $data = $block->getTrackingData();
-?>
 
-<?php if ($data['isTrackingCodeEnabled']): ?>
+if ($data['trackingCodeSnippet']) {
+    echo '<div id="getresponse-tracking-code-snippet">';
+    echo $data['trackingCodeSnippet'];
+    echo '</div>';
+}
 
-    <?php echo $data['trackingCodeSnippet']; ?>
-
-    <?php if (!empty($data['customerEmail'])): ?>
-        <script type="text/javascript">
-            if (window.addEventListener) {
-                window.addEventListener("load", function () {
-                    gaSetUserId("<?php echo $data['customerEmail']; ?>");
-                })
-            } else {
-                window.attachEvent("onload", function () {
-                    gaSetUserId("<?php echo $data['customerEmail']; ?>");
-                })
-            }
-        </script>');
-    <?php endif; ?>
-
-<?php endif; ?>

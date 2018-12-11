@@ -106,7 +106,9 @@ class Uninstall implements UninstallInterface
             Store::DEFAULT_STORE_ID
         );
 
-
-        $this->cacheManager->clean(['config']);
+        $this->cacheManager->clean([
+            \Magento\Framework\App\Cache\Type\Config::TYPE_IDENTIFIER,
+            \Magento\PageCache\Model\Cache\Type::TYPE_IDENTIFIER
+        ]);
     }
 }

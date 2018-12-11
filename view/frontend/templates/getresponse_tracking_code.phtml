@@ -1,0 +1,40 @@
+<div class="getresponse-tracking-code-section" data-bind="scope: 'getresponse_tracking_code_section'">
+    <div id="customer-email-address" data-bind="attr: { 'customer-email': getResponseTrackingCode().customerEmail}"></div>
+</div>
+
+<script>
+    require([
+        'jquery',
+        'mage/cookies',
+    ], function ($) {
+
+        $('body').on('DOMSubtreeModified', '#customer-email-address', function () {
+
+            var customerEmail = $('#customer-email-address').attr('customer-email');
+            var trackingCodeSnippet = $('#getresponse-tracking-code-snippet');
+            var gaIsValuable = $.cookie('gaIsValuable');
+
+            if (typeof customerEmail !== typeof undefined
+                && customerEmail !== false
+                && typeof trackingCodeSnippet !== typeof undefined
+                && gaIsValuable !== '1'
+            ) {
+                gaSetUserId(customerEmail);
+            }
+        });
+    });
+</script>
+
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "Magento_Ui/js/core/app": {
+                "components": {
+                    "getresponse_tracking_code_section": {
+                        "component": "GetResponse_GetResponseIntegration/js/getresponse_tracking_code_section"
+                    }
+                }
+            }
+        }
+    }
+</script>
