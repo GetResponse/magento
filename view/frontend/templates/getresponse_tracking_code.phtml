@@ -14,9 +14,8 @@
             var trackingCodeSnippet = document.getElementById('getresponse-tracking-code-snippet');
             var gaIsValuable = $.cookie('gaIsValuable');
 
-            if (typeof customerEmail !== typeof undefined
-                && customerEmail !== false
-                && typeof trackingCodeSnippet !== typeof undefined
+            if (customerEmail !== null
+                && trackingCodeSnippet !== null
                 && gaIsValuable !== '1'
             ) {
                 gaSetUserId(customerEmail);
