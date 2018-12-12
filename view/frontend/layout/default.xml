@@ -22,7 +22,12 @@
         </referenceContainer>
 
         <referenceBlock name="head.additional">
-            <block class="GetResponse\GetResponseIntegration\Block\Header" name="getresponse.footer" template="header.phtml" cacheable="false"/>
+            <block name="getresponse.tracking.code.snippet" class="GetResponse\GetResponseIntegration\Block\Header" template="header.phtml"/>
         </referenceBlock>
+
+        <referenceContainer name="head.additional">
+            <block name="getresponse.tracking.code" class="Magento\Framework\View\Element\Template" template="GetResponse_GetResponseIntegration::getresponse_tracking_code.phtml"/>
+        </referenceContainer>
+
     </body>
 </page>
