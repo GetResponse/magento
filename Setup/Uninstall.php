@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Setup;
 
+use Magento\Framework\App\Cache\Type\Config as FrameworkCacheType;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
@@ -8,6 +9,7 @@ use Magento\Framework\Setup\UninstallInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\Cache\Manager;
 use GetResponse\GetResponseIntegration\Helper\Config;
+use Magento\PageCache\Model\Cache\Type as PageCacheType;
 use Magento\Store\Model\Store;
 
 /**
@@ -107,8 +109,8 @@ class Uninstall implements UninstallInterface
         );
 
         $this->cacheManager->clean([
-            \Magento\Framework\App\Cache\Type\Config::TYPE_IDENTIFIER,
-            \Magento\PageCache\Model\Cache\Type::TYPE_IDENTIFIER
+            FrameworkCacheType::TYPE_IDENTIFIER,
+            PageCacheType::TYPE_IDENTIFIER
         ]);
     }
 }

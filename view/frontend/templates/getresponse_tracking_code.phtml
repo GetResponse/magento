@@ -10,8 +10,8 @@
 
         $('body').on('DOMSubtreeModified', '#customer-email-address', function () {
 
-            var customerEmail = $('#customer-email-address').attr('customer-email');
-            var trackingCodeSnippet = $('#getresponse-tracking-code-snippet');
+            var customerEmail = document.getElementById('customer-email-address').getAttribute('customer-email');
+            var trackingCodeSnippet = document.getElementById('getresponse-tracking-code-snippet');
             var gaIsValuable = $.cookie('gaIsValuable');
 
             if (typeof customerEmail !== typeof undefined
