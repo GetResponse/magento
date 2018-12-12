@@ -2,16 +2,18 @@
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Webform;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
-use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettingsFactory;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\PageCache\Model\Cache\Type;
 
 /**
  * Class Save
@@ -31,17 +33,23 @@ class Save extends AbstractController
     /** @var Repository */
     private $repository;
 
+    /** @var TypeListInterface */
+    private $cacheTypeList;
+
     /**
      * @param Context $context
+     * @param TypeListInterface $cacheTypeList
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
      */
     public function __construct(
         Context $context,
+        TypeListInterface $cacheTypeList,
         PageFactory $resultPageFactory,
         Repository $repository
     ) {
         parent::__construct($context);
+        $this->cacheTypeList = $cacheTypeList;
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
@@ -67,7 +75,7 @@ class Save extends AbstractController
         }
 
         $this->repository->saveWebformSettings($webForm);
-
+        $this->cacheTypeList->cleanType(Type::TYPE_IDENTIFIER);
         $this->messageManager->addSuccessMessage($webForm->isEnabled() ? Message::FORM_PUBLISHED : Message::FORM_UNPUBLISHED);
 
         $resultRedirect = $this->resultRedirectFactory->create();

@@ -58,6 +58,18 @@ class Header extends Template
     }
 
     /**
+     * @return array
+     */
+    public function getTrackingData()
+    {
+        $trackingCodeSnippet = $this->getTrackingCodeSnippet();
+
+        return [
+            'trackingCodeSnippet' => $trackingCodeSnippet
+        ];
+    }
+
+    /**
      * @return string
      */
     private function getTrackingCodeSnippet()
@@ -72,4 +84,5 @@ class Header extends Template
 
         return '';
     }
+
 }
