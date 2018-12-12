@@ -6,11 +6,13 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\PageCache\Model\Cache\Type;
 
 /**
  * Class Index
@@ -30,17 +32,23 @@ class Index extends AbstractController
     /** @var Repository */
     private $repository;
 
+    /** @var TypeListInterface */
+    private $cacheTypeList;
+
     /**
      * @param Context $context
+     * @param TypeListInterface $cacheTypeList
      * @param PageFactory $resultPageFactory
      * @param Repository $repository
      */
     public function __construct(
         Context $context,
+        TypeListInterface $cacheTypeList,
         PageFactory $resultPageFactory,
         Repository $repository
     ) {
         parent::__construct($context);
+        $this->cacheTypeList = $cacheTypeList;
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
@@ -54,6 +62,7 @@ class Index extends AbstractController
         $data = $this->request->getPostValue();
 
         if (isset($data['updateWebTraffic'])) {
+
             $webEventTracking = WebEventTrackingSettingsFactory::createFromArray(
                 $this->repository->getWebEventTracking()
             );
@@ -67,6 +76,8 @@ class Index extends AbstractController
             $newWebEventTracking = WebEventTrackingSettingsFactory::createFromArray($params);
 
             $this->repository->saveWebEventTracking($newWebEventTracking);
+
+            $this->cacheTypeList->cleanType(Type::TYPE_IDENTIFIER);
 
             $message = ($newWebEventTracking->isEnabled()) ? Message::WEB_EVENT_TRAFFIC_ENABLED : Message::WEB_EVENT_TRAFFIC_DISABLED;
             $this->messageManager->addSuccessMessage($message);

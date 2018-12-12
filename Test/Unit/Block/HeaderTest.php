@@ -33,62 +33,13 @@ class HeaderTest extends BaseTestCase
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
         $this->session = $this->getMockWithoutConstructing(Session::class);
 
-        $this->headerBlock = new Header(
-            $this->context,
-            $this->repository,
-            $this->session
-        );
+        $this->headerBlock = new Header($this->context, $this->repository);
     }
 
     /**
      * @test
      */
-    public function shouldReturnLoggedInCustomerEmailAndTrackingCodeSnippet()
-    {
-        $customerEmail = 'adam.kowslaski@getresponse.com';
-        $trackingCodeSnippet = 'trackingCodeSnippet';
-        $isTrackingCodeEnabled = true;
-
-        $this->repository
-            ->expects(self::once())
-            ->method('getWebEventTracking')
-            ->willReturn(
-                [
-                    'isEnabled' => $isTrackingCodeEnabled,
-                    'isFeatureTrackingEnabled' => true,
-                    'codeSnippet' => $trackingCodeSnippet
-                ]
-            );
-
-        $this->session
-            ->expects(self::once())
-            ->method('isLoggedIn')
-            ->willReturn(true);
-
-        $customer = $this->getMockWithoutConstructing(Customer::class);
-        $customer
-            ->expects(self::once())
-            ->method('__call')
-            ->with('getEmail')
-            ->willReturn($customerEmail);
-
-        $this->session
-            ->expects(self::once())
-            ->method('getCustomer')
-            ->willReturn($customer);
-
-        $expected = [
-            'isTrackingCodeEnabled' => $isTrackingCodeEnabled,
-            'trackingCodeSnippet' => $trackingCodeSnippet,
-            'customerEmail' => $customerEmail,
-        ];
-        $this->assertSame($expected, $this->headerBlock->getTrackingData());
-    }
-
-    /**
-     * @test
-     */
-    public function shouldReturnEmptyEmailIfCustomerIsNotLoggedIn()
+    public function shouldReturnTrackingCodeSnippet()
     {
         $trackingCodeSnippet = 'trackingCodeSnippet';
         $isTrackingCodeEnabled = true;
@@ -104,16 +55,7 @@ class HeaderTest extends BaseTestCase
                 ]
             );
 
-        $this->session
-            ->expects(self::once())
-            ->method('isLoggedIn')
-            ->willReturn(false);
-
-        $expected = [
-            'isTrackingCodeEnabled' => $isTrackingCodeEnabled,
-            'trackingCodeSnippet' => $trackingCodeSnippet,
-            'customerEmail' => '',
-        ];
+        $expected = ['trackingCodeSnippet' => $trackingCodeSnippet];
 
         $this->assertSame($expected, $this->headerBlock->getTrackingData());
     }
@@ -123,7 +65,6 @@ class HeaderTest extends BaseTestCase
      */
     public function shouldReturnEmptyTrackingCodeSnippet()
     {
-        $customerEmail = 'adam.kowslaski@getresponse.com';
         $trackingCodeSnippet = 'trackingCodeSnippet';
         $isTrackingCodeEnabled = false;
 
@@ -138,27 +79,8 @@ class HeaderTest extends BaseTestCase
                 ]
             );
 
-        $this->session
-            ->expects(self::once())
-            ->method('isLoggedIn')
-            ->willReturn(true);
-
-        $customer = $this->getMockWithoutConstructing(Customer::class);
-        $customer
-            ->expects(self::once())
-            ->method('__call')
-            ->with('getEmail')
-            ->willReturn($customerEmail);
-
-        $this->session
-            ->expects(self::once())
-            ->method('getCustomer')
-            ->willReturn($customer);
-
         $expected = [
-            'isTrackingCodeEnabled' => $isTrackingCodeEnabled,
-            'trackingCodeSnippet' => '',
-            'customerEmail' => $customerEmail,
+            'trackingCodeSnippet' => ''
         ];
         $this->assertSame($expected, $this->headerBlock->getTrackingData());
     }
