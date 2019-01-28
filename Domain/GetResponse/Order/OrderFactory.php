@@ -3,6 +3,7 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Order;
 
 use DateTime;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Address\AddressFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Exception\InvalidOrderException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductFactory;
 use GrShareCode\Order\Order as GrOrder;
 use GrShareCode\Product\ProductsCollection;
@@ -34,6 +35,7 @@ class OrderFactory
     /**
      * @param Order $order
      * @return GrOrder
+     * @throws InvalidOrderException
      */
     public function fromMagentoOrder(Order $order)
     {
@@ -41,6 +43,11 @@ class OrderFactory
 
         /** @var Item $orderItem */
         foreach ($order->getAllVisibleItems() as $orderItem) {
+
+            if (!$orderItem->getProduct()) {
+                throw InvalidOrderException::forItemWithEmptyProduct($orderItem);
+            }
+
             $productCollection->add(
                 $this->productFactory->fromMagentoOrderItem($orderItem)
             );

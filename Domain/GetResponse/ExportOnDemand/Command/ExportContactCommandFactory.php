@@ -4,6 +4,7 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand\C
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactCustomFieldsCollectionFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand\ExportOnDemand;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand\ExportSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Exception\InvalidOrderException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\Export\Command\ExportContactCommand;
@@ -127,9 +128,12 @@ class ExportContactCommandFactory
         /** @var Order $order */
         foreach ($orders as $order) {
 
-            $orderCollection->add(
-                $this->orderFactory->fromMagentoOrder($order)
-            );
+            try {
+                $orderCollection->add(
+                    $this->orderFactory->fromMagentoOrder($order)
+                );
+            } catch (InvalidOrderException $e) {
+            }
         }
 
         return $orderCollection;
