@@ -2,12 +2,14 @@
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Order;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Address\AddressFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Exception\InvalidOrderException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductFactory;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GetResponse\GetResponseIntegration\Test\Unit\Generator;
 use GrShareCode\Order\Order as GrOrder;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Item;
 
 class OrderFactoryTest extends BaseTestCase
 {
@@ -36,7 +38,13 @@ class OrderFactoryTest extends BaseTestCase
      */
     public function shouldCreateValidOrder()
     {
-        $orderItemMock = $this->getMockWithoutConstructing(\Magento\Sales\Model\Order\Item::class);
+        $productCollection =  Generator::createProductsCollection(2,1);
+
+        $orderItemMock = $this->getMockWithoutConstructing(Item::class);
+        $orderItemMock
+            ->expects(self::exactly(2))
+            ->method('getProduct')
+            ->willReturnOnConsecutiveCalls($productCollection->getIterator()[0], $productCollection->getIterator()[1]);
 
         $externalOrderId = '100043';
         $totalPrice = 80.00;
@@ -64,7 +72,6 @@ class OrderFactoryTest extends BaseTestCase
             ->method('getAllVisibleItems')
             ->willReturn([$orderItemMock, $orderItemMock]);
 
-        $productCollection =  Generator::createProductsCollection(2,1);
 
         $this->productFactory
             ->expects(self::exactly(2))
@@ -101,5 +108,24 @@ class OrderFactoryTest extends BaseTestCase
 
         $this->assertInstanceOf(GrOrder::class, $grOrder);
         $this->assertEquals($expectedGrOrder, $grOrder);
+    }
+    /**
+     * @test
+     */
+    public function shouldThrowExceptionIfProductNotExists()
+    {
+        $this->expectException(InvalidOrderException::class);
+
+        $orderItemMock = $this->getMockWithoutConstructing(Item::class);
+        $orderItemMock
+            ->expects(self::once())
+            ->method('getProduct')
+            ->willReturnOnConsecutiveCalls(null);
+
+        $this->magentoOrderMock
+            ->method('getAllVisibleItems')
+            ->willReturn([$orderItemMock, $orderItemMock]);
+
+        $this->orderFactory->fromMagentoOrder($this->magentoOrderMock);
     }
 }

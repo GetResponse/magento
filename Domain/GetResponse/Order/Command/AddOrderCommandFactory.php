@@ -1,6 +1,7 @@
 <?php
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Command;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Exception\InvalidOrderException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderFactory;
 use GrShareCode\Order\Command\AddOrderCommand;
 use Magento\Sales\Model\Order;
@@ -27,6 +28,7 @@ class AddOrderCommandFactory
      * @param string $contactListId
      * @param string $shopId
      * @return AddOrderCommand
+     * @throws InvalidOrderException
      */
     public function createForMagentoOrder(Order $order, $contactListId, $shopId)
     {
