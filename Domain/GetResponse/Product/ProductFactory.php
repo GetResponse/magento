@@ -5,7 +5,15 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant\Comple
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant\SimpleVariantFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\Product\Product;
+use InvalidArgumentException;
+use Magento\Catalog\Model\Product\Interceptor;
+use Magento\Catalog\Model\Product\Type;
+use Magento\Catalog\Model\Product\Visibility;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+use Magento\Downloadable\Model\Product\Type as DownloadableType;
+use Magento\GroupedProduct\Model\Product\Type\Grouped;
 use Magento\Quote\Model\Quote\Item;
+use Magento\Sales\Model\Order\Item as OrderItem;
 
 /**
  * Class ProductFactory
@@ -57,8 +65,8 @@ class ProductFactory
     {
         switch ($quoteItem->getProductType()) {
 
-            case \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE:
-            case \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE:
+            case Configurable::TYPE_CODE:
+            case Type::TYPE_BUNDLE:
 
                 $magentoProduct = $this->magentoRepository->getProductById($quoteItem->getProduct()->getId());
 
@@ -75,10 +83,10 @@ class ProductFactory
 
                 return $product;
 
-            case \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE:
-            case \Magento\Catalog\Model\Product\Type::TYPE_VIRTUAL:
-            case \Magento\GroupedProduct\Model\Product\Type\Grouped::TYPE_CODE:
-            case \Magento\Downloadable\Model\Product\Type::TYPE_DOWNLOADABLE:
+            case Type::TYPE_SIMPLE:
+            case Type::TYPE_VIRTUAL:
+            case Grouped::TYPE_CODE:
+            case DownloadableType::TYPE_DOWNLOADABLE:
 
                 $magentoProduct = $this->magentoRepository->getProductById($quoteItem->getProduct()->getId());
 
@@ -96,17 +104,17 @@ class ProductFactory
                 return $product;
 
             default:
-                throw new \InvalidArgumentException('Invalid Quote type.');
+                throw new InvalidArgumentException('Invalid Quote type.');
         }
     }
 
     /**
-     * @param \Magento\Catalog\Model\Product\Interceptor $magentoProduct
+     * @param Interceptor $magentoProduct
      * @return int
      */
-    private function getProductIdFromMagentoProduct(\Magento\Catalog\Model\Product\Interceptor $magentoProduct)
+    private function getProductIdFromMagentoProduct(Interceptor $magentoProduct)
     {
-        if ((int)$magentoProduct->getVisibility() === \Magento\Catalog\Model\Product\Visibility::VISIBILITY_NOT_VISIBLE) {
+        if ((int)$magentoProduct->getVisibility() === Visibility::VISIBILITY_NOT_VISIBLE) {
 
             if ($parentProductIds = $this->magentoRepository->getProductParentConfigurableById($magentoProduct->getId())) {
                 $magentoParentProduct = $this->magentoRepository->getProductById($parentProductIds[0]);
@@ -119,12 +127,12 @@ class ProductFactory
     }
 
     /**
-     * @param \Magento\Catalog\Model\Product\Interceptor $magentoProduct
+     * @param Interceptor $magentoProduct
      * @return string
      */
-    private function getProductNameFromMagentoProduct(\Magento\Catalog\Model\Product\Interceptor $magentoProduct)
+    private function getProductNameFromMagentoProduct(Interceptor $magentoProduct)
     {
-        if ((int)$magentoProduct->getVisibility() === \Magento\Catalog\Model\Product\Visibility::VISIBILITY_NOT_VISIBLE) {
+        if ((int)$magentoProduct->getVisibility() === Visibility::VISIBILITY_NOT_VISIBLE) {
 
             if ($parentProductIds = $this->magentoRepository->getProductParentConfigurableById($magentoProduct->getId())) {
                 $magentoParentProduct = $this->magentoRepository->getProductById($parentProductIds[0]);
@@ -137,15 +145,15 @@ class ProductFactory
     }
 
     /**
-     * @param \Magento\Sales\Model\Order\Item $orderItem
+     * @param OrderItem $orderItem
      * @return Product
      */
-    public function fromMagentoOrderItem(\Magento\Sales\Model\Order\Item $orderItem)
+    public function fromMagentoOrderItem(OrderItem $orderItem)
     {
         switch ($orderItem->getProductType()) {
 
-            case \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE:
-            case \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE:
+            case Configurable::TYPE_CODE:
+            case Type::TYPE_BUNDLE:
 
                 $magentoProduct = $this->magentoRepository->getProductById($orderItem->getProduct()->getId());
 
@@ -162,10 +170,11 @@ class ProductFactory
 
                 return $product;
 
-            case \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE:
-            case \Magento\Catalog\Model\Product\Type::TYPE_VIRTUAL:
-            case \Magento\GroupedProduct\Model\Product\Type\Grouped::TYPE_CODE:
-            case \Magento\Downloadable\Model\Product\Type::TYPE_DOWNLOADABLE:
+            case Type::TYPE_SIMPLE:
+            case Type::TYPE_VIRTUAL:
+            case Grouped::TYPE_CODE:
+            case DownloadableType::TYPE_DOWNLOADABLE:
+
 
                 $magentoProduct = $this->magentoRepository->getProductById($orderItem->getProduct()->getId());
 
@@ -183,7 +192,7 @@ class ProductFactory
                 return $product;
 
             default:
-                throw new \InvalidArgumentException('Invalid Quote Type.');
+                throw new InvalidArgumentException('Invalid Quote Type.');
 
         }
 
