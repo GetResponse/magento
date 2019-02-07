@@ -1,5 +1,9 @@
 # Changelog
 
+## 19.1.17
+*(2019-02-07)*
+* bugfixes in export orders with deleted products
+
 ## 19.1.16
 *(2018-11-22)*
 * bugfixes in observers
