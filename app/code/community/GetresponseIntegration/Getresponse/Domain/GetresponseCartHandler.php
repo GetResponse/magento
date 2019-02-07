@@ -137,6 +137,12 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler
 
         /** @var Mage_Sales_Model_Order_Item $product */
         foreach ($order->getAllVisibleItems() as $product) {
+
+            if (!$product->getProduct()->getId()) {
+                GetresponseIntegration_Getresponse_Helper_Logger::log(sprintf('Product id: %s name: %s in order id %s not found', $product->getId(), $product->getName(), $order->getId()));
+                return null;
+            }
+
             $grProducts[$product->getProduct()->getId()] = $this->productHandler->upsertGetresponseProduct($product->getProduct(), $storeId);
         }
 
