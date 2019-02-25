@@ -77,4 +77,16 @@ class ContactService
         );
     }
 
+    /**
+     * @param string $email
+     * @throws ApiException
+     * @throws GetresponseApiException
+     */
+    public function removeContact($email)
+    {
+        $contactService = $this->contactServiceFactory->create();
+        $contactService->unsubscribeContacts(
+            new UnsubscribeContactsCommand($email)
+        );
+    }
 }

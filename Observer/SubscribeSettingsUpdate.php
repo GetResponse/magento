@@ -13,10 +13,10 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\ObjectManagerInterface;
 
 /**
- * Class SubscribeFromRegister
+ * Class SubscribeUpdate
  * @package GetResponse\GetResponseIntegration\Observer
  */
-class SubscribeFromRegister implements ObserverInterface
+class SubscribeSettingsUpdate implements ObserverInterface
 {
     const UNSUBSCRIBE_EVENTS = [
         'adminhtml_customer_save_after',
