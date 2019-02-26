@@ -18,11 +18,6 @@ use Magento\Framework\ObjectManagerInterface;
  */
 class SubscribeSettingsUpdate implements ObserverInterface
 {
-    const UNSUBSCRIBE_EVENTS = [
-        'adminhtml_customer_save_after',
-        'customer_account_edited',
-    ];
-
     /** @var ObjectManagerInterface */
     protected $_objectManager;
 
@@ -58,34 +53,31 @@ class SubscribeSettingsUpdate implements ObserverInterface
         $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
         $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
     }
-
-    /**
-     * @param Observer $observer
-     * @return $this
-     */
     public function execute(Observer $observer)
     {
-        $registrationSettings = $this->subscribeViaRegistrationService->getSettings();
+        try {
+            $registrationSettings = $this->subscribeViaRegistrationService->getSettings();
 
-        if (!$registrationSettings->isEnabled()) {
-            return $this;
-        }
+            if (!$registrationSettings->isEnabled()) {
+                return $this;
+            }
 
-        $customerData = $observer->getEvent()->getCustomer();
-        $subscriber = $this->repository->loadSubscriberByEmail($customerData->getEmail());
+            $subscriber = $this->repository->loadSubscriberByEmail($observer->getEvent()->getSubscriber()->getSubscriberEmail());
 
-        if ($subscriber->isSubscribed()) {
+            if ($subscriber->isSubscribed()) {
+                $customerData = $this->_objectManager->create('Magento\Customer\Model\Customer');
+                $customerData->setWebsiteId($observer->getEvent()->getSubscriber()->getStoreId());
+                $customerData->loadByEmail($observer->getEvent()->getSubscriber()->getSubscriberEmail());
 
-            /** @var Customer $customer */
-            $customer = $this->repository->loadCustomer($customerData->getId());
+                /** @var Customer $customer */
+                $customer = $this->repository->loadCustomer($customerData->getId());
 
-            $contactCustomFieldsCollection = $this->contactCustomFieldsCollectionFactory->createForCustomer(
-                $customer,
-                $this->subscribeViaRegistrationService->getCustomFieldMappingSettings(),
-                $registrationSettings->isUpdateCustomFieldsEnalbed()
-            );
+                $contactCustomFieldsCollection = $this->contactCustomFieldsCollectionFactory->createForCustomer(
+                    $customer,
+                    $this->subscribeViaRegistrationService->getCustomFieldMappingSettings(),
+                    $registrationSettings->isUpdateCustomFieldsEnalbed()
+                );
 
-            try {
                 $this->contactService->addContact(
                     $customerData->getEmail(),
                     $customerData->getFirstname(),
@@ -95,18 +87,15 @@ class SubscribeSettingsUpdate implements ObserverInterface
                     $contactCustomFieldsCollection,
                     $registrationSettings->isUpdateCustomFieldsEnalbed()
                 );
-            } catch (ApiException $e) {
-            } catch (GetresponseApiException $e) {
+            } else {
+                $this->contactService->removeContact(
+                    $observer->getEvent()
+                        ->getSubscriber()
+                        ->getSubscriberEmail()
+                );
             }
-        } elseif (
-            false === $subscriber->isSubscribed()
-            && in_array($observer->getEvent()->getName(), self::UNSUBSCRIBE_EVENTS)
-        ) {
-            try {
-                $this->contactService->removeContact($customerData->getEmail());
-            } catch (ApiException $e) {
-            } catch (GetresponseApiException $e) {
-            }
+        } catch (ApiException $e) {
+        } catch (GetresponseApiException $e) {
         }
 
         return $this;

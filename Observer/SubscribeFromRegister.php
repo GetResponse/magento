@@ -18,11 +18,6 @@ use Magento\Framework\ObjectManagerInterface;
  */
 class SubscribeFromRegister implements ObserverInterface
 {
-    const UNSUBSCRIBE_EVENTS = [
-        'adminhtml_customer_save_after',
-        'customer_account_edited',
-    ];
-
     /** @var ObjectManagerInterface */
     protected $_objectManager;
 
@@ -95,15 +90,6 @@ class SubscribeFromRegister implements ObserverInterface
                     $contactCustomFieldsCollection,
                     $registrationSettings->isUpdateCustomFieldsEnalbed()
                 );
-            } catch (ApiException $e) {
-            } catch (GetresponseApiException $e) {
-            }
-        } elseif (
-            false === $subscriber->isSubscribed()
-            && in_array($observer->getEvent()->getName(), self::UNSUBSCRIBE_EVENTS)
-        ) {
-            try {
-                $this->contactService->removeContact($customerData->getEmail());
             } catch (ApiException $e) {
             } catch (GetresponseApiException $e) {
             }
