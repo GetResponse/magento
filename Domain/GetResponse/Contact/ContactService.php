@@ -5,6 +5,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Contact\Command\AddContactCommand;
 use GrShareCode\Contact\Command\FindContactCommand;
+use GrShareCode\Contact\Command\UnsubscribeContactsCommand;
 use GrShareCode\Contact\Contact;
 use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
 
