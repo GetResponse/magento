@@ -5,6 +5,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Contact\Command\AddContactCommand;
 use GrShareCode\Contact\Command\FindContactCommand;
+use GrShareCode\Contact\Command\UnsubscribeContactsCommand;
 use GrShareCode\Contact\Contact;
 use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
 
@@ -77,4 +78,16 @@ class ContactService
         );
     }
 
+    /**
+     * @param string $email
+     * @throws ApiException
+     * @throws GetresponseApiException
+     */
+    public function removeContact($email)
+    {
+        $contactService = $this->contactServiceFactory->create();
+        $contactService->unsubscribeContacts(
+            new UnsubscribeContactsCommand($email)
+        );
+    }
 }
