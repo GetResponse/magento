@@ -22,7 +22,7 @@ class SubscribeViaRegistrationFactory
             $data['customFieldsStatus'],
             $data['campaignId'],
             $data['cycleDay'],
-            $data['autoresponderId']
+            isset($data['autoresponderId']) ? $data['autoresponderId'] : ''
         );
     }
 }
