@@ -100,11 +100,17 @@ class Repository
         $customers = $this->_objectManager->get('Magento\Newsletter\Model\Subscriber');
         $customers = $customers->getCollection();
 
+        $customerEntityTable = $customers->getTable('customer_entity');
+        $customerAddressEntityTable = $customers->getTable('customer_address_entity');
+
         $customers->getSelect()
-            ->joinLeft(['customer_entity' => 'customer_entity'], 'customer_entity.entity_id=main_table.customer_id',
+            ->joinLeft(['customer_entity' => $customerEntityTable], 'customer_entity.entity_id=main_table.customer_id',
                 ['*'])
-            ->joinLeft(['customer_address_entity' => 'customer_address_entity'],
-                'customer_address_entity.entity_id=default_billing', ['*'])
+            ->joinLeft(
+                ['customer_address_entity' => $customerAddressEntityTable],
+                'customer_address_entity.entity_id=default_billing',
+                ['*']
+            )
             ->where('subscriber_status=1');
 
         return $customers;
