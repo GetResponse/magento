@@ -5,6 +5,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactCustomFieldsCollectionFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
+use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use Magento\Customer\Model\Customer;
@@ -13,10 +14,10 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\ObjectManagerInterface;
 
 /**
- * Class SubscribeUpdate
+ * Class SubscriberUnsubscribed
  * @package GetResponse\GetResponseIntegration\Observer
  */
-class SubscribeSettingsUpdate implements ObserverInterface
+class SubscriberOrCustomerUnsubscribed implements ObserverInterface
 {
     /** @var ObjectManagerInterface */
     protected $_objectManager;
@@ -56,43 +57,22 @@ class SubscribeSettingsUpdate implements ObserverInterface
     public function execute(Observer $observer)
     {
         try {
-            $registrationSettings = $this->subscribeViaRegistrationService->getSettings();
-
-            if (!$registrationSettings->isEnabled()) {
+            
+            if (!$observer->getEvent()->getSubscriber()->hasDataChanges()) {
                 return $this;
             }
+            
+            $registrationSettings = $this->subscribeViaRegistrationService->getSettings();
+            $newsletterSettings = NewsletterSettingsFactory::createFromArray($this->repository->getNewsletterSettings());
 
+            if (!$registrationSettings->isEnabled() && !$newsletterSettings->isEnabled()) {
+                return $this;
+            }
+            
             $subscriber = $this->repository->loadSubscriberByEmail($observer->getEvent()->getSubscriber()->getSubscriberEmail());
 
-            if ($subscriber->isSubscribed()) {
-                $customerData = $this->_objectManager->create('Magento\Customer\Model\Customer');
-                $customerData->setWebsiteId($observer->getEvent()->getSubscriber()->getStoreId());
-                $customerData->loadByEmail($observer->getEvent()->getSubscriber()->getSubscriberEmail());
-
-                /** @var Customer $customer */
-                $customer = $this->repository->loadCustomer($customerData->getId());
-
-                $contactCustomFieldsCollection = $this->contactCustomFieldsCollectionFactory->createForCustomer(
-                    $customer,
-                    $this->subscribeViaRegistrationService->getCustomFieldMappingSettings(),
-                    $registrationSettings->isUpdateCustomFieldsEnalbed()
-                );
-
-                $this->contactService->addContact(
-                    $customerData->getEmail(),
-                    $customerData->getFirstname(),
-                    $customerData->getLastname(),
-                    $registrationSettings->getCampaignId(),
-                    $registrationSettings->getCycleDay(),
-                    $contactCustomFieldsCollection,
-                    $registrationSettings->isUpdateCustomFieldsEnalbed()
-                );
-            } else {
-                $this->contactService->removeContact(
-                    $observer->getEvent()
-                        ->getSubscriber()
-                        ->getSubscriberEmail()
-                );
+            if (!$subscriber->isSubscribed()) {
+                $this->contactService->removeContact($subscriber->getSubscriberEmail());
             }
         } catch (ApiException $e) {
         } catch (GetresponseApiException $e) {

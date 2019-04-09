@@ -14,10 +14,10 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\ObjectManagerInterface;
 
 /**
- * Class SubscribeFromOrder
+ * Class CustomerSubscribedFromOrder
  * @package GetResponse\GetResponseIntegration\Observer
  */
-class SubscribeFromOrder implements ObserverInterface
+class CustomerSubscribedFromOrder implements ObserverInterface
 {
     /** @var ObjectManagerInterface */
     protected $_objectManager;
