@@ -13,10 +13,10 @@ use Magento\Framework\ObjectManagerInterface;
 use Magento\Newsletter\Model\Subscriber;
 
 /**
- * Class SubscribeFromNewsletter
+ * Class SubscriberSubscribed
  * @package GetResponse\GetResponseIntegration\Observer
  */
-class SubscribeFromNewsletter implements ObserverInterface
+class SubscriberSubscribed implements ObserverInterface
 {
     /** @var ObjectManagerInterface */
     protected $objectManager;
@@ -54,6 +54,10 @@ class SubscribeFromNewsletter implements ObserverInterface
      */
     public function execute(EventObserver $observer)
     {
+        if (!$observer->getEvent()->getSubscriber()->hasDataChanges()) {
+            return $this;
+        }
+        
         $newsletterSettings = NewsletterSettingsFactory::createFromArray(
             $this->repository->getNewsletterSettings()
         );
@@ -67,7 +71,8 @@ class SubscribeFromNewsletter implements ObserverInterface
             /** @var Subscriber $subscriber */
             $subscriber = $observer->getEvent()->getSubscriber();
 
-            if ($subscriber->getCustomerId() > 0) {
+            // This is use case only for subscribers who are not customers
+            if (0 !== $subscriber->getCustomerId()) {
                 return $this;
             }
 
