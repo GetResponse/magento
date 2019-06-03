@@ -1,5 +1,9 @@
 # Changelog
 
+## 19.1.18
+*(2019-06-06)*
+* changed requirements for php version
+
 ## 19.1.17
 *(2019-02-07)*
 * bugfixes in export orders with deleted products
