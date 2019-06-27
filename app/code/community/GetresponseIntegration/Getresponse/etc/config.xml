@@ -2,7 +2,7 @@
 <config>
     <modules>
         <GetresponseIntegration_Getresponse>
-            <version>19.1.18</version>
+            <version>19.1.19</version>
         </GetresponseIntegration_Getresponse>
     </modules>
     <crontab>
@@ -27,7 +27,7 @@
             </getresponse>
         </blocks>
         <events>
-            <controller_front_init_before>
+            <controller_action_layout_load_before>
                 <observers>
                     <getresponse_init_before>
                         <class>GetresponseIntegration_Getresponse_Model_Observer</class>
@@ -35,7 +35,7 @@
                         <type>singleton</type>
                     </getresponse_init_before>
                 </observers>
-            </controller_front_init_before>
+            </controller_action_layout_load_before>
             <checkout_submit_all_after>
                 <observers>
                     <getresponse_checkout_all_after_form_submitted>
