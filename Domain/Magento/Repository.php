@@ -7,6 +7,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistrati
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GrShareCode\Account\Account;
 use Magento\Catalog\Model\Category;
+use Magento\Catalog\Model\Product;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Directory\Model\Country;
 use Magento\Framework\App\Cache\Manager;
@@ -179,7 +180,7 @@ class Repository
 
     /**
      * @param int $productId
-     * @return \Magento\Catalog\Model\Product\Interceptor
+     * @return Product
      */
     public function getProductById($productId)
     {
@@ -189,7 +190,7 @@ class Repository
 
     /**
      * @param int $productId
-     * @return \Magento\Catalog\Model\Product\Interceptor
+     * @return Product
      */
     public function getProductParentConfigurableById($productId)
     {
@@ -199,7 +200,7 @@ class Repository
 
     /**
      * @param int $productId
-     * @return \Magento\Catalog\Model\Product\Interceptor
+     * @return Product
      */
     public function getProductConfigurableChildrenById($productId)
     {

@@ -6,7 +6,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant\Simple
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GrShareCode\Product\Product;
 use InvalidArgumentException;
-use Magento\Catalog\Model\Product\Interceptor;
+use Magento\Catalog\Model\Product as MagentoProduct;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Catalog\Model\Product\Visibility;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
@@ -109,10 +109,10 @@ class ProductFactory
     }
 
     /**
-     * @param Interceptor $magentoProduct
+     * @param MagentoProduct $magentoProduct
      * @return int
      */
-    private function getProductIdFromMagentoProduct(Interceptor $magentoProduct)
+    private function getProductIdFromMagentoProduct(MagentoProduct $magentoProduct)
     {
         if ((int)$magentoProduct->getVisibility() === Visibility::VISIBILITY_NOT_VISIBLE) {
 
@@ -127,10 +127,10 @@ class ProductFactory
     }
 
     /**
-     * @param Interceptor $magentoProduct
+     * @param MagentoProduct $magentoProduct
      * @return string
      */
-    private function getProductNameFromMagentoProduct(Interceptor $magentoProduct)
+    private function getProductNameFromMagentoProduct(MagentoProduct $magentoProduct)
     {
         if ((int)$magentoProduct->getVisibility() === Visibility::VISIBILITY_NOT_VISIBLE) {
 
