@@ -13,10 +13,10 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\ObjectManagerInterface;
 
 /**
- * Class SubscribeFromRegister
+ * Class CustomerSubscribed
  * @package GetResponse\GetResponseIntegration\Observer
  */
-class SubscribeFromRegister implements ObserverInterface
+class CustomerSubscribed implements ObserverInterface
 {
     /** @var ObjectManagerInterface */
     protected $_objectManager;
@@ -54,22 +54,35 @@ class SubscribeFromRegister implements ObserverInterface
         $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
     }
 
-    /**
-     * @param Observer $observer
-     * @return $this
-     */
     public function execute(Observer $observer)
     {
-        $registrationSettings = $this->subscribeViaRegistrationService->getSettings();
+        try {
 
-        if (!$registrationSettings->isEnabled()) {
-            return $this;
-        }
+            if (!$observer->getEvent()->getSubscriber()->hasDataChanges()) {
+                return $this;
+            }
+            
+            $registrationSettings = $this->subscribeViaRegistrationService->getSettings();
 
-        $customerData = $observer->getEvent()->getCustomer();
-        $subscriber = $this->repository->loadSubscriberByEmail($customerData->getEmail());
+            if (!$registrationSettings->isEnabled()) {
+                return $this;
+            }
 
-        if ($subscriber->isSubscribed()) {
+            $subscriber = $this->repository->loadSubscriberByEmail($observer->getEvent()->getSubscriber()->getSubscriberEmail());
+            $tete = $subscriber->isStatusChanged();
+            $test = $observer->getEvent()->getSubscriber()->isStatusChanged();
+            
+            if (!$subscriber->isSubscribed()) {
+                return $this;
+            }
+            
+            $customerData = $this->_objectManager->create('Magento\Customer\Model\Customer');
+            $customerData->setWebsiteId($subscriber->getStoreId());
+            $customerData->loadByEmail($subscriber->getSubscriberEmail());
+
+            if ($customerData->isEmpty()) {
+                return $this;
+            }
 
             /** @var Customer $customer */
             $customer = $this->repository->loadCustomer($customerData->getId());
@@ -80,19 +93,17 @@ class SubscribeFromRegister implements ObserverInterface
                 $registrationSettings->isUpdateCustomFieldsEnalbed()
             );
 
-            try {
-                $this->contactService->addContact(
-                    $customerData->getEmail(),
-                    $customerData->getFirstname(),
-                    $customerData->getLastname(),
-                    $registrationSettings->getCampaignId(),
-                    $registrationSettings->getCycleDay(),
-                    $contactCustomFieldsCollection,
-                    $registrationSettings->isUpdateCustomFieldsEnalbed()
-                );
-            } catch (ApiException $e) {
-            } catch (GetresponseApiException $e) {
-            }
+            $this->contactService->addContact(
+                $customerData->getEmail(),
+                $customerData->getFirstname(),
+                $customerData->getLastname(),
+                $registrationSettings->getCampaignId(),
+                $registrationSettings->getCycleDay(),
+                $contactCustomFieldsCollection,
+                $registrationSettings->isUpdateCustomFieldsEnalbed()
+            );
+        } catch (ApiException $e) {
+        } catch (GetresponseApiException $e) {
         }
 
         return $this;

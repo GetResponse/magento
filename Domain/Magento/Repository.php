@@ -7,6 +7,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistrati
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GrShareCode\Account\Account;
 use Magento\Catalog\Model\Category;
+use Magento\Catalog\Model\Product;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Directory\Model\Country;
 use Magento\Framework\App\Cache\Manager;
@@ -100,11 +101,17 @@ class Repository
         $customers = $this->_objectManager->get('Magento\Newsletter\Model\Subscriber');
         $customers = $customers->getCollection();
 
+        $customerEntityTable = $customers->getTable('customer_entity');
+        $customerAddressEntityTable = $customers->getTable('customer_address_entity');
+
         $customers->getSelect()
-            ->joinLeft(['customer_entity' => 'customer_entity'], 'customer_entity.entity_id=main_table.customer_id',
+            ->joinLeft(['customer_entity' => $customerEntityTable], 'customer_entity.entity_id=main_table.customer_id',
                 ['*'])
-            ->joinLeft(['customer_address_entity' => 'customer_address_entity'],
-                'customer_address_entity.entity_id=default_billing', ['*'])
+            ->joinLeft(
+                ['customer_address_entity' => $customerAddressEntityTable],
+                'customer_address_entity.entity_id=default_billing',
+                ['*']
+            )
             ->where('subscriber_status=1');
 
         return $customers;
@@ -173,7 +180,7 @@ class Repository
 
     /**
      * @param int $productId
-     * @return \Magento\Catalog\Model\Product\Interceptor
+     * @return Product
      */
     public function getProductById($productId)
     {
@@ -183,7 +190,7 @@ class Repository
 
     /**
      * @param int $productId
-     * @return \Magento\Catalog\Model\Product\Interceptor
+     * @return Product
      */
     public function getProductParentConfigurableById($productId)
     {
@@ -193,7 +200,7 @@ class Repository
 
     /**
      * @param int $productId
-     * @return \Magento\Catalog\Model\Product\Interceptor
+     * @return Product
      */
     public function getProductConfigurableChildrenById($productId)
     {
