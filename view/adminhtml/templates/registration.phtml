@@ -126,7 +126,7 @@ $registrationSettings = $block->getRegistrationSettings();
         </div>
     </div>
 </form>
-<input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($block->getAutoRespondersForFrontend()); ?>'/>
+<input type="hidden" id="jsAutoresponders" value='<?php echo $block->escapeHtml(json_encode($block->getAutoRespondersForFrontend())); ?>'/>
 <input type="hidden" id="jsSettingsCycleDayKey" value='<?php echo (string)$registrationSettings->getCycleDay() . '_' . $registrationSettings->getAutoresponderId(); ?>'/>
 <script>
     require(['registration']);
