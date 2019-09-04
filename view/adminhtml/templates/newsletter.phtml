@@ -102,7 +102,7 @@ $jsAutoResponders = $block->getAutoRespondersForFrontend();
         </div>
     </div>
 </form>
-<input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($jsAutoResponders); ?>'/>
+<input type="hidden" id="jsAutoresponders" value='<?php echo $block->escapeHtml(json_encode($jsAutoResponders)); ?>'/>
 <input type="hidden" id="jsSettingsCycleDayKey" value='<?php echo (string) $newsletter->getCycleDay() . '_' . $newsletter->getAutoresponderId(); ?>'/>
 <script>
     require(['registration']);
