@@ -154,7 +154,7 @@ $jsAutoresponders = $block->getAutoRespondersForFrontend();
         </div>
     </div>
 </form>
-<input type="hidden" id="jsAutoresponders" value='<?php echo json_encode($jsAutoresponders); ?>'/>
+<input type="hidden" id="jsAutoresponders" value='<?php echo $block->escapeHtml(json_encode($jsAutoresponders)); ?>'/>
 <script>
     require(['exportContacts']);
 </script>
