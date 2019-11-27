@@ -1,0 +1,25 @@
+<?php if (Mage::getSingleton('customer/session')->isLoggedIn()): ?>
+
+    <?php
+    $helper = new GetresponseIntegration_Getresponse_Helper_Data();
+    $storeId = $helper->getStoreId();
+
+    $accountSettings = GetresponseIntegration_Getresponse_Domain_SettingsFactory::createFromArray(
+        (new GetresponseIntegration_Getresponse_Domain_SettingsRepository($storeId))->getAccount()
+    );
+    ?>
+    <?php if ($accountSettings->hasEnabledTrackingCode()): ?>
+        <?php $customer = Mage::getSingleton('customer/session')->getCustomer(); ?>
+        <?php if (strlen($customer->email) > 0): ?>
+            <script type="text/javascript">
+                if (window.addEventListener) {
+                    window.addEventListener("load", function () {gaSetUserId('<?php echo $customer->email ?>');})
+                } else {
+                    window.attachEvent("onload", function () {gaSetUserId('<?php echo $customer->email ?>');})
+                }
+            </script>
+        <?php endif; ?>
+    <?php endif; ?>
+
+<?php endif ?>
+

@@ -60,23 +60,6 @@ class GetresponseIntegration_Getresponse_Model_Observer
             $block->append($myBlock);
         }
 
-        if ("footer" == $block->getNameInLayout() && Mage::getSingleton('customer/session')->isLoggedIn()) {
-
-            $customer = Mage::getSingleton('customer/session')->getCustomer();
-
-            if (strlen($customer->email) > 0) {
-                /** @var Mage_Core_Block_Text $myBlock */
-                $myBlock = $layout->createBlock('core/text');
-                $myBlock->setText('<script type="text/javascript">
-				if(window.addEventListener){
-				  window.addEventListener("load", function() { gaSetUserId("' . $customer->email . '"); })
-				}else{
-				  window.attachEvent("onload", function() { gaSetUserId("' . $customer->email . '"); } )
-				}
-			</script>');
-                $block->append($myBlock);
-            }
-        }
     }
 
     /**
