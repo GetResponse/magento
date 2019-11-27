@@ -180,6 +180,28 @@ class GetresponseIntegration_Getresponse_Domain_Settings
         return $this->newsletterCycleDay;
     }
 
+    public function hasApiKey()
+    {
+        return !empty($this->getApiKey());
+    }
+
+    public function isTurnOnAddContactAfterCustomerRegister()
+    {
+        return 1 === (int)$this->getActiveSubscription() && !empty($this->getCampaignId());
+    }
+
+    public function isTurnOnAddContactAfterNewsletterSubscription()
+    {
+        return 1 === (int)$this->getNewsletterSubscription() && !empty($this->getNewsletterCampaignId());
+    }
+
+    public function hasEnabledTrackingCode()
+    {
+        return $this->hasApiKey()
+            && 0 !== (int)$this->getHasGrTrafficFeatureEnabled()
+            && 0 !== (int) $this->getHasActiveTrafficModule();
+    }
+
     /**
      * @return array
      */

@@ -1,8 +1,9 @@
 <?php
 
+use GetresponseIntegration_Getresponse_Domain_GetresponseException as GetresponseException;
 use GetresponseIntegration_Getresponse_Domain_SettingsRepository as SettingsRepository;
 use GetresponseIntegration_Getresponse_Domain_WebformRepository as WebformRepository;
-use GetresponseIntegration_Getresponse_Domain_GetresponseException as GetresponseException;
+use GetresponseIntegration_Getresponse_Domain_SettingsFactory as SettingsFactory;
 
 /**
  * Getresponse module observer
@@ -59,23 +60,6 @@ class GetresponseIntegration_Getresponse_Model_Observer
             $block->append($myBlock);
         }
 
-        if ("footer" == $block->getNameInLayout() && Mage::getSingleton('customer/session')->isLoggedIn()) {
-
-            $customer = Mage::getSingleton('customer/session')->getCustomer();
-
-            if (strlen($customer->email) > 0) {
-                /** @var Mage_Core_Block_Text $myBlock */
-                $myBlock = $layout->createBlock('core/text');
-                $myBlock->setText('<script type="text/javascript">
-				if(window.addEventListener){
-				  window.addEventListener("load", function() { gaSetUserId("' . $customer->email . '"); })
-				}else{
-				  window.attachEvent("onload", function() { gaSetUserId("' . $customer->email . '"); } )
-				}
-			</script>');
-                $block->append($myBlock);
-            }
-        }
     }
 
     /**
@@ -169,99 +153,103 @@ class GetresponseIntegration_Getresponse_Model_Observer
     /**
      * @param Varien_Event_Observer $observer
      */
-    public function createAccount(Varien_Event_Observer $observer)
+    public function createContact(Varien_Event_Observer $observer)
     {
         if (!$this->getresponseHelper->isEnabled()) {
             return;
         }
 
-        /** @var Varien_Event $event */
-        $event = $observer->getEvent();
-        $customer = $event->getData('customer');
-        $settingsRepository = new SettingsRepository($this->shopId);
-        $accountSettings = $settingsRepository->getAccount();
-
-        if (empty($accountSettings['apiKey']) || (int) $accountSettings['activeSubscription'] !== 1 || empty($accountSettings['campaignId'])) {
+        $accountSettings = SettingsFactory::createFromArray((new SettingsRepository($this->shopId))->getAccount());
+        if (!$accountSettings->hasApiKey()) {
             return;
         }
 
+        /** @var Varien_Event $event */
+        $event = $observer->getEvent();
+        /** @var Mage_Newsletter_Model_Subscriber $subscriber */
+        $subscriber = $event->getData('subscriber');
 
-        $subscriber = $this->newsletterModel->setStoreId($this->shopId)->loadByEmail($customer->getData('email'));
-
-        if (false === $subscriber->isSubscribed()) {
+        if (null === $subscriber) {
             return;
+        }
+
+        if (!$subscriber->getIsStatusChanged() || !$subscriber->isSubscribed()) {
+            return;
+        }
+
+        if (!Mage::app()->getStore()->isAdmin() && $this->shopId !== $subscriber->getStoreId()) {
+            return;
+        }
+
+        if ($subscriber->getCustomerId()) {
+
+            if (!$accountSettings->isTurnOnAddContactAfterCustomerRegister()) {
+                return;
+            }
+
+            /** @var Mage_Customer_Model_Customer $customer */
+            $customer = Mage::getModel('customer/customer')->load($subscriber->getCustomerId());
+            $customs = $this->customsModel->getCustoms($subscriber->getStoreId());
+            $billing = $customer->getPrimaryBillingAddress();
+
+            $user_customs = array();
+            if (is_object($billing)) {
+                $user_customs = $billing->getData();
+                $user_customs['country'] = $user_customs['country_id'];
+            }
+
+            $contactCustomFields = $this->customsModel->mapCustoms($user_customs, $customs);
+            $contactName = $customer->getName();
+            $contactEmail = $customer->getData('email');
+            $contactListId = $accountSettings->getCampaignId();
+            $autoresponderDay = $accountSettings->getCycleDay();
+
+        } else {
+
+            $session = Mage::getSingleton('core/session');
+            $isSubscribedByCheckout = (bool) $session->getData('_gr_is_subscribed');
+            $subscriberCheckoutDetails = (array) $session->getData('_subscriber_data');
+
+            if (true === $isSubscribedByCheckout && $accountSettings->isTurnOnAddContactAfterCustomerRegister()) {
+                // clear session
+                $session->setData('_gr_is_subscribed', null);
+                $session->setData('_subscriber_data', null);
+
+                $customs = (array) $this->customsModel->getCustoms($subscriber->getStoreId());
+
+                $subscriberCheckoutDetails['street'] = join(' ', (array)$subscriberCheckoutDetails['street']);
+                $subscriberCheckoutDetails['country'] = $subscriberCheckoutDetails['country_id'];
+
+                $contactCustomFields = $this->customsModel->mapCustoms($subscriberCheckoutDetails, $customs);
+                $contactName = $subscriberCheckoutDetails['firstname'] . ' ' . $subscriberCheckoutDetails['lastname'];
+                $contactEmail = $subscriberCheckoutDetails['email'];
+                $contactListId = $accountSettings->getCampaignId();
+                $autoresponderDay = $accountSettings->getCycleDay();
+
+            } elseif ($accountSettings->isTurnOnAddContactAfterNewsletterSubscription()) {
+
+                $contactName = 'Friend';
+                $contactEmail = $subscriber->getEmail();
+                $contactCustomFields = [];
+                $contactListId = $accountSettings->getNewsletterCampaignId();
+                $autoresponderDay = $accountSettings->getNewsletterCycleDay();
+
+            } else {
+                return;
+            }
         }
 
         try {
             $api = $this->buildApiInstance();
             $api->upsertContact(
-                $accountSettings['campaignId'],
-                $customer->getName(),
-                $customer->getData('email'),
-                $accountSettings['cycleDay'],
-                array()
+                $contactListId,
+                $contactName,
+                $contactEmail,
+                $autoresponderDay,
+                $contactCustomFields
             );
         } catch (GetresponseException $e) {
             GetresponseIntegration_Getresponse_Helper_Logger::logException($e);
-        }
-    }
-
-    /**
-     * @param Varien_Event_Observer $observer
-     */
-    public function createAccountOrder(Varien_Event_Observer $observer)
-    {
-        if (!$this->getresponseHelper->isEnabled()) {
-            return;
-        }
-
-        /** @var Varien_Event $event */
-        $event = $observer->getEvent();
-
-        /** @var Mage_Sales_Model_Order $order */
-        $order = $event->getData('order');
-
-        if ($order->isEmpty()) {
-            return;
-        }
-
-        /** @var Mage_Customer_Model_Customer $customer */
-        $customer = Mage::getModel('customer/customer')->load($order->getCustomerId());
-
-        $settingsRepository = new SettingsRepository($this->shopId);
-        $accountSettings = $settingsRepository->getAccount();
-
-
-        if (empty($accountSettings['apiKey']) || $accountSettings['activeSubscription'] != '1' || empty($accountSettings['campaignId'])) {
-            return;
-        }
-
-        $subscriberModel = $this->newsletterModel->loadByEmail($customer->getData('email'));
-        if (false === $subscriberModel->isSubscribed()) {
-            return;
-        }
-
-        $customs = $this->customsModel->getCustoms($this->shopId);
-
-        $billing = $customer->getPrimaryBillingAddress();
-
-        $user_customs = array();
-
-        if (is_object($billing)) {
-            $user_customs = $billing->getData();
-            $user_customs['country'] = $user_customs['country_id'];
-        }
-
-        try {
-            $api = $this->buildApiInstance();
-            $api->upsertContact(
-                $accountSettings['campaignId'],
-                $customer->getName(),
-                $customer->getData('email'),
-                $accountSettings['cycleDay'],
-                $this->customsModel->mapCustoms($user_customs, $customs)
-            );
-        } catch (GetresponseException $e) {
         }
     }
 
@@ -311,20 +299,16 @@ class GetresponseIntegration_Getresponse_Model_Observer
         }
     }
 
-    public function checkoutAllAfterFormSubmitted()
+    public function checkoutAllAfterFormSubmitted(Varien_Event_Observer $observer)
     {
         $session = Mage::getSingleton('core/session');
-        $isSubscribed = (bool) $session->getData('_gr_is_subscribed');
+        $isSubscribedAtCheckout = (bool) $session->getData('_gr_is_subscribed');
 
-        if (!$this->getresponseHelper->isEnabled() || 0 === $isSubscribed) {
+        if (!$this->getresponseHelper->isEnabled() || 0 === $isSubscribedAtCheckout) {
             return;
         }
 
         $details = (array) $session->getData('_subscriber_data');
-
-        // clear session
-        $session->setData('_gr_is_subscribed', null);
-        $session->setData('_subscriber_data', null);
 
         if (empty($details['email'])) {
             return;
@@ -333,82 +317,6 @@ class GetresponseIntegration_Getresponse_Model_Observer
         try {
             $this->newsletterModel->subscribe($details['email']);
         } catch (Exception $e) {
-            return;
-        }
-
-        $settingsRepository = new SettingsRepository($this->shopId);
-        $accountSettings = $settingsRepository->getAccount();
-
-        if (empty($accountSettings['apiKey'])) {
-            return;
-        }
-
-        $customs = (array) $this->customsModel->getCustoms($this->shopId);
-
-        $details['street'] = join(' ', (array)$details['street']);
-        $details['country'] = $details['country_id'];
-
-        try {
-            $api = $this->buildApiInstance();
-            $api->upsertContact(
-                $accountSettings['campaignId'],
-                $details['firstname'] . ' ' . $details['lastname'],
-                $details['email'],
-                $accountSettings['cycleDay'],
-                $this->customsModel->mapCustoms($details, $customs)
-            );
-        } catch (GetresponseException $e) {
-            return;
-        }
-    }
-
-    public function initBeforeAddToNewsletterAction()
-    {
-        if (!$this->getresponseHelper->isEnabled()) {
-            return;
-        }
-
-        $settingsRepository = new SettingsRepository($this->shopId);
-        $accountSettings = $settingsRepository->getAccount();
-
-        if (empty($accountSettings['apiKey']) || 1 !== (int) $accountSettings['newsletterSubscription'] || empty($accountSettings['newsletterCampaignId'])) {
-            return;
-        }
-
-        $name = $email = null;
-        $post = Mage::app()->getRequest()->getPost();
-
-        $customer = Mage::getSingleton('customer/session')->getCustomer();
-
-        // only, if customer is logged in.
-        if (!$customer->isEmpty() && strlen($customer->email) > 0 && isset($post['is_subscribed']) && $post['is_subscribed'] === 1) {
-            $name = $customer->firstname . ' ' . $customer->lastname;
-            $email = $customer->email;
-        } else if (isset($post['email']) && !empty($post['email'])) {
-            $name = 'Friend';
-            $email = $post['email'];
-        }
-
-        if (empty($email)) {
-            return;
-        }
-
-        $subscriberModel = $this->newsletterModel->loadByEmail($email);
-
-        if (false === $subscriberModel->isSubscribed()) {
-            return;
-        }
-
-        try {
-            $api = $this->buildApiInstance();
-            $api->upsertContact(
-                $accountSettings['newsletterCampaignId'],
-                $name,
-                $email,
-                $accountSettings['newsletterCycleDay'],
-                array()
-            );
-        } catch (GetresponseException $e) {
             return;
         }
     }

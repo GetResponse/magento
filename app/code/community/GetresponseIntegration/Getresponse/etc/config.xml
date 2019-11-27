@@ -2,7 +2,7 @@
 <config>
     <modules>
         <GetresponseIntegration_Getresponse>
-            <version>19.1.19</version>
+            <version>19.1.20</version>
         </GetresponseIntegration_Getresponse>
     </modules>
     <crontab>
@@ -54,22 +54,8 @@
                     </getresponse_sales_quote_address_save_after>
                 </observers>
             </sales_quote_address_save_after>
-            <customer_register_success>
-                <observers>
-                    <getresponse_create_account>
-                        <class>GetresponseIntegration_Getresponse_Model_Observer</class>
-                        <method>createAccount</method>
-                        <type>singleton</type>
-                    </getresponse_create_account>
-                </observers>
-            </customer_register_success>
             <sales_order_place_after>
                 <observers>
-                    <getresponse_order_create_account>
-                        <class>GetresponseIntegration_Getresponse_Model_Observer</class>
-                        <method>createAccountOrder</method>
-                        <type>singleton</type>
-                    </getresponse_order_create_account>
                     <getresponse_order_create_handler>
                         <class>GetresponseIntegration_Getresponse_Model_ECommerceObserver</class>
                         <method>createOrderHandler</method>
@@ -122,14 +108,15 @@
             </updates>
         </layout>
         <events>
-            <newsletter_subscriber_save_commit_after>
+            <newsletter_subscriber_save_after>
                 <observers>
-                    <getresponse_add_from_newsletter_form>
+                    <getresponse_create_account>
                         <class>GetresponseIntegration_Getresponse_Model_Observer</class>
-                        <method>initBeforeAddToNewsletterAction</method>
-                    </getresponse_add_from_newsletter_form>
+                        <method>createContact</method>
+                        <type>singleton</type>
+                    </getresponse_create_account>
                 </observers>
-            </newsletter_subscriber_save_commit_after>
+            </newsletter_subscriber_save_after>
             <controller_action_layout_generate_blocks_before>
                 <observers>
                     <getresponse_block_observer>
@@ -221,6 +208,15 @@
         </getresponse_menu>
     </menu>
     <events>
+        <newsletter_subscriber_save_after>
+            <observers>
+                <getresponse_create_account>
+                    <class>GetresponseIntegration_Getresponse_Model_Observer</class>
+                    <method>createContact</method>
+                    <type>singleton</type>
+                </getresponse_create_account>
+            </observers>
+        </newsletter_subscriber_save_after>
         <core_block_abstract_prepare_layout_before>
             <observers>
                 <getresponse_jquery_prepare_layout_before>
