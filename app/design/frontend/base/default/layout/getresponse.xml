@@ -11,4 +11,11 @@
             </block>
         </reference>
     </checkout_onepage_index>
+    <default>
+        <reference name="footer">
+            <action method="setCacheLifetime"></action>
+            <block type="page/html" name="tracking_code.set_user_id"  template="getresponse/tracking_code.set_user_id.phtml">
+            </block>
+        </reference>
+    </default>
 </layout>

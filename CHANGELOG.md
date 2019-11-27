@@ -1,5 +1,11 @@
 # Changelog
 
+## 19.1.20
+*(2019-11-21)*
+* bugfix for adding contact multiple times
+* bugfix for adding contact by confirmation email
+* bugfix for gaSetUserId in tracking code
+
 ## 19.1.19
 *(2019-06-06)*
 * bugfix for session starting and creating cookies
