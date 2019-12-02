@@ -112,7 +112,7 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
             if ($newOrder) {
                 $order->setData('getresponse_order_id', $grOrder['orderId']);
                 $order->setData(
-                    'getresponse_order_md5', $this->createOrderPayloadHash($params)
+                    'getresponse_order_hash', $this->createOrderPayloadHash($params)
                 );
                 $order->save();
             }
@@ -130,6 +130,6 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseOrderHandler
      */
     private function createOrderPayloadHash(array $orderPayload)
     {
-        return md5(json_encode($orderPayload));
+        return hash('sha512', json_encode($orderPayload));
     }
 }

@@ -25,7 +25,7 @@ class GetresponseIntegration_Getresponse_Model_Cache
      */
     public function save($value, $key)
     {
-        $this->cache->save(serialize($value), $key, array(self::TAG), self::DEFAULT_TTL);
+        $this->cache->save(json_encode($value), $key, array(self::TAG), self::DEFAULT_TTL);
     }
 
     /**
@@ -36,7 +36,7 @@ class GetresponseIntegration_Getresponse_Model_Cache
     {
         $data = $this->cache->load($key);
         if (false !== $data) {
-            return unserialize($data);
+            return json_decode($data, true);
         }
         return false;
     }
