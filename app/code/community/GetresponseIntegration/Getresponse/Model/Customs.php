@@ -59,7 +59,7 @@ class GetresponseIntegration_Getresponse_Model_Customs extends Mage_Core_Model_A
 
         foreach ($this->fields as $field) {
             $custom = CustomFieldFactory::createFromArray(array(
-                'id' => substr(md5(rand()), 0, 5),
+                'id' => substr(hash('sha512', rand()), 0, 5),
                 'customField' => $field['name'],
                 'customValue' => $field['name'],
                 'isDefault' => $field['value'],

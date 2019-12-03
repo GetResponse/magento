@@ -154,7 +154,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
             $this->createOrderPayload($order)
         );
 
-        return $order->getData('getresponse_order_md5') !== $hash;
+        return $order->getData('getresponse_order_hash') !== $hash;
     }
 
     /**
@@ -264,17 +264,17 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
                 return array();
             }
 
-            $cacheKey = md5($email . $this->shopsSettings['grListId']);
+            $cacheKey = hash('sha512', $email . $this->shopsSettings['grListId']);
             $cachedContact = $this->cache->load($cacheKey);
 
             if (false !== $cachedContact) {
-                return unserialize($cachedContact);
+                return json_decode($cachedContact);
             }
 
             $api = $this->buildApiInstance();
             $response = $api->getContact($email, $this->shopsSettings['grListId']);
 
-            $this->cache->save(serialize($response), $cacheKey, array(self::CACHE_KEY), 5 * 60);
+            $this->cache->save(json_encode($response), $cacheKey, array(self::CACHE_KEY), 5 * 60);
 
             return (array)$response;
         } catch (GetresponseException $e) {
@@ -366,7 +366,7 @@ class GetresponseIntegration_Getresponse_Model_ECommerceObserver
      */
     private function createOrderPayloadHash(array $orderPayload)
     {
-        return md5(json_encode($orderPayload));
+        return hash('sha512', json_encode($orderPayload));
     }
 
     /**
