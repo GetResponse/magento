@@ -67,7 +67,7 @@ class GetresponseIntegration_Getresponse_Helper_Api
      */
     public function getContact($email, $campaignId)
     {
-        $key = md5(self::CONTACT_CACHE_KEY . $email . $campaignId);
+        $key = hash('sha512', self::CONTACT_CACHE_KEY . $email . $campaignId);
         $contact = $this->cache->load($key);
 
         if (false === $contact) {
@@ -575,7 +575,7 @@ class GetresponseIntegration_Getresponse_Helper_Api
      */
     public function getProductById($shopId, $productId)
     {
-        $cacheKey = md5(self::PRODUCT_CACHE_KEY . $shopId . $productId);
+        $cacheKey = hash('sha512', self::PRODUCT_CACHE_KEY . $shopId . $productId);
         $product = $this->cache->load($cacheKey);
 
         if (false === $product) {

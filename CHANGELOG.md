@@ -1,5 +1,9 @@
 # Changelog
 
+## 19.1.21
+*(2019-12-02)*
+* added fixes for magento market place validation
+
 ## 19.1.20
 *(2019-11-21)*
 * bugfix for adding contact multiple times
