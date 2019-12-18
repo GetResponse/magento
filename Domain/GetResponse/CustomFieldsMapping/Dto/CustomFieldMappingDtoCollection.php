@@ -3,12 +3,13 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapp
 
 use ArrayIterator;
 use IteratorAggregate;
+use Countable;
 
 /**
  * Class CustomFieldMappingDtoCollection
  * @package GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto
  */
-class CustomFieldMappingDtoCollection implements IteratorAggregate
+class CustomFieldMappingDtoCollection implements Countable, IteratorAggregate
 {
     /** @var CustomFieldMappingDtoFactory */
     private $customFieldMappingDtoFactory;
@@ -66,4 +67,11 @@ class CustomFieldMappingDtoCollection implements IteratorAggregate
         return new ArrayIterator($this->items);
     }
 
+    /**
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->items);
+    }
 }
