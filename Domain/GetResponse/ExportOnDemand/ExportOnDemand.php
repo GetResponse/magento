@@ -74,7 +74,7 @@ class ExportOnDemand
      */
     public function isUpdateContactCustomFieldEnabled()
     {
-        return 0 !== count($this->getCustomFieldsMappingCollection());
+        return 0 !== count($this->getCustomFieldsMappingCollection()->toArray());
     }
 
     /**
