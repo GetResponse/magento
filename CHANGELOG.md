@@ -1,4 +1,7 @@
 # Changelog
+## 19.1.22
+*(2020-04-03)*
+* remove cart when empty
 
 ## 19.1.21
 *(2019-12-02)*
