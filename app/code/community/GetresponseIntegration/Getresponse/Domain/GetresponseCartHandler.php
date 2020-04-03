@@ -84,7 +84,15 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseCartHandler
             $grCartId = $quote->getData('getresponse_cart_id');
 
             if( !empty($grCartId) ) {
-                $cart = $this->api->updateCart($storeId, $grCartId, $params);
+
+                if (isset($params['selectedVariants']) && empty($params['selectedVariants'])) {
+                    $this->api->deleteCart($storeId, $grCartId);
+                    $quote->setData('getresponse_cart_id', null);
+                    $quote->save();
+                } else {
+                    $cart = $this->api->updateCart($storeId, $grCartId, $params);
+                }
+
             } else {
                 $cart = $this->api->addCart($storeId, $params);
             }
