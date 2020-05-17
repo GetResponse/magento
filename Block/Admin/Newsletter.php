@@ -8,7 +8,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\ContactList\ContactListCollection;
@@ -27,9 +26,7 @@ class Newsletter extends AdminTemplate
     ) {
         parent::__construct($context, $magentoStore);
         $this->repository = $repository;
-        $this->apiClient =  $apiClientFactory->createGetResponseApiClient(
-            new Scope($this->getScopeId())
-        );
+        $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->scope);
     }
 
     /**
@@ -44,7 +41,7 @@ class Newsletter extends AdminTemplate
     public function getNewsletterSettings(): NewsletterSettings
     {
         return NewsletterSettingsFactory::createFromArray(
-            $this->repository->getNewsletterSettings($this->getScopeId())
+            $this->repository->getNewsletterSettings($this->scope->getScopeId())
         );
     }
 }

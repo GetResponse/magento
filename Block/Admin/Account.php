@@ -6,7 +6,6 @@ namespace GetResponse\GetResponseIntegration\Block\Admin;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\Account as GetresponseAccount;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\AccountReadModel;
-use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Route;
@@ -29,12 +28,12 @@ class Account extends AdminTemplate
 
     public function getAccountInfo(): GetresponseAccount
     {
-        return $this->accountReadModel->getAccount(new Scope($this->getScopeId()));
+        return $this->accountReadModel->getAccount($this->scope);
     }
 
     public function isConnectedToGetResponse(): bool
     {
-        return $this->accountReadModel->isConnected(new Scope($this->getScopeId()));
+        return $this->accountReadModel->isConnected($this->scope);
     }
 
     public function getLastPostedApiKey(): string
@@ -87,7 +86,7 @@ class Account extends AdminTemplate
 
     public function getHiddenApiKey(): string
     {
-        return $this->accountReadModel->getHiddenApiKey(new Scope($this->getScopeId()));
+        return $this->accountReadModel->getHiddenApiKey($this->scope);
     }
 
     public function getPageUrlForScope(int $scope): string

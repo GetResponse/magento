@@ -11,7 +11,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Cu
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute\MagentoCustomerAttributeCollection;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Route;
@@ -42,9 +41,7 @@ class Export extends AdminTemplate
         $this->customFieldsMappingService = $customFieldsMappingService;
         $this->repository = $repository;
 
-        $this->apiClient = $apiClientFactory->createGetResponseApiClient(
-            new Scope($this->getScopeId())
-        );
+        $this->apiClient = $apiClientFactory->createGetResponseApiClient($this->scope);
     }
 
     /**
@@ -54,7 +51,7 @@ class Export extends AdminTemplate
     {
         return CustomFieldsMappingCollection::createFromRepository(
             $this->repository->getCustomFieldsMappingForRegistration(
-                $this->getScopeId()
+                $this->scope->getScopeId()
             )
         );
     }
@@ -86,9 +83,7 @@ class Export extends AdminTemplate
     {
         $result = [];
 
-        $customFields = $this->customFieldService->getCustomFields(
-            new Scope($this->getScopeId())
-        );
+        $customFields = $this->customFieldService->getCustomFields($this->scope);
 
         foreach ($customFields as $customField) {
             $result[] = [

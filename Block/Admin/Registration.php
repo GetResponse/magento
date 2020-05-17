@@ -13,7 +13,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Ma
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistration;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\ContactList\ContactListCollection;
@@ -39,9 +38,7 @@ class Registration extends AdminTemplate
         $this->customFieldService = $customFieldService;
         $this->customFieldsMappingService = $customFieldsMappingService;
         $this->repository = $repository;
-        $this->apiClient =  $apiClientFactory->createGetResponseApiClient(
-            new Scope($this->getScopeId())
-        );
+        $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->scope);
     }
 
     /**
@@ -57,7 +54,7 @@ class Registration extends AdminTemplate
     {
         return CustomFieldsMappingCollection::createFromRepository(
             $this->repository->getCustomFieldsMappingForRegistration(
-                $this->getScopeId()
+                $this->scope->getScopeId()
             )
         );
     }
@@ -66,7 +63,7 @@ class Registration extends AdminTemplate
     {
         return SubscribeViaRegistrationFactory::createFromArray(
             $this->repository->getRegistrationSettings(
-                $this->getScopeId()
+                $this->scope->getScopeId()
             )
         );
     }
@@ -80,9 +77,7 @@ class Registration extends AdminTemplate
     {
         $result = [];
 
-        $customFields = $this->customFieldService->getCustomFields(
-            new Scope($this->getScopeId())
-        );
+        $customFields = $this->customFieldService->getCustomFields($this->scope);
 
         foreach ($customFields as $customField) {
             $result[] = [

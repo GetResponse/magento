@@ -6,7 +6,6 @@ namespace GetResponse\GetResponseIntegration\Block\Admin;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Store\ReadModel\StoreReadModel;
-use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\ContactList\ContactListService;
@@ -26,9 +25,7 @@ class Lists extends AdminTemplate
         parent::__construct($context, $magentoStore);
 
         $this->storeReadModel = $storeReadModel;
-        $this->apiClient =  $apiClientFactory->createGetResponseApiClient(
-            new Scope($this->getScopeId())
-        );
+        $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->scope);
     }
 
     /**
@@ -47,7 +44,7 @@ class Lists extends AdminTemplate
     public function getSubscriptionConfirmationsSubject(): array
     {
         return $this->apiClient->getSubscriptionConfirmationSubject(
-            $this->storeReadModel->getStoreLanguage(new Scope($this->getScopeId()))
+            $this->storeReadModel->getStoreLanguage($this->scope)
         );
     }
 
@@ -58,7 +55,7 @@ class Lists extends AdminTemplate
     public function getSubscriptionConfirmationsBody(): array
     {
         return $this->apiClient->getSubscriptionConfirmationBody(
-            $this->storeReadModel->getStoreLanguage(new Scope($this->getScopeId()))
+            $this->storeReadModel->getStoreLanguage($this->scope)
         );
     }
 

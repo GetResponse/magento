@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Block\Admin;
 
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GrShareCode\Api\Exception\GetresponseApiException;
@@ -16,6 +17,7 @@ class AdminTemplate extends Template
 {
     protected $magentoStore;
     protected $apiClient;
+    protected $scope;
 
     public function __construct(
         Context $context,
@@ -23,6 +25,7 @@ class AdminTemplate extends Template
     ) {
         parent::__construct($context);
         $this->magentoStore = $magentoStore;
+        $this->scope = new Scope($this->magentoStore->getStoreIdFromUrl());
     }
 
     /**
@@ -48,19 +51,19 @@ class AdminTemplate extends Template
         return $result;
     }
 
-    public function getScopeId()
-    {
-        return $this->magentoStore->getStoreIdFromUrl();
-    }
-
     public function getMagentoStores(): array
     {
         return $this->magentoStore->getMagentoStores();
     }
 
+    public function getScope(): Scope
+    {
+        return $this->scope;
+    }
+
     public function getUrlWithScope($route = '', $params = []): string
     {
-        $scopeId = $this->getScopeId();
+        $scopeId = $this->scope->getScopeId();
 
         if ($scopeId !== null) {
             $route .= '/' . Config::SCOPE_TAG . '/' . $scopeId;

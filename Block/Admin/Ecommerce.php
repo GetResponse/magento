@@ -28,20 +28,17 @@ class Ecommerce extends AdminTemplate
         parent::__construct($context, $magentoStore);
 
         $this->ecommerceReadModel = $ecommerceReadModel;
-
-        $this->apiClient =  $apiClientFactory->createGetResponseApiClient(
-            new Scope($this->getScopeId())
-        );
+        $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->scope);
     }
 
     public function getShopStatus(): string
     {
-        return $this->ecommerceReadModel->getShopStatus(new Scope($this->getScopeId()));
+        return $this->ecommerceReadModel->getShopStatus($this->scope);
     }
 
     public function getCurrentShopId()
     {
-        return $this->ecommerceReadModel->getShopId(new Scope($this->getScopeId()));
+        return $this->ecommerceReadModel->getShopId($this->scope);
     }
 
     public function getEcommerceListId()
