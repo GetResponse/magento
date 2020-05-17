@@ -8,7 +8,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="content">
-            <block name="getresponse.registration" class="GetResponse\GetResponseIntegration\Block\Registration" template="registration.phtml" />
+            <block name="getresponse.registration" class="GetResponse\GetResponseIntegration\Block\Admin\Registration" template="registration.phtml" />
         </referenceContainer>
     </body>
 </page>

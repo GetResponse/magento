@@ -1,78 +1,46 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Ecommerce\ReadModel\EcommerceReadModel;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Command\EditOrderCommandFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
-use Magento\Customer\Model\Session;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\ObjectManagerInterface;
 
-/**
- * Class UpdateOrderHandler
- * @package GetResponse\GetResponseIntegration\Observer
- */
-class UpdateOrderHandler extends Ecommerce implements ObserverInterface
+class UpdateOrderHandler implements ObserverInterface
 {
-    /** @var ScopeConfigInterface */
-    private $scopeConfig;
-
-    /** @var OrderService */
     private $orderService;
-
-    /** @var Logger */
     private $logger;
-
-    /** @var EditOrderCommandFactory */
     private $editOrderCommandFactory;
+    private $magentoStore;
+    private $ecommerceReadModel;
 
-    /**
-     * @param ObjectManagerInterface $objectManager
-     * @param Session $customerSession
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Repository $repository
-     * @param OrderService $orderService
-     * @param ContactService $contactService
-     * @param Logger $getResponseLogger
-     * @param EditOrderCommandFactory $editOrderCommandFactory
-     */
     public function __construct(
-        ObjectManagerInterface $objectManager,
-        Session $customerSession,
-        ScopeConfigInterface $scopeConfig,
-        Repository $repository,
         OrderService $orderService,
-        ContactService $contactService,
         Logger $getResponseLogger,
-        EditOrderCommandFactory $editOrderCommandFactory
+        EditOrderCommandFactory $editOrderCommandFactory,
+        MagentoStore $magentoStore,
+        EcommerceReadModel $ecommerceReadModel
     ) {
-        $this->scopeConfig = $scopeConfig;
         $this->orderService = $orderService;
         $this->logger = $getResponseLogger;
         $this->editOrderCommandFactory = $editOrderCommandFactory;
-
-        parent::__construct(
-            $objectManager,
-            $customerSession,
-            $repository,
-            $contactService
-        );
+        $this->magentoStore = $magentoStore;
+        $this->ecommerceReadModel = $ecommerceReadModel;
     }
 
-    /**
-     * @param EventObserver $observer
-     */
     public function execute(EventObserver $observer)
     {
-        try {
+        $scope = $this->magentoStore->getCurrentScope();
 
-            $shopId = $this->scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
+        try {
+            $shopId = $this->ecommerceReadModel->getShopId($scope);
 
             if (empty($shopId)) {
                 return;
@@ -82,7 +50,8 @@ class UpdateOrderHandler extends Ecommerce implements ObserverInterface
                 $this->editOrderCommandFactory->createForOrderService(
                     $observer->getEvent()->getOrder(),
                     $shopId
-                )
+                ),
+                $scope
             );
 
         } catch (Exception $e) {

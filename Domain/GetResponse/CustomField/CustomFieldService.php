@@ -1,35 +1,32 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\CustomField;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\CustomField\CustomFieldCollection;
 
-/**
- * Class CustomFieldService
- * @package Domain\GetResponse\CustomField
- */
 class CustomFieldService
 {
-    /** @var CustomFieldServiceFactory */
     private $customFieldServiceFactory;
 
-    /**
-     * @param CustomFieldServiceFactory $customFieldServiceFactory
-     */
     public function __construct(CustomFieldServiceFactory $customFieldServiceFactory)
     {
         $this->customFieldServiceFactory = $customFieldServiceFactory;
     }
 
     /**
+     * @param Scope $scope
      * @return CustomFieldCollection
-     * @throws GetresponseApiException
      * @throws ApiException
+     * @throws GetresponseApiException
      */
-    public function getCustomFields()
+    public function getCustomFields(Scope $scope): CustomFieldCollection
     {
-        $grCustomFieldService = $this->customFieldServiceFactory->create();
+        $grCustomFieldService = $this->customFieldServiceFactory->create($scope);
 
         return $grCustomFieldService->getCustomFieldsForMapping();
     }

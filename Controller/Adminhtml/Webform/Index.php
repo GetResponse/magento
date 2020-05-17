@@ -1,37 +1,50 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Webform;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\AccountReadModel;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
+use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
+use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
-/**
- * Class Index
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Webform
- */
 class Index extends AbstractController
 {
     const PAGE_TITLE = 'Add contacts via GetResponse forms';
 
-    /** @var PageFactory */
-    protected $resultPageFactory;
+    private $resultPageFactory;
+    private $magentoStore;
+    private $accountReadModel;
 
-    /**
-     * @param Context $context
-     * @param PageFactory $resultPageFactory
-     */
-    public function __construct(Context $context, PageFactory $resultPageFactory) {
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        MagentoStore $magentoStore,
+        AccountReadModel $accountReadModel
+    ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
+        $this->magentoStore = $magentoStore;
+        $this->accountReadModel = $accountReadModel;
     }
 
-    /**
-     * @return ResponseInterface|Page
-     */
     public function execute()
     {
+        if ($this->magentoStore->shouldRedirectToStore()) {
+            return $this->redirectToStore(Route::WEBFORM_INDEX_ROUTE);
+        }
+
+        $scope = new Scope($this->magentoStore->getStoreIdFromUrl());
+
+        if (!$this->accountReadModel->isConnected($scope)) {
+            return $this->redirectToStore(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
 

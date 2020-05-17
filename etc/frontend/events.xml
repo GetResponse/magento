@@ -28,9 +28,9 @@
         <observer name="add_cart_to_getresponse" instance="GetResponse\GetResponseIntegration\Observer\CreateCartHandler"/>
     </event>
 
-    <event name="newsletter_subscriber_save_commit_after">
-        <observer name="customer_subscribed" instance="GetResponse\GetResponseIntegration\Observer\CustomerSubscribed" />
-        <observer name="new_subscriber_from_newsletter" instance="GetResponse\GetResponseIntegration\Observer\SubscriberSubscribed"/>
+    <event name="newsletter_subscriber_save_after">
+        <observer name="new_subscriber_from_newsletter" instance="GetResponse\GetResponseIntegration\Observer\SubscribeFromNewsletter"/>
         <observer name="subscriber_or_customer_unsubscribed" instance="GetResponse\GetResponseIntegration\Observer\SubscriberOrCustomerUnsubscribed" />
+        <observer name="customer_register" instance="GetResponse\GetResponseIntegration\Observer\CustomerSubscribedDuringRegistration" />
     </event>
 </config>

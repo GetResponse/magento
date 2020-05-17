@@ -1,41 +1,39 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductUrlFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\ProductReadModel;
+use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\Query\GetProduct;
 use GrShareCode\Product\Variant\Variant;
 use GrShareCode\Product\Variant\VariantsCollection;
+use Magento\Quote\Model\Quote\Item;
 
-/**
- * Class VariantFactorySimple
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant
- */
 class VariantsFactorySimple
 {
-    /** @var Repository */
-    private $magentoRepository;
-
-    /** @var ProductUrlFactory */
     private $productUrlFactory;
+    private $productReadModel;
 
-    /**
-     * @param Repository $magentoRepository
-     * @param ProductUrlFactory $productUrlFactory
-     */
-    public function __construct(Repository $magentoRepository, ProductUrlFactory $productUrlFactory)
-    {
-        $this->magentoRepository = $magentoRepository;
+    public function __construct(
+        ProductUrlFactory $productUrlFactory,
+        ProductReadModel $productReadModel
+    ) {
         $this->productUrlFactory = $productUrlFactory;
+        $this->productReadModel = $productReadModel;
     }
 
     /**
-     * @param \Magento\Quote\Model\Quote\Item $quoteItem
+     * @param Item $quoteItem
      * @return VariantsCollection
      */
-    public function fromQuoteItem(\Magento\Quote\Model\Quote\Item $quoteItem)
+    public function fromQuoteItem(Item $quoteItem): VariantsCollection
     {
         $variantCollection = new VariantsCollection();
-        $magentoProduct = $this->magentoRepository->getProductById($quoteItem->getProduct()->getId());
+        $magentoProduct = $this->productReadModel->getProduct(
+            new GetProduct($quoteItem->getProduct()->getId())
+        );
 
         $amountBase = $magentoProduct->getPriceInfo()->getPrice('final_price')->getAmount();
 
@@ -62,10 +60,12 @@ class VariantsFactorySimple
      * @param \Magento\Sales\Model\Order\Item $orderItem
      * @return VariantsCollection
      */
-    public function fromOrderItem(\Magento\Sales\Model\Order\Item $orderItem)
+    public function fromOrderItem(\Magento\Sales\Model\Order\Item $orderItem): VariantsCollection
     {
         $variantCollection = new VariantsCollection();
-        $magentoProduct = $this->magentoRepository->getProductById($orderItem->getProduct()->getId());
+        $magentoProduct = $this->productReadModel->getProduct(
+            new GetProduct($orderItem->getProduct()->getId())
+        );
 
         $amountBase = $magentoProduct->getPriceInfo()->getPrice('final_price')->getAmount();
 
@@ -87,5 +87,4 @@ class VariantsFactorySimple
 
         return $variantCollection;
     }
-
 }

@@ -14,7 +14,7 @@ class SubscribeViaRegistrationFactory
     public static function createFromArray(array $data)
     {
         if (empty($data)) {
-            return new SubscribeViaRegistration(0, 0, '', 0, '');
+            return new SubscribeViaRegistration(0, 0, '', null, '');
         }
 
         return new SubscribeViaRegistration(

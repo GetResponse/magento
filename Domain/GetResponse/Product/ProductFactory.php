@@ -1,9 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Product;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant\ComplexVariantFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant\SimpleVariantFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\ProductReadModel;
+use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\Query\GetProduct;
 use GrShareCode\Product\Product;
 use InvalidArgumentException;
 use Magento\Catalog\Model\Product as MagentoProduct;
@@ -15,60 +19,36 @@ use Magento\GroupedProduct\Model\Product\Type\Grouped;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Sales\Model\Order\Item as OrderItem;
 
-/**
- * Class ProductFactory
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\Product
- */
 class ProductFactory
 {
-    /** @var Repository */
-    private $magentoRepository;
-
-    /** @var SimpleVariantFactory */
     private $variantFactorySimple;
-
-    /** @var ProductUrlFactory */
     private $productUrlFactory;
-
-    /** @var CategoriesFactory */
     private $categoriesFactory;
-
-    /** @var ComplexVariantFactory */
     private $variantsFactoryComplex;
+    private $productReadModel;
 
-    /**
-     * @param Repository $magentoRepository
-     * @param SimpleVariantFactory $variantFactorySimple
-     * @param ComplexVariantFactory $variantsFactoryComplex
-     * @param ProductUrlFactory $productUrlFactory
-     * @param CategoriesFactory $categoriesFactory
-     */
     public function __construct(
-        Repository $magentoRepository,
         SimpleVariantFactory $variantFactorySimple,
         ComplexVariantFactory $variantsFactoryComplex,
         ProductUrlFactory $productUrlFactory,
-        CategoriesFactory $categoriesFactory
+        CategoriesFactory $categoriesFactory,
+        ProductReadModel $productReadModel
     ) {
-        $this->magentoRepository = $magentoRepository;
         $this->variantFactorySimple = $variantFactorySimple;
         $this->variantsFactoryComplex = $variantsFactoryComplex;
         $this->productUrlFactory = $productUrlFactory;
         $this->categoriesFactory = $categoriesFactory;
+        $this->productReadModel = $productReadModel;
     }
 
-    /**
-     * @param Item $quoteItem
-     * @return Product
-     */
     public function fromMagentoQuoteItem(Item $quoteItem)
     {
         switch ($quoteItem->getProductType()) {
-
             case Configurable::TYPE_CODE:
             case Type::TYPE_BUNDLE:
-
-                $magentoProduct = $this->magentoRepository->getProductById($quoteItem->getProduct()->getId());
+                $magentoProduct = $this->productReadModel->getProduct(
+                    new GetProduct($quoteItem->getProduct()->getId())
+                );
 
                 $product = new Product(
                     (int)$quoteItem->getProduct()->getId(),
@@ -87,8 +67,9 @@ class ProductFactory
             case Type::TYPE_VIRTUAL:
             case Grouped::TYPE_CODE:
             case DownloadableType::TYPE_DOWNLOADABLE:
-
-                $magentoProduct = $this->magentoRepository->getProductById($quoteItem->getProduct()->getId());
+                $magentoProduct = $this->productReadModel->getProduct(
+                    new GetProduct($quoteItem->getProduct()->getId())
+                );
 
                 $product = new Product(
                     $this->getProductIdFromMagentoProduct($magentoProduct),
@@ -108,54 +89,40 @@ class ProductFactory
         }
     }
 
-    /**
-     * @param MagentoProduct $magentoProduct
-     * @return int
-     */
-    private function getProductIdFromMagentoProduct(MagentoProduct $magentoProduct)
+    private function getProductIdFromMagentoProduct(MagentoProduct $magentoProduct): int
     {
-        if ((int)$magentoProduct->getVisibility() === Visibility::VISIBILITY_NOT_VISIBLE) {
-
-            if ($parentProductIds = $this->magentoRepository->getProductParentConfigurableById($magentoProduct->getId())) {
-                $magentoParentProduct = $this->magentoRepository->getProductById($parentProductIds[0]);
-
-                return (int)$magentoParentProduct->getId();
-            }
+        if ($magentoProduct->getVisibility() !== Visibility::VISIBILITY_NOT_VISIBLE) {
+            return (int)$magentoProduct->getId();
         }
 
-        return (int)$magentoProduct->getId();
+        $magentoParentProduct = $this->productReadModel->getProductParent(
+            new GetProduct($magentoProduct->getId())
+        );
+
+        return (int)$magentoParentProduct->getId();
     }
 
-    /**
-     * @param MagentoProduct $magentoProduct
-     * @return string
-     */
-    private function getProductNameFromMagentoProduct(MagentoProduct $magentoProduct)
+    private function getProductNameFromMagentoProduct(MagentoProduct $magentoProduct): string
     {
-        if ((int)$magentoProduct->getVisibility() === Visibility::VISIBILITY_NOT_VISIBLE) {
-
-            if ($parentProductIds = $this->magentoRepository->getProductParentConfigurableById($magentoProduct->getId())) {
-                $magentoParentProduct = $this->magentoRepository->getProductById($parentProductIds[0]);
-
-                return $magentoParentProduct->getName();
-            }
+        if ($magentoProduct->getVisibility() !== Visibility::VISIBILITY_NOT_VISIBLE) {
+            return $magentoProduct->getName();
         }
 
-        return $magentoProduct->getName();
+        $magentoParentProduct = $this->productReadModel->getProductParent(
+            new GetProduct($magentoProduct->getId())
+        );
+
+        return $magentoParentProduct->getName();
     }
 
-    /**
-     * @param OrderItem $orderItem
-     * @return Product
-     */
     public function fromMagentoOrderItem(OrderItem $orderItem)
     {
         switch ($orderItem->getProductType()) {
-
             case Configurable::TYPE_CODE:
             case Type::TYPE_BUNDLE:
-
-                $magentoProduct = $this->magentoRepository->getProductById($orderItem->getProduct()->getId());
+                $magentoProduct = $this->productReadModel->getProduct(
+                    new GetProduct($orderItem->getProduct()->getId())
+                );
 
                 $product = new Product(
                     (int)$orderItem->getProduct()->getId(),
@@ -174,9 +141,9 @@ class ProductFactory
             case Type::TYPE_VIRTUAL:
             case Grouped::TYPE_CODE:
             case DownloadableType::TYPE_DOWNLOADABLE:
-
-
-                $magentoProduct = $this->magentoRepository->getProductById($orderItem->getProduct()->getId());
+                $magentoProduct = $this->productReadModel->getProduct(
+                    new GetProduct($orderItem->getProduct()->getId())
+                );
 
                 $product = new Product(
                     $this->getProductIdFromMagentoProduct($magentoProduct),
@@ -193,9 +160,6 @@ class ProductFactory
 
             default:
                 throw new InvalidArgumentException('Invalid Quote Type.');
-
         }
-
     }
-
 }

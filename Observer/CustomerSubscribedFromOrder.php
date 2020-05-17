@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
@@ -6,63 +9,56 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactCustomF
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
+use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\CustomerReadModel;
+use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\Query\CustomerId;
+use GetResponse\GetResponseIntegration\Domain\Magento\Order\ReadModel\OrderReadModel;
+use GetResponse\GetResponseIntegration\Domain\Magento\Order\ReadModel\Query\GetOrder;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\Subscriber\ReadModel\Query\SubscriberEmail;
+use GetResponse\GetResponseIntegration\Domain\Magento\Subscriber\ReadModel\SubscriberReadModel;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\ObjectManagerInterface;
+use Magento\Newsletter\Model\Subscriber;
 
-/**
- * Class CustomerSubscribedFromOrder
- * @package GetResponse\GetResponseIntegration\Observer
- */
 class CustomerSubscribedFromOrder implements ObserverInterface
 {
-    /** @var ObjectManagerInterface */
-    protected $_objectManager;
-
-    /** @var Repository */
     private $repository;
-
-    /** @var ContactService */
     private $contactService;
-
-    /** @var ContactCustomFieldsCollectionFactory */
     private $contactCustomFieldsCollectionFactory;
-
-    /** @var SubscribeViaRegistrationService */
     private $subscribeViaRegistrationService;
+    private $magentoStore;
+    private $subscriberReadModel;
+    private $customerReadModel;
+    private $orderReadModel;
 
-    /**
-     * @param ObjectManagerInterface $objectManager
-     * @param Repository $repository
-     * @param ContactService $contactService
-     * @param SubscribeViaRegistrationService $subscribeViaRegistrationService
-     * @param ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory
-     */
     public function __construct(
-        ObjectManagerInterface $objectManager,
         Repository $repository,
         ContactService $contactService,
         SubscribeViaRegistrationService $subscribeViaRegistrationService,
-        ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory
+        ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory,
+        MagentoStore $magentoStore,
+        SubscriberReadModel $subscriberReadModel,
+        CustomerReadModel $customerReadModel,
+        OrderReadModel $orderReadModel
     ) {
-        $this->_objectManager = $objectManager;
         $this->repository = $repository;
         $this->contactService = $contactService;
         $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
         $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
+        $this->magentoStore = $magentoStore;
+        $this->subscriberReadModel = $subscriberReadModel;
+        $this->customerReadModel = $customerReadModel;
+        $this->orderReadModel = $orderReadModel;
     }
 
-    /**
-     * @param EventObserver $observer
-     * @return $this
-     */
     public function execute(EventObserver $observer)
     {
+        $scope = $this->magentoStore->getCurrentScope();
         $registrationSettings = SubscribeViaRegistrationFactory::createFromArray(
-            $this->repository->getRegistrationSettings()
+            $this->repository->getRegistrationSettings($scope->getScopeId())
         );
 
         if (!$registrationSettings->isEnabled()) {
@@ -76,9 +72,16 @@ class CustomerSubscribedFromOrder implements ObserverInterface
             return $this;
         }
 
-        $order = $this->repository->loadOrder($orderId);
-        $customer = $this->repository->loadCustomer($order->getCustomerId());
-        $subscriber = $this->repository->loadSubscriberByEmail($customer->getEmail());
+        $order = $this->orderReadModel->getOrder(new GetOrder($orderId));
+
+        $customer = $this->customerReadModel->getCustomerById(
+            new CustomerId($order->getCustomerId())
+        );
+
+        /** @var Subscriber $subscriber */
+        $subscriber = $this->subscriberReadModel->loadSubscriberByEmail(
+            new SubscriberEmail($customer->getEmail())
+        );
 
         if (!$subscriber->isSubscribed()) {
             return $this;
@@ -86,7 +89,9 @@ class CustomerSubscribedFromOrder implements ObserverInterface
 
         $contactCustomFieldsCollection = $this->contactCustomFieldsCollectionFactory->createForCustomer(
             $customer,
-            $this->subscribeViaRegistrationService->getCustomFieldMappingSettings(),
+            $this->subscribeViaRegistrationService->getCustomFieldMappingSettings(
+                $scope
+            ),
             $registrationSettings->isUpdateCustomFieldsEnalbed()
         );
 
@@ -130,7 +135,8 @@ class CustomerSubscribedFromOrder implements ObserverInterface
                 $contactListId,
                 $dayOfCycle,
                 $contactCustomFieldsCollection,
-                $updateIfAlreadyExists
+                $updateIfAlreadyExists,
+                $this->magentoStore->getCurrentScope()
             );
         } catch (ApiException $e) {
         } catch (GetresponseApiException $e) {

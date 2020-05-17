@@ -1,72 +1,34 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
 
-/**
- * Class Account
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse
- */
 class Account
 {
-    /** @var string */
-    private $accountId;
-
-    /** @var string */
     private $firstName;
-
-    /** @var string */
     private $lastName;
-
-    /** @var string */
     private $email;
-
-    /** @var string */
     private $companyName;
-
-    /** @var string */
     private $phone;
-
-    /** @var string */
     private $state;
-
-    /** @var string */
     private $city;
-
-    /** @var string */
     private $street;
-
-    /** @var string */
     private $zipCode;
-
-    /** @var string */
     private $countryCode;
 
-    /**
-     * @param string $accountId
-     * @param string $firstName
-     * @param string $lastName
-     * @param string $email
-     * @param string $companyName
-     * @param string $phone
-     * @param string $state
-     * @param string $city
-     * @param string $street
-     * @param string $zipCode
-     * @param string $countryCode
-     */
     public function __construct(
-        $accountId,
-        $firstName,
-        $lastName,
-        $email,
-        $companyName,
-        $phone,
-        $state,
-        $city,
-        $street,
-        $zipCode,
-        $countryCode
+        string $firstName,
+        string $lastName,
+        string $email,
+        string $companyName,
+        string $phone,
+        string $state,
+        string $city,
+        string $street,
+        string $zipCode,
+        string $countryCode
     ) {
-        $this->accountId = $accountId;
         $this->firstName = $firstName;
         $this->lastName = $lastName;
         $this->email = $email;
@@ -79,91 +41,67 @@ class Account
         $this->countryCode = $countryCode;
     }
 
-    /**
-     * @return string
-     */
-    public function getAccountId()
-    {
-        return $this->accountId;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFirstName()
+    public function getFirstName(): string
     {
         return $this->firstName;
     }
 
-    /**
-     * @return string
-     */
-    public function getLastName()
+    public function getLastName(): string
     {
         return $this->lastName;
     }
 
-    /**
-     * @return string
-     */
-    public function getEmail()
+    public function getEmail(): string
     {
         return $this->email;
     }
 
-    /**
-     * @return string
-     */
-    public function getCompanyName()
+    public function getCompanyName(): string
     {
         return $this->companyName;
     }
 
-    /**
-     * @return string
-     */
-    public function getPhone()
+    public function getPhone(): string
     {
         return $this->phone;
     }
 
-    /**
-     * @return string
-     */
-    public function getState()
+    public function getState(): string
     {
         return $this->state;
     }
 
-    /**
-     * @return string
-     */
-    public function getCity()
+    public function getCity(): string
     {
         return $this->city;
     }
 
-    /**
-     * @return string
-     */
-    public function getStreet()
+    public function getStreet(): string
     {
         return $this->street;
     }
 
-    /**
-     * @return string
-     */
-    public function getZipCode()
+    public function getZipCode(): string
     {
         return $this->zipCode;
     }
 
-    /**
-     * @return string
-     */
-    public function getCountryCode()
+    public function getCountryCode(): string
     {
         return $this->countryCode;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'firstName' => $this->getFirstName(),
+            'lastName' => $this->getLastName(),
+            'email' => $this->getEmail(),
+            'phone' => $this->getPhone(),
+            'companyName' => $this->getCompanyName(),
+            'city' => $this->getCity(),
+            'street' => $this->getStreet(),
+            'zipCode' => $this->getZipCode()
+        ];
     }
 }

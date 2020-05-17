@@ -1,63 +1,45 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Webform;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettingsFactory;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Message;
+use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Cache\TypeListInterface;
-use Magento\Framework\App\Request\Http;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\Result\Redirect;
-use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\PageCache\Model\Cache\Type;
 
-/**
- * Class Save
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Webform
- */
 class Save extends AbstractController
 {
-    const BACK_URL = 'getresponse/webform/index';
     const PAGE_TITLE = 'Add contacts via GetResponse forms';
 
-    /** @var PageFactory */
-    protected $resultPageFactory;
-
-    /** @var Http */
-    private $request;
-
-    /** @var Repository */
+    private $resultPageFactory;
     private $repository;
-
-    /** @var TypeListInterface */
     private $cacheTypeList;
+    private $magentoStore;
 
-    /**
-     * @param Context $context
-     * @param TypeListInterface $cacheTypeList
-     * @param PageFactory $resultPageFactory
-     * @param Repository $repository
-     */
     public function __construct(
         Context $context,
         TypeListInterface $cacheTypeList,
         PageFactory $resultPageFactory,
-        Repository $repository
+        Repository $repository,
+        MagentoStore $magentoStore
     ) {
         parent::__construct($context);
         $this->cacheTypeList = $cacheTypeList;
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
+        $this->magentoStore = $magentoStore;
     }
 
-    /**
-     * @return ResponseInterface|Redirect|Page
-     */
     public function execute()
     {
         $webForm = WebformSettingsFactory::createFromArray($this->request->getPostValue());
@@ -74,31 +56,32 @@ class Save extends AbstractController
             }
         }
 
-        $this->repository->saveWebformSettings($webForm);
+        $this->repository->saveWebformSettings(
+            $webForm,
+            $this->magentoStore->getStoreIdFromUrl()
+        );
+
         $this->cacheTypeList->cleanType(Type::TYPE_IDENTIFIER);
-        $this->messageManager->addSuccessMessage($webForm->isEnabled() ? Message::FORM_PUBLISHED : Message::FORM_UNPUBLISHED);
+        $message = $webForm->isEnabled() ? Message::FORM_PUBLISHED : Message::FORM_UNPUBLISHED;
+        $this->messageManager->addSuccessMessage($message);
 
         $resultRedirect = $this->resultRedirectFactory->create();
-        $resultRedirect->setPath(self::BACK_URL);
+        $resultRedirect->setPath(Route::WEBFORM_INDEX_ROUTE);
 
         return $resultRedirect;
     }
 
-    /**
-     * @param WebformSettings $webForm
-     * @return string
-     */
-    private function validateWebFormData(WebformSettings $webForm)
+    private function validateWebFormData(WebformSettings $webForm): string
     {
-        if (strlen($webForm->getWebformId()) === 0 && strlen($webForm->getSidebar()) === 0) {
+        if ($webForm->getWebformId() === '' && $webForm->getSidebar() === '') {
             return Message::SELECT_FORM_POSITION_AND_PLACEMENT;
         }
 
-        if (strlen($webForm->getWebformId()) === 0) {
+        if ($webForm->getWebformId() === '') {
             return Message::SELECT_FORM;
         }
 
-        if (strlen($webForm->getSidebar()) === 0) {
+        if ($webForm->getSidebar() === '') {
             return Message::SELECT_FORM_POSITION;
         }
 

@@ -1,5 +1,7 @@
 <?php
-use GetResponse\GetResponseIntegration\Block\Lists;
+declare(strict_types=1);
+
+use GetResponse\GetResponseIntegration\Block\Admin\Lists;
 use GrShareCode\ContactList\FromFields;
 use GrShareCode\ContactList\FromFieldsCollection;
 
@@ -10,11 +12,12 @@ $confirmationSubjects = $block->getSubscriptionConfirmationsSubject();
 $confirmationBodies = $block->getSubscriptionConfirmationsBody();
 ?>
 
-<form id="createNewListForm" action="<?php echo $block->getUrl('getresponse/lists/create'); ?>" method="POST">
+<form id="createNewListForm" action="<?php echo $block->getUrlWithScope('getresponse/lists/create'); ?>" method="POST">
     <?php echo $block->getBlockHtml('formkey'); ?>
     <input type="hidden" name="back_url" value="<?php echo $block->getBackUrl()?>" />
 
     <div class="page-main-actions">
+        <?php require('switch_scope.phtml') ?>
         <div class="page-main-hint"></div>
         <div class="page-actions">
             <div class="page-actions-inner">

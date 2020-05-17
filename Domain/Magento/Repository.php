@@ -1,652 +1,433 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\Account;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistration;
 use GetResponse\GetResponseIntegration\Helper\Config;
-use GrShareCode\Account\Account;
-use Magento\Catalog\Model\Category;
-use Magento\Catalog\Model\Product;
-use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
-use Magento\Directory\Model\Country;
 use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
-use Magento\Framework\Module\ModuleList;
-use Magento\Framework\ObjectManagerInterface;
-use Magento\Sales\Model\Order;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
-use Magento\Store\Model\StoreManagerInterface;
 
-/**
- * Class Repository
- * @package GetResponse\GetResponseIntegration\Domain\Magento
- */
 class Repository
 {
-    /** @var ObjectManagerInterface */
-    private $_objectManager;
-
-    /** @var ScopeConfigInterface */
-    private $_scopeConfig;
-
-    /** @var WriterInterface */
+    private $scopeConfig;
     private $configWriter;
-
-    /** @var Manager */
     private $cacheManager;
 
-    /**
-     * @param ObjectManagerInterface $objectManager
-     * @param ScopeConfigInterface $scopeConfig
-     * @param WriterInterface $configWriter
-     * @param Manager $cacheManager
-     */
     public function __construct(
-        ObjectManagerInterface $objectManager,
         ScopeConfigInterface $scopeConfig,
         WriterInterface $configWriter,
         Manager $cacheManager
     ) {
-        $this->_objectManager = $objectManager;
-        $this->_scopeConfig = $scopeConfig;
+        $this->scopeConfig = $scopeConfig;
         $this->configWriter = $configWriter;
         $this->cacheManager = $cacheManager;
     }
 
-    /**
-     * @return string
-     */
-    public function getShopId()
+    public function getShopId($scopeId)
     {
-        $id = $this->_scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
-        return strlen($id) > 0 ? $id : '';
+        return $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_SHOP_ID,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
     }
 
-    /**
-     * @return string
-     */
-    public function getShopStatus()
+    public function getShopStatus($scopeId): string
     {
-        $status = $this->_scopeConfig->getValue(Config::CONFIG_DATA_SHOP_STATUS);
+        $status = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_SHOP_STATUS,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
         return 'enabled' === $status ? 'enabled' : 'disabled';
     }
 
-    /**
-     * @return mixed
-     */
-    public function getCustomers()
+    public function getAccountInfo($scopeId): array
     {
-        $customers = $this->_objectManager->get('Magento\Customer\Model\Customer');
-        return $customers->getCollection()->getData();
+        $data = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_ACCOUNT,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        if (empty($data)) {
+            return [];
+        }
+
+        return json_decode($data, true);
     }
 
-    /**
-     * @param string $categoryId
-     * @return Category
-     */
-    public function getCategoryById($categoryId)
-    {
-        return $this->_objectManager
-            ->create(Category::class)
-            ->load($categoryId);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getFullCustomersDetails()
-    {
-        $customers = $this->_objectManager->get('Magento\Newsletter\Model\Subscriber');
-        $customers = $customers->getCollection();
-
-        $customerEntityTable = $customers->getTable('customer_entity');
-        $customerAddressEntityTable = $customers->getTable('customer_address_entity');
-
-        $customers->getSelect()
-            ->joinLeft(['customer_entity' => $customerEntityTable], 'customer_entity.entity_id=main_table.customer_id',
-                ['*'])
-            ->joinLeft(
-                ['customer_address_entity' => $customerAddressEntityTable],
-                'customer_address_entity.entity_id=default_billing',
-                ['*']
-            )
-            ->where('subscriber_status=1');
-
-        return $customers;
-    }
-
-    /**
-     * @return array
-     */
-    public function getAccountInfo()
-    {
-        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_ACCOUNT));
-    }
-
-    /**
-     * @return string
-     */
-    public function getMagentoCountryCode()
-    {
-        return $this->_scopeConfig->getValue('general/locale/code');
-    }
-
-    /**
-     * @return string
-     */
-    public function getMagentoCurrencyCode()
-    {
-        $storeManager = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface');
-        return $storeManager->getStore()->getCurrentCurrencyCode();
-    }
-
-    /**
-     * @param string $email
-     *
-     * @return mixed
-     */
-    public function loadSubscriberByEmail($email)
-    {
-        $subscriber = $this->_objectManager
-            ->create('Magento\Newsletter\Model\Subscriber')
-            ->loadByEmail($email);
-
-        return $subscriber;
-    }
-
-    /**
-     * @param int $id
-     *
-     * @return mixed
-     */
-    public function loadOrder($id)
-    {
-        $order_object = $this->_objectManager->create('Magento\Sales\Model\Order');
-        return $order_object->load($id);
-    }
-
-    /**
-     * @param int $id
-     *
-     * @return mixed
-     */
-    public function loadCustomer($id)
-    {
-        $customer_object = $this->_objectManager->create('Magento\Customer\Model\Customer');
-        return $customer_object->load($id);
-    }
-
-    /**
-     * @param int $productId
-     * @return Product
-     */
-    public function getProductById($productId)
-    {
-        $productObject = $this->_objectManager->create(\Magento\Catalog\Model\Product::class);
-        return $productObject->load($productId);
-    }
-
-    /**
-     * @param int $productId
-     * @return Product
-     */
-    public function getProductParentConfigurableById($productId)
-    {
-        $productObject = $this->_objectManager->create(Configurable::class);
-        return $productObject->getParentIdsByChild($productId);
-    }
-
-    /**
-     * @param int $productId
-     * @return Product
-     */
-    public function getProductConfigurableChildrenById($productId)
-    {
-        $productObject = $this->_objectManager->create(Configurable::class);
-        return $productObject->getChildrenIds($productId);
-    }
-
-    /**
-     * @param int $id
-     *
-     * @return mixed
-     */
-    public function loadCustomerAddress($id)
-    {
-        $address_object = $this->_objectManager->get('Magento\Customer\Model\Address');
-
-        return $address_object->load($id);
-    }
-
-    /**
-     * @param ConnectionSettings $settings
-     */
-    public function saveConnectionSettings(ConnectionSettings $settings)
+    public function saveConnectionSettings(ConnectionSettings $settings, $scopeId)
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_CONNECTION_SETTINGS,
             json_encode($settings->toArray()),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
 
         $this->cacheManager->clean(['config']);
     }
 
-    /**
-     * @return array
-     */
-    public function getConnectionSettings()
+    public function getConnectionSettings($scopeId): array
     {
-        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_CONNECTION_SETTINGS));
+        $data = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_CONNECTION_SETTINGS,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        if (empty($data)) {
+            return [];
+        }
+
+        return (array) json_decode($data, true);
     }
 
-    /**
-     * @param WebEventTrackingSettings $webEventTracking
-     */
-    public function saveWebEventTracking(WebEventTrackingSettings $webEventTracking)
-    {
+    public function saveWebEventTracking(
+        WebEventTrackingSettings $webEventTracking,
+        $scopeId
+    ) {
         $this->configWriter->save(
             Config::CONFIG_DATA_WEB_EVENT_TRACKING,
             json_encode($webEventTracking->toArray()),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
 
         $this->cacheManager->clean(['config']);
     }
 
-    /**
-     * @return array
-     */
-    public function getWebEventTracking()
+    public function getWebEventTracking($scopeId): array
     {
-        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_WEB_EVENT_TRACKING));
+        $data = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_WEB_EVENT_TRACKING,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        if (empty($data)) {
+            return [];
+        }
+        return json_decode($data, true);
     }
 
-    /**
-     * @param string $status
-     */
-    public function saveShopStatus($status)
+    public function saveShopStatus($status, $scopeId)
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_SHOP_STATUS,
             $status,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
 
         $this->cacheManager->clean(['config']);
     }
 
-    /**
-     * @param string $shopId
-     *
-     */
-    public function saveShopId($shopId)
+    public function saveShopId($shopId, $scopeId)
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_SHOP_ID,
             $shopId,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
 
         $this->cacheManager->clean(['config']);
     }
 
-    /**
-     * @param string $listId
-     *
-     */
-    public function saveEcommerceListId($listId)
+    public function saveEcommerceListId($listId, $scopeId)
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_ECOMMERCE_LIST_ID,
             $listId,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
 
         $this->cacheManager->clean(['config']);
     }
 
-    /**
-     * @param Account $account
-     */
-    public function saveAccountDetails(Account $account)
+    public function saveAccountDetails(Account $account, $scopeId)
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_ACCOUNT,
-            json_encode($this->getAccountAsArray($account)),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            json_encode($account->toArray()),
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
 
         $this->cacheManager->clean(['config']);
     }
 
-    /**
-     * @return array
-     */
-    public function getRegistrationSettings()
+    public function getRegistrationSettings($scopeId): array
     {
-        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_REGISTRATION_SETTINGS));
+        $data = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_REGISTRATION_SETTINGS,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        if (empty($data)) {
+            return [];
+        }
+
+        return json_decode($data, true);
     }
 
-    /**
-     * @return array
-     */
-    public function getNewsletterSettings()
+    public function getNewsletterSettings($scopeId): array
     {
-        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_NEWSLETTER_SETTINGS));
+        $data = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_NEWSLETTER_SETTINGS,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        if (empty($data)) {
+            return [];
+        }
+
+        return json_decode($data, true);
     }
 
-    /**
-     * @param SubscribeViaRegistration $registrationSettings
-     */
-    public function saveRegistrationSettings(SubscribeViaRegistration $registrationSettings)
-    {
+    public function saveRegistrationSettings(
+        SubscribeViaRegistration $registrationSettings,
+        $scopeId
+    ) {
         $this->configWriter->save(
             Config::CONFIG_DATA_REGISTRATION_SETTINGS,
             json_encode($registrationSettings->toArray()),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
         $this->cacheManager->clean(['config']);
     }
 
-    /**
-     * @param NewsletterSettings $newsletterSettings
-     */
-    public function saveNewsletterSettings(NewsletterSettings $newsletterSettings)
-    {
+    public function saveNewsletterSettings(
+        NewsletterSettings $newsletterSettings,
+        $scopeId
+    ) {
         $this->configWriter->save(
             Config::CONFIG_DATA_NEWSLETTER_SETTINGS,
             json_encode($newsletterSettings->toArray()),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
         $this->cacheManager->clean(['config']);
     }
 
-    /**
-     * @return array
-     */
-    public function getCustomFieldsMappingForRegistration()
+    public function getCustomFieldsMappingForRegistration($scopeId): array
     {
-        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_REGISTRATION_CUSTOMS), true);
+        $data = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_REGISTRATION_CUSTOMS,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        if (empty($data)) {
+            return [];
+        }
+        return json_decode($data, true);
     }
 
-    /**
-     * @param array $data
-     */
-    public function setCustomsOnInit(array $data)
+    public function setCustomsOnInit(array $data, $scopeId)
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_REGISTRATION_CUSTOMS,
             json_encode($data),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
 
         $this->cacheManager->clean(['config']);
     }
 
-    /**
-     * @param CustomFieldsMappingCollection $customFieldsMappingCollection
-     */
-    public function updateCustoms(CustomFieldsMappingCollection $customFieldsMappingCollection)
-    {
+    public function updateCustoms(
+        CustomFieldsMappingCollection $customFieldsMappingCollection,
+        $scopeId
+    ) {
         $this->configWriter->save(
             Config::CONFIG_DATA_REGISTRATION_CUSTOMS,
             json_encode($customFieldsMappingCollection->toArray()),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
 
         $this->cacheManager->clean(['config']);
     }
 
-    /**
-     * @param WebformSettings $webform
-     */
-    public function saveWebformSettings(WebformSettings $webform)
+    public function saveWebformSettings(WebformSettings $webform, $scopeId)
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_WEBFORMS_SETTINGS,
             json_encode($webform->toArray()),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
 
         $this->cacheManager->clean(['config']);
     }
 
-    /**
-     * @return array
-     */
-    public function getWebformSettings()
+    public function getWebformSettings($scopeId): array
     {
-        return (array)json_decode($this->_scopeConfig->getValue(Config::CONFIG_DATA_WEBFORMS_SETTINGS));
+        $data = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_WEBFORMS_SETTINGS,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        if (empty($data)) {
+            return [];
+        }
+        return json_decode($data, true);
     }
 
-    public function clearDatabase()
+    public function clearDatabase($scopeId)
     {
-        $this->clearConnectionSettings();
-        $this->clearRegistrationSettings();
-        $this->clearAccountDetails();
-        $this->clearWebforms();
-        $this->clearWebEventTracking();
-        $this->clearCustoms();
-        $this->clearEcommerceSettings();
-        $this->clearUnauthorizedApiCallDate();
-        $this->clearNewsletterSettings();
-        $this->clearCustomOrigin();
+        $this->clearConnectionSettings($scopeId);
+        $this->clearRegistrationSettings($scopeId);
+        $this->clearAccountDetails($scopeId);
+        $this->clearWebforms($scopeId);
+        $this->clearWebEventTracking($scopeId);
+        $this->clearCustoms($scopeId);
+        $this->clearEcommerceSettings($scopeId);
+        $this->clearUnauthorizedApiCallDate($scopeId);
+        $this->clearNewsletterSettings($scopeId);
+        $this->clearCustomOrigin($scopeId);
 
         $this->cacheManager->clean(['config']);
     }
 
-    private function clearCustomOrigin()
+    private function clearCustomOrigin($scopeId)
     {
         $this->configWriter->delete(
             Config::CONFIG_DATA_ORIGIN_CUSTOM_FIELD_ID,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
     }
 
-    public function clearConnectionSettings()
+    public function clearConnectionSettings($scopeId)
     {
         $this->configWriter->delete(
             Config::CONFIG_DATA_CONNECTION_SETTINGS,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
     }
 
-    public function clearRegistrationSettings()
+    public function clearRegistrationSettings($scopeId)
     {
         $this->configWriter->delete(
             Config::CONFIG_DATA_REGISTRATION_SETTINGS,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
 
         $this->cacheManager->clean(['config']);
     }
 
-    public function clearAccountDetails()
+    public function clearAccountDetails($scopeId)
     {
         $this->configWriter->delete(
             Config::CONFIG_DATA_ACCOUNT,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
     }
 
-    public function clearWebforms()
+    public function clearWebforms($scopeId)
     {
         $this->configWriter->delete(
             Config::CONFIG_DATA_WEBFORMS_SETTINGS,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
     }
 
-    public function clearNewsletterSettings()
+    public function clearNewsletterSettings($scopeId)
     {
         $this->configWriter->delete(
             Config::CONFIG_DATA_NEWSLETTER_SETTINGS,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
 
         $this->cacheManager->clean(['config']);
     }
 
-    public function clearWebEventTracking()
+    public function clearWebEventTracking($scopeId)
     {
         $this->configWriter->delete(
             Config::CONFIG_DATA_WEB_EVENT_TRACKING,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
     }
 
-    public function clearCustoms()
+    public function clearCustoms($scopeId)
     {
         $this->configWriter->delete(
             Config::CONFIG_DATA_REGISTRATION_CUSTOMS,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
     }
 
-    public function clearEcommerceSettings()
+    public function clearEcommerceSettings($scopeId)
     {
         $this->configWriter->delete(
             Config::CONFIG_DATA_SHOP_STATUS,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
 
         $this->configWriter->delete(
             Config::CONFIG_DATA_SHOP_ID,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
 
         $this->configWriter->delete(
             Config::CONFIG_DATA_ECOMMERCE_LIST_ID,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
     }
 
-    /**
-     * @param string $customerId
-     * @return \Magento\Quote\Model\Quote
-     */
-    public function getQuotesByCustomerId($customerId)
-    {
-        return $this->_objectManager
-            ->create(\Magento\Quote\Model\Quote::class)
-            ->getCollection()
-            ->addFieldToFilter('customer_id', (int)$customerId)
-            ->setOrder('created_at', 'desc');
-    }
-
-    /**
-     * @param $quoteId
-     * @return \Magento\Quote\Model\Quote
-     */
-    public function getQuoteById($quoteId)
-    {
-        return $this->_objectManager
-            ->create(\Magento\Quote\Model\Quote::class)
-            ->load($quoteId);
-    }
-
-    /**
-     * @param string $customerId
-     * @return Order[]
-     */
-    public function getOrderByCustomerId($customerId)
-    {
-        return $this->_objectManager->create(Order::class)
-            ->getCollection()
-            ->addFieldToFilter('customer_id', (int)$customerId)
-            ->setOrder('created_at', 'desc');
-    }
-
-    /**
-     * @return string
-     */
-    public function getGetResponsePluginVersion()
-    {
-        $moduleInfo = $this->_objectManager
-            ->create(ModuleList::class)
-            ->getOne('GetResponse_GetResponseIntegration');
-
-        return isset($moduleInfo['setup_version']) ? $moduleInfo['setup_version'] : '';
-    }
-
-    /**
-     * @return \Magento\Store\Api\Data\StoreInterface
-     */
-    public function getStore()
-    {
-        return $this->_objectManager->create(StoreManagerInterface::class)->getStore();
-    }
-
-    /**
-     * @param int $countryId
-     * @return Country
-     */
-    public function getCountryCodeByCountryId($countryId)
-    {
-        return $this->_objectManager
-            ->create(Country::class)
-            ->load($countryId);
-    }
-
-    private function clearUnauthorizedApiCallDate()
+    private function clearUnauthorizedApiCallDate($scopeId)
     {
         $this->configWriter->delete(
             Config::INVALID_REQUEST_DATE_TIME,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
         );
     }
 
-    /**
-     * @return string
-     */
-    public function getEcommerceListId()
+    public function getEcommerceListId($scopeId)
     {
-        $id = $this->_scopeConfig->getValue(Config::CONFIG_DATA_ECOMMERCE_LIST_ID);
-        return strlen($id) > 0 ? $id : '';
+        return $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_ECOMMERCE_LIST_ID,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
     }
 
-    /**
-     * @param Account $account
-     * @return array
-     */
-    private function getAccountAsArray(Account $account)
+    private function getScope($scopeId): string
     {
-        return [
-            'firstName' => $account->getFirstName(),
-            'lastName' => $account->getLastName(),
-            'email' => $account->getEmail(),
-            'phone' => $account->getPhone(),
-            'companyName' => $account->getCompanyName(),
-            'city' => $account->getCity(),
-            'street' => $account->getStreet(),
-            'zipCode' => $account->getZipCode()
-        ];
+        return $scopeId === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_WEBSITES;
     }
 
+    private function getScopeId($scopeId): string
+    {
+        return (string) ($scopeId === null ? Store::DEFAULT_STORE_ID : $scopeId);
+    }
 }

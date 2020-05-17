@@ -1,75 +1,59 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Account;
 
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingService;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GrShareCode\Account\AccountService;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\TrackingCode\TrackingCodeService;
-use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\Request\Http;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\View\Result\Page;
+use Magento\Framework\App\Cache\Manager;
 
-/**
- * Class Save
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings
- */
-class Save extends Action
+class Save extends AbstractController
 {
     const BACK_URL = 'getresponse/account/index';
     const PAGE_TITLE = 'GetResponse account';
     const API_ERROR_MESSAGE = 'The API key seems incorrect. Please check if you typed or pasted it correctly. If you recently generated a new key, please make sure you’re using the right one';
     const API_EMPTY_VALUE_MESSAGE = 'You need to enter API key. This field can\'t be empty';
 
-    /** @var Http */
-    private $request;
-
-    /** @var Repository */
     private $repository;
-
-    /** @var ApiClientFactory */
     private $apiClientFactory;
-
-    /** @var CustomFieldsMappingService */
     private $customFieldsMappingService;
+    private $cacheManager;
 
-    /**
-     * @param Context $context
-     * @param ApiClientFactory $apiClientFactory
-     * @param Repository $repository
-     * @param CustomFieldsMappingService $customFieldsMappingService
-     */
     public function __construct(
         Context $context,
         ApiClientFactory $apiClientFactory,
         Repository $repository,
-        CustomFieldsMappingService $customFieldsMappingService
+        CustomFieldsMappingService $customFieldsMappingService,
+        Manager $cacheManager
     ) {
         parent::__construct($context);
 
-        $this->request = $this->getRequest();
         $this->repository = $repository;
         $this->apiClientFactory = $apiClientFactory;
         $this->customFieldsMappingService = $customFieldsMappingService;
+        $this->cacheManager = $cacheManager;
     }
 
-
-    /**
-     * @return ResponseInterface|Page
-     */
     public function execute()
     {
+        $scopeId = $this->request->getParam(Config::SCOPE_TAG);
         $connectionSettings = ConnectionSettingsFactory::createFromPost($this->request->getPostValue());
 
-        if ('' == $connectionSettings->getApiKey()) {
+        if ('' === $connectionSettings->getApiKey()) {
             $this->messageManager->addErrorMessage(Message::EMPTY_API_KEY);
             return $this->_redirect(Config::PLUGIN_MAIN_PAGE);
         }
@@ -79,23 +63,31 @@ class Save extends Action
             $grApiClient->checkConnection();
 
             $accountService = new AccountService($grApiClient);
-            $account = $accountService->getAccount();
+
+            $account = AccountFactory::createFromShareCodeAccount(
+                $accountService->getAccount()
+            );
 
             $trackingCodeService = new TrackingCodeService($grApiClient);
             $trackingCode = $trackingCodeService->getTrackingCode();
 
-            $this->repository->saveConnectionSettings($connectionSettings);
+            $this->repository->saveConnectionSettings($connectionSettings, $scopeId);
 
             $this->repository->saveWebEventTracking(
                 WebEventTrackingSettingsFactory::createFromArray([
                     'isEnabled' => false,
                     'isFeatureTrackingEnabled' => $trackingCode->isFeatureEnabled(),
                     'codeSnippet' => $trackingCode->getSnippet()
-                ])
+                ]),
+                $scopeId
             );
-            $this->repository->saveAccountDetails($account);
+            $this->repository->saveAccountDetails($account, $scopeId);
 
-            $this->customFieldsMappingService->setDefaultCustomFields();
+            $this->customFieldsMappingService->setDefaultCustomFields(
+                new Scope($scopeId)
+            );
+
+            $this->cacheManager->clean(['config']);
 
             $this->messageManager->addSuccessMessage(Message::ACCOUNT_CONNECTED);
 

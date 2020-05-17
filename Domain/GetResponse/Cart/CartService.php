@@ -1,9 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Cart;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\Quote\ReadModel\Query\QuoteById;
+use GetResponse\GetResponseIntegration\Domain\Magento\Quote\ReadModel\QuoteReadModel;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Cart\Cart;
 use GrShareCode\Cart\Command\AddCartCommand;
@@ -12,55 +17,38 @@ use GrShareCode\Product\ProductsCollection;
 use GrShareCode\Product\Variant\Variant;
 use Magento\Checkout\Helper\Cart as CartHelper;
 use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\Quote\Item;
 
-/**
- * Class CartService
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\Cart
- */
 class CartService
 {
-    /** @var CartServiceFactory */
     private $cartServiceFactory;
-
-    /** @var Repository */
-    private $repository;
-
-    /** @var ProductFactory */
     private $productFactory;
-
-    /** @var CartHelper */
     private $cartHelper;
+    private $quoteReadModel;
 
-    /**
-     * @param CartServiceFactory $cartServiceFactory
-     * @param Repository $repository
-     * @param ProductFactory $productFactory
-     * @param CartHelper $cartHelper
-     */
     public function __construct(
         CartServiceFactory $cartServiceFactory,
-        Repository $repository,
         ProductFactory $productFactory,
-        CartHelper $cartHelper
+        CartHelper $cartHelper,
+        QuoteReadModel $quoteReadModel
     ) {
         $this->cartServiceFactory = $cartServiceFactory;
-        $this->repository = $repository;
         $this->productFactory = $productFactory;
         $this->cartHelper = $cartHelper;
+        $this->quoteReadModel = $quoteReadModel;
     }
 
     /**
      * @param int $quoteId
      * @param string $contactListId
      * @param string $grShopId
-     * @throws GetresponseApiException
+     * @param Scope $scope
      * @throws ApiException
+     * @throws GetresponseApiException
      */
-    public function sendCart($quoteId, $contactListId, $grShopId)
+    public function sendCart($quoteId, $contactListId, $grShopId, Scope $scope)
     {
-        $cartService = $this->cartServiceFactory->create();
-        $quote = $this->repository->getQuoteById($quoteId);
+        $cartService = $this->cartServiceFactory->create($scope);
+        $quote = $this->quoteReadModel->getQuoteById(new QuoteById($quoteId));
         $cart = $this->getCart($quote);
         $cartService->sendCart(
             new AddCartCommand(
@@ -72,15 +60,10 @@ class CartService
         );
     }
 
-    /**
-     * @param Quote $quote
-     * @return Cart
-     */
-    private function getCart(Quote $quote)
+    private function getCart(Quote $quote): Cart
     {
         $productCollection = new ProductsCollection();
 
-        /** @var Item $quoteItem */
         foreach ($quote->getAllVisibleItems() as $quoteItem) {
             $productCollection->add(
                 $this->productFactory->fromMagentoQuoteItem($quoteItem)
@@ -97,11 +80,7 @@ class CartService
         );
     }
 
-    /**
-     * @param ProductsCollection $productsCollection
-     * @return float
-     */
-    private function getQuotePriceInclTax(ProductsCollection $productsCollection)
+    private function getQuotePriceInclTax(ProductsCollection $productsCollection): float
     {
         $priceInclTax = 0.00;
         /** @var Product $product */
@@ -114,5 +93,4 @@ class CartService
 
         return (float)$priceInclTax;
     }
-
 }

@@ -1,76 +1,73 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\Store\ReadModel\StoreReadModel;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Shop\Command\AddShopCommand;
 use GrShareCode\Shop\ShopService;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\Controller\ResultInterface;
 
-/**
- * Class CreateShop
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings
- */
 class CreateShop extends AbstractController
 {
-    /** @var Repository */
-    private $repository;
-
-    /** @var ApiClientFactory */
     private $apiClientFactory;
-
-    /** @var JsonFactory */
     private $resultJsonFactory;
+    private $magentoStore;
+    private $storeReadModel;
 
-    /**
-     * @param Context $context
-     * @param ApiClientFactory $apiClientFactory
-     * @param Repository $repository
-     * @param JsonFactory $resultJsonFactory
-     */
     public function __construct(
         Context $context,
         ApiClientFactory $apiClientFactory,
-        Repository $repository,
-        JsonFactory $resultJsonFactory
+        JsonFactory $resultJsonFactory,
+        MagentoStore $magentoStore,
+        StoreReadModel $storeReadModel
     ) {
         parent::__construct($context);
-        $this->repository = $repository;
         $this->apiClientFactory = $apiClientFactory;
         $this->resultJsonFactory = $resultJsonFactory;
+        $this->magentoStore = $magentoStore;
+        $this->storeReadModel = $storeReadModel;
     }
 
-    /**
-     * @return ResponseInterface|Json|ResultInterface
-     */
     public function execute()
     {
         /** @var Http $request */
         $request = $this->getRequest();
         $data = $request->getPostValue();
+        $scope = new Scope($this->magentoStore->getStoreIdFromUrl());
 
-        if (!isset($data['shop_name']) || strlen($data['shop_name']) === 0) {
+        if (!isset($data['shop_name']) || $data['shop_name'] === '') {
             return $this->resultJsonFactory->create()->setData(['error' => Message::INCORRECT_SHOP_NAME]);
         }
 
         try {
-            $countryCode = $this->repository->getMagentoCountryCode();
-            $lang = substr($countryCode, 0, 2);
-            $currency = $this->repository->getMagentoCurrencyCode();
+            $apiClient = $this->apiClientFactory->createGetResponseApiClient($scope);
 
-            $apiClient = $this->apiClientFactory->createGetResponseApiClient();
             $service = new ShopService($apiClient);
-            $shopId = $service->addShop(new AddShopCommand($data['shop_name'], $lang, $currency));
-            return $this->resultJsonFactory->create()->setData(['shopId' => $shopId, 'name' => $data['shop_name']]);
+            $shopId = $service->addShop(
+                new AddShopCommand(
+                    $data['shop_name'],
+                    $this->storeReadModel->getStoreLanguage($scope),
+                    $this->storeReadModel->getStoreCurrency($scope)
+                )
+            );
+
+            return $this->resultJsonFactory->create()->setData(
+                [
+                    'shopId' => $shopId,
+                    'name' => $data['shop_name']
+                ]
+            );
         } catch (GetresponseApiException $e) {
             return $this->resultJsonFactory->create()->setData(['error' => $e->getMessage()]);
         } catch (ApiException $e) {

@@ -1,59 +1,46 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\ListValidator;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\Store\ReadModel\StoreReadModel;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GrShareCode\ContactList\Command\AddContactListCommand;
 use GrShareCode\ContactList\ContactListService;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\ResultInterface;
-use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
-/**
- * Class Create
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists
- */
 class Create extends AbstractController
 {
     const PAGE_TITLE = 'New Contact List';
 
-    /** @var PageFactory */
     protected $resultPageFactory;
-
-    /** @var Repository */
-    private $repository;
-
-    /** @var ApiClientFactory */
     private $apiClientFactory;
+    private $magentoStore;
+    private $storeReadModel;
 
-    /**
-     * @param Context $context
-     * @param PageFactory $resultPageFactory
-     * @param Repository $repository
-     * @param ApiClientFactory $apiClientFactory
-     */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
-        Repository $repository,
-        ApiClientFactory $apiClientFactory
+        ApiClientFactory $apiClientFactory,
+        MagentoStore $magentoStore,
+        StoreReadModel $storeReadModel
     ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
-        $this->repository = $repository;
         $this->apiClientFactory = $apiClientFactory;
+        $this->magentoStore = $magentoStore;
+        $this->storeReadModel = $storeReadModel;
     }
 
-    /**
-     * @return ResultInterface|ResponseInterface
-     */
     public function execute()
     {
         try {
@@ -75,9 +62,13 @@ class Create extends AbstractController
                 throw new Exception($error);
             }
 
-            $data['lang'] = substr($this->repository->getMagentoCountryCode(), 0, 2);
+            $data['lang'] = $this->storeReadModel->getStoreLanguage(
+                new Scope($this->magentoStore->getStoreIdFromUrl())
+            );
 
-            $apiClient = $this->apiClientFactory->createGetResponseApiClient();
+            $apiClient = $this->apiClientFactory->createGetResponseApiClient(
+                new Scope($this->magentoStore->getStoreIdFromUrl())
+            );
             $service = new ContactListService($apiClient);
             $service->createContactList(new AddContactListCommand(
                 $data['campaign_name'],
@@ -94,20 +85,11 @@ class Create extends AbstractController
 
             return $resultRedirect;
         } catch (Exception $e) {
-            return $this->handleException($e);
+            $this->messageManager->addErrorMessage($e->getMessage());
+            $resultPage = $this->resultPageFactory->create();
+            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+
+            return $resultPage;
         }
-    }
-
-    /**
-     * @param Exception $e
-     * @return Page
-     */
-    private function handleException(Exception $e)
-    {
-        $this->messageManager->addErrorMessage($e->getMessage());
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-
-        return $resultPage;
     }
 }

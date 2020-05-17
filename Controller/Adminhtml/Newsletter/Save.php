@@ -1,52 +1,34 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Newsletter;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\Result\Redirect;
-use Magento\Framework\View\Result\PageFactory;
-use Magento\Framework\App\Request\Http;
 
-/**
- * Class RegistrationPost
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Registration
- */
 class Save extends AbstractController
 {
     const BACK_URL = 'getresponse/newsletter/index';
 
-    /** @var PageFactory */
-    protected $resultPageFactory;
-
-    /** @var Http */
-    private $request;
-
-    /** @var Repository */
     private $repository;
+    private $magentoStore;
 
-    /**
-     * @param Context $context
-     * @param PageFactory $resultPageFactory
-     * @param Repository $repository
-     */
     public function __construct(
         Context $context,
-        PageFactory $resultPageFactory,
-        Repository $repository
+        Repository $repository,
+        MagentoStore $magentoStore
     ) {
         parent::__construct($context);
-        $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
+        $this->magentoStore = $magentoStore;
     }
 
-    /**
-     * @return ResponseInterface|Redirect
-     */
     public function execute()
     {
         $resultRedirect = $this->resultRedirectFactory->create();
@@ -54,11 +36,11 @@ class Save extends AbstractController
 
         $data = $this->request->getPostValue();
 
-        $autoresponder = (isset($data['gr_autoresponder']) && $data['gr_autoresponder'] == 1) ? $data['autoresponder'] : '';
-        $isEnabled = isset($data['gr_enabled']) && 1 == $data['gr_enabled'] ? true : false;
+        $autoresponder = (isset($data['gr_autoresponder']) && (int) $data['gr_autoresponder'] === 1) ? $data['autoresponder'] : '';
+        $isEnabled = isset($data['gr_enabled']) && 1 === (int) $data['gr_enabled'];
 
         if (!$isEnabled) {
-            $this->repository->clearNewsletterSettings();
+            $this->repository->clearNewsletterSettings($this->magentoStore->getStoreIdFromUrl());
         } else {
             $campaignId = $data['campaign_id'];
 
@@ -75,7 +57,10 @@ class Save extends AbstractController
                 'autoresponderId' => !empty($autoresponder) ? explode('_', $autoresponder)[1] : '',
             ]);
 
-            $this->repository->saveNewsletterSettings($newsletterSettings);
+            $this->repository->saveNewsletterSettings(
+                $newsletterSettings,
+                $this->magentoStore->getStoreIdFromUrl()
+            );
         }
 
         $this->messageManager->addSuccessMessage(Message::SETTINGS_SAVED);

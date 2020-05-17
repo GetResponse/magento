@@ -1,10 +1,14 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Ecommerce */
+<?php
 
+declare(strict_types=1);
+
+use GetResponse\GetResponseIntegration\Block\Admin\Ecommerce;
 use GrShareCode\ContactList\ContactList;
 use GrShareCode\ContactList\ContactListCollection;
 use GrShareCode\Shop\Shop;
 use GrShareCode\Shop\ShopsCollection;
 
+/** @var Ecommerce $block */
 /** @var ShopsCollection $shops */
 $shops = $block->getShops();
 $shopStatus = $block->getShopStatus();
@@ -12,10 +16,10 @@ $currentShopId = $block->getCurrentShopId();
 $currentListId = $block->getEcommerceListId();
 
 /** @var ContactListCollection $campaigns */
-$campaigns = $block->getCampaigns();
+$campaigns = $block->getLists();
 ?>
 
-<form method="post" action="<?php echo $block->getUrl('getresponse/ecommerce/save'); ?>">
+<form method="post" action="<?php echo $block->getUrlWithScope('getresponse/ecommerce/save'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
 
     <div class="page-main-actions">
@@ -149,8 +153,8 @@ $campaigns = $block->getCampaigns();
 <div id="popup-modal" style="display:none">
     <div>Please confirm that you want to delete this store.</div>
 </div>
-<input type="hidden" id="jsCreateShopUrl" value="<?php echo $block->getUrl('getresponse/ecommerce/createshop'); ?>"/>
-<input type="hidden" id="jsDeleteShopUrl" value="<?php echo $block->getUrl('getresponse/ecommerce/delete'); ?>"/>
+<input type="hidden" id="jsCreateShopUrl" value="<?php echo $block->getUrlWithScope('getresponse/ecommerce/createshop'); ?>"/>
+<input type="hidden" id="jsDeleteShopUrl" value="<?php echo $block->getUrlWithScope('getresponse/ecommerce/delete'); ?>"/>
 <script>
     require(['ecommerce']);
 </script>

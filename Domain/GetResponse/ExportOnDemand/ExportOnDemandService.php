@@ -1,27 +1,20 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand\Command\ExportContactCommandFactory;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use Magento\Newsletter\Model\Subscriber;
 
-/**
- * Class ExportOnDemandService
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand
- */
 class ExportOnDemandService
 {
-    /** @var ExportServiceFactory */
     private $exportServiceFactory;
-
-    /** @var ExportContactCommandFactory */
     private $exportContactCommandFactory;
 
-    /**
-     * @param ExportContactCommandFactory $exportContactCommandFactory
-     * @param ExportServiceFactory $exportServiceFactory
-     */
     public function __construct(
         ExportContactCommandFactory $exportContactCommandFactory,
         ExportServiceFactory $exportServiceFactory
@@ -33,12 +26,16 @@ class ExportOnDemandService
     /**
      * @param Subscriber $subscriber
      * @param ExportOnDemand $exportOnDemand
-     * @throws GetresponseApiException
+     * @param Scope $scope
      * @throws ApiException
+     * @throws GetresponseApiException
      */
-    public function export(Subscriber $subscriber, ExportOnDemand $exportOnDemand)
-    {
-        $grExportService = $this->exportServiceFactory->create();
+    public function export(
+        Subscriber $subscriber,
+        ExportOnDemand $exportOnDemand,
+        Scope $scope
+    ) {
+        $grExportService = $this->exportServiceFactory->create($scope);
 
         $grExportService->exportContact(
             $this->exportContactCommandFactory->createForSubscriber($subscriber, $exportOnDemand)

@@ -1,6 +1,11 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\AccountReadModel;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Framework\App\Action\Action;
@@ -9,57 +14,39 @@ use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\UrlInterface;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use Magento\Store\Model\StoreManagerInterface;
 
-/**
- * Class AdminCheckAuthorization
- * @package GetResponse\GetResponseIntegration\Observer
- */
 class AdminCheckAuthorization implements ObserverInterface
 {
-    /** @var UrlInterface */
     private $urlInterface;
-
-    /** @var Repository */
-    private $magentoRepository;
-
-    /** @var ManagerInterface */
     private $messageManager;
-
-    /** @var ActionFlag */
     private $actionFlag;
+    private $storeManager;
+    private $accountReadModel;
 
-    /**
-     * @param UrlInterface $urlInterface
-     * @param Repository $magentoRepository
-     * @param ManagerInterface $messageManager
-     * @param ActionFlag $actionFlag
-     */
     public function __construct(
         UrlInterface $urlInterface,
-        Repository $magentoRepository,
         ManagerInterface $messageManager,
-        ActionFlag $actionFlag
+        ActionFlag $actionFlag,
+        StoreManagerInterface $storeManager,
+        AccountReadModel $accountReadModel
     ) {
-        $this->magentoRepository = $magentoRepository;
         $this->urlInterface = $urlInterface;
         $this->messageManager = $messageManager;
         $this->actionFlag = $actionFlag;
+        $this->storeManager = $storeManager;
+        $this->accountReadModel = $accountReadModel;
     }
 
-    /**
-     * @param EventObserver $observer
-     * @return $this
-     */
-    public function execute(EventObserver $observer)
+    public function execute(EventObserver $observer): AdminCheckAuthorization
     {
+        $scopeId = $this->storeManager->getStore()->getId();
+
         if ($this->isCurrentUrlWhitelisted()) {
             return $this;
         }
 
-        $settings = $this->magentoRepository->getConnectionSettings();
-
-        if (empty($settings)) {
+        if (!$this->accountReadModel->isConnected(new Scope($scopeId))) {
             $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
             $url = $this->urlInterface->getUrl(Config::PLUGIN_MAIN_PAGE);
             $this->actionFlag->set('', Action::FLAG_NO_DISPATCH, true);
@@ -69,10 +56,7 @@ class AdminCheckAuthorization implements ObserverInterface
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    private function isCurrentUrlWhitelisted()
+    private function isCurrentUrlWhitelisted(): bool
     {
         return (bool) preg_match('/getresponse\/account/i', $this->urlInterface->getCurrentUrl());
     }

@@ -1,43 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Message;
+use GetResponse\GetResponseIntegration\Helper\Route;
 use GrShareCode\Shop\Command\DeleteShopCommand;
 use GrShareCode\Shop\ShopService;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\Result\Redirect;
 
-/**
- * Class Delete
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Ecommerce
- */
 class Delete extends AbstractController
 {
-    const BACK_URL = 'getresponse/ecommerce/index';
+    private $apiClient;
 
-    /** @var ApiClientFactory */
-    private $apiClientFactory;
-
-    /**
-     * @param Context $context
-     * @param ApiClientFactory $apiClientFactory
-     */
     public function __construct(
         Context $context,
-        ApiClientFactory $apiClientFactory
+        ApiClientFactory $apiClientFactory,
+        MagentoStore $magentoStore
     ) {
         parent::__construct($context);
-        $this->apiClientFactory = $apiClientFactory;
+
+        $this->apiClient = $apiClientFactory->createGetResponseApiClient(
+            new Scope($magentoStore->getStoreIdFromUrl())
+        );
     }
 
-    /**
-     * @return ResponseInterface|Redirect
-     */
     public function execute()
     {
         try {
@@ -47,27 +40,18 @@ class Delete extends AbstractController
                 throw new Exception(Message::INCORRECT_SHOP);
             }
 
-            $service = new ShopService($this->apiClientFactory->createGetResponseApiClient());
+            $service = new ShopService($this->apiClient);
             $service->deleteShop(new DeleteShopCommand($id));
 
             $resultRedirect = $this->resultRedirectFactory->create();
-            $resultRedirect->setPath(self::BACK_URL);
+            $resultRedirect->setPath(Route::ECOMMERCE_INDEX_ROUTE);
 
             return $resultRedirect;
         } catch (Exception $e) {
-            return $this->handleException($e);
+            $resultRedirect = $this->resultRedirectFactory->create();
+            $this->messageManager->addErrorMessage($e->getMessage());
+            $resultRedirect->setPath(Route::ECOMMERCE_INDEX_ROUTE);
+            return $resultRedirect;
         }
-    }
-
-    /**
-     * @param Exception $e
-     * @return Redirect
-     */
-    private function handleException(Exception $e)
-    {
-        $resultRedirect = $this->resultRedirectFactory->create();
-        $this->messageManager->addErrorMessage($e->getMessage());
-        $resultRedirect->setPath(self::BACK_URL);
-        return $resultRedirect;
     }
 }

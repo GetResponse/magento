@@ -1,0 +1,23 @@
+<?php
+
+declare(strict_types=1);
+
+use GetResponse\GetResponseIntegration\Block\Admin\Account;
+
+/** @var Account $block */
+$magentoShops = $block->getMagentoStores();
+$scopeId = $block->getScopeId();
+?>
+<div class="gr_dropdown">
+    <span><b>Store view:</b></span>
+    <span>
+        <select onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);">
+            <?php foreach ($magentoShops as $code => $name): ?>
+                <option
+                    <?php if ($code === $scopeId):?>selected="selected"<?php endif ?>
+                    value="<?php echo $block->getPageUrlForScope($code) ?>">
+                    <?php echo $name ?></option>
+            <?php endforeach ?>
+        </select>
+    </span>
+</div>

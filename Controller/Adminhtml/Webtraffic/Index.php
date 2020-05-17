@@ -1,70 +1,69 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Webtraffic;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\AccountReadModel;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
+use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Message;
+use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Cache\TypeListInterface;
-use Magento\Framework\App\Request\Http;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\Result\Redirect;
-use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\PageCache\Model\Cache\Type;
 
-/**
- * Class Index
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Webtraffic
- */
 class Index extends AbstractController
 {
     const PAGE_TITLE = 'Web Event Tracking';
-    const BACK_URL = 'getresponse/webtraffic/index';
 
-    /** @var PageFactory */
     private $resultPageFactory;
-
-    /** @var Http */
-    private $request;
-
-    /** @var Repository */
     private $repository;
-
-    /** @var TypeListInterface */
     private $cacheTypeList;
+    private $magentoStore;
+    private $accountReadModel;
 
-    /**
-     * @param Context $context
-     * @param TypeListInterface $cacheTypeList
-     * @param PageFactory $resultPageFactory
-     * @param Repository $repository
-     */
     public function __construct(
         Context $context,
         TypeListInterface $cacheTypeList,
         PageFactory $resultPageFactory,
-        Repository $repository
+        Repository $repository,
+        MagentoStore $magentoStore,
+        AccountReadModel $accountReadModel
     ) {
         parent::__construct($context);
         $this->cacheTypeList = $cacheTypeList;
         $this->resultPageFactory = $resultPageFactory;
         $this->request = $this->getRequest();
         $this->repository = $repository;
+        $this->magentoStore = $magentoStore;
+        $this->accountReadModel = $accountReadModel;
     }
 
-    /**
-     * @return ResponseInterface|Redirect|Page
-     */
     public function execute()
     {
+        if ($this->magentoStore->shouldRedirectToStore()) {
+            return $this->redirectToStore(Route::WEB_TRAFFIC_INDEX_ROUTE);
+        }
+
+        $scope = new Scope($this->magentoStore->getStoreIdFromUrl());
+
+        if (!$this->accountReadModel->isConnected($scope)) {
+            return $this->redirectToStore(Config::PLUGIN_MAIN_PAGE);
+        }
+
         $data = $this->request->getPostValue();
+        $scopeId = $this->magentoStore->getStoreIdFromUrl();
 
         if (isset($data['updateWebTraffic'])) {
 
             $webEventTracking = WebEventTrackingSettingsFactory::createFromArray(
-                $this->repository->getWebEventTracking()
+                $this->repository->getWebEventTracking($scopeId)
             );
 
             $params = [
@@ -75,7 +74,7 @@ class Index extends AbstractController
 
             $newWebEventTracking = WebEventTrackingSettingsFactory::createFromArray($params);
 
-            $this->repository->saveWebEventTracking($newWebEventTracking);
+            $this->repository->saveWebEventTracking($newWebEventTracking, $scopeId);
 
             $this->cacheTypeList->cleanType(Type::TYPE_IDENTIFIER);
 
@@ -83,7 +82,7 @@ class Index extends AbstractController
             $this->messageManager->addSuccessMessage($message);
 
             $resultRedirect = $this->resultRedirectFactory->create();
-            $resultRedirect->setPath(self::BACK_URL);
+            $resultRedirect->setPath(Route::WEB_TRAFFIC_INDEX_ROUTE);
 
             return $resultRedirect;
         }

@@ -1,42 +1,34 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMapping;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 
-/**
- * Class SubscribeViaRegistrationService
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration
- */
 class SubscribeViaRegistrationService
 {
-    /** @var Repository */
     private $repository;
 
-    /**
-     * @param Repository $repository
-     */
     public function __construct(Repository $repository)
     {
         $this->repository = $repository;
     }
 
-    /**
-     * @return SubscribeViaRegistration
-     */
-    public function getSettings()
+    public function getSettings(Scope $scope): SubscribeViaRegistration
     {
         return SubscribeViaRegistrationFactory::createFromArray(
-            $this->repository->getRegistrationSettings()
+            $this->repository->getRegistrationSettings($scope->getScopeId())
         );
     }
 
-    /**
-     * @param CustomFieldsMappingCollection $customFieldsMappingCollection
-     */
-    public function saveCustomFieldsMapping(CustomFieldsMappingCollection $customFieldsMappingCollection)
-    {
+    public function saveCustomFieldsMapping(
+        CustomFieldsMappingCollection $customFieldsMappingCollection,
+        Scope $scope
+    ) {
         $finalCustomFieldMappingCollection = CustomFieldsMappingCollection::createDefaults();
 
         /** @var CustomFieldsMapping $customFieldMapping */
@@ -44,25 +36,21 @@ class SubscribeViaRegistrationService
             $finalCustomFieldMappingCollection->add($customFieldMapping);
         }
 
-        $this->repository->updateCustoms($finalCustomFieldMappingCollection);
-    }
-
-    /**
-     * @return CustomFieldsMappingCollection
-     */
-    public function getCustomFieldMappingSettings()
-    {
-        return CustomFieldsMappingCollection::createFromRepository(
-            $this->repository->getCustomFieldsMappingForRegistration()
+        $this->repository->updateCustoms(
+            $finalCustomFieldMappingCollection,
+            $scope->getScopeId()
         );
     }
 
-    /**
-     * @param SubscribeViaRegistration $registrationSettings
-     */
-    public function saveSettings(SubscribeViaRegistration $registrationSettings)
+    public function getCustomFieldMappingSettings(Scope $scope): CustomFieldsMappingCollection
     {
-        $this->repository->saveRegistrationSettings($registrationSettings);
+        return CustomFieldsMappingCollection::createFromRepository(
+            $this->repository->getCustomFieldsMappingForRegistration($scope->getScopeId())
+        );
     }
 
+    public function saveSettings(SubscribeViaRegistration $registrationSettings, Scope $scope)
+    {
+        $this->repository->saveRegistrationSettings($registrationSettings, $scope->getScopeId());
+    }
 }

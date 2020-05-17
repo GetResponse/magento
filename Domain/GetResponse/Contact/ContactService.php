@@ -1,45 +1,23 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Contact;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Contact\Command\AddContactCommand;
-use GrShareCode\Contact\Command\FindContactCommand;
 use GrShareCode\Contact\Command\UnsubscribeContactsCommand;
-use GrShareCode\Contact\Contact;
 use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
 
-/**
- * Class ContactService
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\Contact
- */
 class ContactService
 {
-    /** @var ContactServiceFactory */
     private $contactServiceFactory;
 
-    /**
-     * @param ContactServiceFactory $contactServiceFactory
-     */
     public function __construct(ContactServiceFactory $contactServiceFactory)
     {
         $this->contactServiceFactory = $contactServiceFactory;
-    }
-
-    /**
-     * @param string $email
-     * @param string $contactListId
-     * @return null|Contact
-     * @throws GetresponseApiException
-     * @throws ApiException
-     */
-    public function findContactByEmail($email, $contactListId)
-    {
-        $contactService = $this->contactServiceFactory->create();
-
-        return $contactService->findContact(
-            new FindContactCommand($email, $contactListId, false)
-        );
     }
 
     /**
@@ -50,8 +28,9 @@ class ContactService
      * @param int|null $dayOfCycle
      * @param ContactCustomFieldsCollection $customs
      * @param bool $updateIfAlreadyExists
-     * @throws GetresponseApiException
+     * @param Scope $scope
      * @throws ApiException
+     * @throws GetresponseApiException
      */
     public function addContact(
         $email,
@@ -60,11 +39,12 @@ class ContactService
         $contactListId,
         $dayOfCycle,
         ContactCustomFieldsCollection $customs,
-        $updateIfAlreadyExists
+        $updateIfAlreadyExists,
+        Scope $scope
     ) {
         $name = trim($firstName . ' ' . $lastName);
 
-        $contactService = $this->contactServiceFactory->create();
+        $contactService = $this->contactServiceFactory->create($scope);
 
         $contactService->addContact(
             new AddContactCommand(
@@ -80,12 +60,13 @@ class ContactService
 
     /**
      * @param string $email
+     * @param Scope $scope
      * @throws ApiException
      * @throws GetresponseApiException
      */
-    public function removeContact($email)
+    public function removeContact($email, Scope $scope)
     {
-        $contactService = $this->contactServiceFactory->create();
+        $contactService = $this->contactServiceFactory->create($scope);
         $contactService->unsubscribeContacts(
             new UnsubscribeContactsCommand($email)
         );

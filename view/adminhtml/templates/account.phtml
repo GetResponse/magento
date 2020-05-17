@@ -1,9 +1,10 @@
 <?php
 
-use GetResponse\GetResponseIntegration\Block\Account as AccountBlock;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\Account;
+declare(strict_types=1);
 
-/** @var $block AccountBlock */
+use GetResponse\GetResponseIntegration\Block\Admin\Account;
+
+/** @var Account $block */
 $isApiActive = $block->isConnectedToGetResponse();
 
 if ($isApiActive) {
@@ -12,10 +13,10 @@ if ($isApiActive) {
 }
 ?>
 
-<form method="post" action="<?php echo $block->getUrl('getresponse/account/save'); ?>">
+<form method="post" action="<?php echo $block->getUrlWithScope('getresponse/account/save'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
-
     <div class="page-main-actions">
+        <?php require('switch_scope.phtml') ?>
         <div class="page-main-hint">
             <span>Use API key to connect your site and GetResponse.</span>
         </div>
@@ -150,7 +151,7 @@ if ($isApiActive) {
     <div>When you disconnect, you won’t be able to add new contacts, track site visits, or send ecommerce data to GetResponse.</div>
 </div>
 
-<input type="hidden" id="jsDeleteUrl" value="<?php echo $block->getUrl("getresponse/account/delete"); ?>" />
+<input type="hidden" id="jsDeleteUrl" value="<?php echo $block->getUrlWithScope("getresponse/account/delete"); ?>" />
 
 <script>
 

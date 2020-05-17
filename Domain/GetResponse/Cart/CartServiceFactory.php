@@ -1,37 +1,24 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Cart;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeCache;
 use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GrShareCode\Cart\CartService as GrCartService;
 use GrShareCode\Cart\CartServiceFactory as GrCartServiceFactory;
 
-/**
- * Class CartServiceFactory
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\Cart
- */
 class CartServiceFactory
 {
-    /** @var ShareCodeRepository */
     private $shareCodeRepository;
-
-    /** @var ShareCodeCache */
     private $shareCodeCache;
-
-    /** @var ApiClientFactory */
     private $apiClientFactory;
-
-    /** @var GrCartServiceFactory */
     private $cartServiceFactory;
 
-    /**
-     * @param ShareCodeRepository $shareCodeRepository
-     * @param ShareCodeCache $shareCodeCache
-     * @param ApiClientFactory $apiClientFactory
-     * @param GrCartServiceFactory $cartServiceFactory
-     */
     public function __construct(
         ShareCodeRepository $shareCodeRepository,
         ShareCodeCache $shareCodeCache,
@@ -45,12 +32,13 @@ class CartServiceFactory
     }
 
     /**
+     * @param Scope $scope
      * @return GrCartService
      * @throws ApiException
      */
-    public function create()
+    public function create(Scope $scope): GrCartService
     {
-        $getResponseApiClient = $this->apiClientFactory->createGetResponseApiClient();
+        $getResponseApiClient = $this->apiClientFactory->createGetResponseApiClient($scope);
 
         return $this->cartServiceFactory->create(
             $getResponseApiClient,

@@ -1,44 +1,33 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Product;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\ProductReadModel;
+use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\Query\GetProduct;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Visibility;
 
-/**
- * Class ProductUrlFactory
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\Product
- */
 class ProductUrlFactory
 {
-    /** @var Repository */
-    private $magentoRepository;
+    private $productReadModel;
 
-    /**
-     * @param Repository $magentoRepository
-     */
-    public function __construct(Repository $magentoRepository)
+    public function __construct(ProductReadModel $productReadModel)
     {
-        $this->magentoRepository = $magentoRepository;
+        $this->productReadModel = $productReadModel;
     }
 
-    /**
-     * @param Product $magentoProduct
-     * @return null|string
-     */
-    public function fromProduct(Product $magentoProduct)
+    public function fromProduct(Product $magentoProduct): string
     {
-        if ((int)$magentoProduct->getVisibility() !== Visibility::VISIBILITY_NOT_VISIBLE) {
+        if ($magentoProduct->getVisibility() !== Visibility::VISIBILITY_NOT_VISIBLE) {
             return $magentoProduct->getProductUrl();
         }
 
-        if ($parentProductIds = $this->magentoRepository->getProductParentConfigurableById($magentoProduct->getId())) {
-            $magentoParentProduct = $this->magentoRepository->getProductById($parentProductIds[0]);
+        $magentoParentProduct = $this->productReadModel->getProductParent(
+            new GetProduct($magentoProduct->getId())
+        );
 
-            return $magentoParentProduct->getProductUrl();
-        }
-
-        return null;
+        return $magentoParentProduct->getProductUrl();
     }
-
 }

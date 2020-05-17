@@ -1,95 +1,73 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\ContactReadModel;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\Query\ContactByEmail;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Ecommerce\ReadModel\EcommerceReadModel;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Command\AddOrderCommandFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
+use GrShareCode\Api\Exception\GetresponseApiException;
+use GrShareCode\Contact\Contact;
 use Magento\Customer\Model\Session;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\ObjectManagerInterface;
 use Magento\Sales\Model\Order;
 
-/**
- * Class CreateOrderHandler
- * @package GetResponse\GetResponseIntegration\Observer
- */
-class CreateOrderHandler extends Ecommerce implements ObserverInterface
+class CreateOrderHandler implements ObserverInterface
 {
-    /** @var ScopeConfigInterface */
-    private $scopeConfig;
-
-    /** @var OrderService */
     private $orderService;
-
-    /** @var Order */
     private $orderFactory;
-
-    /** @var Logger */
     private $logger;
-
-    /** @var AddOrderCommandFactory */
     private $addOrderCommandFactory;
+    private $magentoStore;
+    private $customerSession;
+    private $ecommerceReadModel;
+    private $contactReadModel;
 
-    /**
-     * @param ObjectManagerInterface $objectManager
-     * @param Session $customerSession
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Order $orderFactory
-     * @param Repository $repository
-     * @param OrderService $orderService
-     * @param ContactService $contactService
-     * @param Logger $getResponseLogger
-     * @param AddOrderCommandFactory $addOrderCommandFactory
-     */
     public function __construct(
-        ObjectManagerInterface $objectManager,
         Session $customerSession,
-        ScopeConfigInterface $scopeConfig,
         Order $orderFactory,
-        Repository $repository,
         OrderService $orderService,
-        ContactService $contactService,
         Logger $getResponseLogger,
-        AddOrderCommandFactory $addOrderCommandFactory
+        AddOrderCommandFactory $addOrderCommandFactory,
+        EcommerceReadModel $ecommerceReadModel,
+        ContactReadModel $contactReadModel
     ) {
-        parent::__construct(
-            $objectManager,
-            $customerSession,
-            $repository,
-            $contactService
-        );
-
-        $this->scopeConfig = $scopeConfig;
         $this->orderService = $orderService;
         $this->orderFactory = $orderFactory;
         $this->logger = $getResponseLogger;
         $this->addOrderCommandFactory = $addOrderCommandFactory;
+        $this->customerSession = $customerSession;
+        $this->ecommerceReadModel = $ecommerceReadModel;
+        $this->contactReadModel = $contactReadModel;
     }
 
-    /**
-     * @param EventObserver $observer
-     */
     public function execute(EventObserver $observer)
     {
-        try {
+        $scope = new Scope($this->magentoStore->getCurrentStoreId());
 
-            $shopId = $this->scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
+        try {
+            $shopId = $this->ecommerceReadModel->getShopId($scope);
 
             if (empty($shopId)) {
-                return;
+                return $this;
             }
 
-            if (!$this->canHandleECommerceEvent()) {
-                return;
+            if (false === $this->customerSession->isLoggedIn()) {
+                return $this;
             }
 
-            /** @var Order $order */
+            if (null === $this->getContactFromGetResponse($scope)) {
+                return $this;
+            }
+
             $order = $this->orderFactory->load(
                 $observer->getEvent()->getOrderIds()[0]
             );
@@ -97,13 +75,35 @@ class CreateOrderHandler extends Ecommerce implements ObserverInterface
             $this->orderService->addOrder(
                 $this->addOrderCommandFactory->createForMagentoOrder(
                     $order,
-                    $this->scopeConfig->getValue(Config::CONFIG_DATA_ECOMMERCE_LIST_ID),
+                    $this->ecommerceReadModel->getListId($scope),
                     $shopId
-                )
+                ),
+                $scope->getScopeId()
             );
 
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }
+
+        return $this;
+    }
+
+    /**
+     * @param Scope $scope
+     * @return null|Contact
+     * @throws ApiException
+     * @throws GetresponseApiException
+     */
+    private function getContactFromGetResponse(Scope $scope)
+    {
+        $contactListId = $this->ecommerceReadModel->getListId($scope);
+
+        return $this->contactReadModel->findContactByEmail(
+            new ContactByEmail(
+                $this->customerSession->getCustomer()->getEmail(),
+                $contactListId,
+                $scope
+            )
+        );
     }
 }

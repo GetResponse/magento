@@ -1,85 +1,73 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Cart\CartService;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\ContactReadModel;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\Query\ContactByEmail;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Ecommerce\ReadModel\EcommerceReadModel;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
+use GrShareCode\Api\Exception\GetresponseApiException;
+use GrShareCode\Contact\Contact;
 use Magento\Customer\Model\Session;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\ObjectManagerInterface;
 
-/**
- * Class CreateCartHandler
- * @package GetResponse\GetResponseIntegration\Observer
- */
-class CreateCartHandler extends Ecommerce implements ObserverInterface
+class CreateCartHandler implements ObserverInterface
 {
-    /** @var ScopeConfigInterface */
-    private $scopeConfig;
-
-    /** @var CartService */
     private $cartService;
-
-    /** @var Logger */
     private $logger;
+    private $magentoStore;
+    private $customerSession;
+    private $ecommerceReadModel;
+    private $contactReadModel;
 
-    /**
-     * @param ObjectManagerInterface $objectManager
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Session $customerSession
-     * @param Repository $repository
-     * @param CartService $cartService
-     * @param ContactService $contactService
-     * @param Logger $getResponseLogger
-     */
     public function __construct(
-        ObjectManagerInterface $objectManager,
-        ScopeConfigInterface $scopeConfig,
         Session $customerSession,
-        Repository $repository,
         CartService $cartService,
-        ContactService $contactService,
-        Logger $getResponseLogger
+        Logger $getResponseLogger,
+        MagentoStore $magentoStore,
+        EcommerceReadModel $ecommerceReadModel,
+        ContactReadModel $contactReadModel
     ) {
-        $this->scopeConfig = $scopeConfig;
         $this->cartService = $cartService;
         $this->logger = $getResponseLogger;
-
-        parent::__construct(
-            $objectManager,
-            $customerSession,
-            $repository,
-            $contactService
-        );
+        $this->magentoStore = $magentoStore;
+        $this->customerSession = $customerSession;
+        $this->ecommerceReadModel = $ecommerceReadModel;
+        $this->contactReadModel = $contactReadModel;
     }
 
-    /**
-     * @param EventObserver $observer
-     * @return $this
-     */
     public function execute(EventObserver $observer)
     {
-        try {
+        $scope = $this->magentoStore->getCurrentScope();
 
-            $shopId = $this->scopeConfig->getValue(Config::CONFIG_DATA_SHOP_ID);
+        try {
+            $shopId = $this->ecommerceReadModel->getShopId($scope);
 
             if (empty($shopId)) {
                 return $this;
             }
 
-            if (!$this->canHandleECommerceEvent()) {
+            if (false === $this->customerSession->isLoggedIn()) {
+                return $this;
+            }
+
+            if (null === $this->getContactFromGetResponse($scope)) {
                 return $this;
             }
 
             $this->cartService->sendCart(
                 $observer->getCart()->getQuote()->getId(),
-                $this->scopeConfig->getValue(Config::CONFIG_DATA_ECOMMERCE_LIST_ID),
-                $shopId
+                $this->ecommerceReadModel->getListId($scope),
+                $shopId,
+                $scope
             );
 
         } catch (Exception $e) {
@@ -87,5 +75,24 @@ class CreateCartHandler extends Ecommerce implements ObserverInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @param Scope $scope
+     * @return null|Contact
+     * @throws ApiException
+     * @throws GetresponseApiException
+     */
+    private function getContactFromGetResponse(Scope $scope)
+    {
+        $contactListId = $this->ecommerceReadModel->getListId($scope);
+
+        return $this->contactReadModel->findContactByEmail(
+            new ContactByEmail(
+                $this->customerSession->getCustomer()->getEmail(),
+                $contactListId,
+                $scope
+            )
+        );
     }
 }

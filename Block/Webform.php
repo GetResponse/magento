@@ -1,74 +1,50 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Block;
 
-use Exception;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\AccountReadModel;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettingsFactory;
-use GetResponse\GetResponseIntegration\Logger\Logger;
-use GrShareCode\WebForm\WebFormCollection;
-use GrShareCode\WebForm\WebFormService;
-use Magento\Framework\Controller\Result\Redirect;
-use Magento\Framework\Controller\Result\RedirectFactory;
-use Magento\Framework\Message\ManagerInterface;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
+use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
-/**
- * Class Webform
- * @package GetResponse\GetResponseIntegration\Block
- */
-class Webform extends GetResponse
+class Webform extends Template
 {
-    /** @var Repository */
+    private $accountReadModel;
+    private $magentoStore;
     private $repository;
 
-    /**
-     * @param Context $context
-     * @param ManagerInterface $messageManager
-     * @param RedirectFactory $redirectFactory
-     * @param ApiClientFactory $apiClientFactory
-     * @param Logger $logger
-     * @param Repository $repository
-     */
     public function __construct(
         Context $context,
-        ManagerInterface $messageManager,
-        RedirectFactory $redirectFactory,
-        ApiClientFactory $apiClientFactory,
-        Logger $logger,
+        MagentoStore $magentoStore,
+        AccountReadModel $accountReadModel,
         Repository $repository
     ) {
-        parent::__construct(
-            $context,
-            $messageManager,
-            $redirectFactory,
-            $apiClientFactory,
-            $logger
-        );
+        parent::__construct($context);
+        $this->magentoStore = $magentoStore;
+        $this->accountReadModel = $accountReadModel;
         $this->repository = $repository;
     }
 
-    /**
-     * @return WebformSettings
-     */
-    public function getWebFormSettings()
+    public function getWebFormUrlToDisplay(string $placement)
     {
-        return WebformSettingsFactory::createFromArray(
-            $this->repository->getWebformSettings()
-        );
-    }
+        $scope = $this->magentoStore->getCurrentScope();
 
-    /**
-     * @return WebFormCollection|Redirect
-     */
-    public function getWebForms()
-    {
-        try {
-            return (new WebFormService($this->getApiClientFactory()->createGetResponseApiClient()))->getAllWebForms();
-        } catch (Exception $e) {
-            return $this->handleException($e);
+        if (!$this->accountReadModel->isConnected($scope)) {
+            return null;
         }
+
+        $webForm = WebformSettingsFactory::createFromArray(
+            $this->repository->getWebformSettings($scope->getScopeId())
+        );
+
+        if (!$webForm->isEnabled() || $webForm->getSidebar() !== $placement) {
+            return null;
+        }
+
+        return $webForm->getUrl();
     }
 }

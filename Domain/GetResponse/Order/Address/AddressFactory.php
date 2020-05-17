@@ -1,40 +1,32 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Address;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\Country\ReadModel\Query\CountryId;
+use GetResponse\GetResponseIntegration\Domain\Magento\Country\ReadModel\CountryReadModel;
 use GrShareCode\Address\Address;
 use GrShareCode\Address\AddressFactory as GrAddressFactory;
 use Magento\Sales\Model\Order;
 
-/**
- * Class AddressFactory
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Address
- */
 class AddressFactory
 {
-    /** @var Repository */
-    private $magentoRepository;
+    private $countryReadModel;
 
-    /**
-     * @param Repository $magentoRepository
-     */
-    public function __construct(Repository $magentoRepository)
+    public function __construct(CountryReadModel $countryReadModel)
     {
-        $this->magentoRepository = $magentoRepository;
+        $this->countryReadModel = $countryReadModel;
     }
 
-    /**
-     * @param Order $order
-     * @return Address
-     */
-    public function createBillingAddressFromMagentoOrder(Order $order)
+    public function createBillingAddressFromMagentoOrder(Order $order): Address
     {
-        /** @var Order\Address $address */
         $orderBillingAddress = $order->getBillingAddress();
-        $countryCode = $this->magentoRepository->getCountryCodeByCountryId($orderBillingAddress->getCountryId());
 
-        $billingAddress = GrAddressFactory::createFromParams(
-            $countryCode->getData('iso3_code'),
+        return GrAddressFactory::createFromParams(
+            $this->countryReadModel->getIsoCountryCode(
+                new CountryId($orderBillingAddress->getCountryId())
+            ),
             $orderBillingAddress->getFirstname(),
             $orderBillingAddress->getLastname(),
             $orderBillingAddress->getStreetLine(1),
@@ -46,8 +38,6 @@ class AddressFactory
             $orderBillingAddress->getTelephone(),
             $orderBillingAddress->getCompany()
         );
-
-        return $billingAddress;
     }
 
     /**
@@ -64,11 +54,10 @@ class AddressFactory
             $shippingAddress = $order->getShippingAddress();
 
             if ($shippingAddress) {
-
-                $countryCode = $this->magentoRepository->getCountryCodeByCountryId($shippingAddress->getCountryId());
-
                 $shareCodeShippingAddress = GrAddressFactory::createFromParams(
-                    $countryCode->getData('iso3_code'),
+                    $this->countryReadModel->getIsoCountryCode(
+                        new CountryId((int) $shippingAddress->getCountryId())
+                    ),
                     $shippingAddress->getFirstname(),
                     $shippingAddress->getLastname(),
                     $shippingAddress->getStreetLine(1),
