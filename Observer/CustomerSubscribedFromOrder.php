@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\Command\AddContact;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactCustomFieldsCollectionFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
 use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\CustomerReadModel;
@@ -18,7 +19,6 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Subscriber\ReadModel\Query
 use GetResponse\GetResponseIntegration\Domain\Magento\Subscriber\ReadModel\SubscriberReadModel;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GrShareCode\Api\Exception\GetresponseApiException;
-use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Newsletter\Model\Subscriber;
@@ -95,52 +95,23 @@ class CustomerSubscribedFromOrder implements ObserverInterface
             $registrationSettings->isUpdateCustomFieldsEnalbed()
         );
 
-        $this->addContact(
-            $registrationSettings->getCampaignId(),
-            $customer->getFirstname(),
-            $customer->getLastname(),
-            $customer->getEmail(),
-            $registrationSettings->getCycleDay(),
-            $contactCustomFieldsCollection,
-            $registrationSettings->isUpdateCustomFieldsEnalbed()
-        );
-
-        return $this;
-    }
-
-
-    /**
-     * @param string $contactListId
-     * @param string $firstName
-     * @param string $lastName
-     * @param string $email
-     * @param null|int $dayOfCycle
-     * @param ContactCustomFieldsCollection $contactCustomFieldsCollection
-     * @param bool $updateIfAlreadyExists
-     */
-    private function addContact(
-        $contactListId,
-        $firstName,
-        $lastName,
-        $email,
-        $dayOfCycle,
-        ContactCustomFieldsCollection $contactCustomFieldsCollection,
-        $updateIfAlreadyExists
-    ) {
         try {
             $this->contactService->addContact(
-                $email,
-                $firstName,
-                $lastName,
-                $contactListId,
-                $dayOfCycle,
-                $contactCustomFieldsCollection,
-                $updateIfAlreadyExists,
-                $this->magentoStore->getCurrentScope()
+                new AddContact(
+                    $this->magentoStore->getCurrentScope(),
+                    $customer->getEmail(),
+                    $customer->getFirstname(),
+                    $customer->getLastname(),
+                    $registrationSettings->getCampaignId(),
+                    $registrationSettings->getCycleDay(),
+                    $contactCustomFieldsCollection,
+                    $registrationSettings->isUpdateCustomFieldsEnalbed()
+                )
             );
         } catch (ApiException $e) {
         } catch (GetresponseApiException $e) {
         }
-    }
 
+        return $this;
+    }
 }

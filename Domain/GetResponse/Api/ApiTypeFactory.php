@@ -1,14 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Api;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
 use GrShareCode\Api\Authorization\ApiTypeException;
 use GrShareCode\Api\Authorization\Authorization;
 
-/**
- * Class ApiTypeFactory
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\Api
- */
 class ApiTypeFactory
 {
     /**
@@ -16,8 +15,9 @@ class ApiTypeFactory
      * @return string
      * @throws ApiTypeException
      */
-    public static function createFromConnectionSettings(ConnectionSettings $connectionSettings)
-    {
+    public static function createFromConnectionSettings(
+        ConnectionSettings $connectionSettings
+    ): string {
         switch ($connectionSettings->getUrl()) {
             case '':
                 return Authorization::SMB;

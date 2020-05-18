@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Setup;
 
 use Magento\Framework\App\Cache\Type\Config as FrameworkCacheType;
@@ -12,16 +15,9 @@ use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\PageCache\Model\Cache\Type as PageCacheType;
 use Magento\Store\Model\Store;
 
-/**
- * Class Uninstall
- * @package GetResponse\GetResponseIntegration\Setup
- */
 class Uninstall implements UninstallInterface
 {
-    /** @var WriterInterface */
     private $configWriter;
-
-    /** @var Manager */
     private $cacheManager;
 
     public function __construct(

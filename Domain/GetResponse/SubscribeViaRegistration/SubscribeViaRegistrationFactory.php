@@ -1,25 +1,20 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration;
 
-/**
- * Class SubscribeViaRegistrationFactory
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration
- */
 class SubscribeViaRegistrationFactory
 {
-    /**
-     * @param array $data
-     * @return SubscribeViaRegistration
-     */
-    public static function createFromArray(array $data)
+    public static function createFromArray(array $data): SubscribeViaRegistration
     {
         if (empty($data)) {
             return new SubscribeViaRegistration(0, 0, '', null, '');
         }
 
         return new SubscribeViaRegistration(
-            $data['status'],
-            $data['customFieldsStatus'],
+            (int)$data['status'],
+            (int)$data['customFieldsStatus'],
             $data['campaignId'],
             $data['cycleDay'],
             isset($data['autoresponderId']) ? $data['autoresponderId'] : ''

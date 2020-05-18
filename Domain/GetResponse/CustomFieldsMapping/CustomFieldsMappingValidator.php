@@ -1,28 +1,21 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto\CustomFieldMappingDto;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto\CustomFieldMappingDtoCollection;
 use GetResponse\GetResponseIntegration\Helper\Message;
 
-/**
- * Class CustomFieldsMappingValidator
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping
- */
 class CustomFieldsMappingValidator
 {
-    /** @var string */
     private $errorMessage;
 
-    /**
-     * @param CustomFieldMappingDtoCollection $customFieldMappingDtoCollection
-     * @return bool
-     */
-    public function isValid(CustomFieldMappingDtoCollection $customFieldMappingDtoCollection)
-    {
+    public function isValid(
+        CustomFieldMappingDtoCollection $customFieldMappingDtoCollection
+    ): bool {
         $getResponseCustomFields = [];
 
-        /** @var CustomFieldMappingDto $customFieldMappingDto */
         foreach ($customFieldMappingDtoCollection as $customFieldMappingDto) {
 
             if (empty($customFieldMappingDto->getGetResponseCustomFieldId())) {
@@ -49,12 +42,8 @@ class CustomFieldsMappingValidator
         return true;
     }
 
-    /**
-     * @return string
-     */
-    public function getErrorMessage()
+    public function getErrorMessage(): string
     {
         return $this->errorMessage;
     }
-
 }

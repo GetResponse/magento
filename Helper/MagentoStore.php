@@ -58,7 +58,7 @@ class MagentoStore extends AbstractHelper
         $storeId = $this->request->get(Config::SCOPE_TAG);
         $storeInSession = $this->session->getGrScope();
 
-        if (!empty($storeId) && $storeId !== $storeInSession) {
+        if (null !== $storeId && $storeId !== $storeInSession) {
             $this->session->setGrScope($storeId);
         }
 

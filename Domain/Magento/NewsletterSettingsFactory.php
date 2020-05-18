@@ -1,26 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-/**
- * Class NewsletterSettingsFactory
- * @package GetResponse\GetResponseIntegration\Domain\Magento
- */
 class NewsletterSettingsFactory
 {
-    /**
-     * @param array $data
-     *
-     * @return NewsletterSettings
-     */
-    public static function createFromArray(array $data)
+    public static function createFromArray(array $data): NewsletterSettings
     {
         if (empty($data)) {
-            return new NewsletterSettings(0, '', 0, '');
+            return new NewsletterSettings(0, '', null, '');
         }
 
         return new NewsletterSettings(
-            $data['status'],
+            (int) $data['status'],
             $data['campaignId'],
             $data['cycleDay'],
             $data['autoresponderId']

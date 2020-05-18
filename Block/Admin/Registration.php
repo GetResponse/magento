@@ -38,7 +38,7 @@ class Registration extends AdminTemplate
         $this->customFieldService = $customFieldService;
         $this->customFieldsMappingService = $customFieldsMappingService;
         $this->repository = $repository;
-        $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->scope);
+        $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->getScope());
     }
 
     /**
@@ -54,7 +54,7 @@ class Registration extends AdminTemplate
     {
         return CustomFieldsMappingCollection::createFromRepository(
             $this->repository->getCustomFieldsMappingForRegistration(
-                $this->scope->getScopeId()
+                $this->getScope()->getScopeId()
             )
         );
     }
@@ -63,7 +63,7 @@ class Registration extends AdminTemplate
     {
         return SubscribeViaRegistrationFactory::createFromArray(
             $this->repository->getRegistrationSettings(
-                $this->scope->getScopeId()
+                $this->getScope()->getScopeId()
             )
         );
     }
@@ -77,7 +77,7 @@ class Registration extends AdminTemplate
     {
         $result = [];
 
-        $customFields = $this->customFieldService->getCustomFields($this->scope);
+        $customFields = $this->customFieldService->getCustomFields($this->getScope());
 
         foreach ($customFields as $customField) {
             $result[] = [

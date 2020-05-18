@@ -41,7 +41,7 @@ class Export extends AdminTemplate
         $this->customFieldsMappingService = $customFieldsMappingService;
         $this->repository = $repository;
 
-        $this->apiClient = $apiClientFactory->createGetResponseApiClient($this->scope);
+        $this->apiClient = $apiClientFactory->createGetResponseApiClient($this->getScope());
     }
 
     /**
@@ -51,7 +51,7 @@ class Export extends AdminTemplate
     {
         return CustomFieldsMappingCollection::createFromRepository(
             $this->repository->getCustomFieldsMappingForRegistration(
-                $this->scope->getScopeId()
+                $this->getScope()->getScopeId()
             )
         );
     }
@@ -83,7 +83,7 @@ class Export extends AdminTemplate
     {
         $result = [];
 
-        $customFields = $this->customFieldService->getCustomFields($this->scope);
+        $customFields = $this->customFieldService->getCustomFields($this->getScope());
 
         foreach ($customFields as $customField) {
             $result[] = [

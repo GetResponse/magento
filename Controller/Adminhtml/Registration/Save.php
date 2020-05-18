@@ -8,53 +8,41 @@ use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingValidator;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto\CustomFieldMappingDtoCollection;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto\InvalidPrefixException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
-use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Message;
+use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\Result\Redirect;
 
 class Save extends AbstractController
 {
-    const BACK_URL = 'getresponse/registration/index';
-
     private $repository;
     private $customFieldsMappingValidator;
     private $subscribeViaRegistrationService;
     private $customFieldMappingDtoCollection;
-    private $magentoStore;
 
     public function __construct(
         Context $context,
         Repository $repository,
         CustomFieldMappingDtoCollection $customFieldMappingDtoCollection,
         CustomFieldsMappingValidator $customFieldsMappingValidator,
-        SubscribeViaRegistrationService $subscribeViaRegistrationService,
-        MagentoStore $magentoStore
+        SubscribeViaRegistrationService $subscribeViaRegistrationService
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->customFieldMappingDtoCollection = $customFieldMappingDtoCollection;
         $this->customFieldsMappingValidator = $customFieldsMappingValidator;
         $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
-        $this->magentoStore = $magentoStore;
-        $this->request = $this->getRequest();
     }
 
-    /**
-     * @return ResponseInterface|Redirect
-     * @throws InvalidPrefixException
-     */
     public function execute()
     {
-        $scope = new Scope($this->magentoStore->getStoreIdFromUrl());
-        $resultRedirect = $this->resultRedirectFactory->create();
-        $resultRedirect->setPath(self::BACK_URL);
+        parent::execute();
+
+        if (!$this->isConnected()) {
+            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
+        }
 
         $data = $this->request->getPostValue();
 
@@ -64,33 +52,31 @@ class Save extends AbstractController
         $isEnabled = isset($data['gr_enabled']) && 1 == $data['gr_enabled'] ? true : false;
 
         if (!$isEnabled) {
-            $this->repository->clearRegistrationSettings(
-                $this->magentoStore->getStoreIdFromUrl()
-            );
+            $this->repository->clearRegistrationSettings($this->scope->getScopeId());
 
-            $this->messageManager->addSuccessMessage(Message::SETTINGS_SAVED);
-            return $resultRedirect;
+            return $this->redirect($this->_redirect->getRefererUrl(), Message::SETTINGS_SAVED);
         }
 
         $campaignId = $data['campaign_id'];
 
         if (empty($campaignId)) {
-            $this->messageManager->addErrorMessage(Message::SELECT_CONTACT_LIST);
 
-            return $resultRedirect;
+            return $this->redirect($this->_redirect->getRefererUrl(), Message::SELECT_CONTACT_LIST, true);
         }
 
         $customFieldMappingDtoCollection = $this->customFieldMappingDtoCollection->createFromRequestData($data);
 
         if (!$this->customFieldsMappingValidator->isValid($customFieldMappingDtoCollection)) {
-            $this->messageManager->addErrorMessage($this->customFieldsMappingValidator->getErrorMessage());
-
-            return $resultRedirect;
+            return $this->redirect(
+                $this->_redirect->getRefererUrl(),
+                $this->customFieldsMappingValidator->getErrorMessage(),
+                true
+            );
         }
 
         $this->subscribeViaRegistrationService->saveCustomFieldsMapping(
             CustomFieldsMappingCollection::createFromDto($customFieldMappingDtoCollection),
-            $scope
+            $this->scope
         );
 
         $registrationSettings = SubscribeViaRegistrationFactory::createFromArray([
@@ -101,9 +87,8 @@ class Save extends AbstractController
             'autoresponderId' => !empty($autoresponder) ? explode('_', $autoresponder)[1] : null,
         ]);
 
-        $this->subscribeViaRegistrationService->saveSettings($registrationSettings, $scope);
-        $this->messageManager->addSuccessMessage(Message::SETTINGS_SAVED);
+        $this->subscribeViaRegistrationService->saveSettings($registrationSettings, $this->scope);
 
-        return $resultRedirect;
+        return $this->redirect($this->_redirect->getRefererUrl(), Message::SETTINGS_SAVED);
     }
 }

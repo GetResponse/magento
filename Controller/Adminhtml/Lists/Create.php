@@ -9,87 +9,61 @@ use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\ListValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Store\ReadModel\StoreReadModel;
-use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
-use GetResponse\GetResponseIntegration\Helper\MagentoStore;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Exception\ListValidationException;
 use GetResponse\GetResponseIntegration\Helper\Message;
+use GetResponse\GetResponseIntegration\Helper\Route;
 use GrShareCode\ContactList\Command\AddContactListCommand;
 use GrShareCode\ContactList\ContactListService;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
-use Magento\Framework\View\Result\PageFactory;
 
 class Create extends AbstractController
 {
-    const PAGE_TITLE = 'New Contact List';
-
-    protected $resultPageFactory;
-    private $apiClientFactory;
-    private $magentoStore;
+    private $apiClient;
     private $storeReadModel;
 
     public function __construct(
         Context $context,
-        PageFactory $resultPageFactory,
         ApiClientFactory $apiClientFactory,
-        MagentoStore $magentoStore,
         StoreReadModel $storeReadModel
     ) {
         parent::__construct($context);
-        $this->resultPageFactory = $resultPageFactory;
-        $this->apiClientFactory = $apiClientFactory;
-        $this->magentoStore = $magentoStore;
+        $this->apiClient = $apiClientFactory->createGetResponseApiClient($this->scope);
         $this->storeReadModel = $storeReadModel;
     }
 
     public function execute()
     {
-        try {
-            $backUrl = $this->getRequest()->getParam('back_url');
-            $resultPage = $this->resultPageFactory->create();
-            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+        parent::execute();
 
+        if (!$this->isConnected()) {
+            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
+        }
+
+        $backUrl = $this->getRequest()->getParam('back_url');
+
+        try {
             /** @var Http $request */
-            $request = $this->getRequest();
-            $data = $request->getPostValue();
+            $data = $this->request->getPostValue();
 
             if (empty($data)) {
-                return $resultPage;
+                return $this->redirect($backUrl);
             }
 
             $error = ListValidator::validateNewListParams($data);
 
             if (!empty($error)) {
-                throw new Exception($error);
+                throw new ListValidationException($error);
             }
 
-            $data['lang'] = $this->storeReadModel->getStoreLanguage(
-                new Scope($this->magentoStore->getStoreIdFromUrl())
-            );
+            $data['lang'] = $this->storeReadModel->getStoreLanguage($this->scope);
 
-            $apiClient = $this->apiClientFactory->createGetResponseApiClient(
-                new Scope($this->magentoStore->getStoreIdFromUrl())
-            );
-            $service = new ContactListService($apiClient);
-            $service->createContactList(new AddContactListCommand(
-                $data['campaign_name'],
-                $data['from_field'],
-                $data['reply_to_field'],
-                $data['confirmation_body'],
-                $data['confirmation_subject'],
-                $data['lang']
-            ));
+            $service = new ContactListService($this->apiClient);
+            $service->createContactList(AddContactListCommand::createFromArray($data));
 
-            $this->messageManager->addSuccessMessage(Message::LIST_CREATED);
-            $resultRedirect = $this->resultRedirectFactory->create();
-            $resultRedirect->setPath($backUrl);
-
-            return $resultRedirect;
+            return $this->redirect($backUrl, Message::LIST_CREATED);
         } catch (Exception $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
-            $resultPage = $this->resultPageFactory->create();
-            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-
-            return $resultPage;
+            return $this->redirect($backUrl, $e->getMessage(), true);
         }
     }
 }

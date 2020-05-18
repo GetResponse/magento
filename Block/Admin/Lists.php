@@ -25,7 +25,7 @@ class Lists extends AdminTemplate
         parent::__construct($context, $magentoStore);
 
         $this->storeReadModel = $storeReadModel;
-        $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->scope);
+        $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->getScope());
     }
 
     /**
@@ -44,7 +44,7 @@ class Lists extends AdminTemplate
     public function getSubscriptionConfirmationsSubject(): array
     {
         return $this->apiClient->getSubscriptionConfirmationSubject(
-            $this->storeReadModel->getStoreLanguage($this->scope)
+            $this->storeReadModel->getStoreLanguage($this->getScope())
         );
     }
 
@@ -55,7 +55,7 @@ class Lists extends AdminTemplate
     public function getSubscriptionConfirmationsBody(): array
     {
         return $this->apiClient->getSubscriptionConfirmationBody(
-            $this->storeReadModel->getStoreLanguage($this->scope)
+            $this->storeReadModel->getStoreLanguage($this->getScope())
         );
     }
 

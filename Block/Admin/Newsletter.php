@@ -26,7 +26,7 @@ class Newsletter extends AdminTemplate
     ) {
         parent::__construct($context, $magentoStore);
         $this->repository = $repository;
-        $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->scope);
+        $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->getScope());
     }
 
     /**
@@ -41,7 +41,7 @@ class Newsletter extends AdminTemplate
     public function getNewsletterSettings(): NewsletterSettings
     {
         return NewsletterSettingsFactory::createFromArray(
-            $this->repository->getNewsletterSettings($this->scope->getScopeId())
+            $this->repository->getNewsletterSettings($this->getScope()->getScopeId())
         );
     }
 }

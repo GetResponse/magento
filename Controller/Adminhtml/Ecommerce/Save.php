@@ -8,52 +8,46 @@ use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\Magento\EcommerceSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\ValidationException;
-use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Cache\TypeListInterface;
-use Magento\Framework\App\Request\Http;
 
 class Save extends AbstractController
 {
     private $cache;
     private $repository;
-    private $magentoStore;
 
     public function __construct(
         Context $context,
         TypeListInterface $cache,
-        Repository $repository,
-        MagentoStore $magentoStore
+        Repository $repository
     ) {
         parent::__construct($context);
         $this->cache = $cache;
         $this->repository = $repository;
-        $this->magentoStore = $magentoStore;
     }
 
     public function execute()
     {
-        $resultRedirect = $this->resultRedirectFactory->create();
-        $resultRedirect->setPath(Route::ECOMMERCE_INDEX_ROUTE);
-        $scopeId = $this->magentoStore->getStoreIdFromUrl();
+        parent::execute();
 
-        try {
-            /** @var Http $request */
-            $request = $this->getRequest();
-            $settings = EcommerceSettingsFactory::createFromPost($request->getPostValue());
-
-            $this->repository->saveShopStatus($settings->getStatus(), $scopeId);
-            $this->repository->saveShopId($settings->getShopId(), $scopeId);
-            $this->repository->saveEcommerceListId($settings->getListId(), $scopeId);
-
-            $this->cache->cleanType('config');
-            $this->messageManager->addSuccessMessage(Message::ECOMMERCE_SAVED);
-        } catch (ValidationException $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
+        if (!$this->isConnected()) {
+            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
         }
 
-        return $resultRedirect;
+        try {
+            $settings = EcommerceSettingsFactory::createFromPost($this->request->getPostValue());
+
+            $this->repository->saveShopStatus($settings->getStatus(), $this->scope->getScopeId());
+            $this->repository->saveShopId($settings->getShopId(), $this->scope->getScopeId());
+            $this->repository->saveEcommerceListId($settings->getListId(), $this->scope->getScopeId());
+
+            $this->cache->cleanType('config');
+
+            return $this->redirect($this->_redirect->getRefererUrl(), Message::ECOMMERCE_SAVED);
+        } catch (ValidationException $e) {
+            return $this->redirect($this->_redirect->getRefererUrl(), $e->getMessage(), true);
+        }
     }
 }

@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactCustomFieldsCollectionFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\Command\AddContact;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\ContactService;
 use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GrShareCode\Api\Exception\GetresponseApiException;
+use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Newsletter\Model\Subscriber;
@@ -19,17 +20,14 @@ class SubscribeFromNewsletter implements ObserverInterface
 {
     private $repository;
     private $contactService;
-    private $contactCustomFieldsCollectionFactory;
     private $magentoStore;
 
     public function __construct(
         Repository $repository,
-        ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory,
         ContactService $contactService,
         MagentoStore $magentoStore
     ) {
         $this->repository = $repository;
-        $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
         $this->contactService = $contactService;
         $this->magentoStore = $magentoStore;
     }
@@ -62,14 +60,16 @@ class SubscribeFromNewsletter implements ObserverInterface
             }
 
             $this->contactService->addContact(
-                $email,
-                null,
-                null,
-                $newsletterSettings->getCampaignId(),
-                $newsletterSettings->getCycleDay(),
-                $this->contactCustomFieldsCollectionFactory->createForSubscriber(),
-                false,
-                $scope
+                new AddContact(
+                    $scope,
+                    $email,
+                    '',
+                    '',
+                    $newsletterSettings->getCampaignId(),
+                    $newsletterSettings->getCycleDay(),
+                    new ContactCustomFieldsCollection(),
+                    false
+                )
             );
         } catch (ApiException $e) {
         } catch (GetresponseApiException $e) {

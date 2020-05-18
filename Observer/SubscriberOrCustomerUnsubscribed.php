@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\Command\RemoveContact;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
 use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -58,7 +59,9 @@ class SubscriberOrCustomerUnsubscribed implements ObserverInterface
             );
 
             if (!$subscriber->isSubscribed()) {
-                $this->contactService->removeContact($subscriber->getSubscriberEmail(), $scope);
+                $this->contactService->removeContact(
+                    new RemoveContact($scope, $subscriber->getSubscriberEmail())
+                );
             }
         } catch (ApiException $e) {
         } catch (GetresponseApiException $e) {

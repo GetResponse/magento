@@ -1,23 +1,19 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand\Dto;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto\CustomFieldMappingDtoCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto\InvalidPrefixException;
 
-/**
- * Class ExportOnDemandDtoFactory
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand\Dto
- */
 class ExportOnDemandDtoFactory
 {
-    /** @var CustomFieldMappingDtoCollection */
     private $customFieldMappingDtoCollection;
 
-    /**
-     * @param CustomFieldMappingDtoCollection $customFieldMappingDtoCollection
-     */
-    public function __construct(CustomFieldMappingDtoCollection $customFieldMappingDtoCollection)
-    {
+    public function __construct(
+        CustomFieldMappingDtoCollection $customFieldMappingDtoCollection
+    ) {
         $this->customFieldMappingDtoCollection = $customFieldMappingDtoCollection;
     }
 
@@ -26,7 +22,7 @@ class ExportOnDemandDtoFactory
      * @return ExportOnDemandDto
      * @throws InvalidPrefixException
      */
-    public function createFromRequest(array $requestData)
+    public function createFromRequest(array $requestData): ExportOnDemandDto
     {
         return new ExportOnDemandDto(
             $requestData['campaign_id'],

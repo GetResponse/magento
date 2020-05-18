@@ -12,6 +12,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Ecommerce\ReadModel\Ec
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Command\AddOrderCommandFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Contact\Contact;
@@ -38,7 +39,8 @@ class CreateOrderHandler implements ObserverInterface
         Logger $getResponseLogger,
         AddOrderCommandFactory $addOrderCommandFactory,
         EcommerceReadModel $ecommerceReadModel,
-        ContactReadModel $contactReadModel
+        ContactReadModel $contactReadModel,
+        MagentoStore $magentoStore
     ) {
         $this->orderService = $orderService;
         $this->orderFactory = $orderFactory;
@@ -47,11 +49,12 @@ class CreateOrderHandler implements ObserverInterface
         $this->customerSession = $customerSession;
         $this->ecommerceReadModel = $ecommerceReadModel;
         $this->contactReadModel = $contactReadModel;
+        $this->magentoStore = $magentoStore;
     }
 
     public function execute(EventObserver $observer)
     {
-        $scope = new Scope($this->magentoStore->getCurrentStoreId());
+        $scope = $this->magentoStore->getCurrentScope();
 
         try {
             $shopId = $this->ecommerceReadModel->getShopId($scope);
@@ -78,7 +81,7 @@ class CreateOrderHandler implements ObserverInterface
                     $this->ecommerceReadModel->getListId($scope),
                     $shopId
                 ),
-                $scope->getScopeId()
+                $scope
             );
 
         } catch (Exception $e) {

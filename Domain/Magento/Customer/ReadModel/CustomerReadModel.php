@@ -35,13 +35,13 @@ class CustomerReadModel
 
     public function findCustomers()
     {
-        $customers = $this->objectManager->get(Subscriber::class);
-        $customers = $customers->getCollection();
+        $subscriberModel = $this->objectManager->get(Subscriber::class);
+        $subscribers = $subscriberModel->getCollection();
 
-        $customerEntityTable = $customers->getTable('customer_entity');
-        $customerAddressEntityTable = $customers->getTable('customer_address_entity');
+        $customerEntityTable = $subscribers->getTable('customer_entity');
+        $customerAddressEntityTable = $subscribers->getTable('customer_address_entity');
 
-        $customers->getSelect()
+        $subscribers->getSelect()
             ->joinLeft(
                 ['customer_entity' => $customerEntityTable],
                 'customer_entity.entity_id=main_table.customer_id',
@@ -54,6 +54,6 @@ class CustomerReadModel
             )
             ->where('subscriber_status=1');
 
-        return $customers;
+        return $subscribers;
     }
 }

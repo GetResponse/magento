@@ -1,20 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
 use Exception;
 
-/**
- * Class EcommerceSettingsException
- * @package GetResponse\GetResponseIntegration\Domain\Magento
- */
 class ValidationException extends Exception
 {
-    /**
-     * @param string $message
-     * @throws ValidationException
-     */
-    public static function createForInvalidValue($message)
+    public static function createForInvalidValue($message): ValidationException
     {
-        throw new self($message);
+        return new self($message);
     }
 }

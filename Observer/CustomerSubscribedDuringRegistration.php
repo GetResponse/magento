@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\Command\AddContact;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactCustomFieldsCollectionFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
 use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\CustomerReadModel;
 use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\Query\CustomerEmail;
@@ -70,14 +71,12 @@ class CustomerSubscribedDuringRegistration implements ObserverInterface
             );
 
             $this->contactService->addContact(
-                $customer->getEmail(),
-                $customer->getFirstname(),
-                $customer->getLastname(),
-                $registrationSettings->getCampaignId(),
-                $registrationSettings->getCycleDay(),
-                $contactCustomFieldsCollection,
-                $registrationSettings->isUpdateCustomFieldsEnalbed(),
-                $scope
+                AddContact::createFromCustomer(
+                    $customer,
+                    $registrationSettings,
+                    $contactCustomFieldsCollection,
+                    $scope
+                )
             );
         } catch (ApiException $e) {
         } catch (GetresponseApiException $e) {

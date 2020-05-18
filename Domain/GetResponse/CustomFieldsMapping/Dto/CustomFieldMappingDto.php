@@ -1,53 +1,36 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto;
 
-/**
- * Class CustomFieldMappingDto
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto
- */
 class CustomFieldMappingDto
 {
-    /** @var string */
     private $magentoAttributeCode;
-
-    /** @var string */
     private $getResponseCustomFieldId;
-
-    /** @var string */
     private $magentoAttributeType;
 
-    /**
-     * @param string $magentoAttributeCode
-     * @param string $magentoAttributeType
-     * @param string $getResponseCustomFieldId
-     */
-    public function __construct($magentoAttributeCode, $magentoAttributeType, $getResponseCustomFieldId)
-    {
+    public function __construct(
+        string $magentoAttributeCode,
+        string $magentoAttributeType,
+        string $getResponseCustomFieldId
+    ) {
         $this->magentoAttributeCode = $magentoAttributeCode;
         $this->magentoAttributeType = $magentoAttributeType;
         $this->getResponseCustomFieldId = $getResponseCustomFieldId;
     }
 
-    /**
-     * @return string
-     */
-    public function getMagentoAttributeType()
+    public function getMagentoAttributeType(): string
     {
         return $this->magentoAttributeType;
     }
 
-    /**
-     * @return string
-     */
-    public function getMagentoAttributeCode()
+    public function getMagentoAttributeCode(): string
     {
         return $this->magentoAttributeCode;
     }
 
-    /**
-     * @return string
-     */
-    public function getGetResponseCustomFieldId()
+    public function getGetResponseCustomFieldId(): string
     {
         return $this->getResponseCustomFieldId;
     }

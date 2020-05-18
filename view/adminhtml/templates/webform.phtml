@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-/** @var \GetResponse\GetResponseIntegration\Block\Admin\Webform $block */
-
+use GetResponse\GetResponseIntegration\Block\Admin\Webform as WebformBlock;
 use GetResponse\GetResponseIntegration\Helper\BlockPosition;
 use GrShareCode\WebForm\WebForm;
 
+/** @var WebformBlock $block */
 $webForms = $block->getWebForms();
 $webformSettings = $block->getWebFormSettings();
 ?>

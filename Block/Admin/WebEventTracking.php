@@ -26,7 +26,7 @@ class WebEventTracking extends AdminTemplate
     public function getWebEventTracking(): WebEventTrackingSettings
     {
         return WebEventTrackingSettingsFactory::createFromArray(
-            $this->repository->getWebEventTracking($this->scope->getScopeId())
+            $this->repository->getWebEventTracking($this->getScope()->getScopeId())
         );
     }
 }

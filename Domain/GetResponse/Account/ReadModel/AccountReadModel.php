@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
+namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Account\ReadModel;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\Account;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\AccountFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;

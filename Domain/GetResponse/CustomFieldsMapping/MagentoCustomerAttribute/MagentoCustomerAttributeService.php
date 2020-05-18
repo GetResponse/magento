@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute;
 
 use Exception;
@@ -6,17 +9,8 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Cu
 use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
 use Magento\Customer\Model\Customer;
 
-/**
- * Class MagentoCustomerAttributeService
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute
- */
 class MagentoCustomerAttributeService
 {
-    /**
-     * @param CustomFieldsMapping $customFieldMapping
-     * @param Customer $customer
-     * @return null|string
-     */
     public function getAttributeValue(CustomFieldsMapping $customFieldMapping, Customer $customer)
     {
         $attributeCode = $customFieldMapping->getMagentoAttributeCode();
@@ -32,11 +26,6 @@ class MagentoCustomerAttributeService
         return null;
     }
 
-    /**
-     * @param Customer $customer
-     * @param string $attributeCode
-     * @return mixed
-     */
     private function getCustomerAttributeValueByCode(Customer $customer, $attributeCode)
     {
         try {
@@ -53,11 +42,6 @@ class MagentoCustomerAttributeService
         }
     }
 
-    /**
-     * @param Customer $customer
-     * @param string $attributeCode
-     * @return mixed
-     */
     private function getAddressAttributeValueByCode(Customer $customer, $attributeCode)
     {
         try {
@@ -80,5 +64,4 @@ class MagentoCustomerAttributeService
             return null;
         }
     }
-
 }

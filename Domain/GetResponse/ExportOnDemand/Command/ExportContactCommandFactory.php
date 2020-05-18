@@ -13,7 +13,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\Custome
 use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\Query\CustomerId;
 use GetResponse\GetResponseIntegration\Domain\Magento\Order\ReadModel\OrderReadModel;
 use GetResponse\GetResponseIntegration\Domain\Magento\Order\ReadModel\Query\CustomerOrders;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
 use GrShareCode\Export\Command\ExportContactCommand;
 use GrShareCode\Order\OrderCollection;
 use Magento\Customer\Model\Customer;
@@ -22,19 +22,16 @@ use Magento\Newsletter\Model\Subscriber;
 class ExportContactCommandFactory
 {
     private $contactCustomFieldsCollectionFactory;
-    private $repository;
     private $orderFactory;
     private $customerReadModel;
     private $orderReadModel;
 
     public function __construct(
-        Repository $repository,
         ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory,
         OrderFactory $orderFactory,
         CustomerReadModel $customerReadModel,
         OrderReadModel $orderReadModel
     ) {
-        $this->repository = $repository;
         $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
         $this->orderFactory = $orderFactory;
         $this->customerReadModel = $customerReadModel;
@@ -57,26 +54,30 @@ class ExportContactCommandFactory
         return $this->createExportCommandForCustomer($customer, $exportOnDemand);
     }
 
-    private function subscriberIsAlsoCustomer(Subscriber $subscriber)
+    private function subscriberIsAlsoCustomer(Subscriber $subscriber): bool
     {
         return 0 !== (int)$subscriber->getCustomerId();
     }
 
-    private function createExportCommandForSubscriber(Subscriber $subscriber, ExportOnDemand $exportOnDemand)
-    {
+    private function createExportCommandForSubscriber(
+        Subscriber $subscriber,
+        ExportOnDemand $exportOnDemand
+    ): ExportContactCommand {
         $exportSettings = ExportSettingsFactory::createFromExportOnDemand($exportOnDemand);
 
         return new ExportContactCommand(
             $subscriber['subscriber_email'],
             '',
             $exportSettings,
-            $this->contactCustomFieldsCollectionFactory->createForSubscriber(),
+            new ContactCustomFieldsCollection(),
             new OrderCollection()
         );
     }
 
-    private function createExportCommandForCustomer($customer, ExportOnDemand $exportOnDemand)
-    {
+    private function createExportCommandForCustomer(
+        Customer $customer,
+        ExportOnDemand $exportOnDemand
+    ): ExportContactCommand {
         $exportSettings = ExportSettingsFactory::createFromExportOnDemand($exportOnDemand);
 
         $contactCustomFieldCollection = $this->contactCustomFieldsCollectionFactory->createForCustomer(
@@ -94,8 +95,10 @@ class ExportContactCommandFactory
         );
     }
 
-    private function getCustomerOrderCollection(Customer $customer, ExportOnDemand $exportOnDemand): OrderCollection
-    {
+    private function getCustomerOrderCollection(
+        Customer $customer,
+        ExportOnDemand $exportOnDemand
+    ): OrderCollection {
         $orderCollection = new OrderCollection();
 
         if (!$exportOnDemand->isSendEcommerceDataEnabled()) {

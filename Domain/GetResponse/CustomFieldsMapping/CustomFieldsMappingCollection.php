@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping;
 
 use ArrayIterator;
@@ -7,19 +10,11 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dt
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute\MagentoCustomerAttribute;
 use IteratorAggregate;
 
-/**
- * Class CustomFieldsMappingCollection
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping
- */
 class CustomFieldsMappingCollection implements IteratorAggregate
 {
-    /** @var array */
     private $items = [];
 
-    /**
-     * @return CustomFieldsMappingCollection
-     */
-    public static function createDefaults()
+    public static function createDefaults(): CustomFieldsMappingCollection
     {
         $collection = new self();
 
@@ -56,12 +51,9 @@ class CustomFieldsMappingCollection implements IteratorAggregate
         return $collection;
     }
 
-    /**
-     * @param CustomFieldMappingDtoCollection $customFieldMappingDtoCollection
-     * @return CustomFieldsMappingCollection
-     */
-    public static function createFromDto(CustomFieldMappingDtoCollection $customFieldMappingDtoCollection)
-    {
+    public static function createFromDto(
+        CustomFieldMappingDtoCollection $customFieldMappingDtoCollection
+    ): CustomFieldsMappingCollection {
         $collection = new self();
 
         if (!count($customFieldMappingDtoCollection)) {
@@ -87,11 +79,7 @@ class CustomFieldsMappingCollection implements IteratorAggregate
         return $collection;
     }
 
-    /**
-     * @param array $data
-     * @return CustomFieldsMappingCollection
-     */
-    public static function createFromRepository(array $data)
+    public static function createFromRepository(array $data): CustomFieldsMappingCollection
     {
         $collection = new self();
 
@@ -106,26 +94,17 @@ class CustomFieldsMappingCollection implements IteratorAggregate
         return $collection;
     }
 
-    /**
-     * @param CustomFieldsMapping $item
-     */
     public function add(CustomFieldsMapping $item)
     {
         $this->items[] = $item;
     }
 
-    /**
-     * @return ArrayIterator
-     */
     public function getIterator()
     {
         return new ArrayIterator($this->items);
     }
 
-    /**
-     * @return array
-     */
-    public function toArray()
+    public function toArray(): array
     {
         $result = [];
 
@@ -136,5 +115,4 @@ class CustomFieldsMappingCollection implements IteratorAggregate
 
         return $result;
     }
-
 }

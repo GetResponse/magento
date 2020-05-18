@@ -17,7 +17,6 @@ class AdminTemplate extends Template
 {
     protected $magentoStore;
     protected $apiClient;
-    protected $scope;
 
     public function __construct(
         Context $context,
@@ -25,7 +24,6 @@ class AdminTemplate extends Template
     ) {
         parent::__construct($context);
         $this->magentoStore = $magentoStore;
-        $this->scope = new Scope($this->magentoStore->getStoreIdFromUrl());
     }
 
     /**
@@ -58,12 +56,12 @@ class AdminTemplate extends Template
 
     public function getScope(): Scope
     {
-        return $this->scope;
+        return new Scope($this->magentoStore->getStoreIdFromUrl());
     }
 
     public function getUrlWithScope($route = '', $params = []): string
     {
-        $scopeId = $this->scope->getScopeId();
+        $scopeId = $this->getScope()->getScopeId();
 
         if ($scopeId !== null) {
             $route .= '/' . Config::SCOPE_TAG . '/' . $scopeId;

@@ -1,36 +1,24 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration;
 
-/**
- * Class SubscribeViaRegistration
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration
- */
 class SubscribeViaRegistration
 {
-    /** @var int */
     private $status;
-
-    /** @var int */
     private $customFieldsStatus;
-
-    /** @var null|int */
     private $campaignId;
-
-    /** @var int */
     private $cycleDay;
-
-    /** @var string */
     private $autoresponderId;
 
-    /**
-     * @param int $status
-     * @param int $customFieldsStatus
-     * @param string $campaignId
-     * @param null|int $cycleDay
-     * @param string $autoresponderId
-     */
-    public function __construct($status, $customFieldsStatus, $campaignId, $cycleDay, $autoresponderId)
-    {
+    public function __construct(
+        int $status,
+        int $customFieldsStatus,
+        string $campaignId,
+        $cycleDay,
+        string $autoresponderId
+    ) {
         $this->status = $status;
         $this->customFieldsStatus = $customFieldsStatus;
         $this->campaignId = $campaignId;
@@ -38,42 +26,27 @@ class SubscribeViaRegistration
         $this->autoresponderId = $autoresponderId;
     }
 
-    /**
-     * @return bool
-     */
-    public function isEnabled()
+    public function isEnabled(): bool
     {
-        return 1 === (int)$this->status;
+        return 1 === $this->status;
     }
 
-    /**
-     * @return string
-     */
-    public function getAutoresponderId()
+    public function getAutoresponderId(): string
     {
         return $this->autoresponderId;
     }
 
-    /**
-     * @return bool
-     */
-    public function isUpdateCustomFieldsEnalbed()
+    public function isUpdateCustomFieldsEnalbed(): bool
     {
-        return 1 === (int)$this->customFieldsStatus;
+        return 1 === $this->customFieldsStatus;
     }
 
-    /**
-     * @return string
-     */
-    public function getCampaignId()
+    public function getCampaignId(): string
     {
         return $this->campaignId;
     }
 
-    /**
-     * @return array
-     */
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'status' => $this->status,
@@ -84,13 +57,10 @@ class SubscribeViaRegistration
         ];
     }
 
-    /**
-     * @return int
-     */
     public function getCycleDay()
     {
-        if (strlen($this->cycleDay) > 0) {
-            return (int) $this->cycleDay;
+        if ($this->cycleDay !== '') {
+            return $this->cycleDay;
         }
 
         return null;

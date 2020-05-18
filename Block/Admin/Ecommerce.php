@@ -6,7 +6,6 @@ namespace GetResponse\GetResponseIntegration\Block\Admin;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Ecommerce\ReadModel\EcommerceReadModel;
-use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\ContactList\ContactListCollection;
@@ -28,24 +27,22 @@ class Ecommerce extends AdminTemplate
         parent::__construct($context, $magentoStore);
 
         $this->ecommerceReadModel = $ecommerceReadModel;
-        $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->scope);
+        $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->getScope());
     }
 
     public function getShopStatus(): string
     {
-        return $this->ecommerceReadModel->getShopStatus($this->scope);
+        return $this->ecommerceReadModel->getShopStatus($this->getScope());
     }
 
     public function getCurrentShopId()
     {
-        return $this->ecommerceReadModel->getShopId($this->scope);
+        return $this->ecommerceReadModel->getShopId($this->getScope());
     }
 
     public function getEcommerceListId()
     {
-        return $this->ecommerceReadModel->getListId(
-            new Scope($this->magentoStore->getStoreIdFromUrl())
-        );
+        return $this->ecommerceReadModel->getListId($this->getScope());
     }
 
     /**

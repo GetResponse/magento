@@ -6,33 +6,28 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Newsletter;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
-use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Backend\App\Action\Context;
 
 class Save extends AbstractController
 {
-    const BACK_URL = 'getresponse/newsletter/index';
-
     private $repository;
-    private $magentoStore;
 
-    public function __construct(
-        Context $context,
-        Repository $repository,
-        MagentoStore $magentoStore
-    ) {
+    public function __construct(Context $context, Repository $repository)
+    {
         parent::__construct($context);
-        $this->request = $this->getRequest();
         $this->repository = $repository;
-        $this->magentoStore = $magentoStore;
     }
 
     public function execute()
     {
-        $resultRedirect = $this->resultRedirectFactory->create();
-        $resultRedirect->setPath(self::BACK_URL);
+        parent::execute();
+
+        if (!$this->isConnected()) {
+            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
+        }
 
         $data = $this->request->getPostValue();
 
@@ -40,14 +35,16 @@ class Save extends AbstractController
         $isEnabled = isset($data['gr_enabled']) && 1 === (int) $data['gr_enabled'];
 
         if (!$isEnabled) {
-            $this->repository->clearNewsletterSettings($this->magentoStore->getStoreIdFromUrl());
+            $this->repository->clearNewsletterSettings($this->scope->getScopeId());
         } else {
             $campaignId = $data['campaign_id'];
 
             if (empty($campaignId)) {
-                $this->messageManager->addErrorMessage(Message::SELECT_CONTACT_LIST);
-
-                return $resultRedirect;
+                return $this->redirect(
+                    $this->_redirect->getRefererUrl(),
+                    Message::SELECT_CONTACT_LIST,
+                    true
+                );
             }
 
             $newsletterSettings = NewsletterSettingsFactory::createFromArray([
@@ -57,13 +54,9 @@ class Save extends AbstractController
                 'autoresponderId' => !empty($autoresponder) ? explode('_', $autoresponder)[1] : '',
             ]);
 
-            $this->repository->saveNewsletterSettings(
-                $newsletterSettings,
-                $this->magentoStore->getStoreIdFromUrl()
-            );
+            $this->repository->saveNewsletterSettings($newsletterSettings, $this->scope->getScopeId());
         }
 
-        $this->messageManager->addSuccessMessage(Message::SETTINGS_SAVED);
-        return $resultRedirect;
+        return $this->redirect($this->_redirect->getRefererUrl(), Message::SETTINGS_SAVED);
     }
 }

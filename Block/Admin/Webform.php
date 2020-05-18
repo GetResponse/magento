@@ -27,13 +27,13 @@ class Webform extends AdminTemplate
         parent::__construct($context, $magentoStore);
 
         $this->repository = $repository;
-        $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->scope);
+        $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->getScope());
     }
 
     public function getWebFormSettings(): WebformSettings
     {
         return WebformSettingsFactory::createFromArray(
-            $this->repository->getWebformSettings($this->scope->getScopeId())
+            $this->repository->getWebformSettings($this->getScope()->getScopeId())
         );
     }
 
