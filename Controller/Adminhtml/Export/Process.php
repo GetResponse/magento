@@ -49,10 +49,6 @@ class Process extends AbstractController
         );
 
         if (!$this->exportOnDemandValidator->isValid($exportOnDemandDto)) {
-            $this->messageManager->addErrorMessage(
-                $this->exportOnDemandValidator->getErrorMessage()
-            );
-
             return $this->redirect(
                 $this->_redirect->getRefererUrl(),
                 $this->exportOnDemandValidator->getErrorMessage(),
@@ -60,7 +56,7 @@ class Process extends AbstractController
             );
         }
 
-        $customers = $this->customerReadModel->findCustomers();
+        $customers = $this->customerReadModel->findCustomers($this->scope);
         $exportOnDemand = ExportOnDemand::createFromDto($exportOnDemandDto);
 
         foreach ($customers as $customer) {

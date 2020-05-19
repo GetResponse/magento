@@ -9,6 +9,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettingsFactory;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
+use GetResponse\GetResponseIntegration\Helper\Route;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\WebForm\WebFormCollection;
 use GrShareCode\WebForm\WebFormService;
@@ -27,6 +28,7 @@ class Webform extends AdminTemplate
         parent::__construct($context, $magentoStore);
 
         $this->repository = $repository;
+        $this->routePrefix = Route::WEBFORM_INDEX_ROUTE;
         $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->getScope());
     }
 

@@ -17,7 +17,7 @@ class ExportOnDemand
     public function __construct(
         string $contactListId,
         $dayOfCycle,
-        string $shopId,
+        $shopId,
         CustomFieldsMappingCollection $customFieldsMappingCollection
     ) {
         $this->contactListId = $contactListId;
@@ -61,7 +61,7 @@ class ExportOnDemand
         return null !== $this->getShopId();
     }
 
-    public function getShopId(): string
+    public function getShopId()
     {
         return $this->shopId;
     }

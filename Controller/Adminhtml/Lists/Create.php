@@ -19,7 +19,7 @@ use Magento\Framework\App\Request\Http;
 
 class Create extends AbstractController
 {
-    private $apiClient;
+    private $apiClientFactory;
     private $storeReadModel;
 
     public function __construct(
@@ -28,8 +28,8 @@ class Create extends AbstractController
         StoreReadModel $storeReadModel
     ) {
         parent::__construct($context);
-        $this->apiClient = $apiClientFactory->createGetResponseApiClient($this->scope);
         $this->storeReadModel = $storeReadModel;
+        $this->apiClientFactory = $apiClientFactory;
     }
 
     public function execute()
@@ -58,7 +58,9 @@ class Create extends AbstractController
 
             $data['lang'] = $this->storeReadModel->getStoreLanguage($this->scope);
 
-            $service = new ContactListService($this->apiClient);
+            $service = new ContactListService(
+                $this->apiClientFactory->createGetResponseApiClient($this->scope)
+            );
             $service->createContactList(AddContactListCommand::createFromArray($data));
 
             return $this->redirect($backUrl, Message::LIST_CREATED);

@@ -10,8 +10,6 @@ use GrShareCode\ContactList\ContactListCollection;
 /** @var ContactListCollection $lists */
 $lists = $block->getLists();
 $newsletter = $block->getNewsletterSettings();
-$jsAutoResponders = $block->getAutoRespondersForFrontend();
-
 ?>
 
 <form method="post" action="<?php echo $block->getUrlWithScope('getresponse/newsletter/save'); ?>">
@@ -25,7 +23,7 @@ $jsAutoResponders = $block->getAutoRespondersForFrontend();
         <div class="page-actions">
             <div class="page-actions-inner">
                 <div class="page-actions-buttons">
-                    <button id="getresponse_add_new_campaign" title="Create Contact List" type="button" onclick="location.href='<?php echo $block->getUrlWithScope('getresponse/lists/create/back/newsletter'); ?>'" class="action- scalable action-secondary"  >
+                    <button id="getresponse_add_new_campaign" title="Create Contact List" type="button" onclick="location.href='<?php echo $block->getUrlWithScope('getresponse/lists/index/back/newsletter'); ?>'" class="action- scalable action-secondary"  >
                         <span>Create Contact List</span>
                     </button>
                     <button id="save" title="Save" type="submit" class="action-default scalable save primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
@@ -107,7 +105,7 @@ $jsAutoResponders = $block->getAutoRespondersForFrontend();
         </div>
     </div>
 </form>
-<input type="hidden" id="jsAutoresponders" value='<?php echo $block->escapeHtml(json_encode($jsAutoResponders)); ?>'/>
+<input type="hidden" id="jsAutoresponders" value='<?php echo $block->getSerializedAutoresponders() ?>'/>
 <input type="hidden" id="jsSettingsCycleDayKey" value='<?php echo (string) $newsletter->getCycleDay() . '_' . $newsletter->getAutoresponderId(); ?>'/>
 <script>
     require(['registration']);

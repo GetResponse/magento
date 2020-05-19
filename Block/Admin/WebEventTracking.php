@@ -7,6 +7,7 @@ namespace GetResponse\GetResponseIntegration\Block\Admin;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
+use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Framework\View\Element\Template\Context;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
@@ -21,6 +22,7 @@ class WebEventTracking extends AdminTemplate
     ) {
         parent::__construct($context, $magentoStore);
         $this->repository = $repository;
+        $this->routePrefix = Route::WEB_TRAFFIC_INDEX_ROUTE;
     }
 
     public function getWebEventTracking(): WebEventTrackingSettings

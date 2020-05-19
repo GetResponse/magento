@@ -7,9 +7,6 @@ namespace GetResponse\GetResponseIntegration\Block\Admin;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
-use GrShareCode\Api\Exception\GetresponseApiException;
-use GrShareCode\ContactList\Autoresponder;
-use GrShareCode\ContactList\ContactListService;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 
@@ -17,6 +14,7 @@ class AdminTemplate extends Template
 {
     protected $magentoStore;
     protected $apiClient;
+    protected $routePrefix;
 
     public function __construct(
         Context $context,
@@ -24,29 +22,6 @@ class AdminTemplate extends Template
     ) {
         parent::__construct($context);
         $this->magentoStore = $magentoStore;
-    }
-
-    /**
-     * @return array
-     * @throws GetresponseApiException
-     */
-    public function getAutoRespondersForFrontend(): array
-    {
-        $result = [];
-
-        $service = new ContactListService($this->apiClient);
-        $responders = $service->getAutoresponders();
-
-        /** @var Autoresponder $responder */
-        foreach ($responders as $responder) {
-            $result[$responder->getCampaignId()][$responder->getId()] = [
-                'name' => $responder->getName(),
-                'subject' => $responder->getSubject(),
-                'dayOfCycle' => $responder->getCycleDay()
-            ];
-        }
-
-        return $result;
     }
 
     public function getMagentoStores(): array
@@ -68,5 +43,10 @@ class AdminTemplate extends Template
         }
 
         return $this->getUrl($route, $params);
+    }
+
+    public function getPageUrlForScope(int $scope): string
+    {
+        return $this->getUrl($this->routePrefix . '/' . Config::SCOPE_TAG . '/' .  $scope);
     }
 }

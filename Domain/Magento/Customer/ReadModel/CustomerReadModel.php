@@ -6,6 +6,7 @@ namespace GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\Query\CustomerEmail;
 use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\Query\CustomerId;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Magento\Customer\Model\Customer;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Newsletter\Model\Subscriber;
@@ -33,7 +34,7 @@ class CustomerReadModel
         return $customer->loadByEmail($query->getEmail());
     }
 
-    public function findCustomers()
+    public function findCustomers(Scope $scope)
     {
         $subscriberModel = $this->objectManager->get(Subscriber::class);
         $subscribers = $subscriberModel->getCollection();
@@ -52,7 +53,8 @@ class CustomerReadModel
                 'customer_address_entity.entity_id=default_billing',
                 ['*']
             )
-            ->where('subscriber_status=1');
+            ->where('subscriber_status=1')
+            ->where('main_table.store_id=' . (int) $scope->getScopeId());
 
         return $subscribers;
     }

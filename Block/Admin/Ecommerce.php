@@ -7,6 +7,7 @@ namespace GetResponse\GetResponseIntegration\Block\Admin;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Ecommerce\ReadModel\EcommerceReadModel;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
+use GetResponse\GetResponseIntegration\Helper\Route;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\ContactList\ContactListCollection;
 use GrShareCode\ContactList\ContactListService;
@@ -27,6 +28,7 @@ class Ecommerce extends AdminTemplate
         parent::__construct($context, $magentoStore);
 
         $this->ecommerceReadModel = $ecommerceReadModel;
+        $this->routePrefix = Route::ECOMMERCE_INDEX_ROUTE;
         $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->getScope());
     }
 

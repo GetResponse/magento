@@ -23,7 +23,7 @@ $registrationSettings = $block->getRegistrationSettings();
         <div class="page-actions">
             <div class="page-actions-inner">
                 <div class="page-actions-buttons">
-                    <button id="getresponse_add_new_campaign" title="Create Contact List" type="button" onclick="location.href='<?php echo $block->getUrlWithScope('getresponse/lists/create/back/registration'); ?>'" class="action- scalable action-secondary"  >
+                    <button id="getresponse_add_new_campaign" title="Create Contact List" type="button" onclick="location.href='<?php echo $block->getUrlWithScope('getresponse/lists/index/back/registration'); ?>'" class="action- scalable action-secondary"  >
                         <span>Create Contact List</span>
                     </button>
                     <button id="save" title="Save" type="submit" class="action-default scalable save primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
@@ -131,7 +131,7 @@ $registrationSettings = $block->getRegistrationSettings();
         </div>
     </div>
 </form>
-<input type="hidden" id="jsAutoresponders" value='<?php echo $block->escapeHtml(json_encode($block->getAutoRespondersForFrontend())); ?>'/>
+<input type="hidden" id="jsAutoresponders" value='<?php echo $block->getSerializedAutoresponders() ?>'/>
 <input type="hidden" id="jsSettingsCycleDayKey" value='<?php echo (string)$registrationSettings->getCycleDay() . '_' . $registrationSettings->getAutoresponderId(); ?>'/>
 <script>
     require(['registration']);

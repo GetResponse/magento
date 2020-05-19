@@ -7,6 +7,7 @@ namespace GetResponse\GetResponseIntegration\Block\Admin;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Store\ReadModel\StoreReadModel;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
+use GetResponse\GetResponseIntegration\Helper\Route;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\ContactList\ContactListService;
 use GrShareCode\ContactList\FromFieldsCollection;
@@ -25,6 +26,7 @@ class Lists extends AdminTemplate
         parent::__construct($context, $magentoStore);
 
         $this->storeReadModel = $storeReadModel;
+        $this->routePrefix = Route::LIST_INDEX_ROUTE;
         $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->getScope());
     }
 

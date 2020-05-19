@@ -116,8 +116,8 @@ $magentoCustomerAttributesArray = $magentoCustomerAttributes->toArray();
         </tbody>
     </table>
 </div>
-<input type="hidden" id="jsMagentoCustomerAttributes" value='<?php echo json_encode($magentoCustomerAttributesArray); ?>'/>
-<input type="hidden" id="jsGetResponseCustomFields" value='<?php echo json_encode($customFieldsFromGetResponse); ?>'/>
+<input type="hidden" id="jsMagentoCustomerAttributes" value='<?php echo $block->getSerializedMagentoCustomerAttributes() ?>'/>
+<input type="hidden" id="jsGetResponseCustomFields" value='<?php echo $block->getSerializedCustomFieldsFromGetResponse() ?>'/>
 <script>
     require(['customsGrid']);
 </script>

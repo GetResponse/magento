@@ -21,7 +21,7 @@ class ExportOnDemandDto
         bool $autoresponderEnabled,
         $dayOfCycle,
         bool $ecommerceEnabled,
-        string $shopId,
+        $shopId,
         bool $updateContactCustomFieldEnabled,
         CustomFieldMappingDtoCollection $customFieldMappingDtoCollection
     ) {
@@ -54,7 +54,7 @@ class ExportOnDemandDto
         return $this->ecommerceEnabled;
     }
 
-    public function getShopId(): string
+    public function getShopId()
     {
         return $this->shopId;
     }

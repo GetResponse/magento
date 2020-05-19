@@ -13,21 +13,25 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
+use Magento\Framework\Serialize\SerializerInterface;
 
 class Repository
 {
     private $scopeConfig;
     private $configWriter;
     private $cacheManager;
+    private $serializer;
 
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         WriterInterface $configWriter,
-        Manager $cacheManager
+        Manager $cacheManager,
+        SerializerInterface $serializer
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->configWriter = $configWriter;
         $this->cacheManager = $cacheManager;
+        $this->serializer = $serializer;
     }
 
     public function getShopId($scopeId)
@@ -62,14 +66,14 @@ class Repository
             return [];
         }
 
-        return json_decode($data, true);
+        return $this->serializer->unserialize($data);
     }
 
     public function saveConnectionSettings(ConnectionSettings $settings, $scopeId)
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_CONNECTION_SETTINGS,
-            json_encode($settings->toArray()),
+            $this->serializer->serialize($settings->toArray()),
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
@@ -89,7 +93,7 @@ class Repository
             return [];
         }
 
-        return (array) json_decode($data, true);
+        return $this->serializer->unserialize($data);
     }
 
     public function saveWebEventTracking(
@@ -98,7 +102,7 @@ class Repository
     ) {
         $this->configWriter->save(
             Config::CONFIG_DATA_WEB_EVENT_TRACKING,
-            json_encode($webEventTracking->toArray()),
+            $this->serializer->serialize($webEventTracking->toArray()),
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
@@ -117,7 +121,7 @@ class Repository
         if (empty($data)) {
             return [];
         }
-        return json_decode($data, true);
+        return $this->serializer->unserialize($data);
     }
 
     public function saveShopStatus($status, $scopeId)
@@ -160,7 +164,7 @@ class Repository
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_ACCOUNT,
-            json_encode($account->toArray()),
+            $this->serializer->serialize($account->toArray()),
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
@@ -180,7 +184,7 @@ class Repository
             return [];
         }
 
-        return json_decode($data, true);
+        return $this->serializer->unserialize($data);
     }
 
     public function getNewsletterSettings($scopeId): array
@@ -195,7 +199,7 @@ class Repository
             return [];
         }
 
-        return json_decode($data, true);
+        return $this->serializer->unserialize($data);
     }
 
     public function saveRegistrationSettings(
@@ -204,7 +208,7 @@ class Repository
     ) {
         $this->configWriter->save(
             Config::CONFIG_DATA_REGISTRATION_SETTINGS,
-            json_encode($registrationSettings->toArray()),
+            $this->serializer->serialize($registrationSettings->toArray()),
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
@@ -217,7 +221,7 @@ class Repository
     ) {
         $this->configWriter->save(
             Config::CONFIG_DATA_NEWSLETTER_SETTINGS,
-            json_encode($newsletterSettings->toArray()),
+            $this->serializer->serialize($newsletterSettings->toArray()),
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
@@ -235,14 +239,15 @@ class Repository
         if (empty($data)) {
             return [];
         }
-        return json_decode($data, true);
+
+        return $this->serializer->unserialize($data);
     }
 
     public function setCustomsOnInit(array $data, $scopeId)
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_REGISTRATION_CUSTOMS,
-            json_encode($data),
+            $this->serializer->serialize($data),
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
@@ -256,7 +261,7 @@ class Repository
     ) {
         $this->configWriter->save(
             Config::CONFIG_DATA_REGISTRATION_CUSTOMS,
-            json_encode($customFieldsMappingCollection->toArray()),
+            $this->serializer->serialize($customFieldsMappingCollection->toArray()),
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
@@ -268,7 +273,7 @@ class Repository
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_WEBFORMS_SETTINGS,
-            json_encode($webform->toArray()),
+            $this->serializer->serialize($webform->toArray()),
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
@@ -287,7 +292,8 @@ class Repository
         if (empty($data)) {
             return [];
         }
-        return json_decode($data, true);
+
+        return $this->serializer->unserialize($data);
     }
 
     public function clearDatabase($scopeId)
@@ -428,6 +434,6 @@ class Repository
 
     private function getScopeId($scopeId): string
     {
-        return (string) ($scopeId === null ? Store::DEFAULT_STORE_ID : $scopeId);
+        return (string) ($scopeId ?? Store::DEFAULT_STORE_ID);
     }
 }

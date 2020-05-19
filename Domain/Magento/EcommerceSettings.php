@@ -17,8 +17,8 @@ class EcommerceSettings
 
     /**
      * @param string $status
-     * @param string $shopId
-     * @param string $listId
+     * @param $shopId
+     * @param $listId
      * @throws ValidationException
      */
     public function __construct($status, $shopId, $listId)
@@ -28,12 +28,12 @@ class EcommerceSettings
         $this->setListId($listId);
     }
 
-    public function getShopId(): string
+    public function getShopId()
     {
         return $this->shopId;
     }
 
-    public function getListId(): string
+    public function getListId()
     {
         return $this->listId;
     }

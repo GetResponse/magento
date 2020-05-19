@@ -6,7 +6,6 @@ namespace GetResponse\GetResponseIntegration\Block\Admin;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\Account as GetresponseAccount;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\ReadModel\AccountReadModel;
-use GetResponse\GetResponseIntegration\Helper\Config;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Framework\App\Request\Http;
@@ -24,6 +23,7 @@ class Account extends AdminTemplate
         parent::__construct($context, $magentoStore);
 
         $this->accountReadModel = $accountReadModel;
+        $this->routePrefix = Route::ACCOUNT_INDEX_ROUTE;
     }
 
     public function getAccountInfo(): GetresponseAccount
@@ -87,10 +87,5 @@ class Account extends AdminTemplate
     public function getHiddenApiKey(): string
     {
         return $this->accountReadModel->getHiddenApiKey($this->getScope());
-    }
-
-    public function getPageUrlForScope(int $scope): string
-    {
-        return $this->getUrl(Route::ACCOUNT_INDEX_ROUTE . '/' . Config::SCOPE_TAG . '/' .  $scope);
     }
 }
