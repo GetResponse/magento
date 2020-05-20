@@ -1,27 +1,27 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Product;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductUrlFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\ProductReadModel;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Catalog\Model\Product;
+use PHPUnit\Framework\MockObject\MockObject;
 
-/**
- * Class ProductUrlFactoryTest
- * @package Unit\Domain\GetResponse\Product
- */
 class ProductUrlFactoryTest extends BaseTestCase
 {
-    /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
-    private $magentoRepository;
+    /** @var ProductReadModel|MockObject */
+    private $productReadModel;
 
     /** @var ProductUrlFactory */
     private $productUrlFactory;
 
     protected function setUp()
     {
-        $this->magentoRepository = $this->getMockWithoutConstructing(Repository::class);
-        $this->productUrlFactory = new ProductUrlFactory($this->magentoRepository);
+        $this->productReadModel = $this->getMockWithoutConstructing(ProductReadModel::class);
+        $this->productUrlFactory = new ProductUrlFactory($this->productReadModel);
     }
 
     /**
@@ -40,9 +40,9 @@ class ProductUrlFactoryTest extends BaseTestCase
             ->method('getProductUrl')
             ->willReturn('https://getresponse.com');
 
-        $this->magentoRepository
+        $this->productReadModel
             ->expects(self::never())
-            ->method('getProductParentConfigurableById');
+            ->method('getProductParent');
 
         $this->assertEquals($productUrl, $this->productUrlFactory->fromProduct($product));
     }
@@ -65,15 +65,9 @@ class ProductUrlFactoryTest extends BaseTestCase
             ->method('getProductUrl')
             ->willReturn($productUrl);
 
-        $this->magentoRepository
+        $this->productReadModel
             ->expects(self::once())
-            ->method('getProductParentConfigurableById')
-            ->willReturn($productParentIds);
-
-        $this->magentoRepository
-            ->expects(self::once())
-            ->method('getProductById')
-            ->with($productParentIds[0])
+            ->method('getProductParent')
             ->willReturn($productParent);
 
         $this->assertEquals($productUrl, $this->productUrlFactory->fromProduct($product));
@@ -89,9 +83,9 @@ class ProductUrlFactoryTest extends BaseTestCase
             ->method('getVisibility')
             ->willReturn(1);
 
-        $this->magentoRepository
+        $this->productReadModel
             ->expects(self::once())
-            ->method('getProductParentConfigurableById')
+            ->method('getProductParent')
             ->willReturn(null);
 
         $this->assertNull($this->productUrlFactory->fromProduct($product));

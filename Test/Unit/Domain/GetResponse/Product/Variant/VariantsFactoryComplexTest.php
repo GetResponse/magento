@@ -1,26 +1,39 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Variant;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductUrlFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant\ComplexVariantFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\ProductReadModel;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Product\Variant\VariantsCollection;
 use Magento\Catalog\Model\Product;
 use Magento\Quote\Model\Quote\Item as QuoteItem;
 use Magento\Sales\Model\Order\Item as OrderItem;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class VariantsFactoryComplexTest extends BaseTestCase
 {
-    /** @var Repository|PHPUnit_Framework_MockObject_MockObject */
-    private $magentoRepository;
-
-    /** @var ProductUrlFactory|PHPUnit_Framework_MockObject_MockObject */
+    /** @var ProductUrlFactory|MockObject */
     private $productUrlFactory;
 
     /** @var ComplexVariantFactory */
     private $variantFactoryComplex;
+    /** @var ProductReadModel|MockObject */
+    private $productReadModel;
+
+    protected function setUp()
+    {
+        $this->productUrlFactory = $this->getMockWithoutConstructing(ProductUrlFactory::class);
+        $this->productReadModel = $this->getMockWithoutConstructing(ProductReadModel::class);
+
+        $this->variantFactoryComplex = new ComplexVariantFactory(
+            $this->productUrlFactory,
+            $this->productReadModel
+        );
+    }
 
     /**
      * @test
@@ -44,9 +57,9 @@ class VariantsFactoryComplexTest extends BaseTestCase
 
         $quoteItem = $this->getMockWithoutConstructing(QuoteItem::class);
 
-        $this->magentoRepository
+        $this->productReadModel
             ->expects(self::exactly(count($childQuoteItems)))
-            ->method('getProductById')
+            ->method('getProduct')
             ->willReturn($magentoVariant);
 
         $quoteItem->expects(self::once())
@@ -78,7 +91,7 @@ class VariantsFactoryComplexTest extends BaseTestCase
     }
 
     /**
-     * @return Product|PHPUnit_Framework_MockObject_MockObject
+     * @return Product|MockObject
      */
     private function getMagentoVariantMock()
     {
@@ -161,9 +174,9 @@ class VariantsFactoryComplexTest extends BaseTestCase
 
         $orderItem = $this->getMockWithoutConstructing(OrderItem::class);
 
-        $this->magentoRepository
+        $this->productReadModel
             ->expects(self::exactly(count($childQuoteItems)))
-            ->method('getProductById')
+            ->method('getProduct')
             ->willReturn($magentoVariant);
 
         $orderItem->expects(self::once())
@@ -181,7 +194,7 @@ class VariantsFactoryComplexTest extends BaseTestCase
             ->willReturn('http://getresponse.com');
 
         $magentoVariantCollection = $this->variantFactoryComplex->fromOrderItem($orderItem);
-        $this->assertInstanceOf(VariantsCollection::class, $magentoVariantCollection);
+        self::assertInstanceOf(VariantsCollection::class, $magentoVariantCollection);
         $magentoVariant = $magentoVariantCollection->getIterator()[0];
 
         $this->assertCount(2, $magentoVariantCollection);
@@ -192,17 +205,5 @@ class VariantsFactoryComplexTest extends BaseTestCase
         $this->assertEquals('Product SKU No', $magentoVariant->getSku());
         $this->assertEquals('http://getresponse.com', $magentoVariant->getUrl());
         $this->assertEquals('Product short description', $magentoVariant->getDescription());
-    }
-
-
-    protected function setUp()
-    {
-        $this->magentoRepository = $this->getMockWithoutConstructing(Repository::class);
-        $this->productUrlFactory = $this->getMockWithoutConstructing(ProductUrlFactory::class);
-
-        $this->variantFactoryComplex = new ComplexVariantFactory(
-            $this->magentoRepository,
-            $this->productUrlFactory
-        );
     }
 }

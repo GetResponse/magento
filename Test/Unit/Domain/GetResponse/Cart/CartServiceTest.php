@@ -1,57 +1,56 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Cart;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Cart\CartService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Cart\CartServiceFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\Quote\ReadModel\Query\QuoteById;
+use GetResponse\GetResponseIntegration\Domain\Magento\Quote\ReadModel\QuoteReadModel;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Product\Product;
 use Magento\Checkout\Helper\Cart as CartHelper;
 use Magento\Quote\Model\Quote;
 use GrShareCode\Cart\CartService as GrCartService;
-/**
- * Class CartServiceTest
- * @package Test\Unit\Domain\GetResponse\Cart
- */
+use PHPUnit\Framework\MockObject\MockObject;
+
 class CartServiceTest extends BaseTestCase
 {
-    /** @var CartServiceFactory|\PHPUnit_Framework_MockObject_MockObject */
-    private $cartServiceFactory;
-
-    /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
-    private $magentoRepository;
-
-    /** @var ProductFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var ProductFactory|MockObject */
     private $productFactory;
-
-    /** @var GrCartService|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var GrCartService|MockObject */
     private $grCartService;
-
-    /** @var CartHelper|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var CartHelper|MockObject */
     private $cartHelper;
-
     /** @var CartService */
     private $sut;
+    /** @var QuoteReadModel|MockObject */
+    private $quoteReadModel;
+    /** @var Scope|MockObject */
+    private $scope;
 
     protected function setUp()
     {
         $this->grCartService = $this->getMockWithoutConstructing(GrCartService::class);
         $this->cartHelper = $this->getMockWithoutConstructing(CartHelper::class);
-        $this->cartServiceFactory = $this->getMockWithoutConstructing(CartServiceFactory::class);
-        $this->cartServiceFactory
-            ->expects(self::once())
+        /** @var CartServiceFactory $cartServiceFactory */
+        $cartServiceFactory = $this->getMockWithoutConstructing(CartServiceFactory::class);
+        $cartServiceFactory
             ->method('create')
             ->willReturn($this->grCartService);
 
-        $this->magentoRepository = $this->getMockWithoutConstructing(Repository::class);
         $this->productFactory = $this->getMockWithoutConstructing(ProductFactory::class);
+        $this->quoteReadModel = $this->getMockWithoutConstructing(QuoteReadModel::class);
+        $this->scope = $this->getMockWithoutConstructing(Scope::class);
 
         $this->sut = new CartService(
-            $this->cartServiceFactory,
-            $this->magentoRepository,
+            $cartServiceFactory,
             $this->productFactory,
-            $this->cartHelper
+            $this->cartHelper,
+            $this->quoteReadModel
         );
     }
 
@@ -68,7 +67,7 @@ class CartServiceTest extends BaseTestCase
             ->method('getVariants')
             ->willReturn([]);
 
-        /** @var Quote|\PHPUnit_Framework_MockObject_MockObject $quote */
+        /** @var Quote|MockObject $quote */
         $quote = $this->getMockWithoutConstructing(Quote::class);
 
         $quote->expects(self::once())
@@ -93,10 +92,10 @@ class CartServiceTest extends BaseTestCase
             ->with($quoteItem)
             ->willReturn($product);
 
-        $this->magentoRepository
+        $this->quoteReadModel
             ->expects(self::once())
             ->method('getQuoteById')
-            ->with($quoteId)
+            ->with(new QuoteById($quoteId))
             ->willReturn($quote);
 
         $this->cartHelper
@@ -108,6 +107,11 @@ class CartServiceTest extends BaseTestCase
             ->expects(self::once())
             ->method('sendCart');
 
-        $this->sut->sendCart($quoteId, 'contactListId', 'grShopId');
+        $this->sut->sendCart(
+            $quoteId,
+            'contactListId',
+            'grShopId',
+            $this->scope
+        );
     }
 }

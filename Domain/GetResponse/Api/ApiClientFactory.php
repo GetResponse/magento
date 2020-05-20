@@ -36,7 +36,7 @@ class ApiClientFactory
      * @return GetresponseApiClient
      * @throws ApiException
      */
-    public function createGetResponseApiClient(Scope $scope)
+    public function createGetResponseApiClient(Scope $scope): GetresponseApiClient
     {
         try {
             $settings = $this->accountReadModel->getConnectionSettings($scope);

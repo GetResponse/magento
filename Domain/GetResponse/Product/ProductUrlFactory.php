@@ -18,7 +18,7 @@ class ProductUrlFactory
         $this->productReadModel = $productReadModel;
     }
 
-    public function fromProduct(Product $magentoProduct): string
+    public function fromProduct(Product $magentoProduct)
     {
         if ($magentoProduct->getVisibility() !== Visibility::VISIBILITY_NOT_VISIBLE) {
             return $magentoProduct->getProductUrl();
@@ -27,6 +27,10 @@ class ProductUrlFactory
         $magentoParentProduct = $this->productReadModel->getProductParent(
             new GetProduct($magentoProduct->getId())
         );
+
+        if ($magentoParentProduct === null) {
+            return null;
+        }
 
         return $magentoParentProduct->getProductUrl();
     }

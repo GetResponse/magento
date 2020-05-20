@@ -1,29 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Cart;
 
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\Command\AddContact;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactServiceFactory;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Contact\Command\AddContactCommand;
-use GrShareCode\Contact\Command\FindContactCommand;
 use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
 use GrShareCode\Contact\ContactService as GrContactService;
+use PHPUnit\Framework\MockObject\MockObject;
 
-/**
- * Class ContactServiceTest
- * @package GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Cart
- */
 class ContactServiceTest extends BaseTestCase
 {
-    /** @var ContactServiceFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var ContactServiceFactory|MockObject */
     private $contactServiceFactoryMock;
-
-    /** @var GrContactService|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var GrContactService|MockObject */
     private $grContactServiceMock;
-
     /** @var ContactService */
     private $contactService;
+    /** @var Scope|MockObject */
+    private $scope;
 
     protected function setUp()
     {
@@ -35,23 +35,9 @@ class ContactServiceTest extends BaseTestCase
             ->method('create')
             ->willReturn($this->grContactServiceMock);
 
+        $this->scope = $this->getMockWithoutConstructing(Scope::class);
+
         $this->contactService = new ContactService($this->contactServiceFactoryMock);
-    }
-
-    /**
-     * @test
-     */
-    public function shouldGetContactByEmailAndContactListId()
-    {
-        $email = 'kowalski@getresponse.com';
-        $contactListId = 'As34d';
-
-        $this->grContactServiceMock
-            ->expects(self::once())
-            ->method('findContact')
-            ->with(new FindContactCommand($email, $contactListId, false));
-
-        $this->contactService->findContactByEmail($email, $contactListId);
     }
 
     /**
@@ -83,19 +69,22 @@ class ContactServiceTest extends BaseTestCase
         $this->grContactServiceMock
             ->expects(self::once())
             ->method('addContact')
-            ->with($this->callback(function(AddContactCommand $addContactCommand) use ($expectedAddContactCommand) {
+            ->with($this->callback(function (AddContactCommand $addContactCommand) use ($expectedAddContactCommand) {
                 return $addContactCommand == $expectedAddContactCommand
                     && $addContactCommand->getDayOfCycle() === $expectedAddContactCommand->getDayOfCycle();
             }));
 
         $this->contactService->addContact(
-            $email,
-            $firstName,
-            $lastName,
-            $contactListId,
-            $dayOfCycle,
-            $customs,
-            true
+            new AddContact(
+                $this->scope,
+                $email,
+                $firstName,
+                $lastName,
+                $contactListId,
+                $dayOfCycle,
+                $customs,
+                true
+            )
         );
     }
 

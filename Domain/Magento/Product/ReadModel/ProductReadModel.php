@@ -24,7 +24,7 @@ class ProductReadModel
         return $productObject->load($query->getId());
     }
 
-    public function getProductParent(GetProduct $query): Product
+    public function getProductParent(GetProduct $query)
     {
         $productObject = $this->objectManager->create(Configurable::class);
         $parentProductsIds = $productObject->getParentIdsByChild($query->getId());

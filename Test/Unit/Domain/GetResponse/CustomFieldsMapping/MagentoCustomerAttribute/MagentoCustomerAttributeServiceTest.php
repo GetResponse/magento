@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute;
 
 use Exception;
@@ -53,7 +56,7 @@ class MagentoCustomerAttributeServiceTest extends BaseTestCase
             'getResponseCustomId',
             $magentoAttributeCode,
             'customer',
-            'false',
+            false,
             ''
         );
 
@@ -82,7 +85,7 @@ class MagentoCustomerAttributeServiceTest extends BaseTestCase
             'getResponseCustomId',
             $magentoAttributeCode,
             'customer',
-            'false',
+            false,
             ''
         );
 
@@ -109,7 +112,7 @@ class MagentoCustomerAttributeServiceTest extends BaseTestCase
             'getResponseCustomId',
             $magentoAttributeCode,
             'customer',
-            'false',
+            false,
             ''
         );
 
@@ -149,7 +152,7 @@ class MagentoCustomerAttributeServiceTest extends BaseTestCase
             'getResponseCustomId',
             $magentoAttributeCode,
             'address',
-            'false',
+            false,
             ''
         );
 
@@ -177,7 +180,7 @@ class MagentoCustomerAttributeServiceTest extends BaseTestCase
             'getResponseCustomId',
             $magentoAttributeCode,
             'address',
-            'false',
+            false,
             ''
         );
 
@@ -210,7 +213,7 @@ class MagentoCustomerAttributeServiceTest extends BaseTestCase
             'getResponseCustomId',
             $magentoAttributeCode,
             'address',
-            'false',
+            false,
             ''
         );
 
@@ -237,7 +240,7 @@ class MagentoCustomerAttributeServiceTest extends BaseTestCase
             'getResponseCustomId',
             $magentoAttributeCode,
             'address',
-            'false',
+            false,
             ''
         );
 

@@ -44,7 +44,8 @@ class AccountReadModel
     {
         $connectionSettings = $this->getConnectionSettings($scope);
 
-        return str_repeat(
+        return
+            str_repeat(
             "*",
             strlen($connectionSettings->getApiKey()) - 6
         ) . substr(

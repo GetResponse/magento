@@ -1,138 +1,115 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Block;
 
-use GetResponse\GetResponseIntegration\Block\Webform as WebformBlock;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
+use GetResponse\GetResponseIntegration\Block\Webform;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\ReadModel\AccountReadModel;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Logger\Logger;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
-use GrShareCode\Api\GetresponseApiClient;
-use GrShareCode\WebForm\WebForm;
-use GrShareCode\WebForm\WebFormCollection;
-use Magento\Framework\Controller\Result\RedirectFactory;
-use Magento\Framework\Message\ManagerInterface;
-use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template\Context;
+use PHPUnit\Framework\MockObject\MockObject;
 
-/**
- * Class WebformTest
- * @package GetResponse\GetResponseIntegration\Test\Unit\Block
- */
 class WebformTest extends BaseTestCase
 {
-    /** @var Context|\PHPUnit_Framework_MockObject_MockObject */
-    private $context;
-
-    /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var Repository|MockObject */
     private $repository;
+    /** @var AccountReadModel|MockObject */
+    private $accountReadModel;
 
-    /** @var \GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
-    private $repositoryFactory;
-
-    /** @var ObjectManagerInterface|\PHPUnit_Framework_MockObject_MockObject */
-    private $objectManager;
-
-    /** @var WebformBlock */
+    /** @var Webform() */
     private $webformBlock;
-
-    /** @var  ManagerInterface|\PHPUnit_Framework_MockObject_MockObject*/
-    private $messageManager;
-
-    /** @var RedirectFactory|\PHPUnit_Framework_MockObject_MockObject*/
-    private $redirectFactory;
-
-    /** @var \GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
-    private $apiClientFactory;
-
-    /** @var Logger|\PHPUnit_Framework_MockObject_MockObject */
-    private $logger;
 
     public function setUp()
     {
-        $this->context = $this->getMockWithoutConstructing(Context::class);
+        /** @var Context $context */
+        $context = $this->getMockWithoutConstructing(Context::class);
+        /** @var MagentoStore $magentoStore */
+        $magentoStore = $this->getMockWithoutConstructing(MagentoStore::class);
+        $this->accountReadModel = $this->getMockWithoutConstructing(AccountReadModel::class);
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
-        $this->objectManager = $this->getMockWithoutConstructing(ObjectManagerInterface::class);
-        $this->repositoryFactory = $this->getMockWithoutConstructing(ApiClientFactory::class);
-        $this->messageManager = $this->getMockWithoutConstructing(ManagerInterface::class);
-        $this->redirectFactory = $this->getMockWithoutConstructing(RedirectFactory::class);
-        $this->apiClientFactory = $this->getMockWithoutConstructing(ApiClientFactory::class);
-        $this->logger = $this->getMockWithoutConstructing(Logger::class);
 
-        $this->webformBlock = new WebformBlock(
-            $this->context,
-            $this->messageManager,
-            $this->redirectFactory,
-            $this->apiClientFactory,
-            $this->logger,
+        $this->webformBlock = new Webform(
+            $context,
+            $magentoStore,
+            $this->accountReadModel,
             $this->repository
         );
     }
 
     /**
      * @test
-     *
-     * @param array $rawFormsData
-     * @param array $rawWebformsData
-     * @param WebformCollection $expectedCollection
-     *
-     * @dataProvider shouldReturnValidWebFormsCollectionProvider
+     * @dataProvider webFormToDisplayProvider
+     * @param $expectedUrl
+     * @param bool $isConnected
+     * @param bool $isEnabled
+     * @param string $sidebar
+     * @param string $placement
+     * @param string $url
      */
-    public function shouldReturnValidWebFormsCollection(array $rawFormsData, array $rawWebformsData,  WebformCollection $expectedCollection)
-    {
-        $grApiClient = $this->getMockWithoutConstructing(GetresponseApiClient::class);
-        $grApiClient->method('getForms')->willReturn($rawFormsData);
-        $grApiClient->method('getWebForms')->willReturn($rawWebformsData);
+    public function shouldReturnWebFormUrlToDisplay(
+        $expectedUrl,
+        bool $isConnected,
+        bool $isEnabled,
+        string $sidebar,
+        string $placement,
+        string $url
+    ) {
+        $this->accountReadModel
+            ->expects(self::once())
+            ->method('isConnected')
+            ->willReturn($isConnected);
 
-        $this->apiClientFactory
-            ->expects($this->once())
-            ->method('createGetResponseApiClient')
-            ->willReturn($grApiClient);
+        $this->repository
+            ->method('getWebformSettings')
+            ->willReturn([
+                'isEnabled' => $isEnabled,
+                'url' => $url,
+                'webformId' => '39489383',
+                'sidebar' => $sidebar
+            ]);
 
-        $collection = $this->webformBlock->getWebForms();
-
-        self::assertEquals($expectedCollection, $collection);
+        $webformUrl = $this->webformBlock->getWebFormUrlToDisplay($placement);
+        self::assertEquals($expectedUrl, $webformUrl);
     }
 
-    /**
-     * @return array
-     */
-    public function shouldReturnValidWebFormsCollectionProvider()
+    public function webFormToDisplayProvider(): array
     {
-        $firstFormId = '4d39';
-        $firstFormName = 'testForm';
-        $firstFormScriptUrl = 'testFormUrl';
-        $firstFormCampaignName = 'testForm';
-        $firstFormStatus = 'published';
-
-        $secondFormId = 'd3Ei';
-        $secondFormName = 'testForm';
-        $secondFormScriptUrl = 'testWebFormUrl';
-        $secondFormCampaignName = 'testWebForm';
-        $secondFormStatus = WebForm::STATUS_DISABLED;
-
-        $form = [
-            'webformId' => $firstFormId,
-            'name' => $firstFormName,
-            'scriptUrl' => $firstFormScriptUrl,
-            'campaign' => ['name' => $firstFormCampaignName],
-            'status' => $firstFormStatus
-        ];
-
-        $webForm = [
-            'webformId' => $secondFormId,
-            'name' => $secondFormName,
-            'scriptUrl' => $secondFormScriptUrl,
-            'campaign' => ['name' => $secondFormCampaignName],
-            'status' => $secondFormStatus
-        ];
-
-        $collection = new WebformCollection();
-        $collection->add(new Webform($secondFormId, $secondFormName, $secondFormScriptUrl, $secondFormCampaignName, Webform::STATUS_DISABLED, Webform::VERSION_V1));
-        $collection->add(new Webform($firstFormId, $firstFormName, $firstFormScriptUrl, $firstFormCampaignName, Webform::STATUS_ENABLED, Webform::VERSION_V2));
-
         return [
-            [[], [], new WebformCollection()],
-            [[$form], [$webForm], $collection]
+            [
+               'expectedUrl' => null,
+                'isConnected' => false,
+                'isEnabled' => false,
+                'sidebar' => 'bottom',
+                'placement' => 'bottom',
+                'url' => 'http://getresponse.com/script.js'
+            ],
+            [
+                'expectedUrl' => null,
+                'isConnected' => true,
+                'isEnabled' => false,
+                'sidebar' => 'bottom',
+                'placement' => 'bottom',
+                'url' => 'http://getresponse.com/script.js'
+            ],
+            [
+                'expectedUrl' => null,
+                'isConnected' => true,
+                'isEnabled' => true,
+                'sidebar' => 'bottom',
+                'placement' => 'top',
+                'url' => 'http://getresponse.com/script.js'
+            ],
+            [
+                'expectedUrl' => 'http://getresponse.com/script.js',
+                'isConnected' => true,
+                'isEnabled' => true,
+                'sidebar' => 'bottom',
+                'placement' => 'bottom',
+                'url' => 'http://getresponse.com/script.js'
+            ],
         ];
     }
 }

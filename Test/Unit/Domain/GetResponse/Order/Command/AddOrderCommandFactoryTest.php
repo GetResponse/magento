@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Order;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Command\AddOrderCommandFactory;
@@ -7,15 +9,11 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderFactory;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Order\Order as GrOrder;
 use Magento\Sales\Model\Order;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
 
-/**
- * Class OrderServiceFactoryTest
- * @package Domain\GetResponse\Order
- */
 class AddOrderCommandFactoryTest extends BaseTestCase
 {
-    /** @var OrderFactory|PHPUnit_Framework_MockObject_MockObject */
+    /** @var OrderFactory|MockObject */
     private $orderFactory;
 
     /** @var AddOrderCommandFactory */
@@ -32,7 +30,7 @@ class AddOrderCommandFactoryTest extends BaseTestCase
      */
     public function shouldCreateValidCommand()
     {
-        /** @var Order|PHPUnit_Framework_MockObject_MockObject $orderMock */
+        /** @var Order|MockObject $orderMock */
         $orderMock = $this->getMockWithoutConstructing(Order::class);
         $grOrder = $this->getMockWithoutConstructing(GrOrder::class);
 
