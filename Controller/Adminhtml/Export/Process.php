@@ -13,6 +13,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand\ExportO
 use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\CustomerReadModel;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Helper\Route;
+use GetResponse\GetResponseIntegration\Logger\Logger;
 use Magento\Backend\App\Action\Context;
 
 class Process extends AbstractController
@@ -21,19 +22,22 @@ class Process extends AbstractController
     private $exportOnDemandService;
     private $exportOnDemandDtoFactory;
     private $customerReadModel;
+    private $logger;
 
     public function __construct(
         Context $context,
         ExportOnDemandValidator $exportOnDemandValidator,
         ExportOnDemandService $exportOnDemandService,
         ExportOnDemandDtoFactory $exportOnDemandDtoFactory,
-        CustomerReadModel $customerReadModel
+        CustomerReadModel $customerReadModel,
+        Logger $logger
     ) {
         parent::__construct($context);
         $this->exportOnDemandValidator = $exportOnDemandValidator;
         $this->exportOnDemandService = $exportOnDemandService;
         $this->exportOnDemandDtoFactory = $exportOnDemandDtoFactory;
         $this->customerReadModel = $customerReadModel;
+        $this->logger = $logger;
     }
 
     public function execute()
@@ -66,7 +70,9 @@ class Process extends AbstractController
                     $exportOnDemand,
                     $this->scope
                 );
-            } catch (Exception $e) {}
+            } catch (Exception $e) {
+                $this->logger->addError($e->getMessage(), ['exception' => $e]);
+            }
         }
 
         return $this->redirect($this->_redirect->getRefererUrl(), Message::DATA_EXPORTED);
