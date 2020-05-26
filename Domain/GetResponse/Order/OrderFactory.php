@@ -58,8 +58,11 @@ class OrderFactory
             ->setExternalCartId($order->getQuoteId())
             ->setShippingPrice((float)$order->getShippingAmount())
             ->setProcessedAt(DateTime::createFromFormat('Y-m-d H:i:s', $order->getCreatedAt())->format(DateTime::ISO8601))
-            ->setShippingAddress($shippingAddress)
             ->setBillingAddress($billingAddress);
+
+        if (null !== $shippingAddress) {
+            $grOrder->setShippingAddress($shippingAddress);
+        }
 
         return $grOrder;
     }
