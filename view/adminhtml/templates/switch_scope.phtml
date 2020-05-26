@@ -5,13 +5,15 @@ declare(strict_types=1);
 use GetResponse\GetResponseIntegration\Block\Admin\Account;
 
 /** @var Account $block */
+
 $magentoShops = $block->getMagentoStores();
 $scope = $block->getScope();
 ?>
-<div class="gr_dropdown">
-    <span><b>Store view:</b></span>
+
+<div class="gr-store-switcher">
+<span><b>Store view:</b></span>
     <span>
-        <select onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);">
+        <select class="gr-view-select" onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);">
             <?php foreach ($magentoShops as $code => $name): ?>
                 <option
                     <?php if ($code === $scope->getScopeId()):?>selected="selected"<?php endif ?>
