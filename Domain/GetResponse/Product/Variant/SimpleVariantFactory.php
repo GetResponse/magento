@@ -72,7 +72,7 @@ class SimpleVariantFactory
         $productVariant
             ->setUrl($this->productUrlFactory->fromProduct($orderItem->getProduct()))
             ->setQuantity((int)$orderItem->getQtyOrdered())
-            ->setDescription(mb_substr($magentoProduct->getShortDescription(), 0, Variant::DESCRIPTION_MAX_LENGTH))
+            ->setDescription(mb_substr((string) $magentoProduct->getShortDescription(), 0, Variant::DESCRIPTION_MAX_LENGTH))
             ->setImages(Images\ImagesFactory::fromProduct($magentoProduct));
 
         $variantCollection->add($productVariant);
