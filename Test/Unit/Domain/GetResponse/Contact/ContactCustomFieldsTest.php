@@ -11,7 +11,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Ma
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Contact\ContactCustomField\ContactCustomField;
 use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
-use Magento\Customer\Model\Customer;
+use Magento\Customer\Model\Data\Customer;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class ContactCustomFieldsTest extends BaseTestCase

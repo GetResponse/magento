@@ -16,7 +16,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Order\ReadModel\Query\Cust
 use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
 use GrShareCode\Export\Command\ExportContactCommand;
 use GrShareCode\Order\OrderCollection;
-use Magento\Customer\Model\Customer;
+use Magento\Customer\Model\Data\Customer;
 use Magento\Newsletter\Model\Subscriber;
 
 class ExportContactCommandFactory

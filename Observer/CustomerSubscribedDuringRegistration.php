@@ -9,10 +9,9 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\Co
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactCustomFieldsCollectionFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
-use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\CustomerReadModel;
-use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\Query\CustomerEmail;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GrShareCode\Api\Exception\GetresponseApiException;
+use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Newsletter\Model\Subscriber;
@@ -23,44 +22,38 @@ class CustomerSubscribedDuringRegistration implements ObserverInterface
     private $subscribeViaRegistrationService;
     private $contactCustomFieldsCollectionFactory;
     private $magentoStore;
-    private $customerReadModel;
+    private $subscriber;
 
     public function __construct(
         ContactService $contactService,
         SubscribeViaRegistrationService $subscribeViaRegistrationService,
         ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory,
         MagentoStore $magentoStore,
-        CustomerReadModel $customerReadModel
+        Subscriber $subscriber
     ) {
         $this->contactService = $contactService;
         $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
         $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
         $this->magentoStore = $magentoStore;
-        $this->customerReadModel = $customerReadModel;
+        $this->subscriber = $subscriber;
     }
 
     public function execute(Observer $observer)
     {
         $scope = $this->magentoStore->getCurrentScope();
-        /** @var Subscriber $subscriber */
-        $subscriber = $observer->getEvent()->getSubscriber();
+        /** @var Customer $customer */
+        $customer = $observer->getCustomer();
+
+        $checkSubscriber = $this->subscriber->loadByCustomerId($customer->getId());
+
+        if (!$checkSubscriber->isSubscribed()) {
+            return $this;
+        }
 
         try {
             $registrationSettings = $this->subscribeViaRegistrationService->getSettings($scope);
 
             if (!$registrationSettings->isEnabled()) {
-                return $this;
-            }
-
-            if (!$subscriber->isSubscribed()) {
-                return $this;
-            }
-
-            $customer = $this->customerReadModel->getCustomerByEmail(
-                new CustomerEmail($subscriber->getSubscriberEmail(), $scope)
-            );
-
-            if ($customer->isEmpty()) {
                 return $this;
             }
 

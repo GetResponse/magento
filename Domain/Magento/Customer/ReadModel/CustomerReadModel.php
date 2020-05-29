@@ -4,34 +4,29 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\Query\CustomerEmail;
 use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\Query\CustomerId;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
-use Magento\Customer\Model\Customer;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Newsletter\Model\Subscriber;
 
 class CustomerReadModel
 {
     private $objectManager;
+    private $customerRepository;
 
-    public function __construct(ObjectManagerInterface $objectManager)
-    {
+    public function __construct(
+        ObjectManagerInterface $objectManager,
+        CustomerRepositoryInterface $customerRepository
+    ) {
         $this->objectManager = $objectManager;
+        $this->customerRepository = $customerRepository;
     }
 
     public function getCustomerById(CustomerId $query): Customer
     {
-        $customer = $this->objectManager->create(Customer::class);
-        return $customer->load($query->getId());
-    }
-
-    public function getCustomerByEmail(CustomerEmail $query): Customer
-    {
-        /** @var Customer $customer */
-        $customer = $this->objectManager->create(Customer::class);
-        $customer->setWebsiteId($query->getScope()->getScopeId());
-        return $customer->loadByEmail($query->getEmail());
+        return $this->customerRepository->getById($query->getId());
     }
 
     public function findCustomers(Scope $scope)

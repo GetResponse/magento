@@ -7,7 +7,7 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Applicat
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistration;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
-use Magento\Customer\Model\Customer;
+use Magento\Customer\Model\Data\Customer;
 
 class AddContact
 {
