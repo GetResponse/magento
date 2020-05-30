@@ -9,6 +9,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Ma
 use GrShareCode\Contact\ContactCustomField\ContactCustomField;
 use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
 use Magento\Customer\Model\Data\Customer;
+use Magento\Sales\Model\Order;
 
 class ContactCustomFieldsCollectionFactory
 {

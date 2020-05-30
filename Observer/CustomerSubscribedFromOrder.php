@@ -74,34 +74,45 @@ class CustomerSubscribedFromOrder implements ObserverInterface
 
         $order = $this->orderReadModel->getOrder(new GetOrder($orderId));
 
-        $customer = $this->customerReadModel->getCustomerById(
-            new CustomerId($order->getCustomerId())
-        );
+        $customerEmail = $order->getCustomerEmail();
+        $customerId = $order->getCustomerId();
+
+        if (null === $customerEmail) {
+            return $this;
+        }
 
         /** @var Subscriber $subscriber */
         $subscriber = $this->subscriberReadModel->loadSubscriberByEmail(
-            new SubscriberEmail($customer->getEmail())
+            new SubscriberEmail($customerEmail)
         );
 
         if (!$subscriber->isSubscribed()) {
             return $this;
         }
 
-        $contactCustomFieldsCollection = $this->contactCustomFieldsCollectionFactory->createForCustomer(
-            $customer,
-            $this->subscribeViaRegistrationService->getCustomFieldMappingSettings(
-                $scope
-            ),
-            $registrationSettings->isUpdateCustomFieldsEnalbed()
-        );
+        if (null !== $customerId) {
+            $customer = $this->customerReadModel->getCustomerById(
+                new CustomerId($customerId)
+            );
+
+            $contactCustomFieldsCollection = $this->contactCustomFieldsCollectionFactory->createForCustomer(
+                $customer,
+                $this->subscribeViaRegistrationService->getCustomFieldMappingSettings(
+                    $scope
+                ),
+                $registrationSettings->isUpdateCustomFieldsEnalbed()
+            );
+        } else {
+            $contactCustomFieldsCollection = $this->contactCustomFieldsCollectionFactory->createForSubscriber();
+        }
 
         try {
             $this->contactService->addContact(
                 new AddContact(
                     $this->magentoStore->getCurrentScope(),
-                    $customer->getEmail(),
-                    $customer->getFirstname(),
-                    $customer->getLastname(),
+                    $customerEmail,
+                    $order->getCustomerFirstname(),
+                    $order->getCustomerLastname(),
                     $registrationSettings->getCampaignId(),
                     $registrationSettings->getCycleDay(),
                     $contactCustomFieldsCollection,

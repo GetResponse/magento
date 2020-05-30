@@ -41,11 +41,15 @@ class SimpleVariantFactory
             $quoteItem->getSku()
         );
 
+        $description = (string) $magentoProduct->getShortDescription();
         $productVariant
             ->setUrl($this->productUrlFactory->fromProduct($quoteItem->getProduct()))
             ->setQuantity($quoteItem->getQty())
-            ->setDescription(mb_substr($magentoProduct->getShortDescription(), 0, Variant::DESCRIPTION_MAX_LENGTH))
             ->setImages(Images\ImagesFactory::fromProduct($magentoProduct));
+
+        if (strlen($description) > 2) {
+            $productVariant->setDescription(mb_substr($description, 0, Variant::DESCRIPTION_MAX_LENGTH));
+        }
 
         $variantCollection->add($productVariant);
 
