@@ -1,34 +1,31 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 
-/**
- * Class Header
- * @package GetResponse\GetResponseIntegration\Block
- */
 class Header extends Template
 {
-    /** @var Repository */
     private $repository;
+    private $magentoStore;
 
-    /**
-     * @param Context $context
-     * @param Repository $repository
-     */
-    public function __construct(Context $context, Repository $repository)
-    {
+    public function __construct(
+        Context $context,
+        Repository $repository,
+        MagentoStore $magentoStore
+    ) {
         parent::__construct($context);
         $this->repository = $repository;
+        $this->magentoStore = $magentoStore;
     }
 
-    /**
-     * @return array
-     */
-    public function getTrackingData()
+    public function getTrackingData(): array
     {
         $trackingCodeSnippet = $this->getTrackingCodeSnippet();
 
@@ -37,13 +34,12 @@ class Header extends Template
         ];
     }
 
-    /**
-     * @return string
-     */
-    private function getTrackingCodeSnippet()
+    private function getTrackingCodeSnippet(): string
     {
         $webEventTracking = WebEventTrackingSettingsFactory::createFromArray(
-            $this->repository->getWebEventTracking()
+            $this->repository->getWebEventTracking(
+                $this->magentoStore->getCurrentScope()->getScopeId()
+            )
         );
 
         if ($webEventTracking->isEnabled()) {

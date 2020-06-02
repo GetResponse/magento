@@ -1,13 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Logger;
 
+use Magento\Framework\Logger\Handler\Base;
 use Monolog\Logger as MonologLogger;
 
-/**
- * Class Handler
- * @package GetResponse\GetResponseIntegration\Logger
- */
-class Handler extends \Magento\Framework\Logger\Handler\Base
+class Handler extends Base
 {
     /**
      * @var int

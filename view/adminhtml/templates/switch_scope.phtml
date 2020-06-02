@@ -1,0 +1,25 @@
+<?php
+
+declare(strict_types=1);
+
+use GetResponse\GetResponseIntegration\Block\Admin\Account;
+
+/** @var Account $block */
+
+$magentoShops = $block->getMagentoStores();
+$scope = $block->getScope();
+?>
+
+<div class="gr-store-switcher">
+<span><b>Store view:</b></span>
+    <span>
+        <select class="gr-view-select" onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);">
+            <?php foreach ($magentoShops as $code => $name): ?>
+                <option
+                    <?php if ($code === $scope->getScopeId()):?>selected="selected"<?php endif ?>
+                    value="<?php echo $block->getPageUrlForScope($code) ?>">
+                    <?php echo $name ?></option>
+            <?php endforeach ?>
+        </select>
+    </span>
+</div>

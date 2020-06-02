@@ -1,61 +1,38 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-/**
- * Class ConnectionSettings
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse
- */
 class ConnectionSettings
 {
-    /** @var string */
     private $apiKey;
-
-    /** @var string */
     private $url;
-
-    /** @var string */
     private $domain;
 
-    /**
-     * @param string $apiKey
-     * @param string $url
-     * @param string $domain
-     */
-    public function __construct($apiKey, $url, $domain)
+    public function __construct(string $apiKey, string $url, string $domain)
     {
         $this->apiKey = $apiKey;
         $this->url = $url;
         $this->domain = $domain;
     }
 
-    /**
-     * @return string
-     */
-    public function getApiKey()
+    public function getApiKey(): string
     {
         return $this->apiKey;
     }
 
-    /**
-     * @return string
-     */
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->url;
     }
 
-    /**
-     * @return string
-     */
-    public function getDomain()
+    public function getDomain(): string
     {
         return $this->domain;
     }
 
-    /**
-     * @return array
-     */
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'apiKey' => $this->apiKey,

@@ -1,113 +1,72 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Lists\AddContactListCommandFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\ListValidator;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\Store\ReadModel\StoreReadModel;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Exception\ListValidationException;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GrShareCode\ContactList\Command\AddContactListCommand;
+use GetResponse\GetResponseIntegration\Helper\Route;
 use GrShareCode\ContactList\ContactListService;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\ResultInterface;
-use Magento\Framework\View\Result\Page;
-use Magento\Framework\View\Result\PageFactory;
 
-/**
- * Class Create
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists
- */
 class Create extends AbstractController
 {
-    const PAGE_TITLE = 'New Contact List';
-
-    /** @var PageFactory */
-    protected $resultPageFactory;
-
-    /** @var Repository */
-    private $repository;
-
-    /** @var ApiClientFactory */
     private $apiClientFactory;
+    private $storeReadModel;
 
-    /**
-     * @param Context $context
-     * @param PageFactory $resultPageFactory
-     * @param Repository $repository
-     * @param ApiClientFactory $apiClientFactory
-     */
     public function __construct(
         Context $context,
-        PageFactory $resultPageFactory,
-        Repository $repository,
-        ApiClientFactory $apiClientFactory
+        ApiClientFactory $apiClientFactory,
+        StoreReadModel $storeReadModel
     ) {
         parent::__construct($context);
-        $this->resultPageFactory = $resultPageFactory;
-        $this->repository = $repository;
+        $this->storeReadModel = $storeReadModel;
         $this->apiClientFactory = $apiClientFactory;
     }
 
-    /**
-     * @return ResultInterface|ResponseInterface
-     */
     public function execute()
     {
-        try {
-            $backUrl = $this->getRequest()->getParam('back_url');
-            $resultPage = $this->resultPageFactory->create();
-            $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+        parent::execute();
 
+        if (!$this->isConnected()) {
+            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
+        }
+
+        $backUrl = $this->getRequest()->getParam('back_url');
+
+        try {
             /** @var Http $request */
-            $request = $this->getRequest();
-            $data = $request->getPostValue();
+            $data = $this->request->getPostValue();
 
             if (empty($data)) {
-                return $resultPage;
+                return $this->redirect($backUrl);
             }
 
             $error = ListValidator::validateNewListParams($data);
 
             if (!empty($error)) {
-                throw new Exception($error);
+                throw new ListValidationException($error);
             }
 
-            $data['lang'] = substr($this->repository->getMagentoCountryCode(), 0, 2);
+            $data['lang'] = $this->storeReadModel->getStoreLanguage($this->scope);
 
-            $apiClient = $this->apiClientFactory->createGetResponseApiClient();
-            $service = new ContactListService($apiClient);
-            $service->createContactList(new AddContactListCommand(
-                $data['campaign_name'],
-                $data['from_field'],
-                $data['reply_to_field'],
-                $data['confirmation_body'],
-                $data['confirmation_subject'],
-                $data['lang']
-            ));
+            $service = new ContactListService(
+                $this->apiClientFactory->createGetResponseApiClient($this->scope)
+            );
 
-            $this->messageManager->addSuccessMessage(Message::LIST_CREATED);
-            $resultRedirect = $this->resultRedirectFactory->create();
-            $resultRedirect->setPath($backUrl);
+            $service->createContactList(AddContactListCommandFactory::createFromArray($data));
 
-            return $resultRedirect;
+            return $this->redirect($backUrl, Message::LIST_CREATED);
         } catch (Exception $e) {
-            return $this->handleException($e);
+            return $this->redirect($backUrl, $e->getMessage(), true);
         }
-    }
-
-    /**
-     * @param Exception $e
-     * @return Page
-     */
-    private function handleException(Exception $e)
-    {
-        $this->messageManager->addErrorMessage($e->getMessage());
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-
-        return $resultPage;
     }
 }

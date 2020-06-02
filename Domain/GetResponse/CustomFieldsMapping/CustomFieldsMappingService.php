@@ -1,17 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute\MagentoCustomerAttribute;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute\MagentoCustomerAttributeCollection;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Magento\Customer\Model\ResourceModel\Address\Attribute\CollectionFactory as AddressCollectionFactory;
 use Magento\Customer\Model\ResourceModel\Attribute\CollectionFactory;
-use Magento\Eav\Model\Entity\Attribute;
 
-/**
- * Class CustomFieldsMappingService
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMapping
- */
 class CustomFieldsMappingService
 {
     const BLACKLISTED_ATTRIBUTE_CODES = [
@@ -19,20 +18,10 @@ class CustomFieldsMappingService
         'disable_auto_group_change'
     ];
 
-    /** @var Repository */
     private $repository;
-
-    /** @var CollectionFactory */
     private $customerAttributeCollectionFactory;
-
-    /** @var AddressCollectionFactory */
     private $addressCollectionFactory;
 
-    /**
-     * @param Repository $repository
-     * @param CollectionFactory $customerAttributeCollectionFactory
-     * @param AddressCollectionFactory $addressAttributeCollectionFactory
-     */
     public function __construct(
         Repository $repository,
         CollectionFactory $customerAttributeCollectionFactory,
@@ -43,22 +32,20 @@ class CustomFieldsMappingService
         $this->addressCollectionFactory = $addressAttributeCollectionFactory;
     }
 
-    public function setDefaultCustomFields()
+    public function setDefaultCustomFields(Scope $scope)
     {
         $customFieldMappingCollection = CustomFieldsMappingCollection::createDefaults();
-        $this->repository->setCustomsOnInit($customFieldMappingCollection->toArray());
+        $this->repository->setCustomsOnInit(
+            $customFieldMappingCollection->toArray(),
+            $scope->getScopeId()
+        );
     }
 
-    /**
-     * @return MagentoCustomerAttributeCollection
-     */
-    public function getMagentoCustomerAttributes()
+    public function getMagentoCustomerAttributes(): MagentoCustomerAttributeCollection
     {
         $attributeCollection = new MagentoCustomerAttributeCollection();
 
-        /** @var $attribute Attribute */
         foreach ($this->customerAttributeCollectionFactory->create() as $attribute) {
-
             if (null === $attribute->getFrontendLabel()) {
                 continue;
             }
@@ -72,7 +59,6 @@ class CustomFieldsMappingService
             );
         }
 
-        /** @var Attribute $addressAttribute */
         foreach ($this->addressCollectionFactory->create() as $addressAttribute) {
 
             if (null === $addressAttribute->getFrontendLabel()) {
@@ -85,5 +71,4 @@ class CustomFieldsMappingService
 
         return $attributeCollection;
     }
-
 }

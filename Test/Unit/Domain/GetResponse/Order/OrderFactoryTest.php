@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Order;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Address\AddressFactory;
@@ -10,16 +13,17 @@ use GetResponse\GetResponseIntegration\Test\Unit\Generator;
 use GrShareCode\Order\Order as GrOrder;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Item;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class OrderFactoryTest extends BaseTestCase
 {
-    /** @var Order|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var Order|MockObject */
     private $magentoOrderMock;
 
-    /** @var ProductFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var ProductFactory|MockObject */
     private $productFactory;
 
-    /** @var AddressFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var AddressFactory|MockObject */
     private $addressFactory;
 
     /** @var OrderFactory */

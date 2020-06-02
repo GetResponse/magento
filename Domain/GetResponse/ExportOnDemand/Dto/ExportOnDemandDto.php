@@ -1,50 +1,28 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand\Dto;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto\CustomFieldMappingDtoCollection;
 
-/**
- * Class ExportOnDemandDto
- */
 class ExportOnDemandDto
 {
-    /** @var string */
     private $contactListId;
-
-    /** @var bool */
     private $autoresponderEnabled;
-
-    /** @var null|int */
     private $dayOfCycle;
-
-    /** @var bool */
     private $ecommerceEnabled;
-
-    /** @var null|string */
     private $shopId;
-
-    /** @var bool */
     private $updateContactCustomFieldEnabled;
-
-    /** @var CustomFieldMappingDtoCollection */
     private $customFieldMappingDtoCollection;
 
-    /**
-     * @param string $contactListId
-     * @param bool $autoresponderEnabled
-     * @param int|null $dayOfCycle
-     * @param bool $ecommerceEnabled
-     * @param string|null $shopId
-     * @param bool $updateContactCustomFieldEnabled
-     * @param CustomFieldMappingDtoCollection $customFieldMappingDtoCollection
-     */
     public function __construct(
-        $contactListId,
-        $autoresponderEnabled,
+        string $contactListId,
+        bool $autoresponderEnabled,
         $dayOfCycle,
-        $ecommerceEnabled,
+        bool $ecommerceEnabled,
         $shopId,
-        $updateContactCustomFieldEnabled,
+        bool $updateContactCustomFieldEnabled,
         CustomFieldMappingDtoCollection $customFieldMappingDtoCollection
     ) {
         $this->contactListId = $contactListId;
@@ -56,60 +34,38 @@ class ExportOnDemandDto
         $this->customFieldMappingDtoCollection = $customFieldMappingDtoCollection;
     }
 
-    /**
-     * @return string
-     */
-    public function getContactListId()
+    public function getContactListId(): string
     {
         return $this->contactListId;
     }
 
-    /**
-     * @return bool
-     */
-    public function isAutoresponderEnabled()
+    public function isAutoresponderEnabled(): bool
     {
         return $this->autoresponderEnabled;
     }
 
-    /**
-     * @return int|null
-     */
     public function getDayOfCycle()
     {
         return $this->dayOfCycle;
     }
 
-    /**
-     * @return bool
-     */
-    public function isEcommerceEnabled()
+    public function isEcommerceEnabled(): bool
     {
         return $this->ecommerceEnabled;
     }
 
-    /**
-     * @return string|null
-     */
     public function getShopId()
     {
         return $this->shopId;
     }
 
-    /**
-     * @return bool
-     */
-    public function isUpdateContactCustomFieldEnabled()
+    public function isUpdateContactCustomFieldEnabled(): bool
     {
         return $this->updateContactCustomFieldEnabled;
     }
 
-    /**
-     * @return CustomFieldMappingDtoCollection
-     */
-    public function getCustomFieldMappingDtoCollection()
+    public function getCustomFieldMappingDtoCollection(): CustomFieldMappingDtoCollection
     {
         return $this->customFieldMappingDtoCollection;
     }
-
 }

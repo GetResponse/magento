@@ -1,47 +1,31 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute;
 
 use Magento\Eav\Model\Entity\Attribute;
 
-/**
- * Class MagentoCustomerAttribute
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute
- */
 class MagentoCustomerAttribute
 {
     const ATTRIBUTE_CODE_EMAIL = 'email';
     const ATTRIBUTE_CODE_FIRST_NAME = 'firstname';
     const ATTRIBUTE_CODE_LAST_NAME = 'lastname';
-
     const ATTRIBUTE_TYPE_CUSTOMER = 'customer';
     const ATTRIBUTE_TYPE_ADDRESS = 'address';
 
-    /** @var int */
     private $attributeCode;
-
-    /** @var string */
     private $frontendLabel;
-
-    /** @var string */
     private $attributeType;
 
-    /**
-     * @param string $attributeCode
-     * @param string $attributeType
-     * @param string $frontendLabel
-     */
-    public function __construct($attributeCode, $attributeType, $frontendLabel)
+    public function __construct(string $attributeCode, string $attributeType, string $frontendLabel)
     {
         $this->attributeCode = $attributeCode;
         $this->attributeType = $attributeType;
         $this->frontendLabel = $frontendLabel;
     }
 
-    /**
-     * @param Attribute $attribute
-     * @return MagentoCustomerAttribute
-     */
-    public static function createFromCustomerAttribute(Attribute $attribute)
+    public static function createFromCustomerAttribute(Attribute $attribute): MagentoCustomerAttribute
     {
         return new self(
             $attribute->getAttributeCode(),
@@ -50,11 +34,7 @@ class MagentoCustomerAttribute
         );
     }
 
-    /**
-     * @param Attribute $addressAttribute
-     * @return MagentoCustomerAttribute
-     */
-    public static function createFromAddressAttribute(Attribute $addressAttribute)
+    public static function createFromAddressAttribute(Attribute $addressAttribute): MagentoCustomerAttribute
     {
         return new self(
             $addressAttribute->getAttributeCode(),
@@ -63,43 +43,27 @@ class MagentoCustomerAttribute
         );
     }
 
-    /**
-     * @return string
-     */
-    public function getFrontendLabel()
+    public function getFrontendLabel(): string
     {
         return $this->frontendLabel;
     }
 
-    /**
-     * @return bool
-     */
-    public function isAttributeTypeCustomer()
+    public function isAttributeTypeCustomer(): bool
     {
         return self::ATTRIBUTE_TYPE_CUSTOMER === $this->getAttributeType();
     }
 
-    /**
-     * @return string
-     */
-    public function getAttributeType()
+    public function getAttributeType(): string
     {
         return $this->attributeType;
     }
 
-    /**
-     * @param string $attributeCode
-     * @return bool
-     */
-    public function hasSameCode($attributeCode)
+    public function hasSameCode(string $attributeCode): bool
     {
         return $this->getAttributeCode() === $attributeCode;
     }
 
-    /**
-     * @return int
-     */
-    public function getAttributeCode()
+    public function getAttributeCode(): string
     {
         return $this->attributeCode;
     }

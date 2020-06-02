@@ -1,112 +1,82 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Registration;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingValidator;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto\CustomFieldMappingDtoCollection;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto\InvalidPrefixException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Message;
+use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\Request\Http;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\Result\Redirect;
-use Magento\Framework\View\Result\PageFactory;
 
-/**
- * Class RegistrationPost
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Registration
- */
 class Save extends AbstractController
 {
-    const BACK_URL = 'getresponse/registration/index';
-
-    /** @var PageFactory */
-    protected $resultPageFactory;
-
-    /** @var Http */
-    private $request;
-
-    /** @var Repository */
     private $repository;
-
-    /** @var CustomFieldsMappingValidator */
     private $customFieldsMappingValidator;
-
-    /** @var SubscribeViaRegistrationService */
     private $subscribeViaRegistrationService;
-
-    /** @var CustomFieldsMappingCollection */
     private $customFieldMappingDtoCollection;
 
-    /**
-     * @param Context $context
-     * @param PageFactory $resultPageFactory
-     * @param Repository $repository
-     * @param CustomFieldMappingDtoCollection $customFieldMappingDtoCollection
-     * @param CustomFieldsMappingValidator $customFieldsMappingValidator
-     * @param SubscribeViaRegistrationService $subscribeViaRegistrationService
-     */
     public function __construct(
         Context $context,
-        PageFactory $resultPageFactory,
         Repository $repository,
         CustomFieldMappingDtoCollection $customFieldMappingDtoCollection,
         CustomFieldsMappingValidator $customFieldsMappingValidator,
         SubscribeViaRegistrationService $subscribeViaRegistrationService
     ) {
         parent::__construct($context);
-        $this->resultPageFactory = $resultPageFactory;
         $this->repository = $repository;
         $this->customFieldMappingDtoCollection = $customFieldMappingDtoCollection;
         $this->customFieldsMappingValidator = $customFieldsMappingValidator;
         $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
-        $this->request = $this->getRequest();
     }
 
-    /**
-     * @return ResponseInterface|Redirect
-     * @throws InvalidPrefixException
-     */
     public function execute()
     {
-        $resultRedirect = $this->resultRedirectFactory->create();
-        $resultRedirect->setPath(self::BACK_URL);
+        parent::execute();
+
+        if (!$this->isConnected()) {
+            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
+        }
 
         $data = $this->request->getPostValue();
 
         $updateCustomFields = (isset($data['gr_sync_order_data'])) ? $data['gr_sync_order_data'] : 0;
-        $autoresponder = (isset($data['gr_autoresponder']) && $data['gr_autoresponder'] == 1) ? $data['autoresponder'] : '';
+        $autoresponder = (isset($data['gr_autoresponder']) && ((int)$data['gr_autoresponder'] === 1)) ? $data['autoresponder'] : '';
+
         $isEnabled = isset($data['gr_enabled']) && 1 == $data['gr_enabled'] ? true : false;
 
         if (!$isEnabled) {
-            $this->repository->clearRegistrationSettings();
-            $this->messageManager->addSuccessMessage(Message::SETTINGS_SAVED);
+            $this->repository->clearRegistrationSettings($this->scope->getScopeId());
 
-            return $resultRedirect;
+            return $this->redirect($this->_redirect->getRefererUrl(), Message::SETTINGS_SAVED);
         }
 
         $campaignId = $data['campaign_id'];
 
         if (empty($campaignId)) {
-            $this->messageManager->addErrorMessage(Message::SELECT_CONTACT_LIST);
 
-            return $resultRedirect;
+            return $this->redirect($this->_redirect->getRefererUrl(), Message::SELECT_CONTACT_LIST, true);
         }
 
         $customFieldMappingDtoCollection = $this->customFieldMappingDtoCollection->createFromRequestData($data);
 
         if (!$this->customFieldsMappingValidator->isValid($customFieldMappingDtoCollection)) {
-            $this->messageManager->addErrorMessage($this->customFieldsMappingValidator->getErrorMessage());
-
-            return $resultRedirect;
+            return $this->redirect(
+                $this->_redirect->getRefererUrl(),
+                $this->customFieldsMappingValidator->getErrorMessage(),
+                true
+            );
         }
 
         $this->subscribeViaRegistrationService->saveCustomFieldsMapping(
-            CustomFieldsMappingCollection::createFromDto($customFieldMappingDtoCollection)
+            CustomFieldsMappingCollection::createFromDto($customFieldMappingDtoCollection),
+            $this->scope
         );
 
         $registrationSettings = SubscribeViaRegistrationFactory::createFromArray([
@@ -117,9 +87,8 @@ class Save extends AbstractController
             'autoresponderId' => !empty($autoresponder) ? explode('_', $autoresponder)[1] : null,
         ]);
 
-        $this->subscribeViaRegistrationService->saveSettings($registrationSettings);
-        $this->messageManager->addSuccessMessage(Message::SETTINGS_SAVED);
+        $this->subscribeViaRegistrationService->saveSettings($registrationSettings, $this->scope);
 
-        return $resultRedirect;
+        return $this->redirect($this->_redirect->getRefererUrl(), Message::SETTINGS_SAVED);
     }
 }

@@ -1,74 +1,49 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-/**
- * Class WebformSettings
- * @package GetResponse\GetResponseIntegration\Domain\Magento
- */
 class WebformSettings
 {
-    /** @var bool */
     private $isEnabled;
-
-    /** @var string */
     private $url;
-
-    /** @var string */
     private $webformId;
-
-    /** @var string */
     private $sidebar;
 
-    /**
-     * @param bool $isEnabled
-     * @param string $url
-     * @param string $webformId
-     * @param string $sidebar
-     */
-    public function __construct($isEnabled, $url, $webformId, $sidebar)
-    {
-        $this->isEnabled = (bool)$isEnabled;
+    public function __construct(
+        bool $isEnabled,
+        string $url,
+        string $webformId,
+        string $sidebar
+    ) {
+        $this->isEnabled = $isEnabled;
         $this->url = $url;
         $this->webformId = $webformId;
         $this->sidebar = $sidebar;
     }
 
-    /**
-     * @return bool
-     */
-    public function isEnabled()
+    public function isEnabled(): bool
     {
         return $this->isEnabled;
     }
 
-    /**
-     * @return string
-     */
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->url;
     }
 
-    /**
-     * @return string
-     */
-    public function getWebformId()
+    public function getWebformId(): string
     {
         return $this->webformId;
     }
 
-    /**
-     * @return string
-     */
-    public function getSidebar()
+    public function getSidebar(): string
     {
         return $this->sidebar;
     }
 
-    /**
-     * @return array
-     */
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'isEnabled' => (int)$this->isEnabled,

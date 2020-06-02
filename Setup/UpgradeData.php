@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Setup;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
@@ -17,22 +19,11 @@ use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Store\Model\Store;
 
-/**
- * Class UpgradeData
- * @package GetResponse\GetResponseIntegration\Setup
- */
 class UpgradeData implements UpgradeDataInterface
 {
-    /** @var WriterInterface */
     private $configWriter;
-
-    /** @var Manager */
     private $cacheManager;
 
-    /**
-     * @param WriterInterface $configWriter
-     * @param Manager $cacheManager
-     */
     public function __construct(
         WriterInterface $configWriter,
         Manager $cacheManager
@@ -41,11 +32,6 @@ class UpgradeData implements UpgradeDataInterface
         $this->cacheManager = $cacheManager;
     }
 
-    /**
-     * @param ModuleDataSetupInterface $setup
-     * @param ModuleContextInterface $context
-     *
-     */
     public function upgrade(
         ModuleDataSetupInterface $setup,
         ModuleContextInterface $context
@@ -73,9 +59,6 @@ class UpgradeData implements UpgradeDataInterface
         $setup->endSetup();
     }
 
-    /**
-     * @param ModuleDataSetupInterface $setup
-     */
     private function ver2011updateConnectionSettings(ModuleDataSetupInterface $setup)
     {
         $sql = "SELECT api_key, api_url, api_domain FROM " . $setup->getTable('getresponse_settings');
@@ -105,9 +88,6 @@ class UpgradeData implements UpgradeDataInterface
         }
     }
 
-    /**
-     * @param ModuleDataSetupInterface $setup
-     */
     private function ver2011migrateAccountSettings(ModuleDataSetupInterface $setup)
     {
         $sql = "SELECT * FROM " . $setup->getTable('getresponse_account');
@@ -139,9 +119,6 @@ class UpgradeData implements UpgradeDataInterface
         }
     }
 
-    /**
-     * @param ModuleDataSetupInterface $setup
-     */
     private function ver2011migrateCustomFieldsSettings(ModuleDataSetupInterface $setup)
     {
         $sql = "SELECT * FROM " . $setup->getTable('getresponse_customs');

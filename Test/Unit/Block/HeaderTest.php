@@ -1,39 +1,34 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Block;
 
 use GetResponse\GetResponseIntegration\Block\Header;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
-use Magento\Customer\Model\Customer;
-use Magento\Customer\Model\Session;
 use Magento\Framework\View\Element\Template\Context;
+use PHPUnit\Framework\MockObject\MockObject;
 
-/**
- * Class HeaderTest
- * @package GetResponse\GetResponseIntegration\Test\Unit\Block
- */
 class HeaderTest extends BaseTestCase
 {
-
-    /** @var Context|\PHPUnit_Framework_MockObject_MockObject */
-    private $context;
-
-    /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var Repository|MockObject */
     private $repository;
-
-    /** @var Session|\PHPUnit_Framework_MockObject_MockObject */
-    private $session;
 
     /** @var Header */
     private $headerBlock;
 
     public function setUp()
     {
-        $this->context = $this->getMockWithoutConstructing(Context::class);
-        $this->repository = $this->getMockWithoutConstructing(Repository::class);
-        $this->session = $this->getMockWithoutConstructing(Session::class);
+        /** @var Context $context */
+        $context = $this->getMockWithoutConstructing(Context::class);
+        /** @var MagentoStore $magentoStore */
+        $magentoStore = $this->getMockWithoutConstructing(MagentoStore::class);
 
-        $this->headerBlock = new Header($this->context, $this->repository);
+        $this->repository = $this->getMockWithoutConstructing(Repository::class);
+
+        $this->headerBlock = new Header($context, $this->repository, $magentoStore);
     }
 
     /**
@@ -57,7 +52,7 @@ class HeaderTest extends BaseTestCase
 
         $expected = ['trackingCodeSnippet' => $trackingCodeSnippet];
 
-        $this->assertSame($expected, $this->headerBlock->getTrackingData());
+        self::assertSame($expected, $this->headerBlock->getTrackingData());
     }
 
     /**
@@ -82,7 +77,6 @@ class HeaderTest extends BaseTestCase
         $expected = [
             'trackingCodeSnippet' => ''
         ];
-        $this->assertSame($expected, $this->headerBlock->getTrackingData());
+        self::assertSame($expected, $this->headerBlock->getTrackingData());
     }
-
 }

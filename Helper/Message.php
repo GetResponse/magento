@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Helper;
 
 class Message
@@ -37,6 +40,8 @@ class Message
 
     const LIST_CREATED = 'List created';
 
+    const SHOP_DELETED = 'Shop deleted';
+
     const CANNOT_DELETE_LIST = 'We couldn\'t delete the list. Please try again. If the problem persists, please contact the GetResponse dev team';
     const CANNOT_CREATE_LIST = 'We couldn\'t create the list. Please try again. If the problem persists, please contact the GetResponse dev team';
 
@@ -64,4 +69,7 @@ class Message
     const CUSTOM_FIELDS_MAPPING_VALIDATION_MAGENTO_CUSTOM_DETAILS_EMPTY = 'Mapping: Customer details can not be empty';
     const CUSTOM_FIELDS_MAPPING_VALIDATION_GETRESPONSE_CUSTOM_FIELD_EMPTY = 'Mapping: GetResponse custom field can not be empty';
     const CUSTOM_FIELDS_MAPPING_VALIDATION_GETRESPONSE_CUSTOM_FIELD_DUPLICATED = 'Mapping: GetResponse custom field is used more than once';
+
+    const API_ERROR_MESSAGE = 'The API key seems incorrect. Please check if you typed or pasted it correctly. If you recently generated a new key, please make sure you’re using the right one';
+
 }

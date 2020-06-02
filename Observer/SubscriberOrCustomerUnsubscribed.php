@@ -1,78 +1,67 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactCustomFieldsCollectionFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactService;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\Command\RemoveContact;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
 use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\Subscriber\ReadModel\Query\SubscriberEmail;
+use GetResponse\GetResponseIntegration\Domain\Magento\Subscriber\ReadModel\SubscriberReadModel;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GrShareCode\Api\Exception\GetresponseApiException;
-use Magento\Customer\Model\Customer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\ObjectManagerInterface;
 
-/**
- * Class SubscriberUnsubscribed
- * @package GetResponse\GetResponseIntegration\Observer
- */
 class SubscriberOrCustomerUnsubscribed implements ObserverInterface
 {
-    /** @var ObjectManagerInterface */
-    protected $_objectManager;
-
-    /** @var Repository */
     private $repository;
-
-    /** @var ContactService */
     private $contactService;
-
-    /** @var SubscribeViaRegistrationService */
     private $subscribeViaRegistrationService;
+    private $magentoStore;
+    private $subscriberReadModel;
 
-    /** @var ContactCustomFieldsCollectionFactory */
-    private $contactCustomFieldsCollectionFactory;
-
-    /**
-     * @param ObjectManagerInterface $objectManager
-     * @param Repository $repository
-     * @param ContactService $contactService
-     * @param SubscribeViaRegistrationService $subscribeViaRegistrationService
-     * @param ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory
-     */
     public function __construct(
-        ObjectManagerInterface $objectManager,
         Repository $repository,
         ContactService $contactService,
         SubscribeViaRegistrationService $subscribeViaRegistrationService,
-        ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory
+        MagentoStore $magentoStore,
+        SubscriberReadModel $subscriberReadModel
     ) {
-        $this->_objectManager = $objectManager;
         $this->repository = $repository;
         $this->contactService = $contactService;
         $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
-        $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
+        $this->magentoStore = $magentoStore;
+        $this->subscriberReadModel = $subscriberReadModel;
     }
     public function execute(Observer $observer)
     {
+        $scope = $this->magentoStore->getCurrentScope();
+        $subscriber = $observer->getEvent()->getSubscriber();
+
         try {
-            
-            if (!$observer->getEvent()->getSubscriber()->hasDataChanges()) {
-                return $this;
-            }
-            
-            $registrationSettings = $this->subscribeViaRegistrationService->getSettings();
-            $newsletterSettings = NewsletterSettingsFactory::createFromArray($this->repository->getNewsletterSettings());
+            $registrationSettings = $this->subscribeViaRegistrationService->getSettings($scope);
+
+            $newsletterSettings = NewsletterSettingsFactory::createFromArray(
+                $this->repository->getNewsletterSettings($scope->getScopeId())
+            );
 
             if (!$registrationSettings->isEnabled() && !$newsletterSettings->isEnabled()) {
                 return $this;
             }
             
-            $subscriber = $this->repository->loadSubscriberByEmail($observer->getEvent()->getSubscriber()->getSubscriberEmail());
+            $subscriber = $this->subscriberReadModel->loadSubscriberByEmail(
+                new SubscriberEmail($subscriber->getSubscriberEmail())
+            );
 
             if (!$subscriber->isSubscribed()) {
-                $this->contactService->removeContact($subscriber->getSubscriberEmail());
+                $this->contactService->removeContact(
+                    new RemoveContact($scope, $subscriber->getSubscriberEmail())
+                );
             }
         } catch (ApiException $e) {
         } catch (GetresponseApiException $e) {

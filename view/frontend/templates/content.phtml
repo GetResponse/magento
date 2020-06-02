@@ -1,14 +1,13 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Webform */?>
-<style>
-    .grwf2-wrapper {
-        text-align:center;
-        margin:auto;
-    }
-</style>
 <?php
-$webform = $block->getWebFormSettings();
 
-if ($webform->isEnabled() && $webform->getSidebar() == 'content') {
-    echo '<script type="text/javascript" src="' . $webform->getUrl() .'"></script>';
+declare(strict_types=1);
+
+use GetResponse\GetResponseIntegration\Block\Webform;
+use GetResponse\GetResponseIntegration\Helper\BlockPosition;
+
+/** @var Webform $block */
+$webFormUrl = $block->getWebFormUrlToDisplay(BlockPosition::CONTENT);
+
+if (null !== $webFormUrl) {
+    echo '<script type="text/javascript" src="' . $webFormUrl .'"></script>';
 }
-?>

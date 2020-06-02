@@ -1,17 +1,17 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Model;
 
 use Magento\Framework\Model\AbstractModel;
+use GetResponse\GetResponseIntegration\Model\ResourceModel\ProductMap as ResourceProductMap;
 
-/**
- * Class ProductMap
- * @package GetResponse\GetResponseIntegration\Model
- */
 class ProductMap extends AbstractModel
 {
     protected function _construct()
     {
         parent::_construct();
-        $this->_init('GetResponse\GetResponseIntegration\Model\ResourceModel\ProductMap');
+        $this->_init(ResourceProductMap::class);
     }
 }

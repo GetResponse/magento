@@ -1,8 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
+use DateTime;
 use Exception;
 use GetResponse\GetResponseIntegration\Helper\Config;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Model\CartMap;
 use GetResponse\GetResponseIntegration\Model\OrderMap;
 use GetResponse\GetResponseIntegration\Model\ProductMap;
@@ -12,57 +17,39 @@ use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 
-/**
- * Class ShareCodeRepository
- * @package GetResponse\GetResponseIntegration\Domain\Magento
- */
 class ShareCodeRepository implements DbRepositoryInterface
 {
     const ORIGIN_CUSTOM_FIELD_DELETED = 'deleted';
 
-    /** @var ObjectManagerInterface */
     private $objectManager;
-
-    /** @var ScopeConfigInterface */
     private $scopeConfig;
-
-    /** @var WriterInterface */
     private $configWriter;
-
-    /** @var Manager */
     private $cacheManager;
-
-    /** @var string */
     private $singleRequestCachedOriginCustomFieldId;
+    private $magentoStore;
 
-    /**
-     * @param ObjectManagerInterface $objectManager
-     * @param ScopeConfigInterface $scopeConfig
-     * @param WriterInterface $configWriter
-     * @param Manager $cacheManager
-     */
     public function __construct(
         ObjectManagerInterface $objectManager,
         ScopeConfigInterface $scopeConfig,
         WriterInterface $configWriter,
-        Manager $cacheManager
+        Manager $cacheManager,
+        MagentoStore $magentoStore
     ) {
         $this->objectManager = $objectManager;
         $this->scopeConfig = $scopeConfig;
         $this->configWriter = $configWriter;
         $this->cacheManager = $cacheManager;
+        $this->magentoStore = $magentoStore;
     }
 
-    /**
-     * @param string $grShopId
-     * @param int $externalProductId
-     * @param int $externalVariantId
-     * @return ProductMapping
-     */
-    public function getProductMappingByVariantId($grShopId, $externalProductId, $externalVariantId)
-    {
+    public function getProductMappingByVariantId(
+        $grShopId,
+        $externalProductId,
+        $externalVariantId
+    ): ProductMapping {
         $productMap = $this->objectManager->get(ProductMap::class);
 
         $results = $productMap->getCollection()
@@ -82,15 +69,9 @@ class ShareCodeRepository implements DbRepositoryInterface
             $results->getGrProductId(),
             $results->getGrVariantId()
         );
-
     }
 
-    /**
-     * @param string $grShopId
-     * @param int $externalProductId
-     * @return ProductMapping
-     */
-    public function getProductMappingByProductId($grShopId, $externalProductId)
+    public function getProductMappingByProductId($grShopId, $externalProductId): ProductMapping
     {
         $productMap = $this->objectManager->get(ProductMap::class);
 
@@ -113,9 +94,6 @@ class ShareCodeRepository implements DbRepositoryInterface
     }
 
 
-    /**
-     * @param ProductMapping $productMapping
-     */
     public function saveProductMapping(ProductMapping $productMapping)
     {
         $productMap = $this->objectManager->create(ProductMap::class);
@@ -130,11 +108,6 @@ class ShareCodeRepository implements DbRepositoryInterface
         $productMap->save();
     }
 
-    /**
-     * @param string $grShopId
-     * @param int $externalCartId
-     * @param string $grCartId
-     */
     public function saveCartMapping($grShopId, $externalCartId, $grCartId)
     {
         $cartMap = $this->objectManager->create(CartMap::class);
@@ -147,11 +120,6 @@ class ShareCodeRepository implements DbRepositoryInterface
         $cartMap->save();
     }
 
-    /**
-     * @param string $grShopId
-     * @param int $externalCartId
-     * @param string $grCartId
-     */
     public function removeCartMapping($grShopId, $externalCartId, $grCartId)
     {
         $cartMap = $this->objectManager->create(CartMap::class);
@@ -165,11 +133,6 @@ class ShareCodeRepository implements DbRepositoryInterface
         }
     }
 
-    /**
-     * @param string $grShopId
-     * @param int $externalCartId
-     * @return null|int
-     */
     public function getGrCartIdFromMapping($grShopId, $externalCartId)
     {
         $cartMap = $this->objectManager->get(CartMap::class);
@@ -180,14 +143,8 @@ class ShareCodeRepository implements DbRepositoryInterface
             ->getFirstItem();
 
         return !empty($results->getData()) ? $results->getGrCartId() : null;
-
     }
 
-    /**
-     * @param string $grShopId
-     * @param int $externalOrderId
-     * @return null|int
-     */
     public function getGrOrderIdFromMapping($grShopId, $externalOrderId)
     {
         $orderMap = $this->objectManager->get(OrderMap::class);
@@ -200,11 +157,6 @@ class ShareCodeRepository implements DbRepositoryInterface
         return !empty($results->getData()) ? $results->getGrOrderId() : null;
     }
 
-    /**
-     * @param string $grShopId
-     * @param int $externalOrderId
-     * @return null|string
-     */
     public function getPayloadMd5FromOrderMapping($grShopId, $externalOrderId)
     {
         $orderMap = $this->objectManager->get(OrderMap::class);
@@ -217,12 +169,6 @@ class ShareCodeRepository implements DbRepositoryInterface
         return !empty($results->getData()) ? $results->getPayloadMd5() : null;
     }
 
-    /**
-     * @param string $grShopId
-     * @param int $externalOrderId
-     * @param string $grOrderId
-     * @param string $payloadMd5
-     */
     public function saveOrderMapping($grShopId, $externalOrderId, $grOrderId, $payloadMd5)
     {
         $cartMap = $this->objectManager->create(OrderMap::class);
@@ -244,43 +190,38 @@ class ShareCodeRepository implements DbRepositoryInterface
     {
         $this->configWriter->save(
             Config::INVALID_REQUEST_DATE_TIME,
-            (new \DateTime('now'))->format('Y-m-d H:i:s'),
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            (new DateTime('now'))->format('Y-m-d H:i:s'),
+            $this->getScope(),
+            $this->getScopeId()
         );
         $this->cacheManager->clean(['config']);
     }
 
-    /**
-     * @param string $accountId
-     */
     public function markAccountAsValid($accountId)
     {
         $this->configWriter->delete(
             Config::INVALID_REQUEST_DATE_TIME,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT
+            $this->getScope(),
+            $this->getScopeId()
         );
         $this->cacheManager->clean(['config']);
     }
 
-    /**
-     * @param int $accountId
-     * @return string
-     */
     public function getInvalidAccountFirstOccurrenceDate($accountId)
     {
-        return $this->scopeConfig->getValue(Config::INVALID_REQUEST_DATE_TIME);
+        return $this->scopeConfig->getValue(
+            Config::INVALID_REQUEST_DATE_TIME,
+            $this->getScope(),
+            $this->getScopeId()
+        );
     }
 
-    /**
-     * @param int $accountId
-     */
     public function disconnectAccount($accountId)
     {
         $this->configWriter->delete(
             Config::CONFIG_DATA_CONNECTION_SETTINGS,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope(),
+            $this->getScopeId()
         );
         $this->cacheManager->clean(['config']);
     }
@@ -288,7 +229,8 @@ class ShareCodeRepository implements DbRepositoryInterface
     /**
      * ScopeConfig is build on the beginning of each request.
      * When we change data with specific key within config and after that we ask for the same key in the same request,
-     * we will get old value, which is unexpected behaviour. This is the reason why singleRequestCachedOriginCustomFieldId
+     * we will get old value, which is unexpected behaviour.
+     * This is the reason why singleRequestCachedOriginCustomFieldId
      * was implemented here, as we want to have always actual value wherever we ask for getOriginCustomFieldId().
      *
      * @return string
@@ -303,15 +245,21 @@ class ShareCodeRepository implements DbRepositoryInterface
             return $this->singleRequestCachedOriginCustomFieldId;
         }
 
-        return $this->scopeConfig->getValue(Config::CONFIG_DATA_ORIGIN_CUSTOM_FIELD_ID);
+        return $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_ORIGIN_CUSTOM_FIELD_ID,
+            $this->getScope(),
+            $this->getScopeId()
+        );
     }
 
-    /**
-     * @param string $originCustomFieldId
-     */
     public function setOriginCustomFieldId($originCustomFieldId)
     {
-        $this->configWriter->save(Config::CONFIG_DATA_ORIGIN_CUSTOM_FIELD_ID, $originCustomFieldId);
+        $this->configWriter->save(
+            Config::CONFIG_DATA_ORIGIN_CUSTOM_FIELD_ID,
+            $originCustomFieldId,
+            $this->getScope(),
+            $this->getScopeId()
+        );
         $this->cacheManager->clean(['config']);
         $this->singleRequestCachedOriginCustomFieldId = $originCustomFieldId;
     }
@@ -320,11 +268,22 @@ class ShareCodeRepository implements DbRepositoryInterface
     {
         $this->configWriter->delete(
             Config::CONFIG_DATA_ORIGIN_CUSTOM_FIELD_ID,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
+            $this->getScope(),
+            $this->getScopeId()
         );
         $this->cacheManager->clean(['config']);
         $this->singleRequestCachedOriginCustomFieldId = self::ORIGIN_CUSTOM_FIELD_DELETED;
     }
 
+    private function getScope(): string
+    {
+        $scopeId = $this->magentoStore->getCurrentScope()->getScopeId();
+        return $scopeId === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_WEBSITES;
+    }
+
+    private function getScopeId(): string
+    {
+        $scopeId = $this->magentoStore->getCurrentScope()->getScopeId();
+        return (string) ($scopeId === null ? Store::DEFAULT_STORE_ID : $scopeId);
+    }
 }

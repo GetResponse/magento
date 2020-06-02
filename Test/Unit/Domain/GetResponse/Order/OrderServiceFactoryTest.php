@@ -1,10 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Order;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderServiceFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Api\Authorization\ApiKeyAuthorization;
 use GrShareCode\Api\Authorization\Authorization;
@@ -15,20 +19,17 @@ use GrShareCode\Order\OrderPayloadFactory;
 use GrShareCode\Order\OrderService;
 use GrShareCode\Order\OrderServiceFactory as GrOrderServiceFactory;
 use GrShareCode\Product\ProductService;
+use PHPUnit\Framework\MockObject\MockObject;
 
-/**
- * Class OrderServiceFactoryTest
- * @package Domain\GetResponse\Order
- */
 class OrderServiceFactoryTest extends BaseTestCase
 {
-    /** @var ShareCodeRepository|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var ShareCodeRepository|MockObject */
     private $sharedCodeRepositoryMock;
 
-    /** @var ApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var ApiClientFactory|MockObject */
     private $getResponseApiClientFactory;
 
-    /** @var GrOrderServiceFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var GrOrderServiceFactory|MockObject */
     private $grOrderServiceFactory;
 
     public function setUp()
@@ -89,7 +90,9 @@ class OrderServiceFactoryTest extends BaseTestCase
             $this->grOrderServiceFactory
         );
 
-        $orderService = $orderServiceFactory->create();
+        $orderService = $orderServiceFactory->create(
+            $this->getMockWithoutConstructing(Scope::class)
+        );
 
         $this->assertInstanceOf(OrderService::class, $orderService);
         $this->assertEquals($expectedOrderService, $orderService);

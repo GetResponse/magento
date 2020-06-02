@@ -1,21 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
 use GrShareCode\Cache\CacheInterface as GrShareCodeCacheInterface;
 use Magento\Framework\App\CacheInterface;
 
-/**
- * Class ShareCodeCache
- * @package GetResponse\GetResponseIntegration\Domain\Magento
- */
 class ShareCodeCache implements GrShareCodeCacheInterface
 {
-    /** @var CacheInterface */
     private $cache;
 
-    /**
-     * @param CacheInterface $cache
-     */
     public function __construct(CacheInterface $cache)
     {
         $this->cache = $cache;

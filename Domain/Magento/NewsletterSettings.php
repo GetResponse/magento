@@ -1,66 +1,44 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-/**
- * Class NewsletterSettings
- * @package GetResponse\GetResponseIntegration\Domain\Magento
- */
 class NewsletterSettings
 {
-    /** @var int */
     private $status;
-
-    /** @var string */
     private $campaignId;
-
-    /** @var int */
     private $cycleDay;
-
-    /** @var string */
     private $autoresponderId;
 
-    /**
-     * @param int $status
-     * @param string $campaignId
-     * @param int $cycleDay
-     * @param string $autoresponderId
-     */
-    public function __construct($status, $campaignId, $cycleDay, $autoresponderId)
-    {
+    public function __construct(
+        int $status,
+        string $campaignId,
+        $cycleDay,
+        string $autoresponderId
+    ) {
         $this->status = $status;
         $this->campaignId = $campaignId;
         $this->cycleDay = $cycleDay;
         $this->autoresponderId = $autoresponderId;
     }
 
-    /**
-     * @return string
-     */
-    public function getAutoresponderId()
+    public function getAutoresponderId(): string
     {
         return $this->autoresponderId;
     }
 
-    /**
-     * @return bool
-     */
-    public function isEnabled()
+    public function isEnabled(): bool
     {
-        return 1 === (int)$this->status;
+        return 1 === $this->status;
     }
 
-    /**
-     * @return string
-     */
-    public function getCampaignId()
+    public function getCampaignId(): string
     {
         return $this->campaignId;
     }
 
-    /**
-     * @return array
-     */
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'status' => $this->status,
@@ -70,14 +48,8 @@ class NewsletterSettings
         ];
     }
 
-    /**
-     * @return int
-     */
     public function getCycleDay()
     {
-        if (strlen($this->cycleDay) > 0) {
-            return (int) $this->cycleDay;
-        }
-        return null;
+        return $this->cycleDay;
     }
 }

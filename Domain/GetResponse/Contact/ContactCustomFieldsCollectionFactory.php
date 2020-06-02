@@ -1,48 +1,37 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Contact;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMapping;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute\MagentoCustomerAttributeService;
 use GrShareCode\Contact\ContactCustomField\ContactCustomField;
 use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
-use Magento\Customer\Model\Customer;
+use Magento\Customer\Model\Data\Customer;
+use Magento\Sales\Model\Order;
 
-/**
- * Class ContactCustomFieldsCollectionFactory
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\Contact
- */
 class ContactCustomFieldsCollectionFactory
 {
-    /** @var MagentoCustomerAttributeService */
     private $magentoCustomerAttributeService;
 
-    /**
-     * @param MagentoCustomerAttributeService $magentoCustomerAttributeService
-     */
-    public function __construct(MagentoCustomerAttributeService $magentoCustomerAttributeService)
-    {
+    public function __construct(
+        MagentoCustomerAttributeService $magentoCustomerAttributeService
+    ) {
         $this->magentoCustomerAttributeService = $magentoCustomerAttributeService;
     }
 
-    /**
-     * @param Customer $customer
-     * @param CustomFieldsMappingCollection $customFieldsMappingCollection
-     * @param bool $isUpdateCustomFieldEnabled
-     * @return ContactCustomFieldsCollection
-     */
     public function createForCustomer(
         Customer $customer,
         CustomFieldsMappingCollection $customFieldsMappingCollection,
         $isUpdateCustomFieldEnabled
-    ) {
+    ): ContactCustomFieldsCollection {
         $contactCustomFieldCollection = new ContactCustomFieldsCollection();
 
         if (!$isUpdateCustomFieldEnabled) {
             return $contactCustomFieldCollection;
         }
 
-        /** @var CustomFieldsMapping $customFieldMapping */
         foreach ($customFieldsMappingCollection as $customFieldMapping) {
 
             if ($customFieldMapping->isDefault()) {
@@ -68,10 +57,7 @@ class ContactCustomFieldsCollectionFactory
         return $contactCustomFieldCollection;
     }
 
-    /**
-     * @return ContactCustomFieldsCollection
-     */
-    public function createForSubscriber()
+    public function createForSubscriber(): ContactCustomFieldsCollection
     {
         return new ContactCustomFieldsCollection();
     }

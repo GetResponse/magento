@@ -1,30 +1,24 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
 use GetResponse\GetResponseIntegration\Helper\Message;
 
-/**
- * Class EcommerceSettings
- * @package GetResponse\GetResponseIntegration\Domain\Magento
- */
 class EcommerceSettings
 {
     const STATUS_ENABLED = 'enabled';
     const STATUS_DISABLED = 'disabled';
 
-    /** @var string */
     private $status;
-
-    /** @var string */
     private $shopId;
-
-    /** @var string */
     private $listId;
 
     /**
      * @param string $status
-     * @param string $shopId
-     * @param string $listId
+     * @param $shopId
+     * @param $listId
      * @throws ValidationException
      */
     public function __construct($status, $shopId, $listId)
@@ -34,46 +28,29 @@ class EcommerceSettings
         $this->setListId($listId);
     }
 
-    /**
-     * @return string
-     */
-    public function isEnabled()
-    {
-        return $this->status === self::STATUS_ENABLED;
-    }
-
-    /**
-     * @return string
-     */
     public function getShopId()
     {
         return $this->shopId;
     }
 
-    /**
-     * @return string
-     */
     public function getListId()
     {
         return $this->listId;
     }
 
-    /**
-     * @return string
-     */
-    public function getStatus()
+    public function getStatus(): string
     {
         return $this->status;
     }
 
     /**
-     * @param string $status
+     * @param $status
      * @throws ValidationException
      */
     private function setStatus($status)
     {
         $message = 'Incorrect ecommerce settings status';
-        if (!in_array($status, [self::STATUS_ENABLED, self::STATUS_DISABLED])) {
+        if (!in_array($status, [self::STATUS_ENABLED, self::STATUS_DISABLED], true)) {
             throw ValidationException::createForInvalidValue($message);
         }
         $this->status = $status;

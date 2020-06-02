@@ -1,21 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant\Images;
 
 use GrShareCode\Product\Variant\Images\Image;
 use GrShareCode\Product\Variant\Images\ImagesCollection;
 use Magento\Catalog\Model\Product;
 
-/**
- * Class ImagesFactory
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant\Images
- */
 class ImagesFactory
 {
-    /**
-     * @param Product $magentoProduct
-     * @return ImagesCollection
-     */
-    public static function fromProduct(Product $magentoProduct)
+    public static function fromProduct(Product $magentoProduct): ImagesCollection
     {
         $imagesCollection = new ImagesCollection();
 
@@ -25,5 +20,4 @@ class ImagesFactory
 
         return $imagesCollection;
     }
-
 }
