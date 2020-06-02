@@ -24,18 +24,18 @@ class ProductFactory
     private $variantFactorySimple;
     private $productUrlFactory;
     private $categoriesFactory;
-    private $variantsFactoryComplex;
+    private $complexVariantFactory;
     private $productReadModel;
 
     public function __construct(
         SimpleVariantFactory $variantFactorySimple,
-        ComplexVariantFactory $variantsFactoryComplex,
+        ComplexVariantFactory $complexVariantFactory,
         ProductUrlFactory $productUrlFactory,
         CategoriesFactory $categoriesFactory,
         ProductReadModel $productReadModel
     ) {
         $this->variantFactorySimple = $variantFactorySimple;
-        $this->variantsFactoryComplex = $variantsFactoryComplex;
+        $this->complexVariantFactory = $complexVariantFactory;
         $this->productUrlFactory = $productUrlFactory;
         $this->categoriesFactory = $categoriesFactory;
         $this->productReadModel = $productReadModel;
@@ -53,7 +53,7 @@ class ProductFactory
                 $product = new Product(
                     (int)$quoteItem->getProduct()->getId(),
                     $quoteItem->getProduct()->getName(),
-                    $this->variantsFactoryComplex->fromQuoteItem($quoteItem),
+                    $this->complexVariantFactory->fromQuoteItem($quoteItem),
                     $this->categoriesFactory->fromProduct($magentoProduct)
                 );
 
@@ -127,7 +127,7 @@ class ProductFactory
                 $product = new Product(
                     (int)$orderItem->getProduct()->getId(),
                     $orderItem->getProduct()->getName(),
-                    $this->variantsFactoryComplex->fromOrderItem($orderItem),
+                    $this->complexVariantFactory->fromOrderItem($orderItem),
                     $this->categoriesFactory->fromProduct($magentoProduct)
                 );
 

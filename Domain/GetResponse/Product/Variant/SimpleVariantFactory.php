@@ -41,13 +41,14 @@ class SimpleVariantFactory
             $quoteItem->getSku()
         );
 
-        $description = (string) $magentoProduct->getShortDescription();
         $productVariant
             ->setUrl($this->productUrlFactory->fromProduct($quoteItem->getProduct()))
             ->setQuantity($quoteItem->getQty())
             ->setImages(Images\ImagesFactory::fromProduct($magentoProduct));
 
-        if (strlen($description) > 2) {
+        $description = (string) $magentoProduct->getDescription();
+
+        if (strlen($description) >= 2) {
             $productVariant->setDescription(mb_substr($description, 0, Variant::DESCRIPTION_MAX_LENGTH));
         }
 
@@ -76,8 +77,13 @@ class SimpleVariantFactory
         $productVariant
             ->setUrl($this->productUrlFactory->fromProduct($orderItem->getProduct()))
             ->setQuantity((int)$orderItem->getQtyOrdered())
-            ->setDescription(mb_substr((string) $magentoProduct->getShortDescription(), 0, Variant::DESCRIPTION_MAX_LENGTH))
             ->setImages(Images\ImagesFactory::fromProduct($magentoProduct));
+
+        $description = (string)$magentoProduct->getDescription();
+
+        if (strlen($description) >= 2) {
+            $productVariant->setDescription(mb_substr($description, 0, Variant::DESCRIPTION_MAX_LENGTH));
+        }
 
         $variantCollection->add($productVariant);
 

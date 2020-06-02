@@ -47,8 +47,13 @@ class ComplexVariantFactory
             $productVariant
                 ->setUrl($this->productUrlFactory->fromProduct($quoteItem->getProduct()))
                 ->setQuantity((int)$quoteItem->getQty())
-                ->setDescription(mb_substr($magentoVariant->getShortDescription(), 0, Variant::DESCRIPTION_MAX_LENGTH))
                 ->setImages(Images\ImagesFactory::fromProduct($magentoVariant));
+
+            $description = (string)$magentoVariant->getDescription();
+
+            if (strlen($description) >= 2) {
+                $productVariant->setDescription(mb_substr($description, 0, Variant::DESCRIPTION_MAX_LENGTH));
+            }
 
             $variantCollection->add($productVariant);
         }
@@ -78,13 +83,16 @@ class ComplexVariantFactory
             $productVariant
                 ->setUrl($this->productUrlFactory->fromProduct($orderItem->getProduct()))
                 ->setQuantity((int)$orderItem->getQty())
-                ->setDescription(mb_substr($magentoVariant->getShortDescription(), 0, Variant::DESCRIPTION_MAX_LENGTH))
                 ->setImages(Images\ImagesFactory::fromProduct($magentoVariant));
 
+            $description = (string)$magentoVariant->getDescription();
+
+            if (strlen($description) >= 2) {
+                $productVariant->setDescription(mb_substr($description, 0, Variant::DESCRIPTION_MAX_LENGTH));
+            }
             $variantCollection->add($productVariant);
         }
 
         return $variantCollection;
     }
-
 }
