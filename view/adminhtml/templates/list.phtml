@@ -59,7 +59,7 @@ $confirmationBodies = $block->getSubscriptionConfirmationsBody();
                         <div class="admin__field-control control">
                             <select name="from_field" id="from_field" class="select admin__control-select" aria-required="true">
                                 <option value="">Select from field</option>
-                                <?php if (count($fromFields) > 0): ?>
+                                <?php if ($fromFields->count() > 0): ?>
                                     <?php
                                     /** @var FromFields $fromField */
                                     foreach ($fromFields as $fromField): ?>
@@ -78,7 +78,7 @@ $confirmationBodies = $block->getSubscriptionConfirmationsBody();
                         <div class="admin__field-control control">
                             <select name="reply_to_field" id="reply_to_field" class="select admin__control-select" aria-required="true">
                                 <option value="">Select reply-to address</option>
-                                <?php if (count($fromFields) > 0): ?>
+                                <?php if ($fromFields->count() > 0): ?>
                                     <?php
                                     /** @var FromFields $fromField */
                                     foreach ($fromFields as $fromField): ?>

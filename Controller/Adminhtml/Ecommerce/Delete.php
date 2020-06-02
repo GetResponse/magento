@@ -16,13 +16,12 @@ use Magento\Backend\App\Action\Context;
 
 class Delete extends AbstractController
 {
-    private $apiClient;
+    private $apiClientFactory;
 
     public function __construct(Context $context, ApiClientFactory $apiClientFactory)
     {
         parent::__construct($context);
-
-        $this->apiClient = $apiClientFactory->createGetResponseApiClient($this->scope);
+        $this->apiClientFactory = $apiClientFactory;
     }
 
     public function execute()
@@ -40,12 +39,14 @@ class Delete extends AbstractController
                 throw new IdNotFoundException(Message::INCORRECT_SHOP);
             }
 
-            $service = new ShopService($this->apiClient);
+            $service = new ShopService(
+                $this->apiClientFactory->createGetResponseApiClient($this->scope)
+            );
             $service->deleteShop(new DeleteShopCommand($id));
 
             return $this->redirect($this->_redirect->getRefererUrl(), Message::SHOP_DELETED);
         } catch (Exception $e) {
-            return $this->redirect($this->_redirect->getRefererUrl(),$e->getMessage(), true);
+            return $this->redirect($this->_redirect->getRefererUrl(), $e->getMessage(), true);
         }
     }
 }

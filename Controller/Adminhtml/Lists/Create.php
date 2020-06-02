@@ -7,12 +7,12 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Lists;
 use Exception;
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Lists\AddContactListCommandFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\ListValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Store\ReadModel\StoreReadModel;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Exception\ListValidationException;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Helper\Route;
-use GrShareCode\ContactList\Command\AddContactListCommand;
 use GrShareCode\ContactList\ContactListService;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
@@ -61,7 +61,8 @@ class Create extends AbstractController
             $service = new ContactListService(
                 $this->apiClientFactory->createGetResponseApiClient($this->scope)
             );
-            $service->createContactList(AddContactListCommand::createFromArray($data));
+
+            $service->createContactList(AddContactListCommandFactory::createFromArray($data));
 
             return $this->redirect($backUrl, Message::LIST_CREATED);
         } catch (Exception $e) {
