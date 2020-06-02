@@ -1,70 +1,52 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Webtraffic;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
 use GetResponse\GetResponseIntegration\Helper\Message;
+use GetResponse\GetResponseIntegration\Helper\PageTitle;
+use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Cache\TypeListInterface;
-use Magento\Framework\App\Request\Http;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\Result\Redirect;
-use Magento\Framework\View\Result\Page;
-use Magento\Framework\View\Result\PageFactory;
 use Magento\PageCache\Model\Cache\Type;
 
-/**
- * Class Index
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Webtraffic
- */
 class Index extends AbstractController
 {
-    const PAGE_TITLE = 'Web Event Tracking';
-    const BACK_URL = 'getresponse/webtraffic/index';
-
-    /** @var PageFactory */
-    private $resultPageFactory;
-
-    /** @var Http */
-    private $request;
-
-    /** @var Repository */
     private $repository;
-
-    /** @var TypeListInterface */
     private $cacheTypeList;
 
-    /**
-     * @param Context $context
-     * @param TypeListInterface $cacheTypeList
-     * @param PageFactory $resultPageFactory
-     * @param Repository $repository
-     */
     public function __construct(
         Context $context,
         TypeListInterface $cacheTypeList,
-        PageFactory $resultPageFactory,
         Repository $repository
     ) {
         parent::__construct($context);
         $this->cacheTypeList = $cacheTypeList;
-        $this->resultPageFactory = $resultPageFactory;
-        $this->request = $this->getRequest();
         $this->repository = $repository;
     }
 
-    /**
-     * @return ResponseInterface|Redirect|Page
-     */
     public function execute()
     {
+        parent::execute();
+
+        if ($this->shouldRedirectToStore()) {
+            return $this->redirectToStore(Route::WEB_TRAFFIC_INDEX_ROUTE);
+        }
+
+        if (!$this->isConnected()) {
+            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
+        }
+
         $data = $this->request->getPostValue();
 
         if (isset($data['updateWebTraffic'])) {
 
             $webEventTracking = WebEventTrackingSettingsFactory::createFromArray(
-                $this->repository->getWebEventTracking()
+                $this->repository->getWebEventTracking($this->scope->getScopeId())
             );
 
             $params = [
@@ -75,22 +57,15 @@ class Index extends AbstractController
 
             $newWebEventTracking = WebEventTrackingSettingsFactory::createFromArray($params);
 
-            $this->repository->saveWebEventTracking($newWebEventTracking);
+            $this->repository->saveWebEventTracking($newWebEventTracking, $this->scope->getScopeId());
 
             $this->cacheTypeList->cleanType(Type::TYPE_IDENTIFIER);
 
             $message = ($newWebEventTracking->isEnabled()) ? Message::WEB_EVENT_TRAFFIC_ENABLED : Message::WEB_EVENT_TRAFFIC_DISABLED;
-            $this->messageManager->addSuccessMessage($message);
 
-            $resultRedirect = $this->resultRedirectFactory->create();
-            $resultRedirect->setPath(self::BACK_URL);
-
-            return $resultRedirect;
+            return $this->redirect($this->_redirect->getRefererUrl(), $message);
         }
 
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
-
-        return $resultPage;
+        return $this->render(PageTitle::WEB_TRAFFIC);
     }
 }

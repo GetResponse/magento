@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\CustomFieldsMapping\Dto;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto\CustomFieldMappingDto;

@@ -1,71 +1,50 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Newsletter;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\Result\Redirect;
-use Magento\Framework\View\Result\PageFactory;
-use Magento\Framework\App\Request\Http;
 
-/**
- * Class RegistrationPost
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Registration
- */
 class Save extends AbstractController
 {
-    const BACK_URL = 'getresponse/newsletter/index';
-
-    /** @var PageFactory */
-    protected $resultPageFactory;
-
-    /** @var Http */
-    private $request;
-
-    /** @var Repository */
     private $repository;
 
-    /**
-     * @param Context $context
-     * @param PageFactory $resultPageFactory
-     * @param Repository $repository
-     */
-    public function __construct(
-        Context $context,
-        PageFactory $resultPageFactory,
-        Repository $repository
-    ) {
+    public function __construct(Context $context, Repository $repository)
+    {
         parent::__construct($context);
-        $this->resultPageFactory = $resultPageFactory;
-        $this->request = $this->getRequest();
         $this->repository = $repository;
     }
 
-    /**
-     * @return ResponseInterface|Redirect
-     */
     public function execute()
     {
-        $resultRedirect = $this->resultRedirectFactory->create();
-        $resultRedirect->setPath(self::BACK_URL);
+        parent::execute();
+
+        if (!$this->isConnected()) {
+            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
+        }
 
         $data = $this->request->getPostValue();
 
-        $autoresponder = (isset($data['gr_autoresponder']) && $data['gr_autoresponder'] == 1) ? $data['autoresponder'] : '';
-        $isEnabled = isset($data['gr_enabled']) && 1 == $data['gr_enabled'] ? true : false;
+        $autoresponder = (isset($data['gr_autoresponder']) && (int) $data['gr_autoresponder'] === 1) ? $data['autoresponder'] : '';
+        $isEnabled = isset($data['gr_enabled']) && 1 === (int) $data['gr_enabled'];
 
         if (!$isEnabled) {
-            $this->repository->clearNewsletterSettings();
+            $this->repository->clearNewsletterSettings($this->scope->getScopeId());
         } else {
             $campaignId = $data['campaign_id'];
 
             if (empty($campaignId)) {
-                $this->messageManager->addErrorMessage(Message::SELECT_CONTACT_LIST);
-
-                return $resultRedirect;
+                return $this->redirect(
+                    $this->_redirect->getRefererUrl(),
+                    Message::SELECT_CONTACT_LIST,
+                    true
+                );
             }
 
             $newsletterSettings = NewsletterSettingsFactory::createFromArray([
@@ -75,10 +54,9 @@ class Save extends AbstractController
                 'autoresponderId' => !empty($autoresponder) ? explode('_', $autoresponder)[1] : '',
             ]);
 
-            $this->repository->saveNewsletterSettings($newsletterSettings);
+            $this->repository->saveNewsletterSettings($newsletterSettings, $this->scope->getScopeId());
         }
 
-        $this->messageManager->addSuccessMessage(Message::SETTINGS_SAVED);
-        return $resultRedirect;
+        return $this->redirect($this->_redirect->getRefererUrl(), Message::SETTINGS_SAVED);
     }
 }

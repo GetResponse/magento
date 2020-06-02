@@ -1,10 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-/**
- * Class EcommerceSettingsFactory
- * @package GetResponse\GetResponseIntegration\Domain\Magento
- */
 class EcommerceSettingsFactory
 {
     /**
@@ -12,13 +11,12 @@ class EcommerceSettingsFactory
      * @return EcommerceSettings
      * @throws ValidationException
      */
-    public static function createFromPost($data)
+    public static function createFromPost($data): EcommerceSettings
     {
         if (isset($data['ecommerce_status']) &&(int) $data['ecommerce_status'] === 1) {
             return new EcommerceSettings(EcommerceSettings::STATUS_ENABLED, $data['shop_id'], $data['list_id']);
         }
 
         return new EcommerceSettings(EcommerceSettings::STATUS_DISABLED, null, null);
-
     }
 }

@@ -1,44 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Account;
 
-use Magento\Backend\App\Action;
-use Magento\Backend\App\Action\Context;
-use Magento\Framework\View\Result\Page;
-use Magento\Framework\View\Result\PageFactory;
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
+use GetResponse\GetResponseIntegration\Helper\PageTitle;
+use GetResponse\GetResponseIntegration\Helper\Route;
 
-/**
- * Class Index
- * @package GetResponse\GetResponseIntegration\Controller\Adminhtml\Settings
- */
-class Index extends Action
+class Index extends AbstractController
 {
-    const PAGE_TITLE = 'GetResponse Account';
-
-    /** @var PageFactory */
-    protected $resultPageFactory;
-
-    /**
-     * @param Context $context
-     * @param PageFactory $resultPageFactory
-     */
-    public function __construct(
-        Context $context,
-        PageFactory $resultPageFactory
-    ) {
-        parent::__construct($context);
-
-        $this->resultPageFactory = $resultPageFactory;
-    }
-
-    /**
-     * @return Page
-     */
     public function execute()
     {
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend(self::PAGE_TITLE);
+        parent::execute();
 
-        return $resultPage;
+        if ($this->shouldRedirectToStore()) {
+            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
+        }
+
+        return $this->render(PageTitle::ACCOUNT);
     }
 }

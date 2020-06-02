@@ -1,21 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Account;
 
-/**
- * Class AccountFactory
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse
- */
+use GrShareCode\Account\Account as ShareCodeAccount;
+
 class AccountFactory
 {
-    /**
-     * @param array $response
-     *
-     * @return Account
-     */
-    public static function createFromArray(array $response)
+    public static function createFromArray(array $response): Account
     {
         return new Account(
-            isset($response['accountId']) ? $response['accountId'] : '',
             isset($response['firstName']) ? $response['firstName'] : '',
             isset($response['lastName']) ? $response['lastName'] : '',
             isset($response['email']) ? $response['email'] : '',
@@ -26,6 +21,22 @@ class AccountFactory
             isset($response['street']) ? $response['street'] : '',
             isset($response['zipCode']) ? $response['zipCode'] : '',
             isset($response['countryCode']->countryCodeId) ? $response['countryCode']->countryCode : ''
+        );
+    }
+
+    public static function createFromShareCodeAccount(ShareCodeAccount $account): Account
+    {
+        return new Account(
+            $account->getFirstName(),
+            $account->getLastName(),
+            $account->getEmail(),
+            $account->getCompanyName(),
+            $account->getPhone(),
+            $account->getStreet(),
+            $account->getCity(),
+            $account->getStreet(),
+            $account->getZipCode(),
+            $account->getZipCode()
         );
     }
 }

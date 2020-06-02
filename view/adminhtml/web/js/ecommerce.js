@@ -35,7 +35,6 @@ require(['jquery'], function($) {
             },
             success: function (data) {
                 if (data.error) {
-                    // @TODO: add error notification for customer
                     return false;
                 }
                 removeEditStoreRow();

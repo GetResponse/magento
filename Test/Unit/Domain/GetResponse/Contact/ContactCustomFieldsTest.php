@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Contact;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactCustomFieldsCollectionFactory;
@@ -8,14 +11,15 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Ma
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Contact\ContactCustomField\ContactCustomField;
 use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
-use Magento\Customer\Model\Customer;
+use Magento\Customer\Model\Data\Customer;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class ContactCustomFieldsTest extends BaseTestCase
 {
     /** @var ContactCustomFieldsCollectionFactory */
     private $sut;
 
-    /** @var MagentoCustomerAttributeService|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var MagentoCustomerAttributeService|MockObject */
     private $magentoCustomerAttributeService;
 
     protected function setUp()
@@ -29,7 +33,7 @@ class ContactCustomFieldsTest extends BaseTestCase
      */
     public function shouldReturnEmptyContactCustomFieldsCollectionForSubscriber()
     {
-        $this->assertEquals(new ContactCustomFieldsCollection(), $this->sut->createForSubscriber());
+        self::assertEquals(new ContactCustomFieldsCollection(), $this->sut->createForSubscriber());
     }
 
     /**
@@ -49,7 +53,7 @@ class ContactCustomFieldsTest extends BaseTestCase
         $attributeType2 = 'address';
         $attributeType3 = 'customer';
 
-        /** @var Customer|\PHPUnit_Framework_MockObject_MockObject $customer */
+        /** @var Customer|MockObject $customer */
         $customer = $this->getMockWithoutConstructing(Customer::class);
         $customFieldsMappingCollection = CustomFieldsMappingCollection::createDefaults();
 
@@ -89,7 +93,7 @@ class ContactCustomFieldsTest extends BaseTestCase
         $customerAttributeValue2 = 'AttributeValue2';
         $customerAttributeValue3 = 'AttributeValue3';
 
-        /** @var Customer|\PHPUnit_Framework_MockObject_MockObject $customer */
+        /** @var Customer|MockObject $customer */
         $customer = $this->getMockWithoutConstructing(Customer::class);
         $customFieldsMappingCollection = CustomFieldsMappingCollection::createDefaults();
 
@@ -128,7 +132,7 @@ class ContactCustomFieldsTest extends BaseTestCase
      */
     public function shouldReturnEmptyContactCustomFieldCollectionForEmptyCustomFieldMapping()
     {
-        /** @var Customer|\PHPUnit_Framework_MockObject_MockObject $customer */
+        /** @var Customer|MockObject $customer */
         $customer = $this->getMockWithoutConstructing(Customer::class);
 
         $customFieldsMappingCollection = CustomFieldsMappingCollection::createDefaults();
@@ -161,7 +165,7 @@ class ContactCustomFieldsTest extends BaseTestCase
         $customerAttributeValue2 = 'AttributeValue2';
         $customerAttributeValue3 = null;
 
-        /** @var Customer|\PHPUnit_Framework_MockObject_MockObject $customer */
+        /** @var Customer|MockObject $customer */
         $customer = $this->getMockWithoutConstructing(Customer::class);
         $customFieldsMappingCollection = CustomFieldsMappingCollection::createDefaults();
 

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Order;
 
 use DateTime;
@@ -10,34 +13,20 @@ use GrShareCode\Product\ProductsCollection;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Item;
 
-/**
- * Class OrderFactory
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\Order
- */
 class OrderFactory
 {
-    /** @var ProductFactory */
     private $productFactory;
-
-    /** @var AddressFactory */
     private $addressFactory;
 
-    /**
-     * @param ProductFactory $productFactory
-     * @param AddressFactory $addressFactory
-     */
-    public function __construct(ProductFactory $productFactory, AddressFactory $addressFactory)
-    {
+    public function __construct(
+        ProductFactory $productFactory,
+        AddressFactory $addressFactory
+    ) {
         $this->productFactory = $productFactory;
         $this->addressFactory = $addressFactory;
     }
 
-    /**
-     * @param Order $order
-     * @return GrOrder
-     * @throws InvalidOrderException
-     */
-    public function fromMagentoOrder(Order $order)
+    public function fromMagentoOrder(Order $order): GrOrder
     {
         $productCollection = new ProductsCollection();
 
@@ -69,10 +58,12 @@ class OrderFactory
             ->setExternalCartId($order->getQuoteId())
             ->setShippingPrice((float)$order->getShippingAmount())
             ->setProcessedAt(DateTime::createFromFormat('Y-m-d H:i:s', $order->getCreatedAt())->format(DateTime::ISO8601))
-            ->setShippingAddress($shippingAddress)
             ->setBillingAddress($billingAddress);
+
+        if (null !== $shippingAddress) {
+            $grOrder->setShippingAddress($shippingAddress);
+        }
 
         return $grOrder;
     }
-
 }

@@ -1,23 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Order;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderServiceFactory;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Order\Command\AddOrderCommand;
 use GrShareCode\Order\OrderService as GrOrderService;
+use PHPUnit\Framework\MockObject\MockObject;
 
-/**
- * Class OrderServiceTest
- * @package Domain\GetResponse\Order
- */
 class OrderServiceTest extends BaseTestCase
 {
-    /** @var GrOrderService|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var GrOrderService|MockObject */
     private $grOrderServiceMock;
 
-    /** @var OrderServiceFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var OrderServiceFactory|MockObject */
     private $orderServiceFactoryMock;
 
     public function setUp()
@@ -33,11 +33,14 @@ class OrderServiceTest extends BaseTestCase
     {
         $this->orderServiceFactoryMock->expects($this->once())->method('create')->willReturn($this->grOrderServiceMock);
 
-        /** @var AddOrderCommand|\PHPUnit_Framework_MockObject_MockObject $addOrderCommand */
+        /** @var AddOrderCommand|MockObject $addOrderCommand */
         $addOrderCommand = $this->getMockWithoutConstructing(AddOrderCommand::class);
 
         $orderService = new OrderService($this->orderServiceFactoryMock);
-        $orderService->addOrder($addOrderCommand);
+        $orderService->addOrder(
+            $addOrderCommand,
+            $this->getMockWithoutConstructing(Scope::class)
+        );
     }
 
 }

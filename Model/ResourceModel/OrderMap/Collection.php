@@ -1,24 +1,20 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Model\ResourceModel\OrderMap;
 
+use GetResponse\GetResponseIntegration\Model\ResourceModel\OrderMap as ResourceOrderMap;
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
+use GetResponse\GetResponseIntegration\Model\OrderMap;
 
-/**
- * Class Collection
- * @package GetResponse\GetResponseIntegration\Model\ResourceModel\OrderMap
- */
 class Collection extends AbstractCollection
 {
-    /**
-     * Define resource model
-     *
-     * @return void
-     */
     protected function _construct()
     {
         $this->_init(
-            'GetResponse\GetResponseIntegration\Model\OrderMap',
-            'GetResponse\GetResponseIntegration\Model\ResourceModel\OrderMap'
+            OrderMap::class,
+            ResourceOrderMap::class
         );
     }
 }

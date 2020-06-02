@@ -1,17 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-/**
- * Class WebEventTrackingFactory
- * @package GetResponse\GetResponseIntegration\Domain\Magento
- */
 class WebEventTrackingSettingsFactory
 {
-    /**
-     * @param array $data
-     * @return WebEventTrackingSettings
-     */
-    public static function createFromArray(array $data)
+    public static function createFromArray(array $data): WebEventTrackingSettings
     {
         if (empty($data)) {
             return new WebEventTrackingSettings(

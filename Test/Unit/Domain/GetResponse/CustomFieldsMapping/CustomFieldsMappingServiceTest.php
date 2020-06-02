@@ -1,26 +1,32 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\CustomFieldsMapping;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute\MagentoCustomerAttribute;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute\MagentoCustomerAttributeCollection;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Customer\Model\ResourceModel\Address\Attribute\CollectionFactory as AddressCollectionFactory;
 use Magento\Customer\Model\ResourceModel\Attribute\CollectionFactory;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class CustomFieldsMappingServiceTest extends BaseTestCase
 {
 
-    /** @var Repository|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var Repository|MockObject */
     private $repository;
 
-    /** @var CollectionFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var CollectionFactory|MockObject */
     private $customerAttributeCollectionFactory;
 
-    /** @var AddressCollectionFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var AddressCollectionFactory|MockObject */
     private $addressAttributeCollectionFactory;
-
+    /** @var Scope|MockObject */
+    private $scope;
     /** @var CustomFieldsMappingService */
     private $sut;
 
@@ -29,6 +35,7 @@ class CustomFieldsMappingServiceTest extends BaseTestCase
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
         $this->customerAttributeCollectionFactory = $this->getMockWithoutConstructing(CollectionFactory::class, ['create']);
         $this->addressAttributeCollectionFactory = $this->getMockWithoutConstructing(AddressCollectionFactory::class, ['create']);
+        $this->scope = $this->getMockWithoutConstructing(Scope::class);
 
         $this->sut = new CustomFieldsMappingService(
             $this->repository,
@@ -71,7 +78,7 @@ class CustomFieldsMappingServiceTest extends BaseTestCase
             ->method('setCustomsOnInit')
             ->with($defaultCustomFieldMappingCollection);
 
-        $this->sut->setDefaultCustomFields();
+        $this->sut->setDefaultCustomFields($this->scope);
     }
 
     /**
@@ -210,5 +217,4 @@ class CustomFieldsMappingServiceTest extends BaseTestCase
         $expectedAttributeCollection =  new MagentoCustomerAttributeCollection();
         $this->assertEquals($expectedAttributeCollection, $this->sut->getMagentoCustomerAttributes());
     }
-
 }

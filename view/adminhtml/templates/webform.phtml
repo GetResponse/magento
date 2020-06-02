@@ -1,15 +1,21 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Webform */
+<?php
 
+declare(strict_types=1);
+
+use GetResponse\GetResponseIntegration\Block\Admin\Webform as WebformBlock;
+use GetResponse\GetResponseIntegration\Helper\BlockPosition;
 use GrShareCode\WebForm\WebForm;
 
+/** @var WebformBlock $block */
 $webForms = $block->getWebForms();
 $webformSettings = $block->getWebFormSettings();
 ?>
 
-<form method="post" action="<?php echo $block->getUrl('getresponse/webform/save'); ?>">
+<form method="post" action="<?php echo $block->getUrlWithScope('getresponse/webform/save'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
 
     <div class="page-main-actions">
+        <?php require('switch_scope.phtml') ?>
         <div class="page-main-hint">
             <span>Add forms (or exit popups) to your store. Get new contacts when your customers fill them out.</span>
         </div>
@@ -50,14 +56,14 @@ $webformSettings = $block->getWebFormSettings();
                             <div class="admin__field">
                                 <select name="webformId" id="webform_id" class="select admin__control-select" aria-required="true">
                                     <option value="">Select a form you want to display</option>
-                                    <?php if (!empty($webForms)):?>
+                                    <?php if ($webForms !== null):?>
                                         <?php
                                         /** @var WebForm $form */
                                         foreach ($webForms as $form): ?>
                                             <option
                                                 value="<?php echo $form->getWebFormId()?>"
                                                 data-url="<?php echo $form->getScriptUrl()?>"
-                                                <?php if($webformSettings->getWebformId() == $form->getWebFormId()):?>
+                                                <?php if($webformSettings->getWebformId() === $form->getWebFormId()):?>
                                                     selected="selected"
                                                 <?php endif ?>
                                             ><?php echo $form->getName() ?></option>
@@ -78,8 +84,7 @@ $webformSettings = $block->getWebFormSettings();
                             <div class="admin__field">
                                 <select name="sidebar" class="select admin__control-select" aria-required="true">
                                     <option value="">Select where to place the form</option>
-                                    <?php $positions = ['content' => 'Content Top', 'page.bottom' => 'Content Bottom', 'footer-container' => 'Footer', 'sidebar.main' => 'Sidebar Top', 'div.sidebar.additional' => 'Sidebar Bottom'];
-                                    foreach ($positions as $position => $name):?>
+                                    <?php foreach (BlockPosition::POSITIONS as $position => $name):?>
                                         <option
                                             value="<?php echo $position ?>"
                                             <?php if ($webformSettings->getSidebar() === $position): ?>

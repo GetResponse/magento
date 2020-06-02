@@ -1,31 +1,46 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Contact;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactServiceFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Api\GetresponseApiClient;
 use GrShareCode\Contact\ContactService as GrContactService;
 use GrShareCode\Contact\ContactServiceFactory as GrContactServiceFactory;
+use PHPUnit\Framework\MockObject\MockObject;
 
-/**
- * Class ContactServiceFactoryTest
- * @package GetResponse\GetResponseIntegration\Test\Unit\Domain\GetResponse\Contact
- */
 class ContactServiceFactoryTest extends BaseTestCase
 {
-    /** @var ShareCodeRepository|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var ShareCodeRepository|MockObject */
     private $shareCodeRepository;
-
-    /** @var ApiClientFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var ApiClientFactory|MockObject */
     private $getResponseApiClientFactory;
-
     /** @var ContactServiceFactory */
     private $contactServiceFactory;
-
-    /** @var GrContactServiceFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var GrContactServiceFactory|MockObject */
     private $grContactServiceFactory;
+    /** @var Scope|MockObject */
+    private $scope;
+
+    protected function setUp()
+    {
+        $this->shareCodeRepository = $this->getMockWithoutConstructing(ShareCodeRepository::class);
+        $this->getResponseApiClientFactory = $this->getMockWithoutConstructing(ApiClientFactory::class);
+        $this->grContactServiceFactory = $this->getMockWithoutConstructing(GrContactServiceFactory::class);
+
+        $this->contactServiceFactory = new ContactServiceFactory(
+            $this->shareCodeRepository,
+            $this->getResponseApiClientFactory,
+            $this->grContactServiceFactory
+        );
+
+        $this->scope = $this->getMockWithoutConstructing(Scope::class);
+    }
 
     /**
      * @test
@@ -46,21 +61,7 @@ class ContactServiceFactoryTest extends BaseTestCase
             ->with($apiClient, $this->shareCodeRepository, 'magento2')
             ->willReturn($grContactService);
 
-        $result = $this->contactServiceFactory->create();
-        $this->assertInstanceOf(GrContactService::class, $result);
+        $result = $this->contactServiceFactory->create($this->scope);
+        self::assertInstanceOf(GrContactService::class, $result);
     }
-
-    protected function setUp()
-    {
-        $this->shareCodeRepository = $this->getMockWithoutConstructing(ShareCodeRepository::class);
-        $this->getResponseApiClientFactory = $this->getMockWithoutConstructing(ApiClientFactory::class);
-        $this->grContactServiceFactory = $this->getMockWithoutConstructing(GrContactServiceFactory::class);
-
-        $this->contactServiceFactory = new ContactServiceFactory(
-            $this->shareCodeRepository,
-            $this->getResponseApiClientFactory,
-            $this->grContactServiceFactory
-        );
-    }
-
 }

@@ -1,12 +1,14 @@
 <?php
 
-use GetResponse\GetResponseIntegration\Block\Export;
-use GetResponse\GetResponseIntegration\Block\Registration;
+declare(strict_types=1);
+
+use GetResponse\GetResponseIntegration\Block\Admin\Export;
+use GetResponse\GetResponseIntegration\Block\Admin\Registration;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute\MagentoCustomerAttribute;
 use GrShareCode\CustomField\CustomFieldCollection;
 
-/** @var $block Registration|Export */
+/** @var Registration|Export $block */
 /** @var CustomFieldsMappingCollection $customFieldsMappingCollection */
 /** @var CustomFieldCollection $customFieldsFromGetResponse */
 /** @var array $magentoCustomerAttributes */
@@ -114,8 +116,8 @@ $magentoCustomerAttributesArray = $magentoCustomerAttributes->toArray();
         </tbody>
     </table>
 </div>
-<input type="hidden" id="jsMagentoCustomerAttributes" value='<?php echo json_encode($magentoCustomerAttributesArray); ?>'/>
-<input type="hidden" id="jsGetResponseCustomFields" value='<?php echo json_encode($customFieldsFromGetResponse); ?>'/>
+<input type="hidden" id="jsMagentoCustomerAttributes" value='<?php echo $block->getSerializedMagentoCustomerAttributes() ?>'/>
+<input type="hidden" id="jsGetResponseCustomFields" value='<?php echo $block->getSerializedCustomFieldsFromGetResponse() ?>'/>
 <script>
     require(['customsGrid']);
 </script>

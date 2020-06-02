@@ -1,22 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMapping;
 use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
-use Magento\Customer\Model\Customer;
+use Magento\Customer\Model\Data\Customer;
 
-/**
- * Class MagentoCustomerAttributeService
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\MagentoCustomerAttribute
- */
 class MagentoCustomerAttributeService
 {
-    /**
-     * @param CustomFieldsMapping $customFieldMapping
-     * @param Customer $customer
-     * @return null|string
-     */
     public function getAttributeValue(CustomFieldsMapping $customFieldMapping, Customer $customer)
     {
         $attributeCode = $customFieldMapping->getMagentoAttributeCode();
@@ -32,32 +26,12 @@ class MagentoCustomerAttributeService
         return null;
     }
 
-    /**
-     * @param Customer $customer
-     * @param string $attributeCode
-     * @return mixed
-     */
     private function getCustomerAttributeValueByCode(Customer $customer, $attributeCode)
     {
-        try {
-            /** @var Attribute $customerAttribute */
-            $customerAttribute = $customer->getAttribute($attributeCode);
-
-            if (!$customerAttribute) {
-                return null;
-            }
-
-            return $customerAttribute->getFrontend()->getValue($customer);
-        } catch (Exception $e) {
-            return null;
-        }
+        $params = $customer->__toArray();
+        return isset($params[$attributeCode]) ? $params[$attributeCode] : null;
     }
 
-    /**
-     * @param Customer $customer
-     * @param string $attributeCode
-     * @return mixed
-     */
     private function getAddressAttributeValueByCode(Customer $customer, $attributeCode)
     {
         try {
@@ -80,5 +54,4 @@ class MagentoCustomerAttributeService
             return null;
         }
     }
-
 }

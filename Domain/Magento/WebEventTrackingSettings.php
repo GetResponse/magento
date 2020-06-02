@@ -1,53 +1,36 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-/**
- * Class WebEventTracking
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse
- */
 class WebEventTrackingSettings
 {
-    /** @var bool */
     private $isEnabled;
-
-    /** @var bool */
     private $isFeatureTrackingEnabled;
-
-    /** @var string */
     private $codeSnippet;
 
-    /**
-     * @param bool $isEnabled
-     * @param bool $isFeatureTrackingEnabled
-     * @param string $codeSnippet
-     */
-    public function __construct($isEnabled, $isFeatureTrackingEnabled, $codeSnippet)
-    {
-        $this->isEnabled = (bool)$isEnabled;
-        $this->isFeatureTrackingEnabled = (bool)$isFeatureTrackingEnabled;
+    public function __construct(
+        bool $isEnabled,
+        bool $isFeatureTrackingEnabled,
+        string $codeSnippet
+    ) {
+        $this->isEnabled = $isEnabled;
+        $this->isFeatureTrackingEnabled = $isFeatureTrackingEnabled;
         $this->codeSnippet = $codeSnippet;
     }
 
-    /**
-     * @return bool
-     */
-    public function isEnabled()
+    public function isEnabled(): bool
     {
         return $this->isEnabled;
     }
 
-    /**
-     * @return string
-     */
-    public function getCodeSnippet()
+    public function getCodeSnippet(): string
     {
         return $this->codeSnippet;
     }
 
-    /**
-     * @return array
-     */
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'isEnabled' => (int)$this->isEnabled,
@@ -56,10 +39,7 @@ class WebEventTrackingSettings
         ];
     }
 
-    /**
-     * @return bool
-     */
-    public function isFeatureTrackingEnabled()
+    public function isFeatureTrackingEnabled(): bool
     {
         return $this->isFeatureTrackingEnabled;
     }

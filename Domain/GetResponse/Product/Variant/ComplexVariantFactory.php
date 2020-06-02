@@ -1,46 +1,38 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Product\ProductUrlFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\ProductReadModel;
+use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\Query\GetProduct;
 use GrShareCode\Product\Variant\Variant;
 use GrShareCode\Product\Variant\VariantsCollection;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Model\Order;
 
-/**
- * Class ComplexVariantFactory
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\Product\Variant
- */
 class ComplexVariantFactory
 {
-    /** @var Repository */
-    private $magentoRepository;
-
-    /** @var ProductUrlFactory */
     private $productUrlFactory;
+    private $productReadModel;
 
-    /**
-     * @param Repository $magentoRepository
-     * @param ProductUrlFactory $productUrlFactory
-     */
-    public function __construct(Repository $magentoRepository, ProductUrlFactory $productUrlFactory)
-    {
-        $this->magentoRepository = $magentoRepository;
+    public function __construct(
+        ProductUrlFactory $productUrlFactory,
+        ProductReadModel $productReadModel
+    ) {
         $this->productUrlFactory = $productUrlFactory;
+        $this->productReadModel = $productReadModel;
     }
 
-    /**
-     * @param Quote\Item $quoteItem
-     * @return VariantsCollection
-     */
-    public function fromQuoteItem(Quote\Item $quoteItem)
+    public function fromQuoteItem(Quote\Item $quoteItem): VariantsCollection
     {
         $variantCollection = new VariantsCollection();
 
         foreach ($quoteItem->getChildren() as $childQuoteItem) {
-
-            $magentoVariant = $this->magentoRepository->getProductById($childQuoteItem->getProduct()->getId());
+            $magentoVariant = $this->productReadModel->getProduct(
+                new GetProduct($childQuoteItem->getProduct()->getId())
+            );
 
             $amountBase = $magentoVariant->getPriceInfo()->getPrice('final_price')->getAmount();
 
@@ -55,8 +47,13 @@ class ComplexVariantFactory
             $productVariant
                 ->setUrl($this->productUrlFactory->fromProduct($quoteItem->getProduct()))
                 ->setQuantity((int)$quoteItem->getQty())
-                ->setDescription(mb_substr($magentoVariant->getShortDescription(), 0, Variant::DESCRIPTION_MAX_LENGTH))
                 ->setImages(Images\ImagesFactory::fromProduct($magentoVariant));
+
+            $description = (string)$magentoVariant->getDescription();
+
+            if (strlen($description) >= 2) {
+                $productVariant->setDescription(mb_substr($description, 0, Variant::DESCRIPTION_MAX_LENGTH));
+            }
 
             $variantCollection->add($productVariant);
         }
@@ -64,17 +61,14 @@ class ComplexVariantFactory
         return $variantCollection;
     }
 
-    /**
-     * @param Order\Item $orderItem
-     * @return VariantsCollection
-     */
-    public function fromOrderItem(Order\Item $orderItem)
+    public function fromOrderItem(Order\Item $orderItem): VariantsCollection
     {
         $variantCollection = new VariantsCollection();
 
         foreach ($orderItem->getChildrenItems() as $childOrderItem) {
-
-            $magentoVariant = $this->magentoRepository->getProductById($childOrderItem->getProduct()->getId());
+            $magentoVariant = $this->productReadModel->getProduct(
+                new GetProduct($childOrderItem->getProduct()->getId())
+            );
 
             $amountBase = $magentoVariant->getPriceInfo()->getPrice('final_price')->getAmount();
 
@@ -89,13 +83,16 @@ class ComplexVariantFactory
             $productVariant
                 ->setUrl($this->productUrlFactory->fromProduct($orderItem->getProduct()))
                 ->setQuantity((int)$orderItem->getQty())
-                ->setDescription(mb_substr($magentoVariant->getShortDescription(), 0, Variant::DESCRIPTION_MAX_LENGTH))
                 ->setImages(Images\ImagesFactory::fromProduct($magentoVariant));
 
+            $description = (string)$magentoVariant->getDescription();
+
+            if (strlen($description) >= 2) {
+                $productVariant->setDescription(mb_substr($description, 0, Variant::DESCRIPTION_MAX_LENGTH));
+            }
             $variantCollection->add($productVariant);
         }
 
         return $variantCollection;
     }
-
 }

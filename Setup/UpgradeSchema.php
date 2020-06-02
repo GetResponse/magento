@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Setup;
 
 use Magento\Framework\DB\Ddl\Table;
@@ -7,16 +10,11 @@ use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UpgradeSchemaInterface;
 use Zend_Db_Exception;
 
-/**
- * Class UpgradeSchema
- * @package GetResponse\GetResponseIntegration\Setup
- */
 class UpgradeSchema implements UpgradeSchemaInterface
 {
     /**
      * @param SchemaSetupInterface $setup
      * @param ModuleContextInterface $context
-     *
      * @throws Zend_Db_Exception
      */
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
@@ -197,9 +195,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
         $setup->getConnection()->createTable($table);
     }
 
-    /**
-     * @param SchemaSetupInterface $setup
-     */
     private function ver2012removeUnusedTables(SchemaSetupInterface $setup)
     {
         $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_account'));

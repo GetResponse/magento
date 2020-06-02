@@ -1,34 +1,21 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand\Dto\ExportOnDemandDto;
 
-/**
- * Class ExportOnDemand
- */
 class ExportOnDemand
 {
-    /** @var string */
     private $contactListId;
-
-    /** @var null|int */
     private $dayOfCycle;
-
-    /** @var null|string */
     private $shopId;
-
-    /** @var CustomFieldsMappingCollection */
     private $customFieldsMappingCollection;
 
-    /**
-     * @param string $contactListId
-     * @param int|null $dayOfCycle
-     * @param null|string $shopId
-     * @param CustomFieldsMappingCollection $customFieldsMappingCollection
-     */
     public function __construct(
-        $contactListId,
+        string $contactListId,
         $dayOfCycle,
         $shopId,
         CustomFieldsMappingCollection $customFieldsMappingCollection
@@ -39,11 +26,7 @@ class ExportOnDemand
         $this->customFieldsMappingCollection = $customFieldsMappingCollection;
     }
 
-    /**
-     * @param ExportOnDemandDto $exportOnDemandDto
-     * @return ExportOnDemand
-     */
-    public static function createFromDto(ExportOnDemandDto $exportOnDemandDto)
+    public static function createFromDto(ExportOnDemandDto $exportOnDemandDto): ExportOnDemand
     {
         return new self(
             $exportOnDemandDto->getContactListId(),
@@ -53,49 +36,31 @@ class ExportOnDemand
         );
     }
 
-    /**
-     * @return string
-     */
-    public function getContactListId()
+    public function getContactListId(): string
     {
         return $this->contactListId;
     }
 
-    /**
-     * @return int|null
-     */
     public function getDayOfCycle()
     {
         return $this->dayOfCycle;
     }
 
-    /**
-     * @return bool
-     */
-    public function isUpdateContactCustomFieldEnabled()
+    public function isUpdateContactCustomFieldEnabled(): bool
     {
         return 0 !== count($this->getCustomFieldsMappingCollection()->toArray());
     }
 
-    /**
-     * @return CustomFieldsMappingCollection
-     */
-    public function getCustomFieldsMappingCollection()
+    public function getCustomFieldsMappingCollection(): CustomFieldsMappingCollection
     {
         return $this->customFieldsMappingCollection;
     }
 
-    /**
-     * @return bool
-     */
-    public function isSendEcommerceDataEnabled()
+    public function isSendEcommerceDataEnabled(): bool
     {
         return null !== $this->getShopId();
     }
 
-    /**
-     * @return null|string
-     */
     public function getShopId()
     {
         return $this->shopId;

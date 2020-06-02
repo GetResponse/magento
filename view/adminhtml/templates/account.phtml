@@ -1,21 +1,21 @@
 <?php
 
-use GetResponse\GetResponseIntegration\Block\Account as AccountBlock;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\Account;
+declare(strict_types=1);
 
-/** @var $block AccountBlock */
+use GetResponse\GetResponseIntegration\Block\Admin\Account;
+
+/** @var Account $block */
 $isApiActive = $block->isConnectedToGetResponse();
 
 if ($isApiActive) {
-    /** @var \GetResponse\GetResponseIntegration\Domain\GetResponse\Account\Account $account */
     $account = $block->getAccountInfo();
 }
 ?>
 
-<form method="post" action="<?php echo $block->getUrl('getresponse/account/save'); ?>">
+<form method="post" action="<?php echo $block->getUrlWithScope('getresponse/account/save'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
-
     <div class="page-main-actions">
+        <?php require('switch_scope.phtml') ?>
         <div class="page-main-hint">
             <span>Use API key to connect your site and GetResponse.</span>
         </div>
@@ -60,7 +60,7 @@ if ($isApiActive) {
                             </div>
                         </div>
                     </fieldset>
-                    <fieldset id="is_mx_options" class="fieldset admin__fieldset is_mx_options <?php if (1 != $block->getLastPostedTypeOfAccountCheckboxValue()) { ?>hidden<?php } ?>">
+                    <fieldset id="is_mx_options" class="fieldset admin__fieldset is_mx_options <?php if (1 !== $block->getLastPostedTypeOfAccountCheckboxValue()) { ?>hidden<?php } ?>">
                         <div class="admin__field field field-basic_is_mx">
                             <label class="label admin__field-label" for="api_url">
                                 <span>Account type</span>
@@ -68,8 +68,8 @@ if ($isApiActive) {
                             <div class="admin__field-control control">
                                 <div class="admin__field">
                                     <select id="url" name="url" title="Account Type" class="select admin__control-select" aria-required="true">
-                                        <option value="https://api3.getresponse360.com/v3/" <?php if('https://api3.getresponse360.com/v3/' == $block->getLastPostedApiUrl()) { ?> selected="selected"<?php } ?>>GetResponse Enterprise COM</option>
-                                        <option value="https://api3.getresponse360.pl/v3/" <?php if('https://api3.getresponse360.pl/v3/' == $block->getLastPostedApiUrl()) { ?> selected="selected"<?php } ?>>GetResponse Enterprise PL</option>
+                                        <option value="https://api3.getresponse360.com/v3/" <?php if('https://api3.getresponse360.com/v3/' === $block->getLastPostedApiUrl()) { ?> selected="selected"<?php } ?>>GetResponse Enterprise COM</option>
+                                        <option value="https://api3.getresponse360.pl/v3/" <?php if('https://api3.getresponse360.pl/v3/' === $block->getLastPostedApiUrl()) { ?> selected="selected"<?php } ?>>GetResponse Enterprise PL</option>
                                     </select>
                                 </div>
                             </div>
@@ -150,7 +150,7 @@ if ($isApiActive) {
     <div>When you disconnect, you won’t be able to add new contacts, track site visits, or send ecommerce data to GetResponse.</div>
 </div>
 
-<input type="hidden" id="jsDeleteUrl" value="<?php echo $block->getUrl("getresponse/account/delete"); ?>" />
+<input type="hidden" id="jsDeleteUrl" value="<?php echo $block->getUrlWithScope("getresponse/account/delete"); ?>" />
 
 <script>
 

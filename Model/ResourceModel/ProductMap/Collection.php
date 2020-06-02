@@ -1,24 +1,20 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Model\ResourceModel\ProductMap;
 
+use GetResponse\GetResponseIntegration\Model\ResourceModel\ProductMap as ResourceProductMap;
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
+use GetResponse\GetResponseIntegration\Model\ProductMap;
 
-/**
- * Class Collection
- * @package GetResponse\GetResponseIntegration\Model\ResourceModel\ProductMap
- */
 class Collection extends AbstractCollection
 {
-    /**
-     * Define resource model
-     *
-     * @return void
-     */
     protected function _construct()
     {
         $this->_init(
-            'GetResponse\GetResponseIntegration\Model\ProductMap',
-            'GetResponse\GetResponseIntegration\Model\ResourceModel\ProductMap'
+            ProductMap::class,
+            ResourceProductMap::class
         );
     }
 }

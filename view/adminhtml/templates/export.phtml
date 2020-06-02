@@ -1,28 +1,32 @@
-<?php /** @var $block \GetResponse\GetResponseIntegration\Block\Export */
+<?php
 
+declare(strict_types=1);
+
+use GetResponse\GetResponseIntegration\Block\Admin\Export;
 use GrShareCode\ContactList\ContactList;
 use GrShareCode\ContactList\ContactListCollection;
 use GrShareCode\Shop\Shop;
 use GrShareCode\Shop\ShopsCollection;
 
+/** @var Export $block */
 /** @var ContactListCollection $lists */
-$lists = $block->getCampaigns();
+$lists = $block->getLists();
 /** @var ShopsCollection $shops */
 $shops = $block->getShops();
-$jsAutoresponders = $block->getAutoRespondersForFrontend();
 ?>
 
-<form method="post" action="<?php echo $block->getUrl('getresponse/export/process'); ?>" style="margin-top: 20px;">
+<form method="post" action="<?php echo $block->getUrlWithScope('getresponse/export/process'); ?>" style="margin-top: 20px;">
     <?php echo $block->getBlockHtml('formkey'); ?>
 
     <div class="page-main-actions">
+        <?php require('switch_scope.phtml') ?>
         <div class="page-main-hint">
             <span>Export your customer information from Magento to your GetResponse account.</span>
         </div>
         <div class="page-actions">
             <div class="page-actions-inner">
                 <div class="page-actions-buttons">
-                    <button id="getresponse_add_new_campaign" title="Create Contact List" type="button" onclick="location.href='<?php echo $block->getUrl('getresponse/lists/create/back/export'); ?>'" class="action- scalable action-secondary"  >
+                    <button id="getresponse_add_new_campaign" title="Create Contact List" type="button" onclick="location.href='<?php echo $block->getUrlWithScope('getresponse/lists/index/back/export'); ?>'" class="action-scalable action-secondary"  >
                         <span>Create Contact List</span>
                     </button>
                     <button id="export" title="Export" type="submit" class="action-default scalable save primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
@@ -154,7 +158,7 @@ $jsAutoresponders = $block->getAutoRespondersForFrontend();
         </div>
     </div>
 </form>
-<input type="hidden" id="jsAutoresponders" value='<?php echo $block->escapeHtml(json_encode($jsAutoresponders)); ?>'/>
+<input type="hidden" id="jsAutoresponders" value='<?php echo $block->getSerializedAutoresponders() ?>'/>
 <script>
     require(['exportContacts']);
 </script>

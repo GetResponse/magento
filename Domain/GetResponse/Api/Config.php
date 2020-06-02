@@ -1,10 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Api;
 
-/**
- * Class Config
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\Api
- */
 class Config
 {
     const X_APP_ID = 'd7a458d2-1a75-4296-b417-ed601697e289';

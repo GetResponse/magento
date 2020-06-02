@@ -1,33 +1,23 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\Config;
 use GetResponse\GetResponseIntegration\Domain\Magento\ShareCodeRepository;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GrShareCode\Export\ExportContactService;
 use GrShareCode\Export\ExportContactServiceFactory;
 
-/**
- * Class ExportServiceFactory
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand
- */
 class ExportServiceFactory
 {
-    /** @var ShareCodeRepository */
     private $shareCodeRepository;
-
-    /** @var ApiClientFactory */
     private $apiClientFactory;
-
-    /** @var ExportContactServiceFactory */
     private $exportContactServiceFactory;
 
-    /**
-     * @param ApiClientFactory $apiClientFactory
-     * @param ShareCodeRepository $shareCodeRepository
-     * @param ExportContactServiceFactory $exportContactServiceFactory
-     */
     public function __construct(
         ApiClientFactory $apiClientFactory,
         ShareCodeRepository $shareCodeRepository,
@@ -39,13 +29,14 @@ class ExportServiceFactory
     }
 
     /**
+     * @param $scope
      * @return ExportContactService
      * @throws ApiException
      */
-    public function create()
+    public function create(Scope $scope): ExportContactService
     {
         return $this->exportContactServiceFactory->create(
-            $this->apiClientFactory->createGetResponseApiClient(),
+            $this->apiClientFactory->createGetResponseApiClient($scope),
             $this->shareCodeRepository,
             Config::ORIGIN_NAME
         );

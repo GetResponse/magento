@@ -1,6 +1,10 @@
 <?php
 
-/** @var $block \GetResponse\GetResponseIntegration\Block\Header */
+declare(strict_types=1);
+
+use GetResponse\GetResponseIntegration\Block\Header;
+
+/** @var Header $block */
 $data = $block->getTrackingData();
 
 if ($data['trackingCodeSnippet']) {
@@ -8,4 +12,3 @@ if ($data['trackingCodeSnippet']) {
     echo $data['trackingCodeSnippet'];
     echo '</div>';
 }
-

@@ -1,12 +1,11 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMapping;
 
-/**
- * Class CustomFieldMappingDtoFactory
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto
- */
 class CustomFieldMappingDtoFactory
 {
     /**
@@ -15,8 +14,10 @@ class CustomFieldMappingDtoFactory
      * @return CustomFieldMappingDto
      * @throws InvalidPrefixException
      */
-    public function createFromRequestData($magentoAttributeCode, $getResponseCustomFieldId)
-    {
+    public function createFromRequestData(
+        $magentoAttributeCode,
+        $getResponseCustomFieldId
+    ): CustomFieldMappingDto {
         $this->assertValidPrefixAttributeCode($magentoAttributeCode);
 
         return new CustomFieldMappingDto(
@@ -48,20 +49,12 @@ class CustomFieldMappingDtoFactory
         }
     }
 
-    /**
-     * @param string $magentoAttributeCode
-     * @return string
-     */
-    private function getAttributeIdFromAttributeCode($magentoAttributeCode)
+    private function getAttributeIdFromAttributeCode(string $magentoAttributeCode): string
     {
         return trim(strstr($magentoAttributeCode, '_'), '_');
     }
 
-    /**
-     * @param string $magentoAttributeCode
-     * @return string
-     */
-    private function getAttributeTypeFromAttributeCode($magentoAttributeCode)
+    private function getAttributeTypeFromAttributeCode(string $magentoAttributeCode): string
     {
         return explode('_', $magentoAttributeCode)[0];
     }

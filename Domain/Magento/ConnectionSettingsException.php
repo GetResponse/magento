@@ -1,18 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
 use Exception;
 
-/**
- * Class ConnectionSettingsException
- * @package GetResponse\GetResponseIntegration\Domain\Magento
- */
 class ConnectionSettingsException extends Exception
 {
-    /**
-     * @return ConnectionSettingsException
-     */
-    public static function createForIncorrectSettings()
+    public static function createForIncorrectSettings(): ConnectionSettingsException
     {
         return new self('Incorrect connection settings');
     }

@@ -1,20 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand;
 
 use GrShareCode\Export\Settings\EcommerceSettings;
 use GrShareCode\Export\Settings\ExportSettings;
 
-/**
- * Class ExportSettingsFactory
- * @package GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand
- */
 class ExportSettingsFactory
 {
-    /**
-     * @param ExportOnDemand $exportOnDemand
-     * @return ExportSettings
-     */
-    public static function createFromExportOnDemand(ExportOnDemand $exportOnDemand)
+    public static function createFromExportOnDemand(ExportOnDemand $exportOnDemand): ExportSettings
     {
         return new ExportSettings(
             $exportOnDemand->getContactListId(),
