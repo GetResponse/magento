@@ -2,31 +2,6 @@ stages:
 - install_dependencies
 - test
 
-composer_install:php56:
-  image: grintegrations/php56_cli
-  stage: install_dependencies
-  script:
-  - composer config -a -g http-basic.repo.magento.com $COMPOSER_REPO_MAGENTO_USERNAME $COMPOSER_REPO_MAGENTO_PASSWORD
-  - composer install --prefer-dist --no-progress --optimize-autoloader
-  artifacts:
-    paths:
-    - vendor/
-    expire_in: 2 hrs
-  except:
-  - develop
-
-test:app-php56:
-  image: grintegrations/php56_cli
-  stage: test
-  tags:
-  - kubernetes-ci
-  script:
-  - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit.xml --colors=never
-  except:
-  - develop
-  dependencies:
-  - composer_install:php56
-
 composer_install:php71:
   image: grintegrations/php71_cli
   stage: install_dependencies
