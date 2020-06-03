@@ -7,6 +7,8 @@ use GetresponseIntegration_Getresponse_Helper_Api as ApiHelper;
  */
 class GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler
 {
+    const DESCRIPTION_MAX_LENGTH = 1000;
+
     /** @var ApiHelper */
     private $api;
 
@@ -29,8 +31,7 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler
         Mage_Catalog_Model_Product $product,
         $storeId
     ) {
-        $productMapCollection = Mage::getModel('getresponse/ProductMap')
-            ->getCollection();
+        $productMapCollection = Mage::getModel('getresponse/ProductMap')->getCollection();
 
         /** @var GetresponseIntegration_Getresponse_Model_ProductMap $productMap */
         $productMap = $productMapCollection
@@ -39,6 +40,7 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler
             ->getFirstItem();
 
         if ($productMap->isEmpty()) {
+            $product = Mage::getModel('catalog/product')->load($product->getId());
             $grProduct = $this->createProductInGetResponse($product, $storeId);
 
             if (null !== $grProduct['productId']) {
@@ -114,7 +116,7 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler
                     'priceTax'    => (float)$product->getFinalPrice(),
                     'sku'         => $product->getSku(),
                     'quantity'    => 1,
-                    'description' => $product->getData('short_description'),
+                    'description' => $this->getDescription($product),
                     'images'      => $grImages
                 )
             )
@@ -122,5 +124,16 @@ class GetresponseIntegration_Getresponse_Domain_GetresponseProductHandler
 
         $response = $this->api->addProduct($storeId, $params);
         return isset($response['productId']) ? $response : array();
+    }
+
+    private function getDescription(Mage_Catalog_Model_Product $product)
+    {
+        $shortDescription = trim(strip_tags($product->getData('short_description')));
+
+        if ((strlen($shortDescription) >= self::DESCRIPTION_MAX_LENGTH)) {
+            return substr($shortDescription, 0, (self::DESCRIPTION_MAX_LENGTH -5)) . '...';
+        }
+
+        return $shortDescription;
     }
 }
