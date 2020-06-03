@@ -1,4 +1,8 @@
 # Changelog
+## 19.1.23
+*(2020-06-03)*
+* remove html tags from product description
+
 ## 19.1.22
 *(2020-04-03)*
 * remove cart when empty
