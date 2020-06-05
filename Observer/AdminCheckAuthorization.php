@@ -42,6 +42,10 @@ class AdminCheckAuthorization implements ObserverInterface
     {
         $scopeId = $this->magentoStore->getStoreIdFromUrl();
 
+        if (null === $scopeId) {
+            $scopeId = $this->magentoStore->getStoreIdFromSession();
+        }
+
         if ($this->isCurrentUrlWhitelisted()) {
             return $this;
         }

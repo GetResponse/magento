@@ -42,10 +42,20 @@ class MagentoStore extends AbstractHelper
         return $allStores;
     }
 
+    public function getStoreIdFromSession()
+    {
+        return $this->session->getGrScope();
+    }
+
+    public function getDefaultStoreId(): int
+    {
+        return (int) $this->storeManager->getDefaultStoreView()->getId();
+    }
+
     public function getStoreIdFromUrl()
     {
         $storeId = $this->request->get(Config::SCOPE_TAG);
-        return !empty($storeId) ? (int)$storeId : $this->storeManager->getDefaultStoreView()->getId();
+        return null !== $storeId ? (int)$storeId : null;
     }
 
     public function getCurrentScope(): Scope
