@@ -23,8 +23,8 @@ abstract class AbstractController extends Action
     /** @var MagentoStore */
     protected $magentoStore;
 
-    public function __construct(Context $context) {
-
+    public function __construct(Context $context)
+    {
         parent::__construct($context);
 
         $this->request = $this->getRequest();
@@ -34,7 +34,13 @@ abstract class AbstractController extends Action
 
     public function execute()
     {
-        $this->scope = new Scope($this->magentoStore->getStoreIdFromUrl());
+        $scopeId = $this->magentoStore->getStoreIdFromUrl();
+
+        if (null === $scopeId) {
+            $scopeId = $this->magentoStore->getDefaultStoreId();
+        }
+
+        $this->scope = new Scope($scopeId);
     }
 
     public function render(string $pageTitle)
@@ -57,7 +63,6 @@ abstract class AbstractController extends Action
         string $message = '',
         bool $isError = false
     ): ResponseInterface {
-
         if (!empty($message)) {
             if ($isError) {
                 $this->messageManager->addErrorMessage($message);

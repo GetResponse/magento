@@ -31,7 +31,11 @@ class AdminTemplate extends Template
 
     public function getScope(): Scope
     {
-        return new Scope($this->magentoStore->getStoreIdFromUrl());
+        $scopeId = $this->magentoStore->getStoreIdFromUrl();
+        if (null === $scopeId) {
+            $scopeId = $this->magentoStore->getDefaultStoreId();
+        }
+        return new Scope($scopeId);
     }
 
     public function getUrlWithScope($route = '', $params = []): string
