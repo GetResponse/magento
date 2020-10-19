@@ -2,7 +2,13 @@
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
 
     <route url="/V1/getresponse/summary" method="GET">
-        <service class="GetResponse\GetResponseIntegration\Api\Summary" method="getPluginSummary"/>
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\Summary" method="getPluginSummary"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+    <route url="/V1/getresponse/subscribers" method="GET">
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\Subscriber" method="list"/>
         <resources>
             <resource ref="self"/>
         </resources>

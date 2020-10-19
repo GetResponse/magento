@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GetResponse\GetResponseIntegration\Api;
+namespace GetResponse\GetResponseIntegration\Controller\Api;
 
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Module\ModuleList;
