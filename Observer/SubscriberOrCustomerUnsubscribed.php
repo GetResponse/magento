@@ -16,6 +16,7 @@ use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Newsletter\Model\Subscriber;
 
 class SubscriberOrCustomerUnsubscribed implements ObserverInterface
 {
@@ -58,7 +59,7 @@ class SubscriberOrCustomerUnsubscribed implements ObserverInterface
                 new SubscriberEmail($subscriber->getSubscriberEmail())
             );
 
-            if (!$subscriber->isSubscribed()) {
+            if ($subscriber->getStatus() === Subscriber::STATUS_UNSUBSCRIBED) {
                 $this->contactService->removeContact(
                     new RemoveContact($scope, $subscriber->getSubscriberEmail())
                 );
