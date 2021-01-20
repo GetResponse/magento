@@ -32,7 +32,7 @@ class MagentoStore extends AbstractHelper
 
     public function getMagentoStores(): array
     {
-        $allStores = ['Default Config'];
+        $allStores = [];
         $stores = $this->storeManager->getStores();
 
         foreach ($stores as $store) {
@@ -67,6 +67,10 @@ class MagentoStore extends AbstractHelper
     {
         $storeId = $this->request->get(Config::SCOPE_TAG);
         $storeInSession = $this->session->getGrScope();
+
+        if (null === $storeId && null === $storeInSession) {
+            $storeId = $this->getDefaultStoreId();
+        }
 
         if (null !== $storeId && $storeId !== $storeInSession) {
             $this->session->setGrScope($storeId);
