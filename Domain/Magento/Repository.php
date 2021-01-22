@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\FacebookPixel;
+use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\Account;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistration;
@@ -96,13 +98,23 @@ class Repository
         return $this->serializer->unserialize($data);
     }
 
-    public function saveWebEventTracking(
-        WebEventTrackingSettings $webEventTracking,
-        $scopeId
-    ) {
+    public function saveWebEventTracking(WebEventTracking $webEventTracking, $scopeId)
+    {
         $this->configWriter->save(
             Config::CONFIG_DATA_WEB_EVENT_TRACKING,
             $this->serializer->serialize($webEventTracking->toArray()),
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        $this->cacheManager->clean(['config']);
+    }
+
+    public function saveFacebookPixelSnippet(FacebookPixel $facebookPixelSettings, $scopeId)
+    {
+        $this->configWriter->save(
+            Config::CONFIG_DATA_FACEBOOK_PIXEL_SNIPPET,
+            $this->serializer->serialize($facebookPixelSettings->toArray()),
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
@@ -122,6 +134,62 @@ class Repository
             return [];
         }
         return $this->serializer->unserialize($data);
+    }
+
+    public function getFacebookPixelSnippet($scopeId): array
+    {
+        $data = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_FACEBOOK_PIXEL_SNIPPET,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        if (empty($data)) {
+            return [];
+        }
+        return $this->serializer->unserialize($data);
+    }
+
+    public function getPluginMode($scopeId)
+    {
+        return $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_PLUGIN_MODE,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+    }
+
+    public function savePluginMode(PluginMode $pluginMode, $scopeId)
+    {
+        $this->configWriter->save(
+            Config::CONFIG_DATA_PLUGIN_MODE,
+            $pluginMode->getMode(),
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        $this->cacheManager->clean(['config']);
+    }
+
+    public function getLiveSynchronization($scopeId)
+    {
+        return $this->scopeConfig->getValue(
+            Config::CONFIG_LIVE_SYNCHRONIZATION,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+    }
+
+    public function saveLiveSynchronization(LiveSynchronization $liveSynchronization, $scopeId)
+    {
+        $this->configWriter->save(
+            Config::CONFIG_LIVE_SYNCHRONIZATION,
+            $liveSynchronization->isActive(),
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        $this->cacheManager->clean(['config']);
     }
 
     public function saveShopStatus($status, $scopeId)
@@ -269,7 +337,7 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    public function saveWebformSettings(WebformSettings $webform, $scopeId)
+    public function saveWebformSettings(WebForm $webform, $scopeId)
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_WEBFORMS_SETTINGS,

@@ -6,7 +6,7 @@ namespace GetResponse\GetResponseIntegration\Test\Unit\Block\Admin;
 
 use GetResponse\GetResponseIntegration\Block\Admin\WebEventTracking;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettings;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Framework\View\Element\Template\Context;
@@ -54,7 +54,7 @@ class WebEventTrackingTest extends BaseTestCase
                 'codeSnippet' => $snippet
             ]);
 
-        $expectedSettings = new WebEventTrackingSettings(
+        $expectedSettings = new WebEventTracking(
             $isEnabled,
             $isFeatureTrackingEnabled,
             $snippet

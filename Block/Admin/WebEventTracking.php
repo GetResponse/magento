@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Block\Admin;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettings;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking as WebEventTrackingSettings;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Framework\View\Element\Template\Context;
@@ -27,7 +26,7 @@ class WebEventTracking extends AdminTemplate
 
     public function getWebEventTracking(): WebEventTrackingSettings
     {
-        return WebEventTrackingSettingsFactory::createFromArray(
+        return WebEventTrackingSettings::createFromArray(
             $this->repository->getWebEventTracking($this->getScope()->getScopeId())
         );
     }

@@ -6,8 +6,7 @@ namespace GetResponse\GetResponseIntegration\Block\Admin;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebForm as WebFormSettings;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Route;
 use GrShareCode\Api\Exception\GetresponseApiException;
@@ -32,9 +31,9 @@ class Webform extends AdminTemplate
         $this->apiClient =  $apiClientFactory->createGetResponseApiClient($this->getScope());
     }
 
-    public function getWebFormSettings(): WebformSettings
+    public function getWebFormSettings(): WebFormSettings
     {
-        return WebformSettingsFactory::createFromArray(
+        return WebFormSettings::createFromRepository(
             $this->repository->getWebformSettings($this->getScope()->getScopeId())
         );
     }

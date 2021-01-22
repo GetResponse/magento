@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Controller\Api;
 
-use Magento\Framework\App\RequestInterface;
-use Magento\Framework\ObjectManagerInterface;
+use GetResponse\GetResponseIntegration\Controller\Adminhtml\ApiAbstractController;
 use Magento\Newsletter\Model\ResourceModel\Subscriber\Collection;
 use Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory;
 use Magento\Newsletter\Model\Subscriber as SubscriberModel;
@@ -13,18 +12,10 @@ use Magento\Newsletter\Model\Subscriber as SubscriberModel;
 /**
  * @api
  */
-class Subscriber
+class Subscriber extends ApiAbstractController
 {
     const PAGE_SIZE = 100;
     const PAGE = 1;
-
-    private $objectManager;
-
-    public function __construct(ObjectManagerInterface $objectManager)
-    {
-        $this->objectManager = $objectManager;
-    }
-
 
     /**
      * @return array
@@ -32,11 +23,9 @@ class Subscriber
     public function list(): array
     {
         $collection = [];
-        /** @var RequestInterface $request */
-        $request = $this->objectManager->get(RequestInterface::class);
-        $pageSize = (int) ($request->getParam('pageSize') ?? self::PAGE_SIZE);
-        $currentPage = (int) ($request->getParam('currentPage') ?? self::PAGE);
-        $subscriberCollectionFactory = $this->objectManager->get(CollectionFactory::class);
+        $pageSize = (int) ($this->request->getParam('pageSize') ?? self::PAGE_SIZE);
+        $currentPage = (int) ($this->request->getParam('currentPage') ?? self::PAGE);
+        $subscriberCollectionFactory = $this->_objectManager->get(CollectionFactory::class);
         /** @var Collection $subscribers */
         $subscribers = $subscriberCollectionFactory->create();
         $count = $subscribers->count();

@@ -1,8 +1,14 @@
 <?xml version="1.0"?>
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
 
-    <route url="/V1/getresponse/summary" method="GET">
-        <service class="GetResponse\GetResponseIntegration\Controller\Api\Summary" method="getPluginSummary"/>
+    <route url="/V1/getresponse/configuration" method="GET">
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\Configuration" method="index"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+    <route url="/V1/getresponse/upgrade" method="POST">
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\Module" method="upgrade"/>
         <resources>
             <resource ref="self"/>
         </resources>
@@ -13,5 +19,10 @@
             <resource ref="self"/>
         </resources>
     </route>
-
+    <route url="/V1/getresponse/configuration" method="POST">
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\Configuration" method="store"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
 </routes>

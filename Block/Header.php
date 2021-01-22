@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\FacebookPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
@@ -27,16 +28,15 @@ class Header extends Template
 
     public function getTrackingData(): array
     {
-        $trackingCodeSnippet = $this->getTrackingCodeSnippet();
-
         return [
-            'trackingCodeSnippet' => $trackingCodeSnippet
+            'trackingCodeSnippet' => $this->getTrackingCodeSnippet(),
+            'facebookPixelCodeSnippet' => $this->getFacebookPixelSnippet()
         ];
     }
 
     private function getTrackingCodeSnippet(): string
     {
-        $webEventTracking = WebEventTrackingSettingsFactory::createFromArray(
+        $webEventTracking = WebEventTracking::createFromRepository(
             $this->repository->getWebEventTracking(
                 $this->magentoStore->getCurrentScope()->getScopeId()
             )
@@ -49,4 +49,18 @@ class Header extends Template
         return '';
     }
 
+    private function getFacebookPixelSnippet(): string
+    {
+        $facebookPixelSettings = FacebookPixel::createFromRepository(
+            $this->repository->getFacebookPixelSnippet(
+                $this->magentoStore->getCurrentScope()->getScopeId()
+            )
+        );
+
+        if ($facebookPixelSettings->isActive()) {
+            return $facebookPixelSettings->getCodeSnippet();
+        }
+
+        return '';
+    }
 }

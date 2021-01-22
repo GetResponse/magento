@@ -6,8 +6,7 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Webform;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebForm;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Backend\App\Action\Context;
@@ -37,7 +36,7 @@ class Save extends AbstractController
             return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
         }
 
-        $webForm = WebformSettingsFactory::createFromArray($this->request->getPostValue());
+        $webForm = WebForm::createFromRequest($this->request->getPostValue());
 
         if ($webForm->isEnabled()) {
             $error = $this->validateWebFormData($webForm);
@@ -55,13 +54,13 @@ class Save extends AbstractController
         return $this->redirect($this->_redirect->getRefererUrl(), $message);
     }
 
-    private function validateWebFormData(WebformSettings $webForm): string
+    private function validateWebFormData(WebForm $webForm): string
     {
-        if ($webForm->getWebformId() === '' && $webForm->getSidebar() === '') {
+        if ($webForm->getWebFormId() === '' && $webForm->getSidebar() === '') {
             return Message::SELECT_FORM_POSITION_AND_PLACEMENT;
         }
 
-        if ($webForm->getWebformId() === '') {
+        if ($webForm->getWebFormId() === '') {
             return Message::SELECT_FORM;
         }
 
