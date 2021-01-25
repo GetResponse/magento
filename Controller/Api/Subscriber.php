@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Controller\Api;
 
-use GetResponse\GetResponseIntegration\Controller\Adminhtml\ApiAbstractController;
 use Magento\Newsletter\Model\ResourceModel\Subscriber\Collection;
 use Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory;
 use Magento\Newsletter\Model\Subscriber as SubscriberModel;

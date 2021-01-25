@@ -75,7 +75,7 @@ class WebForm
         }
 
         return new WebForm(
-            isset($data['webForm']['isEnabled']) ? (bool) $data['webForm']['isEnabled'] : false,
+            isset($data['webForm']['isActive']) ? (bool) $data['webForm']['isActive'] : false,
             $data['webForm']['url'],
             $data['webForm']['webFormId'],
             $data['webForm']['place']

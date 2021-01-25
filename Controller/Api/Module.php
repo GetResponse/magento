@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Controller\Api;
 
-use GetResponse\GetResponseIntegration\Controller\Adminhtml\ApiAbstractController;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use Magento\Backend\App\Action\Context;
 

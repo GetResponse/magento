@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GetResponse\GetResponseIntegration\Controller\Adminhtml;
+namespace GetResponse\GetResponseIntegration\Controller\Api;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -49,6 +49,7 @@ abstract class ApiAbstractController extends Action
     }
 
     /**
+     * @throws \Magento\Framework\Exception\RuntimeException
      * @return void
      */
     public function verifyPluginMode()
@@ -56,7 +57,7 @@ abstract class ApiAbstractController extends Action
         $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($this->scope->getScopeId()));
 
         if (!$pluginMode->isNewVersion()) {
-            throw new RuntimeException('Cannot use this method in old plugin mode');
+            throw new \Magento\Framework\Exception\RuntimeException(__('Incorrect plugin state'), null, 405);
         }
     }
 

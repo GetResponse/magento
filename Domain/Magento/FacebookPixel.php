@@ -32,7 +32,7 @@ class FacebookPixel
     public function toArray(): array
     {
         return [
-            'isActive' => $this->isActive,
+            'isEnabled' => (int) $this->isActive,
             'codeSnippet' => $this->codeSnippet
         ];
     }
@@ -46,7 +46,7 @@ class FacebookPixel
             );
         }
 
-        return new FacebookPixel((bool)$data['isActive'], $data['codeSnippet']);
+        return new FacebookPixel((bool)$data['isEnabled'], $data['codeSnippet']);
     }
 
     public static function createFromRequest(array $data): FacebookPixel

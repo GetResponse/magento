@@ -184,7 +184,7 @@ class Repository
     {
         $this->configWriter->save(
             Config::CONFIG_LIVE_SYNCHRONIZATION,
-            $liveSynchronization->isActive(),
+            (int)$liveSynchronization->isActive(),
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );

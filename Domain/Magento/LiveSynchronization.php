@@ -31,6 +31,6 @@ class LiveSynchronization
 
     public static function createFromRepository($data): self
     {
-        return new self($data ?? false);
+        return new self(null !== $data ? (bool) $data : false);
     }
 }
