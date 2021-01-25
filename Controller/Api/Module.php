@@ -13,7 +13,6 @@ use Magento\Backend\App\Action\Context;
 class Module extends ApiAbstractController
 {
     const MODE_PARAM = 'mode';
-    const PAGE = 1;
 
     public function __construct(Context $context)
     {
