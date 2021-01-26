@@ -11,7 +11,7 @@ use Magento\Newsletter\Model\Subscriber as SubscriberModel;
 /**
  * @api
  */
-class Subscriber extends ApiAbstractController
+class SubscriberController extends ApiController
 {
     const PAGE_SIZE = 100;
     const PAGE = 1;

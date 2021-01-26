@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-use RuntimeException;
-
 class PluginMode
 {
     const MODE_OLD = 'old';
@@ -18,11 +16,15 @@ class PluginMode
         $this->mode = $mode;
     }
 
-    public static function createFromRepository($pluginMode): self
+    public static function createFromRepository(string $pluginMode = self::MODE_OLD): self
     {
-        return new self($pluginMode ?? self::MODE_OLD);
+        return new self($pluginMode);
     }
 
+    /**
+     * @throws PluginModeException
+     * @param string $newMode
+     */
     public function switch(string $newMode)
     {
         $this->validate($newMode);
@@ -34,18 +36,22 @@ class PluginMode
         return $this->mode;
     }
 
+    /**
+     * @throws PluginModeException
+     * @param string $newMode
+     */
     private function validate(string $newMode)
     {
         if (!in_array($newMode, [self::MODE_OLD, self::MODE_NEW])) {
-            throw new RuntimeException('Incorrect mode');
+            throw PluginModeException::createForInvalidPluginMode('Incorrect mode');
         }
 
         if ($this->mode === self::MODE_NEW) {
-            throw new RuntimeException('Cannot change mode when plugin is in new mode');
+            throw PluginModeException::createForInvalidPluginMode('Cannot change mode when plugin is in new mode');
         }
 
         if ($this->mode === self::MODE_OLD && $newMode === self::MODE_OLD) {
-            throw new RuntimeException('Modes are the same.');
+            throw PluginModeException::createForInvalidPluginMode('Modes are the same.');
         }
     }
 

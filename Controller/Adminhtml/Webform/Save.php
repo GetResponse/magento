@@ -54,20 +54,24 @@ class Save extends AbstractController
         return $this->redirect($this->_redirect->getRefererUrl(), $message);
     }
 
-    private function validateWebFormData(WebForm $webForm): string
+    /**
+     * @param WebForm $webForm
+     * @return string|null
+     */
+    private function validateWebFormData(WebForm $webForm)
     {
-        if ($webForm->getWebFormId() === '' && $webForm->getSidebar() === '') {
+        if (empty($webForm->getWebFormId()) && empty($webForm->getSidebar())) {
             return Message::SELECT_FORM_POSITION_AND_PLACEMENT;
         }
 
-        if ($webForm->getWebFormId() === '') {
+        if (empty($webForm->getWebFormId())) {
             return Message::SELECT_FORM;
         }
 
-        if ($webForm->getSidebar() === '') {
+        if (empty($webForm->getSidebar())) {
             return Message::SELECT_FORM_POSITION;
         }
 
-        return '';
+        return null;
     }
 }

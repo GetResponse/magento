@@ -29,12 +29,15 @@ class Header extends Template
     public function getTrackingData(): array
     {
         return [
-            'trackingCodeSnippet' => $this->getTrackingCodeSnippet(),
-            'facebookPixelCodeSnippet' => $this->getFacebookPixelSnippet()
+            'trackingCodeSnippet' => $this->findTrackingCodeSnippet(),
+            'facebookPixelCodeSnippet' => $this->findFacebookPixelSnippet()
         ];
     }
 
-    private function getTrackingCodeSnippet(): string
+    /**
+     * @return string|null
+     */
+    private function findTrackingCodeSnippet()
     {
         $webEventTracking = WebEventTracking::createFromRepository(
             $this->repository->getWebEventTracking(
@@ -46,10 +49,13 @@ class Header extends Template
             return $webEventTracking->getCodeSnippet();
         }
 
-        return '';
+        return null;
     }
 
-    private function getFacebookPixelSnippet(): string
+    /**
+     * @return string|null
+     */
+    private function findFacebookPixelSnippet()
     {
         $facebookPixelSettings = FacebookPixel::createFromRepository(
             $this->repository->getFacebookPixelSnippet(
@@ -61,6 +67,6 @@ class Header extends Template
             return $facebookPixelSettings->getCodeSnippet();
         }
 
-        return '';
+        return null;
     }
 }

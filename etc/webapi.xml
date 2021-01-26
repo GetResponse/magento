@@ -1,26 +1,26 @@
 <?xml version="1.0"?>
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
 
-    <route url="/V1/getresponse/configuration" method="GET">
-        <service class="GetResponse\GetResponseIntegration\Controller\Api\Configuration" method="index"/>
-        <resources>
-            <resource ref="self"/>
-        </resources>
-    </route>
-    <route url="/V1/getresponse/upgrade" method="POST">
-        <service class="GetResponse\GetResponseIntegration\Controller\Api\Module" method="upgrade"/>
+    <route url="/V1/getresponse/switch" method="POST">
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\ModuleController" method="switch"/>
         <resources>
             <resource ref="self"/>
         </resources>
     </route>
     <route url="/V1/getresponse/subscribers" method="GET">
-        <service class="GetResponse\GetResponseIntegration\Controller\Api\Subscriber" method="list"/>
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\SubscriberController" method="list"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+    <route url="/V1/getresponse/configuration" method="GET">
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\ConfigurationController" method="list"/>
         <resources>
             <resource ref="self"/>
         </resources>
     </route>
     <route url="/V1/getresponse/configuration" method="POST">
-        <service class="GetResponse\GetResponseIntegration\Controller\Api\Configuration" method="store"/>
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\ConfigurationController" method="update"/>
         <resources>
             <resource ref="self"/>
         </resources>

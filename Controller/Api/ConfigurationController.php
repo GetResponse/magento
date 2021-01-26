@@ -15,7 +15,7 @@ use Magento\Framework\Module\ModuleListInterface;
 /**
  * @api
  */
-class Configuration extends ApiAbstractController
+class ConfigurationController extends ApiController
 {
     const MODULE_NAME = 'GetResponse_GetResponseIntegration';
 
@@ -34,7 +34,7 @@ class Configuration extends ApiAbstractController
     /**
      * @return array
      */
-    public function index(): array
+    public function list(): array
     {
         $versionInfo = $this->moduleList->getOne(self::MODULE_NAME);
         $pluginVersion = $versionInfo['setup_version'] ?? '';
@@ -89,7 +89,7 @@ class Configuration extends ApiAbstractController
     /**
      * @return void
      */
-    public function store()
+    public function update()
     {
         $this->repository->saveFacebookPixelSnippet(
             FacebookPixel::createFromRequest($this->request->getBodyParams()),
