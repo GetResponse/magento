@@ -101,8 +101,8 @@ class HeaderTest extends BaseTestCase
             );
 
         $expected = [
-            'trackingCodeSnippet' => '',
-            'facebookPixelCodeSnippet' => ''
+            'trackingCodeSnippet' => null,
+            'facebookPixelCodeSnippet' => null
         ];
         self::assertSame($expected, $this->headerBlock->getTrackingData());
     }
