@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-use RuntimeException;
-
 class FacebookPixel
 {
     private $isActive;
@@ -49,10 +47,15 @@ class FacebookPixel
         return new FacebookPixel((bool)$data['isEnabled'], $data['codeSnippet']);
     }
 
+    /**
+     * @throws RequestValidationException
+     * @return FacebookPixel
+     * @param array $data
+     */
     public static function createFromRequest(array $data): FacebookPixel
     {
         if (!isset($data['facebookPixel'])) {
-            throw new RuntimeException('incorrect FacebookPixel params');
+            throw RequestValidationException::create('Incorrect FacebookPixel params');
         }
 
         return new FacebookPixel($data['facebookPixel']['isActive'], $data['facebookPixel']['codeSnippet']);

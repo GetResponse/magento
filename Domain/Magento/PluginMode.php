@@ -16,9 +16,9 @@ class PluginMode
         $this->mode = $mode;
     }
 
-    public static function createFromRepository(string $pluginMode = self::MODE_OLD): self
+    public static function createFromRepository($pluginMode): self
     {
-        return new self($pluginMode);
+        return new self($pluginMode ?? self::MODE_OLD);
     }
 
     /**
@@ -46,11 +46,7 @@ class PluginMode
             throw PluginModeException::createForInvalidPluginMode('Incorrect mode');
         }
 
-        if ($this->mode === self::MODE_NEW) {
-            throw PluginModeException::createForInvalidPluginMode('Cannot change mode when plugin is in new mode');
-        }
-
-        if ($this->mode === self::MODE_OLD && $newMode === self::MODE_OLD) {
+        if ($this->mode === $newMode) {
             throw PluginModeException::createForInvalidPluginMode('Modes are the same.');
         }
     }

@@ -22,19 +22,16 @@ class ModuleController extends ApiController
     }
 
     /**
+     * @throws PluginModeException
      * @return void
      */
     public function switch()
     {
-        try {
-            $newMode = $this->request->getBodyParams()[self::MODE_PARAM] ?? '';
-            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($this->scope->getScopeId()));
+        $newMode = $this->request->getBodyParams()[self::MODE_PARAM] ?? '';
+        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($this->scope->getScopeId()));
 
-            $pluginMode->switch($newMode);
-            $this->repository->savePluginMode($pluginMode, $this->scope->getScopeId());
-            return null;
-        } catch (PluginModeException $e) {
-            return ['error' => $e->getMessage()];
-        }
+        $pluginMode->switch($newMode);
+        $this->repository->savePluginMode($pluginMode, $this->scope->getScopeId());
+        return null;
     }
 }

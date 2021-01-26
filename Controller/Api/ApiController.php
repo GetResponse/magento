@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Controller\Api;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
+use GetResponse\GetResponseIntegration\Domain\Magento\PluginModeException;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Webapi\Rest\Request;
 
 abstract class ApiController extends Action
@@ -49,7 +49,7 @@ abstract class ApiController extends Action
     }
 
     /**
-     * @throws RuntimeException
+     * @throws PluginModeException
      * @return void
      */
     public function verifyPluginMode()
@@ -57,7 +57,7 @@ abstract class ApiController extends Action
         $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($this->scope->getScopeId()));
 
         if (!$pluginMode->isNewVersion()) {
-            throw new RuntimeException(__('Incorrect plugin state'), null, 405);
+            throw PluginModeException::createForInvalidPluginMode('Incorrect plugin mode');
         }
     }
 
