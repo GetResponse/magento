@@ -7,6 +7,7 @@ namespace GetResponse\GetResponseIntegration\Controller\Api;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginModeException;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\RequestValidationException;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Backend\App\Action;
@@ -39,11 +40,16 @@ abstract class ApiController extends Action
      */
     public function initialize()
     {
-        $scopeId = $this->magentoStore->getStoreIdFromUrl();
+        $scopeId = $this->request->getParam('scope');
 
-        if (null === $scopeId) {
-            $scopeId = $this->magentoStore->getDefaultStoreId();
+        if (empty($scopeId)) {
+            throw RequestValidationException::create('Missing scope.');
         }
+
+        if (!$this->magentoStore->storeExists((int)$scopeId)) {
+            throw RequestValidationException::create('Incorrect scope.');
+        }
+
 
         $this->scope = new Scope($scopeId);
     }

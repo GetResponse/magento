@@ -60,9 +60,10 @@ class ConfigurationController extends ApiController
         return [
             [
                 'general' => [
-                    'plugin_version' => $pluginVersion
+                    'plugin_version' => $pluginVersion,
+                    'mode' => $pluginMode->getMode(),
+                    'scope' => $this->scope->getScopeId(),
                 ],
-                'mode' => $pluginMode->getMode(),
                 'sections' => [
                     'facebookPixel' => [
                         'enabled' => $facebookPixel->isActive(),
