@@ -13,6 +13,9 @@ class Config
     const CONFIG_DATA_ACCOUNT = 'getresponse/account';
     const CONFIG_DATA_CONNECTION_SETTINGS = 'getresponse/connection-settings';
     const CONFIG_DATA_WEB_EVENT_TRACKING = 'getresponse/web-event-tracking';
+    const CONFIG_DATA_PLUGIN_MODE = 'getresponse/plugin-mode';
+    const CONFIG_LIVE_SYNCHRONIZATION = 'getresponse/live-synchronization';
+    const CONFIG_DATA_FACEBOOK_PIXEL_SNIPPET = 'getresponse/facebook-pixel-snippet';
     const CONFIG_DATA_REGISTRATION_SETTINGS = 'getresponse/registration/settings';
     const CONFIG_DATA_REGISTRATION_CUSTOMS = 'getresponse/registration/customs';
     const CONFIG_DATA_NEWSLETTER_SETTINGS = 'getresponse/newsletter/settings';

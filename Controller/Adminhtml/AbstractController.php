@@ -12,7 +12,9 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
 abstract class AbstractController extends Action
@@ -43,7 +45,7 @@ abstract class AbstractController extends Action
         $this->scope = new Scope($scopeId);
     }
 
-    public function render(string $pageTitle)
+    public function render(string $pageTitle): Page
     {
         $pageFactory = $this->_objectManager->get(PageFactory::class);
 
@@ -52,7 +54,7 @@ abstract class AbstractController extends Action
         return $resultPage;
     }
 
-    public function renderJson(array $response)
+    public function renderJson(array $response): Json
     {
         $jsonFactory = $this->_objectManager->get(JsonFactory::class);
         return $jsonFactory->create()->setData($response);

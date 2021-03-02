@@ -11,7 +11,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingService;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GrShareCode\Account\AccountService;
 use GrShareCode\TrackingCode\TrackingCodeService;
@@ -70,7 +70,7 @@ class Save extends AbstractController
             );
 
             $this->repository->saveWebEventTracking(
-                WebEventTrackingSettingsFactory::createFromArray([
+                WebEventTracking::createFromArray([
                     'isEnabled' => false,
                     'isFeatureTrackingEnabled' => $trackingCode->isFeatureEnabled(),
                     'codeSnippet' => $trackingCode->getSnippet()

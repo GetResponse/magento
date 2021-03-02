@@ -6,7 +6,7 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Webtraffic;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Helper\PageTitle;
 use GetResponse\GetResponseIntegration\Helper\Route;
@@ -45,7 +45,7 @@ class Index extends AbstractController
 
         if (isset($data['updateWebTraffic'])) {
 
-            $webEventTracking = WebEventTrackingSettingsFactory::createFromArray(
+            $webEventTracking = WebEventTracking::createFromRepository(
                 $this->repository->getWebEventTracking($this->scope->getScopeId())
             );
 
@@ -55,7 +55,7 @@ class Index extends AbstractController
                 'codeSnippet' => $webEventTracking->getCodeSnippet()
             ];
 
-            $newWebEventTracking = WebEventTrackingSettingsFactory::createFromArray($params);
+            $newWebEventTracking = WebEventTracking::createFromArray($params);
 
             $this->repository->saveWebEventTracking($newWebEventTracking, $this->scope->getScopeId());
 

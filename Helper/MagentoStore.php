@@ -29,7 +29,6 @@ class MagentoStore extends AbstractHelper
         $this->session = $session;
     }
 
-
     public function getMagentoStores(): array
     {
         $allStores = [];
@@ -40,6 +39,19 @@ class MagentoStore extends AbstractHelper
         }
 
         return $allStores;
+    }
+
+    public function storeExists(int $storeId): bool
+    {
+        $stores = $this->getMagentoStores();
+
+        foreach ($stores as $id => $name) {
+            if ($storeId === (int) $id) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getStoreIdFromSession()

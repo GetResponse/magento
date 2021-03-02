@@ -63,7 +63,7 @@ $webformSettings = $block->getWebFormSettings();
                                             <option
                                                 value="<?php echo $form->getWebFormId()?>"
                                                 data-url="<?php echo $form->getScriptUrl()?>"
-                                                <?php if($webformSettings->getWebformId() === $form->getWebFormId()):?>
+                                                <?php if($webformSettings->getWebFormId() === $form->getWebFormId()):?>
                                                     selected="selected"
                                                 <?php endif ?>
                                             ><?php echo $form->getName() ?></option>

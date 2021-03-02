@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\FacebookPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
@@ -27,16 +28,18 @@ class Header extends Template
 
     public function getTrackingData(): array
     {
-        $trackingCodeSnippet = $this->getTrackingCodeSnippet();
-
         return [
-            'trackingCodeSnippet' => $trackingCodeSnippet
+            'trackingCodeSnippet' => $this->findTrackingCodeSnippet(),
+            'facebookPixelCodeSnippet' => $this->findFacebookPixelSnippet()
         ];
     }
 
-    private function getTrackingCodeSnippet(): string
+    /**
+     * @return string|null
+     */
+    private function findTrackingCodeSnippet()
     {
-        $webEventTracking = WebEventTrackingSettingsFactory::createFromArray(
+        $webEventTracking = WebEventTracking::createFromRepository(
             $this->repository->getWebEventTracking(
                 $this->magentoStore->getCurrentScope()->getScopeId()
             )
@@ -46,7 +49,24 @@ class Header extends Template
             return $webEventTracking->getCodeSnippet();
         }
 
-        return '';
+        return null;
     }
 
+    /**
+     * @return string|null
+     */
+    private function findFacebookPixelSnippet()
+    {
+        $facebookPixelSettings = FacebookPixel::createFromRepository(
+            $this->repository->getFacebookPixelSnippet(
+                $this->magentoStore->getCurrentScope()->getScopeId()
+            )
+        );
+
+        if ($facebookPixelSettings->isActive()) {
+            return $facebookPixelSettings->getCodeSnippet();
+        }
+
+        return null;
+    }
 }
