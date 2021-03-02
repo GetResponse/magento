@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Block;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\ReadModel\AccountReadModel;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebForm as WebFormSettings;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
@@ -37,7 +37,7 @@ class Webform extends Template
             return null;
         }
 
-        $webForm = WebformSettingsFactory::createFromArray(
+        $webForm = WebFormSettings::createFromRepository(
             $this->repository->getWebformSettings($scope->getScopeId())
         );
 

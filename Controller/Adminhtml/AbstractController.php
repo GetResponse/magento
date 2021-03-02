@@ -12,7 +12,9 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
 abstract class AbstractController extends Action
@@ -23,8 +25,8 @@ abstract class AbstractController extends Action
     /** @var MagentoStore */
     protected $magentoStore;
 
-    public function __construct(Context $context) {
-
+    public function __construct(Context $context)
+    {
         parent::__construct($context);
 
         $this->request = $this->getRequest();
@@ -34,10 +36,16 @@ abstract class AbstractController extends Action
 
     public function execute()
     {
-        $this->scope = new Scope($this->magentoStore->getStoreIdFromUrl());
+        $scopeId = $this->magentoStore->getStoreIdFromUrl();
+
+        if (null === $scopeId) {
+            $scopeId = $this->magentoStore->getDefaultStoreId();
+        }
+
+        $this->scope = new Scope($scopeId);
     }
 
-    public function render(string $pageTitle)
+    public function render(string $pageTitle): Page
     {
         $pageFactory = $this->_objectManager->get(PageFactory::class);
 
@@ -46,7 +54,7 @@ abstract class AbstractController extends Action
         return $resultPage;
     }
 
-    public function renderJson(array $response)
+    public function renderJson(array $response): Json
     {
         $jsonFactory = $this->_objectManager->get(JsonFactory::class);
         return $jsonFactory->create()->setData($response);
@@ -57,7 +65,6 @@ abstract class AbstractController extends Action
         string $message = '',
         bool $isError = false
     ): ResponseInterface {
-
         if (!empty($message)) {
             if ($isError) {
                 $this->messageManager->addErrorMessage($message);

@@ -8,8 +8,8 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Cu
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistration;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTrackingSettings;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebForm;
 use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -161,7 +161,7 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         foreach ($data as $row) {
-            $webform = new WebformSettings(
+            $webform = new WebForm(
                 $row['active_subscription'],
                 $row['url'],
                 $row['webform_id'],
@@ -219,7 +219,7 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         foreach ($data as $row) {
-            $webEventTracking = new WebEventTrackingSettings(
+            $webEventTracking = new WebEventTracking(
                 $row['web_traffic'],
                 $row['feature_tracking'],
                 $row['tracking_code_snippet']

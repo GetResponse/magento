@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+
+    <route url="/V1/getresponse/switch" method="POST">
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\ModuleController" method="switch"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+    <route url="/V1/getresponse/subscribers" method="GET">
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\SubscriberController" method="list"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+    <route url="/V1/getresponse/configuration" method="GET">
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\ConfigurationController" method="list"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+    <route url="/V1/getresponse/configuration" method="POST">
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\ConfigurationController" method="update"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+</routes>

@@ -7,11 +7,11 @@ namespace GetResponse\GetResponseIntegration\Test\Unit\Block\Admin;
 use GetResponse\GetResponseIntegration\Block\Admin\Webform as WebformBlock;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebformSettings;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebForm;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Api\GetresponseApiClient;
-use GrShareCode\WebForm\WebForm;
+use GrShareCode\WebForm\WebForm as WebFormSettings;
 use GrShareCode\WebForm\WebFormCollection;
 use Magento\Framework\View\Element\Template\Context;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -72,7 +72,7 @@ class WebformTest extends BaseTestCase
                 'sidebar' => $sidebar
             ]);
 
-        $expectedSettings = new WebformSettings($isEnabled, $url, $webformId, $sidebar);
+        $expectedSettings = new WebForm($isEnabled, $url, $webformId, $sidebar);
         $settings = $this->webformBlock->getWebFormSettings();
 
         self::assertEquals($expectedSettings, $settings);
@@ -88,7 +88,7 @@ class WebformTest extends BaseTestCase
         $scriptUrl = 'https://getresponse.com/script.js';
         $listName = 'GrList';
         $status = 'enabled';
-        $version = WebForm::VERSION_V1;
+        $version = WebFormSettings::VERSION_V1;
 
         $this->grApiClient
             ->expects(self::once())
@@ -111,7 +111,7 @@ class WebformTest extends BaseTestCase
             ->willReturn([]);
 
         $expectedWebforms = new WebFormCollection();
-        $expectedWebforms->add(new WebForm(
+        $expectedWebforms->add(new WebFormSettings(
             $webFormId,
             $name,
             $scriptUrl,

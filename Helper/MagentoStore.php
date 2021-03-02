@@ -29,10 +29,9 @@ class MagentoStore extends AbstractHelper
         $this->session = $session;
     }
 
-
     public function getMagentoStores(): array
     {
-        $allStores = ['Default Config'];
+        $allStores = [];
         $stores = $this->storeManager->getStores();
 
         foreach ($stores as $store) {
@@ -42,10 +41,33 @@ class MagentoStore extends AbstractHelper
         return $allStores;
     }
 
+    public function storeExists(int $storeId): bool
+    {
+        $stores = $this->getMagentoStores();
+
+        foreach ($stores as $id => $name) {
+            if ($storeId === (int) $id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getStoreIdFromSession()
+    {
+        return $this->session->getGrScope();
+    }
+
+    public function getDefaultStoreId(): int
+    {
+        return (int) $this->storeManager->getDefaultStoreView()->getId();
+    }
+
     public function getStoreIdFromUrl()
     {
         $storeId = $this->request->get(Config::SCOPE_TAG);
-        return !empty($storeId) ? (int)$storeId : $this->storeManager->getDefaultStoreView()->getId();
+        return null !== $storeId ? (int)$storeId : null;
     }
 
     public function getCurrentScope(): Scope
@@ -57,6 +79,10 @@ class MagentoStore extends AbstractHelper
     {
         $storeId = $this->request->get(Config::SCOPE_TAG);
         $storeInSession = $this->session->getGrScope();
+
+        if (null === $storeId && null === $storeInSession) {
+            $storeId = $this->getDefaultStoreId();
+        }
 
         if (null !== $storeId && $storeId !== $storeInSession) {
             $this->session->setGrScope($storeId);
