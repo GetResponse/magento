@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\FacebookPixel;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\Account;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistration;
@@ -173,18 +171,23 @@ class Repository
 
     public function getLiveSynchronization($scopeId)
     {
-        return $this->scopeConfig->getValue(
+        $data = $this->scopeConfig->getValue(
             Config::CONFIG_LIVE_SYNCHRONIZATION,
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
+
+        if (empty($data)) {
+            return [];
+        }
+        return $this->serializer->unserialize($data);
     }
 
     public function saveLiveSynchronization(LiveSynchronization $liveSynchronization, $scopeId)
     {
         $this->configWriter->save(
             Config::CONFIG_LIVE_SYNCHRONIZATION,
-            (int)$liveSynchronization->isActive(),
+            $this->serializer->serialize($liveSynchronization->toArray()),
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );

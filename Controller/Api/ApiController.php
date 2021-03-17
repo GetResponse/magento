@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Controller\Api;
 
+use Exception;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginModeException;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -13,6 +14,7 @@ use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Webapi\Rest\Request;
+use Zend_Json;
 
 abstract class ApiController extends Action
 {
@@ -40,30 +42,37 @@ abstract class ApiController extends Action
      */
     public function initialize()
     {
-        $scopeId = $this->request->getParam('scope');
+        try {
+            $scopeId = $this->request->getParam('scope');
 
-        if (empty($scopeId)) {
-            throw RequestValidationException::create('Missing scope.');
+            if (empty($scopeId)) {
+                throw RequestValidationException::createForMissingScope();
+            }
+
+            if (!$this->magentoStore->storeExists((int)$scopeId)) {
+                throw RequestValidationException::createForIncorrectScope();
+            }
+
+
+            $this->scope = new Scope($scopeId);
+        } catch (RequestValidationException $e) {
+            $this->handleException($e);
         }
-
-        if (!$this->magentoStore->storeExists((int)$scopeId)) {
-            throw RequestValidationException::create('Incorrect scope.');
-        }
-
-
-        $this->scope = new Scope($scopeId);
     }
 
     /**
-     * @throws PluginModeException
      * @return void
      */
     public function verifyPluginMode()
     {
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($this->scope->getScopeId()));
+        try {
+            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($this->scope->getScopeId()));
 
-        if (!$pluginMode->isNewVersion()) {
-            throw PluginModeException::createForInvalidPluginMode('Incorrect plugin mode');
+            if (!$pluginMode->isNewVersion()) {
+                throw PluginModeException::createForInvalidPluginMode('Incorrect plugin mode');
+            }
+        } catch (PluginModeException $e) {
+            $this->handleException($e);
         }
     }
 
@@ -72,5 +81,25 @@ abstract class ApiController extends Action
      */
     public function execute()
     {
+    }
+
+    /**
+     * @param Exception $e
+     * @return void
+     */
+    private function handleException(Exception $e)
+    {
+        $body = [
+            'errorCode' => $e->getCode(),
+            'errorMessage' => $e->getMessage()
+        ];
+
+        // workaround - magento Exceptions are hidden by default
+        $response = $this->getResponse();
+        $response->setHeader('Content-type', 'application/json');
+        $response->setStatusCode('400');
+        $response->representJson(Zend_Json::encode($body));
+        $response->sendResponse();
+        exit;
     }
 }
