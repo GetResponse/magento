@@ -32,10 +32,6 @@ class Save extends AbstractController
     {
         parent::execute();
 
-        if (!$this->isConnected()) {
-            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
-        }
-
         $webForm = WebForm::createFromRequest($this->request->getPostValue());
 
         if ($webForm->isEnabled()) {

@@ -28,10 +28,6 @@ class Delete extends AbstractController
     {
         parent::execute();
 
-        if (!$this->isConnected()) {
-            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
-        }
-
         try {
             $id = $this->request->getParam('id');
 

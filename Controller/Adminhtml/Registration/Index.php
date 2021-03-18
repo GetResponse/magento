@@ -18,10 +18,6 @@ class Index extends AbstractController
             return $this->redirectToStore(Route::REGISTRATION_INDEX_ROUTE);
         }
 
-        if (!$this->isConnected()) {
-            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
-        }
-
         return $this->render(PageTitle::REGISTRATION);
     }
 }

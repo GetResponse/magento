@@ -32,10 +32,6 @@ class Save extends AbstractController
     {
         parent::execute();
 
-        if (!$this->isConnected()) {
-            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
-        }
-
         try {
             $settings = EcommerceSettingsFactory::createFromPost($this->request->getPostValue());
 

@@ -36,10 +36,6 @@ class Create extends AbstractController
     {
         parent::execute();
 
-        if (!$this->isConnected()) {
-            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
-        }
-
         $backUrl = $this->getRequest()->getParam('back_url');
 
         try {

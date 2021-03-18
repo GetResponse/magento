@@ -33,10 +33,6 @@ class CreateShop extends AbstractController
     {
         parent::execute();
 
-        if (!$this->isConnected()) {
-            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
-        }
-
         $data = $this->request->getPostValue();
 
         if (!isset($data['shop_name']) || $data['shop_name'] === '') {
