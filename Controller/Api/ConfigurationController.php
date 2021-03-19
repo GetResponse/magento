@@ -99,7 +99,8 @@ class ConfigurationController extends ApiController
                         'snippet' => $webEventTracking->getCodeSnippet(),
                         'isFeatureEnabled' => $webEventTracking->isFeatureTrackingEnabled(),
                     ],
-                    'live_synchronization' => $liveSynchronization->isActive()
+                    'live_synchronization' => $liveSynchronization->isActive(),
+                    'callbackUrl' => $liveSynchronization->getCallbackUrl()
                 ]
 
             ]

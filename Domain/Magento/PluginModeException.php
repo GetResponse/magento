@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-use Exception;
-
-class PluginModeException extends Exception
+class PluginModeException extends MagentoException
 {
     public static function createForInvalidPluginMode(string $error): self
     {
-        return new self($error, 405);
+        return new self($error, self::INVALID_PLUGIN_MODE_ERROR_CODE);
     }
 }

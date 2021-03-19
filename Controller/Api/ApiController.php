@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Controller\Api;
 
+use Exception;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
@@ -60,10 +61,11 @@ abstract class ApiController
     }
 
     /**
+     * @throws Exception
      * @return void
      */
     public function execute(): void
     {
-        throw new \Exception('Method not implemented.');
+        throw new Exception('Method not implemented.');
     }
 }

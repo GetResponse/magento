@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
+use GetResponse\GetResponseIntegration\Api\ApiService;
+use GetResponse\GetResponseIntegration\Api\HttpClientException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Cart\CartService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\ContactReadModel;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\Query\ContactByEmail;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Ecommerce\ReadModel\EcommerceReadModel;
+use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
@@ -19,7 +23,7 @@ use Magento\Customer\Model\Session;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 
-class CreateCartHandler implements ObserverInterface
+class CartObserver implements ObserverInterface
 {
     private $cartService;
     private $logger;
@@ -27,6 +31,8 @@ class CreateCartHandler implements ObserverInterface
     private $customerSession;
     private $ecommerceReadModel;
     private $contactReadModel;
+    private $repository;
+    private $apiService;
 
     public function __construct(
         Session $customerSession,
@@ -34,7 +40,9 @@ class CreateCartHandler implements ObserverInterface
         Logger $getResponseLogger,
         MagentoStore $magentoStore,
         EcommerceReadModel $ecommerceReadModel,
-        ContactReadModel $contactReadModel
+        ContactReadModel $contactReadModel,
+        Repository $repository,
+        ApiService $apiService
     ) {
         $this->cartService = $cartService;
         $this->logger = $getResponseLogger;
@@ -42,48 +50,35 @@ class CreateCartHandler implements ObserverInterface
         $this->customerSession = $customerSession;
         $this->ecommerceReadModel = $ecommerceReadModel;
         $this->contactReadModel = $contactReadModel;
+        $this->repository = $repository;
+        $this->apiService = $apiService;
     }
 
-    public function execute(EventObserver $observer)
+    public function execute(EventObserver $observer): CartObserver
     {
         $scope = $this->magentoStore->getCurrentScope();
 
         try {
-            $shopId = $this->ecommerceReadModel->getShopId($scope);
+            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($scope->getScopeId()));
 
-            if (empty($shopId)) {
-                return $this;
+            if ($pluginMode->isNewVersion()) {
+                $this->handleNewPluginVersion($observer, $scope);
+            } else {
+                $this->handleOldVersion($observer, $scope);
             }
-
-            if (false === $this->customerSession->isLoggedIn()) {
-                return $this;
-            }
-
-            if (null === $this->getContactFromGetResponse($scope)) {
-                return $this;
-            }
-
-            $this->cartService->sendCart(
-                $observer->getCart()->getQuote()->getId(),
-                $this->ecommerceReadModel->getListId($scope),
-                $shopId,
-                $scope
-            );
-
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }
-
         return $this;
     }
 
     /**
-     * @param Scope $scope
-     * @return null|Contact
      * @throws ApiException
      * @throws GetresponseApiException
+     * @param Scope $scope
+     * @return null|Contact
      */
-    private function getContactFromGetResponse(Scope $scope)
+    private function getContactFromGetResponse(Scope $scope): Contact
     {
         $contactListId = $this->ecommerceReadModel->getListId($scope);
 
@@ -94,5 +89,42 @@ class CreateCartHandler implements ObserverInterface
                 $scope
             )
         );
+    }
+
+    /**
+     * @throws ApiException
+     * @throws GetresponseApiException
+     */
+    private function handleOldVersion(EventObserver $observer, Scope $scope): void
+    {
+        $shopId = $this->ecommerceReadModel->getShopId($scope);
+
+        if (empty($shopId)) {
+            return;
+        }
+
+        if (false === $this->customerSession->isLoggedIn() || $this->getContactFromGetResponse($scope)) {
+            return;
+        }
+
+        $this->cartService->sendCart(
+            $observer->getCart()->getQuote()->getId(),
+            $this->ecommerceReadModel->getListId($scope),
+            $shopId,
+            $scope
+        );
+    }
+
+    /**
+     * @throws HttpClientException
+     */
+    private function handleNewPluginVersion(EventObserver $observer, Scope $scope): void
+    {
+        // if customer is not logged in - skip
+        if (false === $this->customerSession->isLoggedIn()) {
+            return;
+        }
+
+        $this->apiService->createCart($observer->getCart()->getQuote(), $scope);
     }
 }

@@ -38,14 +38,10 @@ class CartService
     }
 
     /**
-     * @param int $quoteId
-     * @param string $contactListId
-     * @param string $grShopId
-     * @param Scope $scope
      * @throws ApiException
      * @throws GetresponseApiException
      */
-    public function sendCart($quoteId, $contactListId, $grShopId, Scope $scope)
+    public function sendCart($quoteId, $contactListId, $grShopId, Scope $scope): void
     {
         $cartService = $this->cartServiceFactory->create($scope);
         $quote = $this->quoteReadModel->getQuoteById(new QuoteById($quoteId));
