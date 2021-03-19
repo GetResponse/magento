@@ -6,32 +6,35 @@ namespace GetResponse\GetResponseIntegration\Controller\Api;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginModeException;
-use Magento\Backend\App\Action\Context;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use Magento\Framework\Phrase;
+use Magento\Framework\Webapi\Exception as WebapiException;
 
 /**
  * @api
  */
-class ModuleController extends ApiController
+class ModuleController
 {
-    const MODE_PARAM = 'mode';
+    private $repository;
 
-    public function __construct(Context $context)
+    public function __construct(Repository $repository)
     {
-        parent::__construct($context);
-        $this->initialize();
+        $this->repository = $repository;
     }
 
     /**
-     * @throws PluginModeException
-     * @return void
+     * @param string $mode
+     * @return mixed
+     * @throws WebapiException
      */
-    public function switch()
+    public function switch(string $mode)
     {
-        $newMode = $this->request->getBodyParams()[self::MODE_PARAM] ?? '';
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($this->scope->getScopeId()));
-
-        $pluginMode->switch($newMode);
-        $this->repository->savePluginMode($pluginMode, $this->scope->getScopeId());
-        return null;
+        try {
+            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
+            $pluginMode->switch($mode);
+            $this->repository->savePluginMode($pluginMode);
+        } catch (PluginModeException $e) {
+            throw new WebapiException(new Phrase($e->getMessage()));
+        }
     }
 }

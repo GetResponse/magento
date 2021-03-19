@@ -45,8 +45,7 @@ class PreDispatchObserver implements ObserverInterface
 
     public function execute(EventObserver $observer): PreDispatchObserver
     {
-        $scopeId = $this->getScope();
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($scopeId));
+        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
         if ($pluginMode->isNewVersion()) {
             if (!$this->amIOnTransitionPage()) {
@@ -55,7 +54,7 @@ class PreDispatchObserver implements ObserverInterface
                     $this->urlInterface->getUrl(Route::TRANSITION_PAGE_ROUTE)
                 );
             }
-        } elseif (!$this->amIOnAccountPage() && !$this->accountReadModel->isConnected(new Scope($scopeId))) {
+        } elseif (!$this->amIOnAccountPage() && !$this->accountReadModel->isConnected(new Scope($this->getScope()))) {
             $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
             $url = $this->urlInterface->getUrl(Route::ACCOUNT_INDEX_ROUTE);
             $this->actionFlag->set('', Action::FLAG_NO_DISPATCH, true);

@@ -4,29 +4,47 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Controller\Api;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Newsletter\Model\ResourceModel\Subscriber\Collection;
 use Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory;
 use Magento\Newsletter\Model\Subscriber as SubscriberModel;
+use Magento\Framework\Webapi\Exception as WebapiException;
 
 /**
  * @api
  */
 class SubscriberController extends ApiController
 {
-    const PAGE_SIZE = 100;
-    const PAGE = 1;
+    private $subscriberCollectionFactory;
+
 
     /**
+     * @param Repository $repository
+     * @param MagentoStore $magentoStore
+     * @throws WebapiException
+     */
+    public function __construct(
+        Repository $repository,
+        MagentoStore $magentoStore,
+        CollectionFactory $subscriberCollectionFactory
+    ) {
+        parent::__construct($repository, $magentoStore);
+        $this->subscriberCollectionFactory = $subscriberCollectionFactory;
+        $this->verifyPluginMode();
+    }
+
+    /**
+     * @param int $pageSize
+     * @param int $currentPage
      * @return array
      */
-    public function list(): array
+    public function list(int $pageSize, int $currentPage): array
     {
         $collection = [];
-        $pageSize = (int) ($this->request->getParam('pageSize') ?? self::PAGE_SIZE);
-        $currentPage = (int) ($this->request->getParam('currentPage') ?? self::PAGE);
-        $subscriberCollectionFactory = $this->_objectManager->get(CollectionFactory::class);
+
         /** @var Collection $subscribers */
-        $subscribers = $subscriberCollectionFactory->create();
+        $subscribers = $this->subscriberCollectionFactory->create();
         $count = $subscribers->count();
 
         // magento API always returns data
@@ -34,7 +52,7 @@ class SubscriberController extends ApiController
             return $collection;
         }
 
-        $subscribers = $subscriberCollectionFactory->create();
+        $subscribers = $this->subscriberCollectionFactory->create();
         $subscribers->setPageSize($pageSize);
         $subscribers->setCurPage($currentPage);
 
