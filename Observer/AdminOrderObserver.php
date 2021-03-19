@@ -6,63 +6,57 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\ReadModel\AccountReadModel;
+use GetResponse\GetResponseIntegration\Api\HttpClientException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\ContactReadModel;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\Query\ContactByEmail;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Ecommerce\ReadModel\EcommerceReadModel;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Command\AddOrderCommandFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Command\EditOrderCommandFactory;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Exception\InvalidOrderException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Contact\Contact;
-use Magento\Customer\Model\Session;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use \Magento\Sales\Model\Order;
 
-class CreateOrderHandler implements ObserverInterface
+class AdminOrderObserver implements ObserverInterface
 {
     private $orderService;
     private $logger;
-    private $addOrderCommandFactory;
+    private $editOrderCommandFactory;
     private $magentoStore;
-    private $customerSession;
     private $ecommerceReadModel;
     private $contactReadModel;
     private $repository;
-    private $accountReadModel;
     private $apiService;
 
     public function __construct(
-        Session $customerSession,
         OrderService $orderService,
         Logger $getResponseLogger,
-        AddOrderCommandFactory $addOrderCommandFactory,
+        EditOrderCommandFactory $editOrderCommandFactory,
+        MagentoStore $magentoStore,
         EcommerceReadModel $ecommerceReadModel,
         ContactReadModel $contactReadModel,
-        MagentoStore $magentoStore,
         Repository $repository,
-        AccountReadModel $accountReadModel,
         ApiService $apiService
     ) {
         $this->orderService = $orderService;
         $this->logger = $getResponseLogger;
-        $this->addOrderCommandFactory = $addOrderCommandFactory;
-        $this->customerSession = $customerSession;
-        $this->ecommerceReadModel = $ecommerceReadModel;
-        $this->contactReadModel = $contactReadModel;
+        $this->editOrderCommandFactory = $editOrderCommandFactory;
         $this->magentoStore = $magentoStore;
+        $this->contactReadModel = $contactReadModel;
+        $this->ecommerceReadModel = $ecommerceReadModel;
         $this->repository = $repository;
-        $this->accountReadModel = $accountReadModel;
         $this->apiService = $apiService;
     }
 
-    public function execute(EventObserver $observer): CreateOrderHandler
+    public function execute(EventObserver $observer): AdminOrderObserver
     {
         $scope = $this->magentoStore->getCurrentScope();
 
@@ -71,9 +65,10 @@ class CreateOrderHandler implements ObserverInterface
 
             if ($pluginMode->isNewVersion()) {
                 $this->handleNewVersion($observer, $scope);
+            } else {
+                $this->handleOldVersion($observer, $scope);
             }
 
-            $this->handleOldVersion($observer, $scope);
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }
@@ -94,18 +89,16 @@ class CreateOrderHandler implements ObserverInterface
             return;
         }
 
-        if (false === $this->customerSession->isLoggedIn()) {
+        /** @var Order $order */
+        $order = $observer->getEvent()->getOrder();
+
+        if (null === $this->getContactFromGetResponse($order, $scope)) {
             return;
         }
 
-        if (null === $this->getContactFromGetResponse($scope)) {
-            return;
-        }
-
-        $this->orderService->addOrder(
-            $this->addOrderCommandFactory->createForMagentoOrder(
-                $observer->getOrder(),
-                $this->ecommerceReadModel->getListId($scope),
+        $this->orderService->updateOrder(
+            $this->editOrderCommandFactory->createForOrderService(
+                $order,
                 $shopId
             ),
             $scope
@@ -116,35 +109,24 @@ class CreateOrderHandler implements ObserverInterface
      * @throws ApiException
      * @throws GetresponseApiException
      */
-    private function getContactFromGetResponse(Scope $scope): ?Contact
+    private function getContactFromGetResponse(Order $order, Scope $scope): ?Contact
     {
         $contactListId = $this->ecommerceReadModel->getListId($scope);
 
         return $this->contactReadModel->findContactByEmail(
             new ContactByEmail(
-                $this->customerSession->getCustomer()->getEmail(),
+                $order->getCustomerEmail(),
                 $contactListId,
                 $scope
             )
         );
     }
 
+    /**
+     * @throws HttpClientException
+     */
     private function handleNewVersion(EventObserver $observer, Scope $scope): void
     {
-        // if customer is not logged in - skip
-        if (false === $this->customerSession->isLoggedIn()) {
-            return;
-        }
-
-        // if plugin is not connected - skip
-        if (false === $this->accountReadModel->isConnected($scope)) {
-            return;
-        }
-
-        try {
-            $this->apiService->sendOrder($observer->getOrder(), $scope);
-        } catch (Exception $e) {
-            $this->logger->addError($e->getMessage(), ['exception' => $e]);
-        }
+        $this->apiService->updateOrder($observer->getOrder(), $scope);
     }
 }

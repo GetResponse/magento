@@ -8,7 +8,7 @@ use Exception;
 
 class HttpClientException extends Exception
 {
-    const INVALID_CURL_RESPONSE = '12001';
+    private const INVALID_CURL_RESPONSE = '12001';
 
     public static function createForInvalidCurlResponse(string $errorMessage): self
     {

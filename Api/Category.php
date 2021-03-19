@@ -16,8 +16,8 @@ class Category
         int $id,
         int $parentId,
         string $name,
-        bool $isDefault,
-        string $url
+        bool $isDefault = false,
+        ?string $url = null
     ) {
         $this->id = $id;
         $this->parentId = $parentId;
@@ -26,28 +26,14 @@ class Category
         $this->url = $url;
     }
 
-    public function getId(): int
+    public function toApiRequest(): array
     {
-        return $this->id;
-    }
-
-    public function getParentId(): int
-    {
-        return $this->parentId;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function isDefault(): bool
-    {
-        return $this->isDefault;
-    }
-
-    public function getUrl(): string
-    {
-        return $this->url;
+        return [
+            'id' => $this->id,
+            'parent_id' => $this->parentId,
+            'name' => $this->name,
+            'is_default' => $this->isDefault,
+            'url' => $this->url,
+        ];
     }
 }

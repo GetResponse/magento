@@ -33,10 +33,7 @@ class HttpClient
         $json_params = $this->jsonHelper->serialize($params);
 
         $headers = array_merge($headers, [
-            'Timestamp: ' . time(),
-            'Content-Type: application/json',
-            'User-Agent: ' . '',
-            'X-APP-ID: ' . ''
+            'Content-Type: application/json'
         ]);
 
         $options = [

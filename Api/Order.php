@@ -29,7 +29,7 @@ class Order
         string $contactEmail,
         Customer $customer,
         array $lines,
-        string $url,
+        ?string $url,
         float $totalPrice,
         float $totalPriceTax,
         float $shippingPrice,
@@ -59,87 +59,7 @@ class Order
         $this->updatedAt = $updatedAt;
     }
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getCartId(): int
-    {
-        return $this->cartId;
-    }
-
-    public function getContactEmail(): string
-    {
-        return $this->contactEmail;
-    }
-
-    public function getCustomer(): Customer
-    {
-        return $this->customer;
-    }
-
-    public function getLines(): array
-    {
-        return $this->lines;
-    }
-
-    public function getUrl(): string
-    {
-        return $this->url;
-    }
-
-    public function getTotalPrice(): float
-    {
-        return $this->totalPrice;
-    }
-
-    public function getTotalPriceTax(): float
-    {
-        return $this->totalPriceTax;
-    }
-
-    public function getShippingPrice(): float
-    {
-        return $this->shippingPrice;
-    }
-
-    public function getCurrency(): string
-    {
-        return $this->currency;
-    }
-
-    public function getStatus(): string
-    {
-        return $this->status;
-    }
-
-    public function getBillingStatus(): ?string
-    {
-        return $this->billingStatus;
-    }
-
-    public function getShippingAddress(): Address
-    {
-        return $this->shippingAddress;
-    }
-
-    public function getBillingAddress(): Address
-    {
-        return $this->billingAddress;
-    }
-
-    public function getCreatedAt(): string
-    {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt(): ?string
-    {
-        return $this->updatedAt;
-    }
-
-    public function toApiRequest(): array
+    public function toApiRequest(string $callbackType): array
     {
         $lines = [];
         foreach ($this->lines as $line) {
@@ -147,7 +67,7 @@ class Order
         }
 
         return [
-            'callback_type' => 'order/update',
+            'callback_type' => $callbackType,
              'id' => $this->id,
              'cart_id' => $this->cartId,
              'contact_email' => $this->contactEmail,

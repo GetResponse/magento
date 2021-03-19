@@ -24,4 +24,12 @@ class Image
     {
         return $this->position;
     }
+
+    public function toApiRequest(): array
+    {
+        return [
+            'src' => $this->src,
+            'position' => $this->position
+        ];
+    }
 }

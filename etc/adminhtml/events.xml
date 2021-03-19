@@ -10,9 +10,12 @@
     <event name="controller_action_predispatch_getresponse">
         <observer name="authorize_before_page_preview" instance="GetResponse\GetResponseIntegration\Observer\AdminCheckAuthorization" />
     </event>
+    <event name="catalog_product_save_after">
+        <observer name="catalog_product_edit" instance="GetResponse\GetResponseIntegration\Observer\ProductObserver" />
+    </event>
     <!-- NORMAL CHECKOUT SUCCESS -->
-    <event name="sales_order_save_commit_after">
-        <observer name="update_ecommerce_order" instance="GetResponse\GetResponseIntegration\Observer\UpdateOrderHandler"/>
+    <event name="sales_order_save_after">
+        <observer name="update_ecommerce_order" instance="GetResponse\GetResponseIntegration\Observer\AdminOrderObserver"/>
     </event>
 
 </config>
