@@ -4,25 +4,25 @@
     <route url="/V1/getresponse/switch" method="POST">
         <service class="GetResponse\GetResponseIntegration\Controller\Api\ModuleController" method="switch"/>
         <resources>
-            <resource ref="self"/>
+            <resource ref="Magento_Backend::admin"/>
         </resources>
     </route>
     <route url="/V1/getresponse/subscribers" method="GET">
         <service class="GetResponse\GetResponseIntegration\Controller\Api\SubscriberController" method="list"/>
         <resources>
-            <resource ref="self"/>
+            <resource ref="Magento_Backend::admin"/>
         </resources>
     </route>
     <route url="/V1/getresponse/configuration" method="GET">
         <service class="GetResponse\GetResponseIntegration\Controller\Api\ConfigurationController" method="list"/>
         <resources>
-            <resource ref="self"/>
+            <resource ref="Magento_Backend::admin"/>
         </resources>
     </route>
     <route url="/V1/getresponse/configuration" method="POST">
         <service class="GetResponse\GetResponseIntegration\Controller\Api\ConfigurationController" method="update"/>
         <resources>
-            <resource ref="self"/>
+            <resource ref="Magento_Backend::admin"/>
         </resources>
     </route>
 </routes>

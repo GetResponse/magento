@@ -8,7 +8,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
 
     <event name="controller_action_predispatch_getresponse">
-        <observer name="authorize_before_page_preview" instance="GetResponse\GetResponseIntegration\Observer\AdminCheckAuthorization" />
+        <observer name="authorize_before_page_preview" instance="GetResponse\GetResponseIntegration\Observer\PreDispatchObserver" />
     </event>
     <!-- NORMAL CHECKOUT SUCCESS -->
     <event name="sales_order_save_commit_after">

@@ -16,7 +16,7 @@ class PluginMode
         $this->mode = $mode;
     }
 
-    public static function createFromRepository($pluginMode): self
+    public static function createFromRepository(?string $pluginMode): self
     {
         return new self($pluginMode ?? self::MODE_OLD);
     }

@@ -150,22 +150,20 @@ class Repository
         return $this->serializer->unserialize($data);
     }
 
-    public function getPluginMode($scopeId)
+    public function getPluginMode(): ?string
     {
-        return $this->scopeConfig->getValue(
-            Config::CONFIG_DATA_PLUGIN_MODE,
-            $this->getScope($scopeId),
-            $this->getScopeId($scopeId)
+        $value = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_PLUGIN_MODE
         );
+
+        return is_null($value) ? null : (string)$value;
     }
 
-    public function savePluginMode(PluginMode $pluginMode, $scopeId)
+    public function savePluginMode(PluginMode $pluginMode): void
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_PLUGIN_MODE,
-            $pluginMode->getMode(),
-            $this->getScope($scopeId),
-            $this->getScopeId($scopeId)
+            $pluginMode->getMode()
         );
 
         $this->cacheManager->clean(['config']);

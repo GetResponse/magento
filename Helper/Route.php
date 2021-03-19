@@ -14,4 +14,5 @@ class Route
     const WEB_TRAFFIC_INDEX_ROUTE = 'getresponse/webtraffic/index';
     const ECOMMERCE_INDEX_ROUTE = 'getresponse/ecommerce/index';
     const LIST_INDEX_ROUTE = 'getresponse/list/index';
+    const TRANSITION_PAGE_ROUTE = 'getresponse/transition/index';
 }

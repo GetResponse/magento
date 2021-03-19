@@ -44,10 +44,6 @@ class Process extends AbstractController
     {
         parent::execute();
 
-        if (!$this->isConnected()) {
-            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
-        }
-
         $exportOnDemandDto = $this->exportOnDemandDtoFactory->createFromRequest(
             $this->request->getPostValue()
         );

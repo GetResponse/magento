@@ -37,10 +37,6 @@ class Index extends AbstractController
             return $this->redirectToStore(Route::WEB_TRAFFIC_INDEX_ROUTE);
         }
 
-        if (!$this->isConnected()) {
-            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
-        }
-
         $data = $this->request->getPostValue();
 
         if (isset($data['updateWebTraffic'])) {

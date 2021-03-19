@@ -14,4 +14,5 @@ class PageTitle
     const REGISTRATION = 'Add Contacts During Registrations';
     const WEBFORM = 'Add contacts via GetResponse forms';
     const WEB_TRAFFIC = 'Web Event Tracking';
+    const TRANSITION = 'New GetResponse Plugin';
 }

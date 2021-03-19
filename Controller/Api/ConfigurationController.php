@@ -7,39 +7,58 @@ namespace GetResponse\GetResponseIntegration\Controller\Api;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\RequestValidationException;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebForm;
-use Magento\Backend\App\Action\Context;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Framework\Module\ModuleListInterface;
+use Magento\Framework\Phrase;
+use Magento\Framework\Webapi\Exception as WebapiException;
+use Magento\Framework\Webapi\Rest\Request;
 
 /**
  * @api
  */
 class ConfigurationController extends ApiController
 {
-    const MODULE_NAME = 'GetResponse_GetResponseIntegration';
+    private const MODULE_NAME = 'GetResponse_GetResponseIntegration';
 
     private $moduleList;
+    private $request;
 
-    public function __construct(Context $context, ModuleListInterface $moduleList)
-    {
-        parent::__construct($context);
-
+    /**
+     * @param Repository $repository
+     * @param MagentoStore $magentoStore
+     * @param ModuleListInterface $moduleList
+     * @param Request $request
+     * @throws WebapiException
+     */
+    public function __construct(
+        Repository $repository,
+        MagentoStore $magentoStore,
+        ModuleListInterface $moduleList,
+        Request $request
+    ) {
+        parent::__construct($repository, $magentoStore);
         $this->moduleList = $moduleList;
-
-        $this->initialize();
+        $this->request = $request;
         $this->verifyPluginMode();
     }
 
     /**
+     * @param string $scope
      * @return array
+     * @throws WebapiException
      */
-    public function list(): array
+    public function list(string $scope): array
     {
+        $this->verifyScope($scope);
+
         $versionInfo = $this->moduleList->getOne(self::MODULE_NAME);
         $pluginVersion = $versionInfo['setup_version'] ?? '';
 
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($this->scope->getScopeId()));
+        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
         $facebookPixel = FacebookPixel::createFromRepository(
             $this->repository->getFacebookPixelSnippet($this->scope->getScopeId())
@@ -88,28 +107,36 @@ class ConfigurationController extends ApiController
     }
 
     /**
+     * @param string $scope
      * @return void
+     * @throws WebapiException
      */
-    public function update()
+    public function update(string $scope): void
     {
-        $this->repository->saveFacebookPixelSnippet(
-            FacebookPixel::createFromRequest($this->request->getBodyParams()),
-            $this->scope->getScopeId()
-        );
+        $this->verifyScope($scope);
 
-        $this->repository->saveWebformSettings(
-            WebForm::createFromRequest($this->request->getBodyParams()),
-            $this->scope->getScopeId()
-        );
+        try {
+            $this->repository->saveFacebookPixelSnippet(
+                FacebookPixel::createFromRequest($this->request->getBodyParams()),
+                $this->scope->getScopeId()
+            );
 
-        $this->repository->saveWebEventTracking(
-            WebEventTracking::createFromRequest($this->request->getBodyParams()),
-            $this->scope->getScopeId()
-        );
+            $this->repository->saveWebformSettings(
+                WebForm::createFromRequest($this->request->getBodyParams()),
+                $this->scope->getScopeId()
+            );
 
-        $this->repository->saveLiveSynchronization(
-            LiveSynchronization::createFromRequest($this->request->getBodyParams()),
-            $this->scope->getScopeId()
-        );
+            $this->repository->saveWebEventTracking(
+                WebEventTracking::createFromRequest($this->request->getBodyParams()),
+                $this->scope->getScopeId()
+            );
+
+            $this->repository->saveLiveSynchronization(
+                LiveSynchronization::createFromRequest($this->request->getBodyParams()),
+                $this->scope->getScopeId()
+            );
+        } catch (RequestValidationException $e) {
+            throw new WebapiException(new Phrase($e->getMessage()));
+        }
     }
 }

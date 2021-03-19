@@ -40,10 +40,6 @@ class Save extends AbstractController
     {
         parent::execute();
 
-        if (!$this->isConnected()) {
-            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
-        }
-
         $data = $this->request->getPostValue();
 
         $updateCustomFields = (isset($data['gr_sync_order_data'])) ? $data['gr_sync_order_data'] : 0;

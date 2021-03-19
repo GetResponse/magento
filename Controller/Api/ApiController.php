@@ -5,19 +5,14 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Controller\Api;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginModeException;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\RequestValidationException;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
-use Magento\Backend\App\Action;
-use Magento\Backend\App\Action\Context;
-use Magento\Framework\Webapi\Rest\Request;
+use Magento\Framework\Phrase;
+use Magento\Framework\Webapi\Exception as WebapiException;
 
-abstract class ApiController extends Action
+abstract class ApiController
 {
-    /** @var Request; */
-    protected $request;
     /** @var Scope */
     protected $scope;
     /** @var MagentoStore */
@@ -25,52 +20,50 @@ abstract class ApiController extends Action
     /** @var Repository */
     protected $repository;
 
-    public function __construct(Context $context)
+    public function __construct(Repository $repository, MagentoStore $magentoStore)
     {
-        parent::__construct($context);
-
-        $this->request = $this->_objectManager->get(Request::class);
-        $this->magentoStore = $this->_objectManager->get(MagentoStore::class);
-        $this->repository = $this->_objectManager->get(Repository::class);
+        $this->repository = $repository;
+        $this->magentoStore = $magentoStore;
     }
 
     /**
      * This method initializes properties used in controllers.
+     * @param string $scope
      * @return void
+     * @throws WebapiException
      */
-    public function initialize()
+    public function verifyScope(string $scope): void
     {
-        $scopeId = $this->request->getParam('scope');
-
-        if (empty($scopeId)) {
-            throw RequestValidationException::create('Missing scope.');
+        if (empty($scope)) {
+            throw new WebapiException(new Phrase('Missing scope.'));
         }
 
-        if (!$this->magentoStore->storeExists((int)$scopeId)) {
-            throw RequestValidationException::create('Incorrect scope.');
+        if (!$this->magentoStore->storeExists((int)$scope)) {
+            throw new WebapiException(new Phrase('Incorrect scope.'));
         }
 
 
-        $this->scope = new Scope($scopeId);
+        $this->scope = new Scope($scope);
     }
 
     /**
-     * @throws PluginModeException
+     * @throws WebapiException
      * @return void
      */
-    public function verifyPluginMode()
+    public function verifyPluginMode(): void
     {
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($this->scope->getScopeId()));
+        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
         if (!$pluginMode->isNewVersion()) {
-            throw PluginModeException::createForInvalidPluginMode('Incorrect plugin mode');
+            throw new WebapiException(new Phrase('Incorrect plugin mode'));
         }
     }
 
     /**
      * @return void
      */
-    public function execute()
+    public function execute(): void
     {
+        throw new \Exception('Method not implemented.');
     }
 }
