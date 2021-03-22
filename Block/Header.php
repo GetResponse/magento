@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\FacebookAdsPixel;
+use GetResponse\GetResponseIntegration\Domain\Magento\FacebookBusinessExtension;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
@@ -30,14 +32,13 @@ class Header extends Template
     {
         return [
             'trackingCodeSnippet' => $this->findTrackingCodeSnippet(),
-            'facebookPixelCodeSnippet' => $this->findFacebookPixelSnippet()
+            'facebookPixelCodeSnippet' => $this->findFacebookPixelSnippet(),
+            'facebookAdsPixelCodeSnippet' => $this->findFacebookAdsPixelSnippet(),
+            'facebookBusinessExtensionCodeSnippet' => $this->findFacebookBusinessExtensionSnippet(),
         ];
     }
 
-    /**
-     * @return string|null
-     */
-    private function findTrackingCodeSnippet()
+    private function findTrackingCodeSnippet(): string
     {
         $webEventTracking = WebEventTracking::createFromRepository(
             $this->repository->getWebEventTracking(
@@ -49,13 +50,10 @@ class Header extends Template
             return $webEventTracking->getCodeSnippet();
         }
 
-        return null;
+        return '';
     }
 
-    /**
-     * @return string|null
-     */
-    private function findFacebookPixelSnippet()
+    private function findFacebookPixelSnippet(): string
     {
         $facebookPixelSettings = FacebookPixel::createFromRepository(
             $this->repository->getFacebookPixelSnippet(
@@ -67,6 +65,36 @@ class Header extends Template
             return $facebookPixelSettings->getCodeSnippet();
         }
 
-        return null;
+        return '';
+    }
+
+    private function findFacebookAdsPixelSnippet(): string
+    {
+        $facebookPixelSettings = FacebookAdsPixel::createFromRepository(
+            $this->repository->getFacebookAdsPixelSnippet(
+                $this->magentoStore->getCurrentScope()->getScopeId()
+            )
+        );
+
+        if ($facebookPixelSettings->isActive()) {
+            return $facebookPixelSettings->getCodeSnippet();
+        }
+
+        return '';
+    }
+
+    private function findFacebookBusinessExtensionSnippet(): string
+    {
+        $facebookBusinessExtension = FacebookBusinessExtension::createFromRepository(
+            $this->repository->getFacebookBusinessExtensionSnippet(
+                $this->magentoStore->getCurrentScope()->getScopeId()
+            )
+        );
+
+        if ($facebookBusinessExtension->isActive()) {
+            return $facebookBusinessExtension->getCodeSnippet();
+        }
+
+        return '';
     }
 }

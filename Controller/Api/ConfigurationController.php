@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Controller\Api;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\FacebookAdsPixel;
+use GetResponse\GetResponseIntegration\Domain\Magento\FacebookBusinessExtension;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
@@ -64,6 +66,14 @@ class ConfigurationController extends ApiController
             $this->repository->getFacebookPixelSnippet($this->scope->getScopeId())
         );
 
+        $facebookAdsPixel = FacebookAdsPixel::createFromRepository(
+            $this->repository->getFacebookAdsPixelSnippet($this->scope->getScopeId())
+        );
+
+        $facebookBusinessExtension = FacebookBusinessExtension::createFromRepository(
+            $this->repository->getFacebookBusinessExtensionSnippet($this->scope->getScopeId())
+        );
+
         $webForm = WebForm::createFromRepository(
             $this->repository->getWebformSettings($this->scope->getScopeId())
         );
@@ -87,6 +97,14 @@ class ConfigurationController extends ApiController
                     'facebookPixel' => [
                         'enabled' => $facebookPixel->isActive(),
                         'snippet' => $facebookPixel->getCodeSnippet()
+                    ],
+                    'facebookAdsPixel' => [
+                        'enabled' => $facebookAdsPixel->isActive(),
+                        'snippet' => $facebookAdsPixel->getCodeSnippet()
+                    ],
+                    'facebookBusinessExtension' => [
+                        'enabled' => $facebookBusinessExtension->isActive(),
+                        'snippet' => $facebookBusinessExtension->getCodeSnippet()
                     ],
                     'webforms' => [
                         'enabled' => $webForm->isEnabled(),
@@ -119,6 +137,16 @@ class ConfigurationController extends ApiController
         try {
             $this->repository->saveFacebookPixelSnippet(
                 FacebookPixel::createFromRequest($this->request->getBodyParams()),
+                $this->scope->getScopeId()
+            );
+
+            $this->repository->saveFacebookAdsPixelSnippet(
+                FacebookAdsPixel::createFromRequest($this->request->getBodyParams()),
+                $this->scope->getScopeId()
+            );
+
+            $this->repository->saveFacebookBusinessExtensionSnippet(
+                FacebookBusinessExtension::createFromRequest($this->request->getBodyParams()),
                 $this->scope->getScopeId()
             );
 

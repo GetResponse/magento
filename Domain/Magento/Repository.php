@@ -108,11 +108,35 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    public function saveFacebookPixelSnippet(FacebookPixel $facebookPixelSettings, $scopeId)
+    public function saveFacebookPixelSnippet(FacebookPixel $facebookPixelSettings, $scopeId): void
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_FACEBOOK_PIXEL_SNIPPET,
             $this->serializer->serialize($facebookPixelSettings->toArray()),
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        $this->cacheManager->clean(['config']);
+    }
+
+    public function saveFacebookAdsPixelSnippet(FacebookAdsPixel $facebookAdsPixelSettings, $scopeId): void
+    {
+        $this->configWriter->save(
+            Config::CONFIG_DATA_FACEBOOK_ADS_PIXEL_SNIPPET,
+            $this->serializer->serialize($facebookAdsPixelSettings->toArray()),
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        $this->cacheManager->clean(['config']);
+    }
+
+    public function saveFacebookBusinessExtensionSnippet(FacebookBusinessExtension $facebookBusinessExtension, $scopeId): void
+    {
+        $this->configWriter->save(
+            Config::CONFIG_DATA_FACEBOOK_BUSINESS_EXTENSION_SNIPPET,
+            $this->serializer->serialize($facebookBusinessExtension->toArray()),
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
@@ -138,6 +162,34 @@ class Repository
     {
         $data = $this->scopeConfig->getValue(
             Config::CONFIG_DATA_FACEBOOK_PIXEL_SNIPPET,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        if (empty($data)) {
+            return [];
+        }
+        return $this->serializer->unserialize($data);
+    }
+
+    public function getFacebookAdsPixelSnippet($scopeId): array
+    {
+        $data = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_FACEBOOK_ADS_PIXEL_SNIPPET,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        if (empty($data)) {
+            return [];
+        }
+        return $this->serializer->unserialize($data);
+    }
+
+    public function getFacebookBusinessExtensionSnippet($scopeId): array
+    {
+        $data = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_FACEBOOK_BUSINESS_EXTENSION_SNIPPET,
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
@@ -181,7 +233,7 @@ class Repository
         return $this->serializer->unserialize($data);
     }
 
-    public function saveLiveSynchronization(LiveSynchronization $liveSynchronization, $scopeId)
+    public function saveLiveSynchronization(LiveSynchronization $liveSynchronization, $scopeId): void
     {
         $this->configWriter->save(
             Config::CONFIG_LIVE_SYNCHRONIZATION,
@@ -193,7 +245,7 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    public function saveShopStatus($status, $scopeId)
+    public function saveShopStatus($status, $scopeId): void
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_SHOP_STATUS,
@@ -205,7 +257,7 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    public function saveShopId($shopId, $scopeId)
+    public function saveShopId($shopId, $scopeId): void
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_SHOP_ID,
@@ -217,7 +269,7 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    public function saveEcommerceListId($listId, $scopeId)
+    public function saveEcommerceListId($listId, $scopeId): void
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_ECOMMERCE_LIST_ID,
@@ -229,7 +281,7 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    public function saveAccountDetails(Account $account, $scopeId)
+    public function saveAccountDetails(Account $account, $scopeId): void
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_ACCOUNT,

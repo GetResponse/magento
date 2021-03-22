@@ -19,7 +19,7 @@ class HeaderTest extends BaseTestCase
     /** @var Header */
     private $headerBlock;
 
-    public function setUp()
+    public function setUp(): void
     {
         /** @var Context $context */
         $context = $this->getMockWithoutConstructing(Context::class);
@@ -34,10 +34,12 @@ class HeaderTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldReturnTrackingCodeSnippet()
+    public function shouldReturnTrackingCodeSnippet(): void
     {
         $trackingCodeSnippet = 'trackingCodeSnippet';
         $facebookPixelSnippet = 'facebookPixelSnippet';
+        $facebookAdsPixelSnippet = 'facebookAdsPixelSnippet';
+        $facebookBusinessExtensionSnippet = 'facebookBusinessExtensionSnippet';
         $isTrackingCodeEnabled = true;
 
         $this->repository
@@ -61,9 +63,31 @@ class HeaderTest extends BaseTestCase
                 ]
             );
 
+        $this->repository
+            ->expects(self::once())
+            ->method('getFacebookAdsPixelSnippet')
+            ->willReturn(
+                [
+                    'isEnabled' => $isTrackingCodeEnabled,
+                    'codeSnippet' => $facebookAdsPixelSnippet
+                ]
+            );
+
+        $this->repository
+            ->expects(self::once())
+            ->method('getFacebookBusinessExtensionSnippet')
+            ->willReturn(
+                [
+                    'isEnabled' => $isTrackingCodeEnabled,
+                    'codeSnippet' => $facebookBusinessExtensionSnippet
+                ]
+            );
+
         $expected = [
             'trackingCodeSnippet' => $trackingCodeSnippet,
-            'facebookPixelCodeSnippet' => $facebookPixelSnippet
+            'facebookPixelCodeSnippet' => $facebookPixelSnippet,
+            'facebookAdsPixelCodeSnippet' => $facebookAdsPixelSnippet,
+            'facebookBusinessExtensionCodeSnippet' => $facebookBusinessExtensionSnippet
         ];
 
         self::assertSame($expected, $this->headerBlock->getTrackingData());
@@ -72,10 +96,12 @@ class HeaderTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldReturnEmptyTrackingCodeSnippet()
+    public function shouldReturnEmptyTrackingCodeSnippet(): void
     {
         $trackingCodeSnippet = 'trackingCodeSnippet';
         $facebookPixelCodeSnippet = 'facebookPixelCodeSnippet';
+        $facebookAdsPixelSnippet = 'facebookAdsPixelSnippet';
+        $facebookBusinessExtensionSnippet = 'facebookBusinessExtensionSnippet';
 
         $isTrackingCodeEnabled = false;
 
@@ -100,9 +126,31 @@ class HeaderTest extends BaseTestCase
                 ]
             );
 
+        $this->repository
+            ->expects(self::once())
+            ->method('getFacebookAdsPixelSnippet')
+            ->willReturn(
+                [
+                    'isEnabled' => $isTrackingCodeEnabled,
+                    'codeSnippet' => $facebookAdsPixelSnippet
+                ]
+            );
+
+        $this->repository
+            ->expects(self::once())
+            ->method('getFacebookBusinessExtensionSnippet')
+            ->willReturn(
+                [
+                    'isEnabled' => $isTrackingCodeEnabled,
+                    'codeSnippet' => $facebookBusinessExtensionSnippet
+                ]
+            );
+
         $expected = [
-            'trackingCodeSnippet' => null,
-            'facebookPixelCodeSnippet' => null
+            'trackingCodeSnippet' => '',
+            'facebookPixelCodeSnippet' => '',
+            'facebookAdsPixelCodeSnippet' => '',
+            'facebookBusinessExtensionCodeSnippet' => ''
         ];
         self::assertSame($expected, $this->headerBlock->getTrackingData());
     }
