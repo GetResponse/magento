@@ -52,10 +52,10 @@ class FacebookBusinessExtension
      */
     public static function createFromRequest(array $data): self
     {
-        if (!isset($data['facebookAdsPixel'])) {
-            throw RequestValidationException::create('Incorrect FacebookAdsPixel params');
+        if (!isset($data['facebookBusinessExtension'])) {
+            throw RequestValidationException::create('Incorrect Facebook Business Extension params');
         }
 
-        return new self($data['facebookAdsPixel']['isActive'], $data['facebookAdsPixel']['codeSnippet']);
+        return new self($data['facebookBusinessExtension']['isActive'], $data['facebookBusinessExtension']['codeSnippet']);
     }
 }
