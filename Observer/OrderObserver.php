@@ -24,6 +24,7 @@ use Magento\Customer\Model\Session;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use Magento\Sales\Model\Order;
 
 class OrderObserver implements ObserverInterface
 {
@@ -61,15 +62,21 @@ class OrderObserver implements ObserverInterface
 
     public function execute(EventObserver $observer): OrderObserver
     {
+        // if customer is not logged in - skip
+        if (false === $this->customerSession->isLoggedIn()) {
+            return $this;
+        }
+
+        $order = $observer->getOrder();
         $scope = $this->magentoStore->getCurrentScope();
 
         try {
-            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($scope->getScopeId()));
+            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
             if ($pluginMode->isNewVersion()) {
-                $this->handleNewVersion($observer, $scope);
+                $this->apiService->createOrder($order, $scope);
             } else {
-                $this->handleOldVersion($observer, $scope);
+                $this->handleOldVersion($order, $scope);
             }
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
@@ -83,21 +90,17 @@ class OrderObserver implements ObserverInterface
      * @throws GetresponseApiException
      * @throws InvalidOrderException
      */
-    private function handleOldVersion(EventObserver $observer, Scope $scope): void
+    private function handleOldVersion(Order $order, Scope $scope): void
     {
         $shopId = $this->ecommerceReadModel->getShopId($scope);
 
-        if (empty($shopId)) {
-            return;
-        }
-
-        if (false === $this->customerSession->isLoggedIn() || null === $this->getContactFromGetResponse($scope)) {
+        if (empty($shopId) || null === $this->getContactFromGetResponse($scope)) {
             return;
         }
 
         $this->orderService->addOrder(
             $this->addOrderCommandFactory->createForMagentoOrder(
-                $observer->getOrder(),
+                $order,
                 $this->ecommerceReadModel->getListId($scope),
                 $shopId
             ),
@@ -120,18 +123,5 @@ class OrderObserver implements ObserverInterface
                 $scope
             )
         );
-    }
-
-    /**
-     * @throws HttpClientException
-     */
-    private function handleNewVersion(EventObserver $observer, Scope $scope): void
-    {
-        // if customer is not logged in - skip
-        if (false === $this->customerSession->isLoggedIn()) {
-            return;
-        }
-
-        $this->apiService->createOrder($observer->getOrder(), $scope);
     }
 }

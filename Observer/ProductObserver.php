@@ -35,12 +35,10 @@ class ProductObserver implements ObserverInterface
 
         foreach ($websiteIds as $websiteId) {
             try {
-                $scope = new Scope($websiteId);
-
-                $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($scope->getScopeId()));
+                $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
                 if ($pluginMode->isNewVersion()) {
-                    $this->apiService->createProduct($product, $scope);
+                    $this->apiService->createProduct($product, new Scope($websiteId));
                 }
             } catch (Exception $e) {
                 $this->logger->addError($e->getMessage(), ['exception' => $e]);

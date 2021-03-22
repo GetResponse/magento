@@ -15,7 +15,7 @@
     </event>
     <!-- NORMAL CHECKOUT SUCCESS -->
     <event name="sales_order_save_after">
-        <observer name="update_ecommerce_order" instance="GetResponse\GetResponseIntegration\Observer\AdminOrderObserver"/>
+        <observer name="update_ecommerce_order" instance="GetResponse\GetResponseIntegration\Observer\Admin\OrderObserver"/>
     </event>
 
 </config>

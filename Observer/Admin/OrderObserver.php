@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace GetResponse\GetResponseIntegration\Observer;
+namespace GetResponse\GetResponseIntegration\Observer\Admin;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Api\HttpClientException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\ContactReadModel;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\Query\ContactByEmail;
@@ -17,7 +16,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
-use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Contact\Contact;
@@ -25,12 +23,11 @@ use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use \Magento\Sales\Model\Order;
 
-class AdminOrderObserver implements ObserverInterface
+class OrderObserver implements ObserverInterface
 {
     private $orderService;
     private $logger;
     private $editOrderCommandFactory;
-    private $magentoStore;
     private $ecommerceReadModel;
     private $contactReadModel;
     private $repository;
@@ -40,7 +37,6 @@ class AdminOrderObserver implements ObserverInterface
         OrderService $orderService,
         Logger $getResponseLogger,
         EditOrderCommandFactory $editOrderCommandFactory,
-        MagentoStore $magentoStore,
         EcommerceReadModel $ecommerceReadModel,
         ContactReadModel $contactReadModel,
         Repository $repository,
@@ -49,24 +45,24 @@ class AdminOrderObserver implements ObserverInterface
         $this->orderService = $orderService;
         $this->logger = $getResponseLogger;
         $this->editOrderCommandFactory = $editOrderCommandFactory;
-        $this->magentoStore = $magentoStore;
         $this->contactReadModel = $contactReadModel;
         $this->ecommerceReadModel = $ecommerceReadModel;
         $this->repository = $repository;
         $this->apiService = $apiService;
     }
 
-    public function execute(EventObserver $observer): AdminOrderObserver
+    public function execute(EventObserver $observer): OrderObserver
     {
-        $scope = $this->magentoStore->getCurrentScope();
+        /** @var Order $order */
+        $order = $observer->getEvent()->getOrder();
 
         try {
-            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($scope->getScopeId()));
+            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
             if ($pluginMode->isNewVersion()) {
-                $this->handleNewVersion($observer, $scope);
+                $this->apiService->updateOrder($order, new Scope($order->getStoreId()));
             } else {
-                $this->handleOldVersion($observer, $scope);
+                $this->handleOldVersion($order);
             }
 
         } catch (Exception $e) {
@@ -81,26 +77,17 @@ class AdminOrderObserver implements ObserverInterface
      * @throws GetresponseApiException
      * @throws InvalidOrderException
      */
-    private function handleOldVersion(EventObserver $observer, Scope $scope): void
+    private function handleOldVersion(Order $order): void
     {
+        $scope = new Scope($order->getStoreId());
         $shopId = $this->ecommerceReadModel->getShopId($scope);
 
-        if (empty($shopId)) {
-            return;
-        }
-
-        /** @var Order $order */
-        $order = $observer->getEvent()->getOrder();
-
-        if (null === $this->getContactFromGetResponse($order, $scope)) {
+        if (empty($shopId) || null === $this->getContactFromGetResponse($order, $scope)) {
             return;
         }
 
         $this->orderService->updateOrder(
-            $this->editOrderCommandFactory->createForOrderService(
-                $order,
-                $shopId
-            ),
+            $this->editOrderCommandFactory->createForOrderService($order, $shopId),
             $scope
         );
     }
@@ -120,13 +107,5 @@ class AdminOrderObserver implements ObserverInterface
                 $scope
             )
         );
-    }
-
-    /**
-     * @throws HttpClientException
-     */
-    private function handleNewVersion(EventObserver $observer, Scope $scope): void
-    {
-        $this->apiService->updateOrder($observer->getOrder(), $scope);
     }
 }

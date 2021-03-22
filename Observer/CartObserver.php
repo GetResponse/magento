@@ -22,6 +22,7 @@ use GrShareCode\Contact\Contact;
 use Magento\Customer\Model\Session;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Quote\Model\Quote;
 
 class CartObserver implements ObserverInterface
 {
@@ -56,15 +57,20 @@ class CartObserver implements ObserverInterface
 
     public function execute(EventObserver $observer): CartObserver
     {
+        if (false === $this->customerSession->isLoggedIn()) {
+            return $this;
+        }
+
+        $quote = $observer->getCart()->getQuote();
         $scope = $this->magentoStore->getCurrentScope();
 
         try {
-            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($scope->getScopeId()));
+            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
             if ($pluginMode->isNewVersion()) {
-                $this->handleNewPluginVersion($observer, $scope);
+                $this->apiService->createCart($quote, $scope);
             } else {
-                $this->handleOldVersion($observer, $scope);
+                $this->handleOldVersion($quote, $scope);
             }
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
@@ -75,8 +81,6 @@ class CartObserver implements ObserverInterface
     /**
      * @throws ApiException
      * @throws GetresponseApiException
-     * @param Scope $scope
-     * @return null|Contact
      */
     private function getContactFromGetResponse(Scope $scope): Contact
     {
@@ -95,36 +99,19 @@ class CartObserver implements ObserverInterface
      * @throws ApiException
      * @throws GetresponseApiException
      */
-    private function handleOldVersion(EventObserver $observer, Scope $scope): void
+    private function handleOldVersion(Quote $quote, Scope $scope): void
     {
         $shopId = $this->ecommerceReadModel->getShopId($scope);
 
-        if (empty($shopId)) {
-            return;
-        }
-
-        if (false === $this->customerSession->isLoggedIn() || $this->getContactFromGetResponse($scope)) {
+        if (empty($shopId) || $this->getContactFromGetResponse($scope)) {
             return;
         }
 
         $this->cartService->sendCart(
-            $observer->getCart()->getQuote()->getId(),
+            $quote->getId(),
             $this->ecommerceReadModel->getListId($scope),
             $shopId,
             $scope
         );
-    }
-
-    /**
-     * @throws HttpClientException
-     */
-    private function handleNewPluginVersion(EventObserver $observer, Scope $scope): void
-    {
-        // if customer is not logged in - skip
-        if (false === $this->customerSession->isLoggedIn()) {
-            return;
-        }
-
-        $this->apiService->createCart($observer->getCart()->getQuote(), $scope);
     }
 }

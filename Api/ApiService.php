@@ -230,8 +230,12 @@ class ApiService
         return $lines;
     }
 
-    private function getAddressFromOrder(?OrderAddressInterface $address): Address
+    private function getAddressFromOrder(?OrderAddressInterface $address): ?Address
     {
+        if (null === $address) {
+            return null;
+        }
+
         $address1 = $address->getStreet()[0] ?? '';
         $address2 = $address->getStreet()[1] ?? '';
 
@@ -320,7 +324,7 @@ class ApiService
         $categories = [];
 
         foreach ($product->getCategoryIds() as $id) {
-            $category = $this->categoryRepository->get($id, (int) $scope->getScopeId());
+            $category = $this->categoryRepository->get($id, (int)$scope->getScopeId());
 
             $categories[] = new Category(
                 (int)$category->getId(),

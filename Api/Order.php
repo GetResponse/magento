@@ -36,8 +36,8 @@ class Order
         string $currency,
         string $status,
         ?string $billingStatus,
-        Address $shippingAddress,
-        Address $billingAddress,
+        ?Address $shippingAddress,
+        ?Address $billingAddress,
         string $createdAt,
         ?string $updatedAt
     ) {
@@ -80,8 +80,8 @@ class Order
              'currency' => $this->currency,
              'status' => $this->status,
              'billing_status' => $this->billingStatus,
-             'shipping_address' => $this->shippingAddress->toApiRequest(),
-             'billing_address' => $this->billingAddress->toApiRequest(),
+             'shipping_address' => null !== $this->shippingAddress ? $this->shippingAddress->toApiRequest() : [],
+             'billing_address' => null !== $this->billingAddress ? $this->billingAddress->toApiRequest() : [],
              'created_at' => $this->createdAt,
              'updated_at' => $this->updatedAt,
 
