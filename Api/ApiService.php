@@ -48,9 +48,19 @@ class ApiService
             return;
         }
 
+        $customer = $quote->getCustomer();
+
         $cartDTO = new Cart(
             (int)$quote->getId(),
-            $this->createCustomerFromQuote($quote),
+            new Customer(
+                (int)$customer->getId(),
+                $customer->getEmail(),
+                $customer->getFirstname(),
+                $customer->getLastname(),
+                true,
+                [],
+                []
+            ),
             $this->createLinesFromQuote($quote),
             (float)$quote->getGrandTotal(),
             (float)$quote->getGrandTotal(),
@@ -83,7 +93,15 @@ class ApiService
             (int)$order->getId(),
             (int)$order->getQuoteId(),
             $order->getCustomerEmail(),
-            $this->createCustomerFromOrder($order),
+            new Customer(
+                (int)$order->getCustomerId(),
+                $order->getCustomerEmail(),
+                $order->getCustomerFirstname(),
+                $order->getCustomerLastname(),
+                true,
+                [],
+                []
+            ),
             $this->createLinesFromOrder($order),
             null,
             (float)$order->getBaseSubtotal(),
@@ -121,7 +139,15 @@ class ApiService
             (int)$order->getId(),
             (int)$order->getQuoteId(),
             $order->getCustomerEmail(),
-            $this->createCustomerFromOrder($order),
+            new Customer(
+                (int)$order->getCustomerId(),
+                $order->getCustomerEmail(),
+                $order->getCustomerFirstname(),
+                $order->getCustomerLastname(),
+                true,
+                [],
+                []
+            ),
             $this->createLinesFromOrder($order),
             null,
             (float)$order->getBaseSubtotal(),
@@ -170,34 +196,6 @@ class ApiService
         }
 
         return $lines;
-    }
-
-    private function createCustomerFromQuote(Quote $quote): Customer
-    {
-        $customer = $quote->getCustomer();
-
-        return new Customer(
-            (int)$customer->getId(),
-            $customer->getEmail(),
-            $customer->getFirstname(),
-            $customer->getLastname(),
-            true,
-            [],
-            []
-        );
-    }
-
-    private function createCustomerFromOrder(MagentoOrder $order): Customer
-    {
-        return new Customer(
-            (int)$order->getCustomerId(),
-            $order->getCustomerEmail(),
-            $order->getCustomerFirstname(),
-            $order->getCustomerLastname(),
-            true,
-            [],
-            []
-        );
     }
 
     private function createLinesFromOrder(MagentoOrder $order): array

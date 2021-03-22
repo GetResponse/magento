@@ -32,6 +32,11 @@ class Customer
         $this->customFields = $customFields;
     }
 
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
     public function toApiRequest(): array
     {
         return [
