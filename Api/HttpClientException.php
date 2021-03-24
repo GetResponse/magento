@@ -8,11 +8,9 @@ use Exception;
 
 class HttpClientException extends Exception
 {
-    private const INVALID_CURL_RESPONSE = '12001';
-
-    public static function createForInvalidCurlResponse(string $errorMessage): self
+    public static function createForInvalidCurlResponse(string $response, int $statusCode): self
     {
-        return new self($errorMessage, self::INVALID_CURL_RESPONSE);
+        return new self($response, $statusCode);
     }
 
     public static function createFromResponse(array $response): self

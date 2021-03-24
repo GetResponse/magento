@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-class Variant
+use JsonSerializable;
+
+class Variant implements JsonSerializable
 {
     private $id;
     private $name;
@@ -48,11 +50,11 @@ class Variant
         $this->images = $images;
     }
 
-    public function toApiRequest(): array
+    public function jsonSerialize(): array
     {
         $images = [];
         foreach ($this->images as $image) {
-            $images[] = $image->toApiRequest();
+            $images[] = $image->jsonSerialize();
         }
 
         return [

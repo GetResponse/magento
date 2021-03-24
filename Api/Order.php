@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-class Order
+use JsonSerializable;
+
+class Order implements JsonSerializable
 {
     private $id;
     private $cartId;
     private $contactEmail;
     private $customer;
+    /** @var Line[] */
     private $lines;
     private $url;
     private $totalPrice;
@@ -59,33 +62,31 @@ class Order
         $this->updatedAt = $updatedAt;
     }
 
-    public function toApiRequest(string $callbackType): array
+    public function jsonSerialize(): array
     {
         $lines = [];
         foreach ($this->lines as $line) {
-            $lines[] = $line->toApiRequest();
+            $lines[] = $line->jsonSerialize();
         }
 
         return [
-            'callback_type' => $callbackType,
-             'id' => $this->id,
-             'cart_id' => $this->cartId,
-             'contact_email' => $this->contactEmail,
-             'customer' => $this->customer->toApiRequest(),
-             'lines' => $lines,
-             'url' => $this->url,
-             'total_price' => $this->totalPrice,
-             'total_tax_price' => $this->totalPriceTax,
-             'shipping_price' => $this->shippingPrice,
-             'currency' => $this->currency,
-             'status' => $this->status,
-             'billing_status' => $this->billingStatus,
-             'shipping_address' => null !== $this->shippingAddress ? $this->shippingAddress->toApiRequest() : [],
-             'billing_address' => null !== $this->billingAddress ? $this->billingAddress->toApiRequest() : [],
-             'created_at' => $this->createdAt,
-             'updated_at' => $this->updatedAt,
-
-
+            'callback_type' => 'order/update',
+            'id' => $this->id,
+            'cart_id' => $this->cartId,
+            'contact_email' => $this->contactEmail,
+            'customer' => $this->customer->jsonSerialize(),
+            'lines' => $lines,
+            'url' => $this->url,
+            'total_price' => $this->totalPrice,
+            'total_tax_price' => $this->totalPriceTax,
+            'shipping_price' => $this->shippingPrice,
+            'currency' => $this->currency,
+            'status' => $this->status,
+            'billing_status' => $this->billingStatus,
+            'shipping_address' => null !== $this->shippingAddress ? $this->shippingAddress->jsonSerialize() : [],
+            'billing_address' => null !== $this->billingAddress ? $this->billingAddress->jsonSerialize() : [],
+            'created_at' => $this->createdAt,
+            'updated_at' => $this->updatedAt,
         ];
     }
 }

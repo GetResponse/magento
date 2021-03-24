@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-class Cart
+use JsonSerializable;
+
+class Cart implements JsonSerializable
 {
     private $id;
     private $customer;
@@ -39,18 +41,18 @@ class Cart
         $this->updatedAt = $updatedAt;
     }
 
-    public function toApiRequest(): array
+    public function jsonSerialize(): array
     {
         $lines = [];
         foreach ($this->lines as $line) {
-            $lines[] = $line->toApiRequest();
+            $lines[] = $line->jsonSerialize();
         }
 
         return [
             'callback_type' => 'cart/update',
             'id' => $this->id,
             'contact_email' => $this->customer->getEmail(),
-            'customer' => $this->customer->toApiRequest(),
+            'customer' => $this->customer->jsonSerialize(),
             'lines' => $lines,
             'total_price' => $this->totalPrice,
             'total_price_tax' => $this->totalTaxPrice,

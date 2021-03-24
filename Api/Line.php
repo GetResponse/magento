@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-class Line
+use JsonSerializable;
+
+class Line implements JsonSerializable
 {
     private $variantId;
     private $price;
@@ -43,7 +45,7 @@ class Line
         return $this->quantity;
     }
 
-    public function toApiRequest(): array
+    public function jsonSerialize(): array
     {
         return [
             'variant_id' => $this->variantId,

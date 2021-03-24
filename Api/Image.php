@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-class Image
+use JsonSerializable;
+
+class Image implements JsonSerializable
 {
     private $src;
     private $position;
@@ -25,7 +27,7 @@ class Image
         return $this->position;
     }
 
-    public function toApiRequest(): array
+    public function jsonSerialize(): array
     {
         return [
             'src' => $this->src,

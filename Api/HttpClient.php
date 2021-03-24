@@ -4,62 +4,48 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
+use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\Serialize\SerializerInterface;
+use JsonSerializable;
 
 class HttpClient
 {
-    private const TIMEOUT = 8;
+    public const POST = 'POST';
+    public const GET = 'GET';
 
+    private $curl;
     private $jsonHelper;
 
-    public function __construct(SerializerInterface $jsonHelper)
+    public function __construct(Curl $curl, SerializerInterface $jsonHelper)
     {
+        $this->curl = $curl;
         $this->jsonHelper = $jsonHelper;
     }
 
     /**
      * @throws HttpClientException
      */
-    public function post(string $url, array $params, array $headers = [])
+    public function post(string $url, JsonSerializable $object): string
     {
-        return $this->sendRequest($url, 'POST', $params, $headers);
+        return $this->sendRequest($url, 'POST', $object);
     }
 
     /**
      * @throws HttpClientException
      */
-    private function sendRequest(string $url, string $method = 'GET', array $params = [], array $headers = [])
-    {
-        $json_params = $this->jsonHelper->serialize($params);
+    private function sendRequest(
+        string $url,
+        string $method = self::GET,
+        JsonSerializable $object = null
+    ): string {
+        $this->curl->addHeader('Content-Type', 'application/json');
 
-        $headers = array_merge($headers, [
-            'Content-Type: application/json'
-        ]);
+        $method === self::POST ? $this->curl->post($url, $this->jsonHelper->serialize($object)) : $this->curl->get($url);
 
-        $options = [
-            CURLOPT_URL => $url,
-            CURLOPT_ENCODING => 'gzip,deflate',
-            CURLOPT_FRESH_CONNECT => 1,
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_TIMEOUT => self::TIMEOUT,
-            CURLOPT_HTTPHEADER => $headers,
-        ];
-
-        if ($method === 'POST') {
-            $options[CURLOPT_POST] = 1;
-            $options[CURLOPT_POSTFIELDS] = $json_params;
+        if (299 < $this->curl->getStatus()) {
+            throw HttpClientException::createForInvalidCurlResponse($this->curl->getBody(), $this->curl->getStatus());
         }
 
-        $curl = curl_init();
-        curl_setopt_array($curl, $options);
-        $response = curl_exec($curl);
-
-        if (false === $response) {
-            $error_message = curl_error($curl);
-            throw HttpClientException::createForInvalidCurlResponse($error_message);
-        }
-
-        curl_close($curl);
-        return $response;
+        return $this->curl->getBody();
     }
 }

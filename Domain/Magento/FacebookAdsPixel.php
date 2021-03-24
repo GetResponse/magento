@@ -9,10 +9,8 @@ class FacebookAdsPixel
     private $isActive;
     private $codeSnippet;
 
-    public function __construct(
-        bool $isActive = false,
-        string $codeSnippet = ''
-    ) {
+    public function __construct(bool $isActive = false, string $codeSnippet = '')
+    {
         $this->isActive = $isActive;
         $this->codeSnippet = $codeSnippet;
     }
@@ -30,7 +28,7 @@ class FacebookAdsPixel
     public function toArray(): array
     {
         return [
-            'isEnabled' => (int) $this->isActive,
+            'isEnabled' => (int)$this->isActive,
             'codeSnippet' => $this->codeSnippet
         ];
     }
@@ -38,10 +36,7 @@ class FacebookAdsPixel
     public static function createFromRepository(array $data): self
     {
         if (empty($data)) {
-            return new self(
-                false,
-                ''
-            );
+            return new self(false, '');
         }
 
         return new self((bool)$data['isEnabled'], $data['codeSnippet']);

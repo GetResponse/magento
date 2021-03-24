@@ -116,7 +116,7 @@ class ApiServiceTest extends BaseTestCase
         $this->httpClientMock
             ->expects(self::once())
             ->method('post')
-            ->with([$liveSynchronization->getCallbackUrl(), $cartDTO->toApiRequest()]);
+            ->with([$liveSynchronization->getCallbackUrl(), $cartDTO]);
 
         $this->sut->createCart($cartMock, $scope);
     }

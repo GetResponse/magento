@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-class Product
+use JsonSerializable;
+
+class Product implements JsonSerializable
 {
     private $id;
     private $name;
@@ -40,16 +42,16 @@ class Product
         $this->updatedAt = $updatedAt;
     }
 
-    public function toApiRequest(): array
+    public function jsonSerialize(): array
     {
         $categories = [];
         foreach ($this->categories as $category) {
-            $categories[] = $category->toApiRequest();
+            $categories[] = $category->jsonSerialize();
         }
 
         $variants = [];
         foreach ($this->variants as $variant) {
-            $variants[] = $variant->toApiRequest();
+            $variants[] = $variant->jsonSerialize();
         }
 
         return [

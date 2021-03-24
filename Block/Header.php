@@ -38,7 +38,7 @@ class Header extends Template
         ];
     }
 
-    private function findTrackingCodeSnippet(): string
+    private function findTrackingCodeSnippet(): ?string
     {
         $webEventTracking = WebEventTracking::createFromRepository(
             $this->repository->getWebEventTracking(
@@ -50,10 +50,10 @@ class Header extends Template
             return $webEventTracking->getCodeSnippet();
         }
 
-        return '';
+        return null;
     }
 
-    private function findFacebookPixelSnippet(): string
+    private function findFacebookPixelSnippet(): ?string
     {
         $facebookPixelSettings = FacebookPixel::createFromRepository(
             $this->repository->getFacebookPixelSnippet(
@@ -65,10 +65,10 @@ class Header extends Template
             return $facebookPixelSettings->getCodeSnippet();
         }
 
-        return '';
+        return null;
     }
 
-    private function findFacebookAdsPixelSnippet(): string
+    private function findFacebookAdsPixelSnippet(): ?string
     {
         $facebookPixelSettings = FacebookAdsPixel::createFromRepository(
             $this->repository->getFacebookAdsPixelSnippet(
@@ -80,10 +80,10 @@ class Header extends Template
             return $facebookPixelSettings->getCodeSnippet();
         }
 
-        return '';
+        return null;
     }
 
-    private function findFacebookBusinessExtensionSnippet(): string
+    private function findFacebookBusinessExtensionSnippet(): ?string
     {
         $facebookBusinessExtension = FacebookBusinessExtension::createFromRepository(
             $this->repository->getFacebookBusinessExtensionSnippet(
@@ -95,6 +95,6 @@ class Header extends Template
             return $facebookBusinessExtension->getCodeSnippet();
         }
 
-        return '';
+        return null;
     }
 }

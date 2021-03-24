@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-class Category
+use JsonSerializable;
+
+class Category implements JsonSerializable
 {
     private $id;
     private $parentId;
@@ -27,6 +29,10 @@ class Category
     }
 
     public function toApiRequest(): array
+    {
+    }
+
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->id,

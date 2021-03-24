@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-class Address
+use JsonSerializable;
+
+class Address implements JsonSerializable
 {
     private $name;
     private $countryCode;
@@ -48,7 +50,7 @@ class Address
         $this->company = $company;
     }
 
-    public function toApiRequest(): array
+    public function jsonSerialize(): array
     {
         return [
             'name' => $this->name,
@@ -63,6 +65,24 @@ class Address
             'province_code' => $this->provinceCode,
             'phone' => $this->phone,
             'company' => $this->company,
+        ];
+    }
+
+    public function toCustomFieldsArray(string $prefix): array
+    {
+        return [
+            $prefix.'_name' => $this->name,
+            $prefix.'_country_code' => $this->countryCode,
+            $prefix.'_first_name' => $this->firstName,
+            $prefix.'_last_name' => $this->lastName,
+            $prefix.'_address1' => $this->address1,
+            $prefix.'_address2' => $this->address2,
+            $prefix.'_city' => $this->city,
+            $prefix.'_zip_code' => $this->zip,
+            $prefix.'_province' => $this->province,
+            $prefix.'_province_code' => $this->provinceCode,
+            $prefix.'_phone' => $this->phone,
+            $prefix.'_company' => $this->company
         ];
     }
 }

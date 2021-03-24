@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-class Customer
+use JsonSerializable;
+
+class Customer implements JsonSerializable
 {
     private $id;
     private $email;
     private $firstName;
     private $lastName;
     private $isMarketingAccepted;
+    private $address;
     private $tags;
     private $customFields;
 
@@ -20,6 +23,7 @@ class Customer
         string $firstName,
         string $lastName,
         bool $isMarketingAccepted,
+        Address $address,
         array $tags,
         array $customFields
     ) {
@@ -28,6 +32,7 @@ class Customer
         $this->firstName = $firstName;
         $this->lastName = $lastName;
         $this->isMarketingAccepted = $isMarketingAccepted;
+        $this->address = $address;
         $this->tags = $tags;
         $this->customFields = $customFields;
     }
@@ -37,7 +42,7 @@ class Customer
         return $this->email;
     }
 
-    public function toApiRequest(): array
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->id,
@@ -45,6 +50,7 @@ class Customer
             'first_name' => $this->firstName,
             'last_name' => $this->lastName,
             'accepts_marketing' => $this->isMarketingAccepted,
+            'address' => $this->address,
             'tags' => $this->tags,
             'customFields' => $this->customFields
         ];
