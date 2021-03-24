@@ -45,7 +45,6 @@ class ConfigurationController extends ApiController
         parent::__construct($repository, $magentoStore);
         $this->moduleList = $moduleList;
         $this->request = $request;
-        $this->verifyPluginMode();
     }
 
     /**
@@ -132,6 +131,7 @@ class ConfigurationController extends ApiController
      */
     public function update(string $scope): void
     {
+        $this->verifyPluginMode();
         $this->verifyScope($scope);
 
         try {
