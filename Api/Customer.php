@@ -37,6 +37,41 @@ class Customer implements JsonSerializable
         $this->customFields = $customFields;
     }
 
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getFirstName(): string
+    {
+        return $this->firstName;
+    }
+
+    public function getLastName(): string
+    {
+        return $this->lastName;
+    }
+
+    public function isMarketingAccepted(): bool
+    {
+        return $this->isMarketingAccepted;
+    }
+
+    public function getAddress(): Address
+    {
+        return $this->address;
+    }
+
+    public function getTags(): array
+    {
+        return $this->tags;
+    }
+
+    public function getCustomFields(): array
+    {
+        return $this->customFields;
+    }
+
     public function getEmail(): string
     {
         return $this->email;

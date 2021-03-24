@@ -3,43 +3,50 @@
 declare(strict_types=1);
 
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Api\Cart;
-use GetResponse\GetResponseIntegration\Api\Customer;
+use GetResponse\GetResponseIntegration\Api\CartFactory;
 use GetResponse\GetResponseIntegration\Api\HttpClient;
+use GetResponse\GetResponseIntegration\Api\OrderFactory;
+use GetResponse\GetResponseIntegration\Api\ProductFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
-use Magento\Catalog\Model\CategoryRepository;
+use GetResponse\GetResponseIntegration\Test\Unit\ApiFaker;
+use Magento\Catalog\Model\Product;
 use Magento\Customer\Model\Customer as MagentoCustomer;
 use Magento\Quote\Model\Quote;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use Magento\Checkout\Helper\Cart as CartHelper;
 
 class ApiServiceTest extends BaseTestCase
 {
+    private const CALLBACK_URL = 'http://app.getresponse.com/callback/#d93jd9dj39';
+
     /** @var object|PHPUnit_Framework_MockObject_MockObject|Repository */
     private $repositoryMock;
-    /** @var object|PHPUnit_Framework_MockObject_MockObject|CartHelper */
-    private $cartHelperMock;
     /** @var object|PHPUnit_Framework_MockObject_MockObject|HttpClient */
     private $httpClientMock;
-    /** @var object|PHPUnit_Framework_MockObject_MockObject|CategoryRepository */
-    private $categoryRepositoryMock;
+    /** @var object|PHPUnit_Framework_MockObject_MockObject|CartFactory */
+    private $cartFactory;
+    /** @var object|PHPUnit_Framework_MockObject_MockObject|OrderFactory */
+    private $orderFactory;
+    /** @var object|PHPUnit_Framework_MockObject_MockObject|ProductFactory */
+    private $productFactory;
 
     private $sut;
 
     public function setUp(): void
     {
         $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
-        $this->cartHelperMock = $this->getMockWithoutConstructing(CartHelper::class);
         $this->httpClientMock = $this->getMockWithoutConstructing(HttpClient::class);
-        $this->categoryRepositoryMock = $this->getMockWithoutConstructing(CategoryRepository::class);
+        $this->cartFactory = $this->getMockWithoutConstructing(CartFactory::class);
+        $this->orderFactory = $this->getMockWithoutConstructing(OrderFactory::class);
+        $this->productFactory = $this->getMockWithoutConstructing(ProductFactory::class);
 
         $this->sut = new ApiService(
             $this->repositoryMock,
-            $this->cartHelperMock,
             $this->httpClientMock,
-            $this->categoryRepositoryMock
+            $this->cartFactory,
+            $this->orderFactory,
+            $this->productFactory
         );
 
     }
@@ -49,26 +56,12 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldCreateCart(): void
     {
-        $cartId = '679';
-        $customerId = '393';
-        $customerEmail = 'customer@getresponse.com';
-        $customerFirstName = 'John';
-        $customerLastName = 'Doe';
-        $isMarketingAccepted = true;
-        $tags = [];
-        $customFields = [];
-
-        $totalTaxPrice = 129.99;
-        $totalPrice = 104.29;
-        $currency = 'EUR';
-        $cartUrl = 'http://magento.com/cart/3d938d9ff';
+        $customer = ApiFaker::createCustomer();
+        $cart = ApiFaker::createCart();
 
         $scope = new Scope(1);
 
-        $liveSynchronization = new LiveSynchronization(
-            true,
-            'http://app.getresponse.com/callback/#d93jd9dj39'
-        );
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL);
 
         $this->repositoryMock
             ->expects(self::once())
@@ -77,47 +70,90 @@ class ApiServiceTest extends BaseTestCase
             ->willReturn($liveSynchronization->toArray());
 
         $customerMock = $this->getMockBuilder(MagentoCustomer::class)
-            ->disableOriginalConstructor()->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
         $customerMock
             ->method('__call')
             ->withConsecutive(['getId', 'getEmail', 'getFirstname', 'getLastname'])
-            ->willReturnOnConsecutiveCalls([$customerId, $customerEmail, $customerFirstName, $customerLastName]);
+            ->willReturnOnConsecutiveCalls(
+                $customer->getId(),
+                $customer->getEmail(),
+                $customer->getFirstName(),
+                $customer->getLastName()
+            );
 
-        $cartMock = $this->getMockBuilder(Quote::class)->disableOriginalConstructor()->getMock();
-        $cartMock
+        $quoteMock = $this->getMockBuilder(Quote::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $quoteMock
             ->method('getId')
-            ->willReturn($cartId);
-        $cartMock
+            ->willReturn($cart->getId());
+        $quoteMock
             ->method('getCustomer')
             ->willReturn($customerMock);
 
-        $customerDTO = new Customer(
-            (int) $customerId,
-            $customerEmail,
-            $customerFirstName,
-            $customerLastName,
-            $isMarketingAccepted,
-            $tags,
-            $customFields
-        );
-
-        $cartDTO = new Cart(
-            (int) $cartId,
-            $customerDTO,
-            [],
-            $totalPrice,
-            $totalTaxPrice,
-            $currency,
-            $cartUrl,
-            '2020-03-22 06:04:22',
-            '2020-03-22 06:04:22'
-        );
+        $this->cartFactory
+            ->expects(self::once())
+            ->method('create')
+            ->with($quoteMock)
+            ->willReturn($cart);
 
         $this->httpClientMock
             ->expects(self::once())
             ->method('post')
-            ->with([$liveSynchronization->getCallbackUrl(), $cartDTO]);
+            ->with($liveSynchronization->getCallbackUrl(), $cart);
 
-        $this->sut->createCart($cartMock, $scope);
+        $this->sut->createCart($quoteMock, $scope);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldCreateProduct(): void
+    {
+        $product = ApiFaker::createProduct();
+
+        $scope = new Scope(1);
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL);
+
+        $this->repositoryMock
+            ->expects(self::once())
+            ->method('getLiveSynchronization')
+            ->with($scope->getScopeId())
+            ->willReturn($liveSynchronization->toArray());
+
+        $productMock = $this->getMockBuilder(Product::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $productMock
+            ->method('getId')
+            ->willReturn($product->getId());
+        $productMock
+            ->method('getName')
+            ->willReturn($product->getName());
+        $productMock
+            ->method('getTypeId')
+            ->willReturn($product->getType());
+        $productMock
+            ->method('getCreatedAt')
+            ->willReturn($product->getCreatedAt());
+        $productMock
+            ->method('getUpdatedAt')
+            ->willReturn($product->getUpdatedAt());
+
+        $this->productFactory
+            ->expects(self::once())
+            ->method('create')
+            ->with($productMock, $scope)
+            ->willReturn($product);
+
+        $this->httpClientMock
+            ->expects(self::once())
+            ->method('post')
+            ->with($liveSynchronization->getCallbackUrl(), $product);
+
+        $this->sut->createProduct($productMock, $scope);
     }
 }

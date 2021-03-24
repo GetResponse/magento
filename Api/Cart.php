@@ -41,6 +41,51 @@ class Cart implements JsonSerializable
         $this->updatedAt = $updatedAt;
     }
 
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getCustomer(): Customer
+    {
+        return $this->customer;
+    }
+
+    public function getLines(): array
+    {
+        return $this->lines;
+    }
+
+    public function getTotalPrice(): float
+    {
+        return $this->totalPrice;
+    }
+
+    public function getTotalTaxPrice(): float
+    {
+        return $this->totalTaxPrice;
+    }
+
+    public function getCurrency(): string
+    {
+        return $this->currency;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function getCreatedAt(): ?string
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): ?string
+    {
+        return $this->updatedAt;
+    }
+
     public function jsonSerialize(): array
     {
         $lines = [];
