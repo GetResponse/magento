@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-class FacebookBusinessExtension
+class FacebookBusinessExtension implements SnippetInterface
 {
     private $isActive;
     private $codeSnippet;

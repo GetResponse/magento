@@ -6,7 +6,7 @@ namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
 use RuntimeException;
 
-class WebEventTracking
+class WebEventTracking implements SnippetInterface
 {
     private $isEnabled;
     private $isFeatureTrackingEnabled;
@@ -22,7 +22,7 @@ class WebEventTracking
         $this->codeSnippet = $codeSnippet;
     }
 
-    public function isEnabled(): bool
+    public function isActive(): bool
     {
         return $this->isEnabled;
     }

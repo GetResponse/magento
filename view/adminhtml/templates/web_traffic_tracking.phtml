@@ -30,7 +30,7 @@ if ($webTrafficTracking->isFeatureTrackingEnabled()): ?>
                id="web_traffic"
                value="1"
                class="admin__control-checkbox"
-            <?php if ($webTrafficTracking->isEnabled()):?>
+            <?php if ($webTrafficTracking->isActive()):?>
                checked="checked"
             <?php endif ?>
         />

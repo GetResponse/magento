@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-class FacebookAdsPixel
+class FacebookAdsPixel implements SnippetInterface
 {
     private $isActive;
     private $codeSnippet;

@@ -15,8 +15,6 @@ use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebForm;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Presenter\Api\ConfigurationPresenter;
-use Magento\Framework\Controller\Result\Json;
-use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\Phrase;
 use Magento\Framework\Webapi\Exception as WebapiException;
@@ -31,43 +29,30 @@ class ConfigurationController extends ApiController
 
     private $moduleList;
     private $request;
-    private $json;
 
     public function __construct(
         Repository $repository,
         MagentoStore $magentoStore,
         ModuleListInterface $moduleList,
-        Request $request,
-        JsonFactory $json
+        Request $request
     ) {
         parent::__construct($repository, $magentoStore);
         $this->moduleList = $moduleList;
         $this->request = $request;
-        $this->json = $json;
     }
 
     /**
      * @throws WebapiException
      * @return ConfigurationPresenter
      */
-    public function list(string $scope): ConfigurationPresenter
+    public function list(string $scope)
     {
-        return new ConfigurationPresenter();
-
-
         $this->verifyScope($scope);
 
         $versionInfo = $this->moduleList->getOne(self::MODULE_NAME);
         $pluginVersion = $versionInfo['setup_version'] ?? '';
 
         $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-
-        return new SettingsPresenter(
-            $pluginVersion,
-            $pluginMode,
-            $this->scope,
-            []
-        );
 
         $facebookPixel = FacebookPixel::createFromRepository(
             $this->repository->getFacebookPixelSnippet($this->scope->getScopeId())
@@ -93,40 +78,17 @@ class ConfigurationController extends ApiController
             $this->repository->getLiveSynchronization($this->scope->getScopeId())
         );
 
-        return [
-            'general' => [
-                'plugin_version' => $pluginVersion,
-                'mode' => $pluginMode->getMode(),
-                'scope' => $this->scope->getScopeId(),
-            ],
-            'sections' => [
-                'facebookPixel' => [
-                    'enabled' => $facebookPixel->isActive(),
-                    'snippet' => $facebookPixel->getCodeSnippet()
-                ],
-                'facebookAdsPixel' => [
-                    'enabled' => $facebookAdsPixel->isActive(),
-                    'snippet' => $facebookAdsPixel->getCodeSnippet()
-                ],
-                'facebookBusinessExtension' => [
-                    'enabled' => $facebookBusinessExtension->isActive(),
-                    'snippet' => $facebookBusinessExtension->getCodeSnippet()
-                ],
-                'webforms' => [
-                    'enabled' => $webForm->isEnabled(),
-                    'form_id' => $webForm->getWebFormId(),
-                    'url' => $webForm->getUrl(),
-                    'block_id' => $webForm->getSidebar()
-                ],
-                'web_event_tracking' => [
-                    'enabled' => $webEventTracking->isEnabled(),
-                    'snippet' => $webEventTracking->getCodeSnippet(),
-                    'isFeatureEnabled' => $webEventTracking->isFeatureTrackingEnabled(),
-                ],
-                'live_synchronization' => $liveSynchronization->isActive(),
-                'callbackUrl' => $liveSynchronization->getCallbackUrl()
-            ]
-        ];
+        return new ConfigurationPresenter(
+            $pluginVersion,
+            $pluginMode,
+            $this->scope,
+            $facebookPixel,
+            $facebookAdsPixel,
+            $facebookBusinessExtension,
+            $webForm,
+            $webEventTracking,
+            $liveSynchronization
+        );
     }
 
     /**

@@ -46,7 +46,7 @@ class Header extends Template
             )
         );
 
-        if ($webEventTracking->isEnabled()) {
+        if ($webEventTracking->isActive()) {
             return $webEventTracking->getCodeSnippet();
         }
 

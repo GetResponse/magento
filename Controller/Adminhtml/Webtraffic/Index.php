@@ -57,7 +57,7 @@ class Index extends AbstractController
 
             $this->cacheTypeList->cleanType(Type::TYPE_IDENTIFIER);
 
-            $message = ($newWebEventTracking->isEnabled()) ? Message::WEB_EVENT_TRAFFIC_ENABLED : Message::WEB_EVENT_TRAFFIC_DISABLED;
+            $message = ($newWebEventTracking->isActive()) ? Message::WEB_EVENT_TRAFFIC_ENABLED : Message::WEB_EVENT_TRAFFIC_DISABLED;
 
             return $this->redirect($this->_redirect->getRefererUrl(), $message);
         }
