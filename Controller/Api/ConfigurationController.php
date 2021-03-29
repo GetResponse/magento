@@ -45,7 +45,7 @@ class ConfigurationController extends ApiController
      * @throws WebapiException
      * @return ConfigurationPresenter
      */
-    public function list(string $scope)
+    public function list(string $scope): ConfigurationPresenter
     {
         $this->verifyScope($scope);
 
