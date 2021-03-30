@@ -13,8 +13,11 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\RequestValidationException;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebForm;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
+use GetResponse\GetResponseIntegration\Presenter\Api\Section\General;
 use GetResponse\GetResponseIntegration\Presenter\Api\ConfigurationPresenter;
+use GetResponse\GetResponseIntegration\Presenter\Api\Section\Store;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\Phrase;
 use Magento\Framework\Webapi\Exception as WebapiException;
@@ -42,52 +45,59 @@ class ConfigurationController extends ApiController
     }
 
     /**
-     * @throws WebapiException
      * @return ConfigurationPresenter
      */
-    public function list(string $scope): ConfigurationPresenter
+    public function list(): ConfigurationPresenter
     {
-        $this->verifyScope($scope);
+        $magentoStores = $this->magentoStore->getMagentoStores();
 
         $versionInfo = $this->moduleList->getOne(self::MODULE_NAME);
         $pluginVersion = $versionInfo['setup_version'] ?? '';
 
         $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
+        $stores = [];
 
-        $facebookPixel = FacebookPixel::createFromRepository(
-            $this->repository->getFacebookPixelSnippet($this->scope->getScopeId())
-        );
+        foreach ($magentoStores as $storeId => $storeName) {
+            $scope = new Scope($storeId);
 
-        $facebookAdsPixel = FacebookAdsPixel::createFromRepository(
-            $this->repository->getFacebookAdsPixelSnippet($this->scope->getScopeId())
-        );
+            $facebookPixel = FacebookPixel::createFromRepository(
+                $this->repository->getFacebookPixelSnippet($scope->getScopeId())
+            );
 
-        $facebookBusinessExtension = FacebookBusinessExtension::createFromRepository(
-            $this->repository->getFacebookBusinessExtensionSnippet($this->scope->getScopeId())
-        );
+            $facebookAdsPixel = FacebookAdsPixel::createFromRepository(
+                $this->repository->getFacebookAdsPixelSnippet($scope->getScopeId())
+            );
 
-        $webForm = WebForm::createFromRepository(
-            $this->repository->getWebformSettings($this->scope->getScopeId())
-        );
+            $facebookBusinessExtension = FacebookBusinessExtension::createFromRepository(
+                $this->repository->getFacebookBusinessExtensionSnippet($scope->getScopeId())
+            );
 
-        $webEventTracking = WebEventTracking::createFromRepository(
-            $this->repository->getWebEventTracking($this->scope->getScopeId())
-        );
+            $webForm = WebForm::createFromRepository(
+                $this->repository->getWebformSettings($scope->getScopeId())
+            );
 
-        $liveSynchronization = LiveSynchronization::createFromRepository(
-            $this->repository->getLiveSynchronization($this->scope->getScopeId())
-        );
+            $webEventTracking = WebEventTracking::createFromRepository(
+                $this->repository->getWebEventTracking($scope->getScopeId())
+            );
+
+            $liveSynchronization = LiveSynchronization::createFromRepository(
+                $this->repository->getLiveSynchronization($scope->getScopeId())
+            );
+
+            $stores[] = new Store(
+                $scope,
+                $facebookPixel,
+                $facebookAdsPixel,
+                $facebookBusinessExtension,
+                $webForm,
+                $webEventTracking,
+                $liveSynchronization
+            );
+        }
 
         return new ConfigurationPresenter(
-            $pluginVersion,
-            $pluginMode,
-            $this->scope,
-            $facebookPixel,
-            $facebookAdsPixel,
-            $facebookBusinessExtension,
-            $webForm,
-            $webEventTracking,
-            $liveSynchronization
+            new General($pluginVersion, $pluginMode),
+            $stores
         );
     }
 

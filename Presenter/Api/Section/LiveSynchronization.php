@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Presenter\Api\Section;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
+use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization as LiveSynchronizationDTO;
 
-class LiveSynchronizationPresenter
+class LiveSynchronization
 {
     private $liveSynchronization;
 
-    public function __construct(LiveSynchronization $liveSynchronization)
+    public function __construct(LiveSynchronizationDTO $liveSynchronization)
     {
         $this->liveSynchronization = $liveSynchronization;
     }
-
 
     /**
      * @return bool

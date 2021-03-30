@@ -18,7 +18,6 @@ class SubscriberController extends ApiController
 {
     private $subscriberCollectionFactory;
 
-
     /**
      * @param Repository $repository
      * @param MagentoStore $magentoStore

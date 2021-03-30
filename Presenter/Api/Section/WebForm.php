@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Presenter\Api\Section;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\WebForm;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebForm as WebFormDTO;
 
-class WebFormPresenter
+class WebForm
 {
     private $webForm;
 
-    public function __construct(WebForm $webForm)
+    public function __construct(WebFormDTO $webForm)
     {
         $this->webForm = $webForm;
     }

@@ -6,7 +6,7 @@ namespace GetResponse\GetResponseIntegration\Presenter\Api\Section;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\SnippetInterface;
 
-class SnippetPresenter
+class Snippet
 {
     private $snippet;
 
