@@ -49,50 +49,15 @@ class ConfigurationController extends ApiController
      */
     public function list(): ConfigurationPresenter
     {
-        $magentoStores = $this->magentoStore->getMagentoStores();
-
         $versionInfo = $this->moduleList->getOne(self::MODULE_NAME);
         $pluginVersion = $versionInfo['setup_version'] ?? '';
 
         $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
         $stores = [];
 
-        foreach ($magentoStores as $storeId => $storeName) {
+        foreach ($this->magentoStore->getMagentoStores() as $storeId => $storeName) {
             $scope = new Scope($storeId);
-
-            $facebookPixel = FacebookPixel::createFromRepository(
-                $this->repository->getFacebookPixelSnippet($scope->getScopeId())
-            );
-
-            $facebookAdsPixel = FacebookAdsPixel::createFromRepository(
-                $this->repository->getFacebookAdsPixelSnippet($scope->getScopeId())
-            );
-
-            $facebookBusinessExtension = FacebookBusinessExtension::createFromRepository(
-                $this->repository->getFacebookBusinessExtensionSnippet($scope->getScopeId())
-            );
-
-            $webForm = WebForm::createFromRepository(
-                $this->repository->getWebformSettings($scope->getScopeId())
-            );
-
-            $webEventTracking = WebEventTracking::createFromRepository(
-                $this->repository->getWebEventTracking($scope->getScopeId())
-            );
-
-            $liveSynchronization = LiveSynchronization::createFromRepository(
-                $this->repository->getLiveSynchronization($scope->getScopeId())
-            );
-
-            $stores[] = new Store(
-                $scope,
-                $facebookPixel,
-                $facebookAdsPixel,
-                $facebookBusinessExtension,
-                $webForm,
-                $webEventTracking,
-                $liveSynchronization
-            );
+            $stores[] = $pluginMode->isNewVersion() ? $this->createStore($scope) : $this->createEmptyStoreConfiguration($scope);
         }
 
         return new ConfigurationPresenter(
@@ -144,5 +109,43 @@ class ConfigurationController extends ApiController
         } catch (RequestValidationException $e) {
             throw new WebapiException(new Phrase($e->getMessage()));
         }
+    }
+
+    private function createStore(Scope $scope): Store
+    {
+        return new Store(
+            $scope,
+            FacebookPixel::createFromRepository(
+                $this->repository->getFacebookPixelSnippet($scope->getScopeId())
+            ),
+            FacebookAdsPixel::createFromRepository(
+                $this->repository->getFacebookAdsPixelSnippet($scope->getScopeId())
+            ),
+            FacebookBusinessExtension::createFromRepository(
+                $this->repository->getFacebookBusinessExtensionSnippet($scope->getScopeId())
+            ),
+            WebForm::createFromRepository(
+                $this->repository->getWebformSettings($scope->getScopeId())
+            ),
+            WebEventTracking::createFromRepository(
+                $this->repository->getWebEventTracking($scope->getScopeId())
+            ),
+            LiveSynchronization::createFromRepository(
+                $this->repository->getLiveSynchronization($scope->getScopeId())
+            )
+        );
+    }
+
+    private function createEmptyStoreConfiguration(Scope $scope): Store
+    {
+        return new Store(
+            $scope,
+            new FacebookPixel(false, ''),
+            new FacebookAdsPixel(false, ''),
+            new FacebookBusinessExtension(false, ''),
+            new WebForm(false, '', '', ''),
+            new WebEventTracking(false, false, ''),
+            new LiveSynchronization(false, '')
+        );
     }
 }
