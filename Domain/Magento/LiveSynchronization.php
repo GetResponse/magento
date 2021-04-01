@@ -6,9 +6,9 @@ namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
 class LiveSynchronization
 {
-    public const TYPE_CONTACT = 'contact';
-    public const TYPE_PRODUCT = 'product';
-    public const TYPE_ECOMMERCE = 'ecommerce';
+    public const TYPE_CONTACT = 'Contacts';
+    public const TYPE_PRODUCT = 'Products';
+    public const TYPE_ECOMMERCE = 'FullEcommerce';
 
     private $isActive;
     private $callbackUrl;
