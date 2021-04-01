@@ -14,11 +14,8 @@ class LiveSynchronization
     private $callbackUrl;
     private $type;
 
-    public function __construct(
-        bool $isActive,
-        string $callbackUrl,
-        string $type
-    ) {
+    public function __construct(bool $isActive, string $callbackUrl, string $type)
+    {
         $this->isActive = $isActive;
         $this->callbackUrl = $callbackUrl;
         $this->type = $type;
