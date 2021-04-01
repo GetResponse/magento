@@ -433,6 +433,24 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
+    public function clearConfiguration($scopeId): void
+    {
+        $keys = [
+            Config::CONFIG_DATA_FACEBOOK_PIXEL_SNIPPET,
+            Config::CONFIG_DATA_FACEBOOK_ADS_PIXEL_SNIPPET,
+            Config::CONFIG_DATA_FACEBOOK_BUSINESS_EXTENSION_SNIPPET,
+            Config::CONFIG_DATA_WEBFORMS_SETTINGS,
+            Config::CONFIG_DATA_WEB_EVENT_TRACKING,
+            Config::CONFIG_LIVE_SYNCHRONIZATION,
+        ];
+
+        foreach ($keys as $key) {
+            $this->configWriter->delete($key, $this->getScope($scopeId), $this->getScopeId($scopeId));
+        }
+
+        $this->cacheManager->clean(['config']);
+    }
+
     private function clearCustomOrigin($scopeId)
     {
         $this->configWriter->delete(

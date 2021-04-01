@@ -25,4 +25,10 @@
             <resource ref="Magento_Backend::admin"/>
         </resources>
     </route>
+    <route url="/V1/getresponse/configuration" method="DELETE">
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\ConfigurationController" method="delete"/>
+        <resources>
+            <resource ref="Magento_Backend::admin"/>
+        </resources>
+    </route>
 </routes>

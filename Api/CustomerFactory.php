@@ -29,8 +29,8 @@ class CustomerFactory
         $subscriber = $this->subscriber->loadByCustomerId($id);
         $isSubscribed = $subscriber->isSubscribed();
 
-        $billingAddress = null !== $customer->getDefaultBillingAddress() ? $this->addressFactory->create($customer->getDefaultBillingAddress()) : [];
-        $shippingAddress = null !== $customer->getDefaultShippingAddress() ? $this->addressFactory->create($customer->getDefaultShippingAddress()) : [];
+        $billingAddress = $this->addressFactory->create($customer->getDefaultBillingAddress());
+        $shippingAddress = $this->addressFactory->create($customer->getDefaultShippingAddress());
 
         return new Customer(
             (int)$customer->getId(),

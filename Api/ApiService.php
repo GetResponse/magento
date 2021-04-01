@@ -42,7 +42,7 @@ class ApiService
             $this->repository->getLiveSynchronization($scope->getScopeId())
         );
 
-        if (!$liveSynchronization->isActive()) {
+        if (!$liveSynchronization->shouldImportCart()) {
             return;
         }
 
@@ -61,7 +61,7 @@ class ApiService
             $this->repository->getLiveSynchronization($scope->getScopeId())
         );
 
-        if (!$liveSynchronization->isActive()) {
+        if (!$liveSynchronization->shouldImportOrder()) {
             return;
         }
 
@@ -80,7 +80,7 @@ class ApiService
             $this->repository->getLiveSynchronization($scope->getScopeId())
         );
 
-        if (!$liveSynchronization->isActive()) {
+        if (!$liveSynchronization->shouldImportOrder()) {
             return;
         }
 
@@ -99,7 +99,7 @@ class ApiService
             $this->repository->getLiveSynchronization($scope->getScopeId())
         );
 
-        if (!$liveSynchronization->isActive()) {
+        if (!$liveSynchronization->shouldImportProduct()) {
             return;
         }
 

@@ -67,6 +67,22 @@ class ConfigurationController extends ApiController
     }
 
     /**
+     * @return void
+     */
+    public function delete(): void
+    {
+        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
+
+        if (false === $pluginMode->isNewVersion()) {
+            return;
+        }
+
+        foreach ($this->magentoStore->getMagentoStores() as $storeId => $storeName) {
+            $this->repository->clearConfiguration($storeId);
+        }
+    }
+
+    /**
      * @throws WebapiException
      * @return void
      * @param string $scope
@@ -145,7 +161,7 @@ class ConfigurationController extends ApiController
             new FacebookBusinessExtension(false, ''),
             new WebForm(false, '', '', ''),
             new WebEventTracking(false, false, ''),
-            new LiveSynchronization(false, '')
+            new LiveSynchronization(false, '', '')
         );
     }
 }

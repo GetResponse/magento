@@ -8,6 +8,10 @@ class AddressFactory
 {
     public function create($address): Address
     {
+        if (false === $address) {
+            return new Address('', '', '', '', '', '', '', '', null, null, null, null);
+        }
+
         $address1 = $address->getStreet()[0] ?? '';
         $address2 = $address->getStreet()[1] ?? '';
 

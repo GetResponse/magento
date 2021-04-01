@@ -30,4 +30,12 @@ class LiveSynchronization
     {
         return $this->liveSynchronization->getCallbackUrl();
     }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->liveSynchronization->getType();
+    }
 }
