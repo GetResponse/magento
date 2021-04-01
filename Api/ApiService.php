@@ -18,19 +18,41 @@ class ApiService
     private $cartFactory;
     private $orderFactory;
     private $productFactory;
+    private $customerFactory;
 
     public function __construct(
         Repository $repository,
         HttpClient $httpClient,
         CartFactory $cartFactory,
         OrderFactory $orderFactory,
-        ProductFactory $productFactory
+        ProductFactory $productFactory,
+        CustomerFactory $customerFactory
     ) {
         $this->repository = $repository;
         $this->httpClient = $httpClient;
         $this->cartFactory = $cartFactory;
         $this->orderFactory = $orderFactory;
         $this->productFactory = $productFactory;
+        $this->customerFactory = $customerFactory;
+    }
+
+    /**
+     * @throws HttpClientException
+     */
+    public function createCustomer(int $customerId, Scope $scope): void
+    {
+        $liveSynchronization = LiveSynchronization::createFromRepository(
+            $this->repository->getLiveSynchronization($scope->getScopeId())
+        );
+
+        if (!$liveSynchronization->shouldImportCustomer()) {
+            return;
+        }
+
+        $this->httpClient->post(
+            $liveSynchronization->getCallbackUrl(),
+            $this->customerFactory->create($customerId)
+        );
     }
 
     /**

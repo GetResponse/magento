@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use Exception;
+use GetResponse\GetResponseIntegration\Api\ApiService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\Command\RemoveContact;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\ContactService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
 use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\Subscriber\ReadModel\Query\SubscriberEmail;
-use GetResponse\GetResponseIntegration\Domain\Magento\Subscriber\ReadModel\SubscriberReadModel;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
+use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -24,50 +27,67 @@ class SubscriberOrCustomerUnsubscribed implements ObserverInterface
     private $contactService;
     private $subscribeViaRegistrationService;
     private $magentoStore;
-    private $subscriberReadModel;
+    private $logger;
+    private $apiService;
 
     public function __construct(
         Repository $repository,
         ContactService $contactService,
         SubscribeViaRegistrationService $subscribeViaRegistrationService,
         MagentoStore $magentoStore,
-        SubscriberReadModel $subscriberReadModel
+        Logger $logger,
+        ApiService $apiService
     ) {
         $this->repository = $repository;
         $this->contactService = $contactService;
         $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
         $this->magentoStore = $magentoStore;
-        $this->subscriberReadModel = $subscriberReadModel;
+        $this->logger = $logger;
+        $this->apiService = $apiService;
     }
-    public function execute(Observer $observer)
+
+    public function execute(Observer $observer): SubscriberOrCustomerUnsubscribed
     {
-        $scope = $this->magentoStore->getCurrentScope();
-        $subscriber = $observer->getEvent()->getSubscriber();
-
         try {
-            $registrationSettings = $this->subscribeViaRegistrationService->getSettings($scope);
+            $scope = $this->magentoStore->getCurrentScope();
+            $subscriber = $observer->getEvent()->getSubscriber();
 
-            $newsletterSettings = NewsletterSettingsFactory::createFromArray(
-                $this->repository->getNewsletterSettings($scope->getScopeId())
-            );
-
-            if (!$registrationSettings->isEnabled() && !$newsletterSettings->isEnabled()) {
+            if ($subscriber->getStatus() !== Subscriber::STATUS_UNSUBSCRIBED || empty($subscriber->getCustomerId())) {
                 return $this;
             }
-            
-            $subscriber = $this->subscriberReadModel->loadSubscriberByEmail(
-                new SubscriberEmail($subscriber->getSubscriberEmail())
-            );
 
-            if ($subscriber->getStatus() === Subscriber::STATUS_UNSUBSCRIBED) {
-                $this->contactService->removeContact(
-                    new RemoveContact($scope, $subscriber->getSubscriberEmail())
-                );
+            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
+
+            if ($pluginMode->isNewVersion()) {
+                $this->apiService->createCustomer($subscriber->getCustomerId(), $scope);
+            } else {
+                $this->handleOldVersion($subscriber, $scope);
             }
-        } catch (ApiException $e) {
-        } catch (GetresponseApiException $e) {
+        } catch (Exception $e) {
+            $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }
 
         return $this;
+    }
+
+    /**
+     * @throws ApiException
+     * @throws GetresponseApiException
+     */
+    private function handleOldVersion($subscriber, Scope $scope): void
+    {
+        $registrationSettings = $this->subscribeViaRegistrationService->getSettings($scope);
+
+        $newsletterSettings = NewsletterSettingsFactory::createFromArray(
+            $this->repository->getNewsletterSettings($scope->getScopeId())
+        );
+
+        if (!$registrationSettings->isEnabled() && !$newsletterSettings->isEnabled()) {
+            return;
+        }
+
+        $this->contactService->removeContact(
+            new RemoveContact($scope, $subscriber->getSubscriberEmail())
+        );
     }
 }

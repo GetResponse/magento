@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use Exception;
+use GetResponse\GetResponseIntegration\Api\ApiService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\Command\AddContact;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\ContactService;
@@ -12,16 +14,18 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistrati
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
 use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\CustomerReadModel;
 use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\Query\CustomerId;
-use GetResponse\GetResponseIntegration\Domain\Magento\Order\ReadModel\OrderReadModel;
-use GetResponse\GetResponseIntegration\Domain\Magento\Order\ReadModel\Query\GetOrder;
+use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\Subscriber\ReadModel\Query\SubscriberEmail;
 use GetResponse\GetResponseIntegration\Domain\Magento\Subscriber\ReadModel\SubscriberReadModel;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
+use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Newsletter\Model\Subscriber;
+use Magento\Sales\Model\Order;
 
 class CustomerSubscribedFromOrder implements ObserverInterface
 {
@@ -32,7 +36,8 @@ class CustomerSubscribedFromOrder implements ObserverInterface
     private $magentoStore;
     private $subscriberReadModel;
     private $customerReadModel;
-    private $orderReadModel;
+    private $logger;
+    private $apiService;
 
     public function __construct(
         Repository $repository,
@@ -42,7 +47,8 @@ class CustomerSubscribedFromOrder implements ObserverInterface
         MagentoStore $magentoStore,
         SubscriberReadModel $subscriberReadModel,
         CustomerReadModel $customerReadModel,
-        OrderReadModel $orderReadModel
+        Logger $logger,
+        ApiService $apiService
     ) {
         $this->repository = $repository;
         $this->contactService = $contactService;
@@ -51,44 +57,55 @@ class CustomerSubscribedFromOrder implements ObserverInterface
         $this->magentoStore = $magentoStore;
         $this->subscriberReadModel = $subscriberReadModel;
         $this->customerReadModel = $customerReadModel;
-        $this->orderReadModel = $orderReadModel;
+        $this->logger = $logger;
+        $this->apiService = $apiService;
     }
 
-    public function execute(EventObserver $observer)
+    public function execute(EventObserver $observer): CustomerSubscribedFromOrder
     {
-        $scope = $this->magentoStore->getCurrentScope();
-        $registrationSettings = SubscribeViaRegistrationFactory::createFromArray(
-            $this->repository->getRegistrationSettings($scope->getScopeId())
-        );
-
-        if (!$registrationSettings->isEnabled()) {
-            return $this;
-        }
-
-        $orderIds = $observer->getOrderIds();
-        $orderId = (int)(is_array($orderIds) ? array_pop($orderIds) : $orderIds);
-
-        if ($orderId < 1) {
-            return $this;
-        }
-
-        $order = $this->orderReadModel->getOrder(new GetOrder($orderId));
-
-        $customerEmail = $order->getCustomerEmail();
-        $customerId = $order->getCustomerId();
-
-        if (null === $customerEmail) {
-            return $this;
-        }
+        $order = $observer->getOrder();
 
         /** @var Subscriber $subscriber */
         $subscriber = $this->subscriberReadModel->loadSubscriberByEmail(
-            new SubscriberEmail($customerEmail)
+            new SubscriberEmail($order->getCustomerEmail())
         );
 
         if (!$subscriber->isSubscribed()) {
             return $this;
         }
+
+        $scope = $this->magentoStore->getCurrentScope();
+        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
+
+        try {
+            if ($pluginMode->isNewVersion()) {
+                $this->apiService->createCustomer($order->getCustomerId(), $scope);
+            } else {
+                $this->handleOldVersion($order, $scope);
+            }
+        } catch (Exception $e) {
+            $this->logger->addError($e->getMessage(), ['exception' => $e]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @throws ApiException
+     * @throws GetresponseApiException
+     */
+    private function handleOldVersion(Order $order, Scope $scope): void
+    {
+        $registrationSettings = SubscribeViaRegistrationFactory::createFromArray(
+            $this->repository->getRegistrationSettings($scope->getScopeId())
+        );
+
+        if (!$registrationSettings->isEnabled()) {
+            return;
+        }
+
+        $customerEmail = $order->getCustomerEmail();
+        $customerId = $order->getCustomerId();
 
         if (null !== $customerId) {
             $customer = $this->customerReadModel->getCustomerById(
@@ -106,23 +123,17 @@ class CustomerSubscribedFromOrder implements ObserverInterface
             $contactCustomFieldsCollection = $this->contactCustomFieldsCollectionFactory->createForSubscriber();
         }
 
-        try {
-            $this->contactService->addContact(
-                new AddContact(
-                    $this->magentoStore->getCurrentScope(),
-                    $customerEmail,
-                    $order->getCustomerFirstname(),
-                    $order->getCustomerLastname(),
-                    $registrationSettings->getCampaignId(),
-                    $registrationSettings->getCycleDay(),
-                    $contactCustomFieldsCollection,
-                    $registrationSettings->isUpdateCustomFieldsEnalbed()
-                )
-            );
-        } catch (ApiException $e) {
-        } catch (GetresponseApiException $e) {
-        }
-
-        return $this;
+        $this->contactService->addContact(
+            new AddContact(
+                $this->magentoStore->getCurrentScope(),
+                $customerEmail,
+                $order->getCustomerFirstname(),
+                $order->getCustomerLastname(),
+                $registrationSettings->getCampaignId(),
+                $registrationSettings->getCycleDay(),
+                $contactCustomFieldsCollection,
+                $registrationSettings->isUpdateCustomFieldsEnalbed()
+            )
+        );
     }
 }

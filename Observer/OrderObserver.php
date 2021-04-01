@@ -41,7 +41,7 @@ class OrderObserver implements ObserverInterface
     public function __construct(
         Session $customerSession,
         OrderService $orderService,
-        Logger $getResponseLogger,
+        Logger $logger,
         AddOrderCommandFactory $addOrderCommandFactory,
         EcommerceReadModel $ecommerceReadModel,
         ContactReadModel $contactReadModel,
@@ -50,7 +50,7 @@ class OrderObserver implements ObserverInterface
         ApiService $apiService
     ) {
         $this->orderService = $orderService;
-        $this->logger = $getResponseLogger;
+        $this->logger = $logger;
         $this->addOrderCommandFactory = $addOrderCommandFactory;
         $this->customerSession = $customerSession;
         $this->ecommerceReadModel = $ecommerceReadModel;
