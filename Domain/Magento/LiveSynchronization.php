@@ -36,17 +36,17 @@ class LiveSynchronization
         return $this->type;
     }
 
-    public function isContactSynchronization():bool
+    public function isContactSynchronization(): bool
     {
         return $this->type === self::TYPE_CONTACT;
     }
 
-    public function isProductSynchronization():bool
+    public function isProductSynchronization(): bool
     {
         return $this->type === self::TYPE_PRODUCT;
     }
 
-    public function isEcommerceSynchronization():bool
+    public function isEcommerceSynchronization(): bool
     {
         return $this->type === self::TYPE_ECOMMERCE;
     }
@@ -86,10 +86,11 @@ class LiveSynchronization
             throw RequestValidationException::create('Incorrect LiveSynchronization params');
         }
 
-        if (!in_array($data['liveSynchronization']['type'],
-            [self::TYPE_CONTACT, self::TYPE_PRODUCT, self::TYPE_ECOMMERCE],
-            true
-        )) {
+        if (true === $data['liveSynchronization']['isActive'] && !in_array(
+                $data['liveSynchronization']['type'],
+                [self::TYPE_CONTACT, self::TYPE_PRODUCT, self::TYPE_ECOMMERCE],
+                true
+            )) {
             throw new RequestValidationException('Invalid live synchronization type');
         }
 
