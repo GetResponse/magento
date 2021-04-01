@@ -16,8 +16,6 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\Custome
 use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\Query\CustomerId;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\Subscriber\ReadModel\Query\SubscriberEmail;
-use GetResponse\GetResponseIntegration\Domain\Magento\Subscriber\ReadModel\SubscriberReadModel;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
@@ -34,10 +32,10 @@ class CustomerSubscribedFromOrder implements ObserverInterface
     private $contactCustomFieldsCollectionFactory;
     private $subscribeViaRegistrationService;
     private $magentoStore;
-    private $subscriberReadModel;
     private $customerReadModel;
     private $logger;
     private $apiService;
+    private $subscriber;
 
     public function __construct(
         Repository $repository,
@@ -45,30 +43,32 @@ class CustomerSubscribedFromOrder implements ObserverInterface
         SubscribeViaRegistrationService $subscribeViaRegistrationService,
         ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory,
         MagentoStore $magentoStore,
-        SubscriberReadModel $subscriberReadModel,
         CustomerReadModel $customerReadModel,
         Logger $logger,
-        ApiService $apiService
+        ApiService $apiService,
+        Subscriber $subscriber
     ) {
         $this->repository = $repository;
         $this->contactService = $contactService;
         $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
         $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
         $this->magentoStore = $magentoStore;
-        $this->subscriberReadModel = $subscriberReadModel;
         $this->customerReadModel = $customerReadModel;
         $this->logger = $logger;
         $this->apiService = $apiService;
+        $this->subscriber = $subscriber;
     }
 
     public function execute(EventObserver $observer): CustomerSubscribedFromOrder
     {
+        /** @var Order $order */
         $order = $observer->getOrder();
 
-        /** @var Subscriber $subscriber */
-        $subscriber = $this->subscriberReadModel->loadSubscriberByEmail(
-            new SubscriberEmail($order->getCustomerEmail())
-        );
+        if (empty($order->getCustomerId())) {
+            return $this;
+        }
+
+        $subscriber = $this->subscriber->setStoreId($order->getStoreId())->loadByCustomerId($order->getCustomerId());
 
         if (!$subscriber->isSubscribed()) {
             return $this;
