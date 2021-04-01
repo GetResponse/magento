@@ -41,8 +41,8 @@ class CustomerFactory
             $shippingAddress,
             [],
             array_merge(
-                $billingAddress->toCustomFieldsArray('billing'),
-                $shippingAddress->toCustomFieldsArray('shipping')
+                null !== $billingAddress ? $billingAddress->toCustomFieldsArray('billing') : [],
+                null !== $shippingAddress ? $shippingAddress->toCustomFieldsArray('shipping') : []
             )
         );
     }

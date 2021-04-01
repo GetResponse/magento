@@ -23,7 +23,7 @@ class Customer implements JsonSerializable
         string $firstName,
         string $lastName,
         bool $isMarketingAccepted,
-        Address $address,
+        ?Address $address,
         array $tags,
         array $customFields
     ) {
@@ -57,7 +57,7 @@ class Customer implements JsonSerializable
         return $this->isMarketingAccepted;
     }
 
-    public function getAddress(): Address
+    public function getAddress(): ?Address
     {
         return $this->address;
     }

@@ -22,8 +22,8 @@ class OrderFactory
 
     public function create(MagentoOrder $order): Order
     {
-        $shippingAddress = null !== $order->getShippingAddress() ? $this->addressFactory->create($order->getShippingAddress()) : null;
-        $billingAddress = null !== $order->getBillingAddress() ? $this->addressFactory->create($order->getBillingAddress()) : null;
+        $shippingAddress = $this->addressFactory->create($order->getShippingAddress());
+        $billingAddress = $this->addressFactory->create($order->getBillingAddress());
 
         return new Order(
             (int)$order->getId(),
