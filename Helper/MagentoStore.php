@@ -64,7 +64,7 @@ class MagentoStore extends AbstractHelper
         return (int) $this->storeManager->getDefaultStoreView()->getId();
     }
 
-    public function getStoreIdFromUrl()
+    public function getStoreIdFromUrl(): ?int
     {
         $storeId = $this->request->get(Config::SCOPE_TAG);
         return null !== $storeId ? (int)$storeId : null;
@@ -72,7 +72,7 @@ class MagentoStore extends AbstractHelper
 
     public function getCurrentScope(): Scope
     {
-        return new Scope($this->storeManager->getStore()->getId());
+        return new Scope($this->storeManager->getStore()->getWebsiteId());
     }
 
     public function shouldRedirectToStore(): bool
