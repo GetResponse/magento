@@ -47,10 +47,10 @@ class FacebookAdsPixel implements SnippetInterface
      */
     public static function createFromRequest(array $data): FacebookAdsPixel
     {
-        if (!isset($data['facebookAdsPixel'])) {
+        if (!isset($data['facebook_ads_pixel'])) {
             throw RequestValidationException::create('Incorrect FacebookAdsPixel params');
         }
 
-        return new self($data['facebookAdsPixel']['isActive'], $data['facebookAdsPixel']['codeSnippet']);
+        return new self($data['facebook_ads_pixel']['is_active'], $data['facebook_ads_pixel']['snippet']);
     }
 }

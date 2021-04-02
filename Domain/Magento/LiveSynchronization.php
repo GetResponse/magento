@@ -79,15 +79,15 @@ class LiveSynchronization
     public static function createFromRequest(array $data): self
     {
         if (!isset(
-            $data['liveSynchronization']['isActive'],
-            $data['liveSynchronization']['callbackUrl'],
-            $data['liveSynchronization']['type']
+            $data['live_synchronization']['is_active'],
+            $data['live_synchronization']['url'],
+            $data['live_synchronization']['type']
         )) {
             throw RequestValidationException::create('Incorrect LiveSynchronization params');
         }
 
-        if (true === $data['liveSynchronization']['isActive'] && !in_array(
-                $data['liveSynchronization']['type'],
+        if (true === $data['live_synchronization']['is_active'] && !in_array(
+                $data['live_synchronization']['type'],
                 [self::TYPE_CONTACT, self::TYPE_PRODUCT, self::TYPE_ECOMMERCE],
                 true
             )) {
@@ -95,9 +95,9 @@ class LiveSynchronization
         }
 
         return new self(
-            $data['liveSynchronization']['isActive'],
-            $data['liveSynchronization']['callbackUrl'],
-            $data['liveSynchronization']['type']
+            $data['live_synchronization']['is_active'],
+            $data['live_synchronization']['url'],
+            $data['live_synchronization']['type']
         );
     }
 

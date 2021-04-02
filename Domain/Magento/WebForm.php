@@ -70,15 +70,15 @@ class WebForm
 
     public static function createFromRequest(array $data): WebForm
     {
-        if (!isset($data['webForm'])) {
+        if (!isset($data['web_form'])) {
             throw new RuntimeException('incorrect WebForm params');
         }
 
         return new WebForm(
-            isset($data['webForm']['isActive']) ? (bool) $data['webForm']['isActive'] : false,
-            $data['webForm']['url'],
-            $data['webForm']['webFormId'],
-            $data['webForm']['place']
+            isset($data['web_form']['is_active']) ? (bool) $data['web_form']['is_active'] : false,
+            $data['web_form']['url'],
+            $data['web_form']['form_id'],
+            $data['web_form']['block']
         );
     }
 }

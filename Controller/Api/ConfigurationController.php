@@ -89,39 +89,24 @@ class ConfigurationController extends ApiController
      */
     public function update(string $scope): void
     {
-        $this->verifyPluginMode();
-        $this->verifyScope($scope);
-
         try {
-            $this->repository->saveFacebookPixelSnippet(
-                FacebookPixel::createFromRequest($this->request->getBodyParams()),
-                $this->scope->getScopeId()
-            );
+            $this->verifyPluginMode();
+            $this->verifyScope($scope);
 
-            $this->repository->saveFacebookAdsPixelSnippet(
-                FacebookAdsPixel::createFromRequest($this->request->getBodyParams()),
-                $this->scope->getScopeId()
-            );
+            $facebookPixel = FacebookPixel::createFromRequest($this->request->getBodyParams());
+            $facebookAdsPixel = FacebookAdsPixel::createFromRequest($this->request->getBodyParams());
+            $facebookBusinessExtension = FacebookBusinessExtension::createFromRequest($this->request->getBodyParams());
+            $webForm = WebForm::createFromRequest($this->request->getBodyParams());
+            $webEventTracking = WebEventTracking::createFromRequest($this->request->getBodyParams());
+            $liveSynchronization = LiveSynchronization::createFromRequest($this->request->getBodyParams());
 
-            $this->repository->saveFacebookBusinessExtensionSnippet(
-                FacebookBusinessExtension::createFromRequest($this->request->getBodyParams()),
-                $this->scope->getScopeId()
-            );
+            $this->repository->saveFacebookPixelSnippet($facebookPixel, $scope);
+            $this->repository->saveFacebookAdsPixelSnippet($facebookAdsPixel, $scope);
+            $this->repository->saveFacebookBusinessExtensionSnippet($facebookBusinessExtension, $scope);
+            $this->repository->saveWebformSettings($webForm, $scope);
+            $this->repository->saveWebEventTracking($webEventTracking, $scope);
+            $this->repository->saveLiveSynchronization($liveSynchronization, $scope);
 
-            $this->repository->saveWebformSettings(
-                WebForm::createFromRequest($this->request->getBodyParams()),
-                $this->scope->getScopeId()
-            );
-
-            $this->repository->saveWebEventTracking(
-                WebEventTracking::createFromRequest($this->request->getBodyParams()),
-                $this->scope->getScopeId()
-            );
-
-            $this->repository->saveLiveSynchronization(
-                LiveSynchronization::createFromRequest($this->request->getBodyParams()),
-                $this->scope->getScopeId()
-            );
         } catch (RequestValidationException $e) {
             throw new WebapiException(new Phrase($e->getMessage()));
         }
@@ -160,7 +145,7 @@ class ConfigurationController extends ApiController
             new FacebookAdsPixel(false, ''),
             new FacebookBusinessExtension(false, ''),
             new WebForm(false, '', '', ''),
-            new WebEventTracking(false, false, ''),
+            new WebEventTracking(false, ''),
             new LiveSynchronization(false, '', '')
         );
     }

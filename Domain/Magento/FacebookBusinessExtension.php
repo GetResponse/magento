@@ -52,10 +52,10 @@ class FacebookBusinessExtension implements SnippetInterface
      */
     public static function createFromRequest(array $data): self
     {
-        if (!isset($data['facebookBusinessExtension'])) {
+        if (!isset($data['facebook_business_extension'])) {
             throw RequestValidationException::create('Incorrect Facebook Business Extension params');
         }
 
-        return new self($data['facebookBusinessExtension']['isActive'], $data['facebookBusinessExtension']['codeSnippet']);
+        return new self($data['facebook_business_extension']['is_active'], $data['facebook_business_extension']['snippet']);
     }
 }
