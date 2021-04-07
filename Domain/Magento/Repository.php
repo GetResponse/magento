@@ -442,6 +442,7 @@ class Repository
             Config::CONFIG_DATA_WEBFORMS_SETTINGS,
             Config::CONFIG_DATA_WEB_EVENT_TRACKING,
             Config::CONFIG_LIVE_SYNCHRONIZATION,
+            Config::CONFIG_DATA_PLUGIN_MODE
         ];
 
         foreach ($keys as $key) {
@@ -451,7 +452,7 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    private function clearCustomOrigin($scopeId)
+    private function clearCustomOrigin($scopeId): void
     {
         $this->configWriter->delete(
             Config::CONFIG_DATA_ORIGIN_CUSTOM_FIELD_ID,
