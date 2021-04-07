@@ -441,14 +441,14 @@ class Repository
             Config::CONFIG_DATA_FACEBOOK_BUSINESS_EXTENSION_SNIPPET,
             Config::CONFIG_DATA_WEBFORMS_SETTINGS,
             Config::CONFIG_DATA_WEB_EVENT_TRACKING,
-            Config::CONFIG_LIVE_SYNCHRONIZATION,
-            Config::CONFIG_DATA_PLUGIN_MODE
+            Config::CONFIG_LIVE_SYNCHRONIZATION
         ];
 
         foreach ($keys as $key) {
             $this->configWriter->delete($key, $this->getScope($scopeId), $this->getScopeId($scopeId));
         }
 
+        $this->configWriter->delete(Config::CONFIG_DATA_PLUGIN_MODE, $this->getScope(null), $this->getScopeId(null));
         $this->cacheManager->clean(['config']);
     }
 
