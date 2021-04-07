@@ -79,14 +79,14 @@ class LiveSynchronization
     public static function createFromRequest(array $data): self
     {
         if (!isset(
-            $data['live_synchronization']['is_active'],
+            $data['live_synchronization']['isEnabled'],
             $data['live_synchronization']['url'],
             $data['live_synchronization']['type']
         )) {
             throw RequestValidationException::create('Incorrect LiveSynchronization params');
         }
 
-        if (true === $data['live_synchronization']['is_active'] && !in_array(
+        if (true === $data['live_synchronization']['isEnabled'] && !in_array(
                 $data['live_synchronization']['type'],
                 [self::TYPE_CONTACT, self::TYPE_PRODUCT, self::TYPE_ECOMMERCE],
                 true
@@ -95,7 +95,7 @@ class LiveSynchronization
         }
 
         return new self(
-            $data['live_synchronization']['is_active'],
+            $data['live_synchronization']['isEnabled'],
             $data['live_synchronization']['url'],
             $data['live_synchronization']['type']
         );
@@ -103,17 +103,17 @@ class LiveSynchronization
 
     public static function createFromRepository($data): self
     {
-        $isActive = !empty($data) ? (bool)$data['isActive'] : false;
+        $isEnabled = !empty($data) ? (bool)$data['isEnabled'] : false;
         $callbackUrl = !empty($data) ? $data['callbackUrl'] : '';
         $type = !empty($data) ? $data['type'] : '';
 
-        return new self($isActive, $callbackUrl, $type);
+        return new self($isEnabled, $callbackUrl, $type);
     }
 
     public function toArray(): array
     {
         return [
-            'isActive' => $this->isActive,
+            'isEnabled' => (int) $this->isActive,
             'callbackUrl' => $this->callbackUrl,
             'type' => $this->type
         ];
