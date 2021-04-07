@@ -27,6 +27,12 @@ class HttpClient
      */
     public function post(string $url, JsonSerializable $object): string
     {
+        print "<pre>";
+        print_r($url);
+        print PHP_EOL;
+        print_r($object);
+        print "</pre>";
+        die;
         return $this->sendRequest($url, 'POST', $object);
     }
 

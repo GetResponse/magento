@@ -22,7 +22,6 @@ use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Newsletter\Model\Subscriber;
 use Magento\Sales\Model\Order;
 
 class CustomerSubscribedFromOrder implements ObserverInterface
@@ -35,7 +34,6 @@ class CustomerSubscribedFromOrder implements ObserverInterface
     private $customerReadModel;
     private $logger;
     private $apiService;
-    private $subscriber;
 
     public function __construct(
         Repository $repository,
@@ -45,8 +43,7 @@ class CustomerSubscribedFromOrder implements ObserverInterface
         MagentoStore $magentoStore,
         CustomerReadModel $customerReadModel,
         Logger $logger,
-        ApiService $apiService,
-        Subscriber $subscriber
+        ApiService $apiService
     ) {
         $this->repository = $repository;
         $this->contactService = $contactService;
@@ -56,7 +53,6 @@ class CustomerSubscribedFromOrder implements ObserverInterface
         $this->customerReadModel = $customerReadModel;
         $this->logger = $logger;
         $this->apiService = $apiService;
-        $this->subscriber = $subscriber;
     }
 
     public function execute(EventObserver $observer): CustomerSubscribedFromOrder
@@ -65,12 +61,6 @@ class CustomerSubscribedFromOrder implements ObserverInterface
         $order = $observer->getOrder();
 
         if (empty($order->getCustomerId())) {
-            return $this;
-        }
-
-        $subscriber = $this->subscriber->setStoreId($order->getStoreId())->loadByCustomerId($order->getCustomerId());
-
-        if (!$subscriber->isSubscribed()) {
             return $this;
         }
 

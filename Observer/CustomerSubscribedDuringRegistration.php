@@ -20,7 +20,6 @@ use GrShareCode\Api\Exception\GetresponseApiException;
 use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Newsletter\Model\Subscriber;
 
 class CustomerSubscribedDuringRegistration implements ObserverInterface
 {
@@ -28,7 +27,6 @@ class CustomerSubscribedDuringRegistration implements ObserverInterface
     private $subscribeViaRegistrationService;
     private $contactCustomFieldsCollectionFactory;
     private $magentoStore;
-    private $subscriber;
     private $logger;
     private $repository;
     private $apiService;
@@ -38,7 +36,6 @@ class CustomerSubscribedDuringRegistration implements ObserverInterface
         SubscribeViaRegistrationService $subscribeViaRegistrationService,
         ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory,
         MagentoStore $magentoStore,
-        Subscriber $subscriber,
         Logger $logger,
         Repository $repository,
         ApiService $apiService
@@ -47,7 +44,6 @@ class CustomerSubscribedDuringRegistration implements ObserverInterface
         $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
         $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
         $this->magentoStore = $magentoStore;
-        $this->subscriber = $subscriber;
         $this->logger = $logger;
         $this->repository = $repository;
         $this->apiService = $apiService;
@@ -58,12 +54,6 @@ class CustomerSubscribedDuringRegistration implements ObserverInterface
         $scope = $this->magentoStore->getCurrentScope();
         /** @var Customer $customer */
         $customer = $observer->getCustomer();
-
-        $checkSubscriber = $this->subscriber->loadByCustomerId($customer->getId());
-
-        if (!$checkSubscriber->isSubscribed()) {
-            return $this;
-        }
 
         try {
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
