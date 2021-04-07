@@ -6,7 +6,6 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Api\HttpClientException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\ContactReadModel;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\Query\ContactByEmail;
@@ -62,15 +61,15 @@ class OrderObserver implements ObserverInterface
 
     public function execute(EventObserver $observer): OrderObserver
     {
-        // if customer is not logged in - skip
-        if (false === $this->customerSession->isLoggedIn()) {
-            return $this;
-        }
-
-        $order = $observer->getOrder();
-        $scope = $this->magentoStore->getCurrentScope();
-
         try {
+            // if customer is not logged in - skip
+            if (false === $this->customerSession->isLoggedIn()) {
+                return $this;
+            }
+
+            $order = $observer->getOrder();
+            $scope = $this->magentoStore->getCurrentScope();
+
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
             if ($pluginMode->isNewVersion()) {

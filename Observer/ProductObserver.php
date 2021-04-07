@@ -20,29 +20,32 @@ class ProductObserver implements ObserverInterface
     private $repository;
     private $apiService;
 
-    public function __construct(Logger $getResponseLogger, Repository $repository, ApiService $apiService)
-    {
-        $this->logger = $getResponseLogger;
+    public function __construct(
+        Logger $logger,
+        Repository $repository,
+        ApiService $apiService
+    ) {
+        $this->logger = $logger;
         $this->repository = $repository;
         $this->apiService = $apiService;
     }
 
     public function execute(EventObserver $observer): ProductObserver
     {
-        /** @var Product $product */
-        $product = $observer->getProduct();
-        $websiteIds = $product->getWebsiteIds();
+        try {
+            /** @var Product $product */
+            $product = $observer->getProduct();
+            $websiteIds = $product->getWebsiteIds();
 
-        foreach ($websiteIds as $websiteId) {
-            try {
+            foreach ($websiteIds as $websiteId) {
                 $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
                 if ($pluginMode->isNewVersion()) {
                     $this->apiService->createProduct($product, new Scope($websiteId));
                 }
-            } catch (Exception $e) {
-                $this->logger->addError($e->getMessage(), ['exception' => $e]);
             }
+        } catch (Exception $e) {
+            $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }
         return $this;
     }

@@ -6,7 +6,6 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Api\HttpClientException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Cart\CartService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\ContactReadModel;
@@ -38,7 +37,7 @@ class CartObserver implements ObserverInterface
     public function __construct(
         Session $customerSession,
         CartService $cartService,
-        Logger $getResponseLogger,
+        Logger $logger,
         MagentoStore $magentoStore,
         EcommerceReadModel $ecommerceReadModel,
         ContactReadModel $contactReadModel,
@@ -46,7 +45,7 @@ class CartObserver implements ObserverInterface
         ApiService $apiService
     ) {
         $this->cartService = $cartService;
-        $this->logger = $getResponseLogger;
+        $this->logger = $logger;
         $this->magentoStore = $magentoStore;
         $this->customerSession = $customerSession;
         $this->ecommerceReadModel = $ecommerceReadModel;
@@ -57,14 +56,14 @@ class CartObserver implements ObserverInterface
 
     public function execute(EventObserver $observer): CartObserver
     {
-        if (false === $this->customerSession->isLoggedIn()) {
-            return $this;
-        }
-
-        $quote = $observer->getCart()->getQuote();
-        $scope = $this->magentoStore->getCurrentScope();
-
         try {
+            if (false === $this->customerSession->isLoggedIn()) {
+                return $this;
+            }
+
+            $quote = $observer->getCart()->getQuote();
+            $scope = $this->magentoStore->getCurrentScope();
+
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
             if ($pluginMode->isNewVersion()) {

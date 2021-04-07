@@ -11,12 +11,14 @@ use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Helper\Route;
+use GetResponse\GetResponseIntegration\Logger\Logger;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\ActionFlag;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\UrlInterface;
+use Exception;
 
 class PreDispatchObserver implements ObserverInterface
 {
@@ -26,6 +28,7 @@ class PreDispatchObserver implements ObserverInterface
     private $accountReadModel;
     private $magentoStore;
     private $repository;
+    private $logger;
 
     public function __construct(
         UrlInterface $urlInterface,
@@ -33,7 +36,8 @@ class PreDispatchObserver implements ObserverInterface
         ActionFlag $actionFlag,
         AccountReadModel $accountReadModel,
         MagentoStore $magentoStore,
-        Repository $repository
+        Repository $repository,
+        Logger $logger
     ) {
         $this->urlInterface = $urlInterface;
         $this->messageManager = $messageManager;
@@ -41,24 +45,29 @@ class PreDispatchObserver implements ObserverInterface
         $this->accountReadModel = $accountReadModel;
         $this->magentoStore = $magentoStore;
         $this->repository = $repository;
+        $this->logger = $logger;
     }
 
     public function execute(EventObserver $observer): PreDispatchObserver
     {
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
+        try {
+            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
-        if ($pluginMode->isNewVersion()) {
-            if (!$this->amIOnTransitionPage()) {
+            if ($pluginMode->isNewVersion()) {
+                if (!$this->amIOnTransitionPage()) {
+                    $this->actionFlag->set('', Action::FLAG_NO_DISPATCH, true);
+                    $observer->getControllerAction()->getResponse()->setRedirect(
+                        $this->urlInterface->getUrl(Route::TRANSITION_PAGE_ROUTE)
+                    );
+                }
+            } elseif (!$this->amIOnAccountPage() && !$this->accountReadModel->isConnected(new Scope($this->getScope()))) {
+                $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
+                $url = $this->urlInterface->getUrl(Route::ACCOUNT_INDEX_ROUTE);
                 $this->actionFlag->set('', Action::FLAG_NO_DISPATCH, true);
-                $observer->getControllerAction()->getResponse()->setRedirect(
-                    $this->urlInterface->getUrl(Route::TRANSITION_PAGE_ROUTE)
-                );
+                $observer->getControllerAction()->getResponse()->setRedirect($url);
             }
-        } elseif (!$this->amIOnAccountPage() && !$this->accountReadModel->isConnected(new Scope($this->getScope()))) {
-            $this->messageManager->addErrorMessage(Message::CONNECT_TO_GR);
-            $url = $this->urlInterface->getUrl(Route::ACCOUNT_INDEX_ROUTE);
-            $this->actionFlag->set('', Action::FLAG_NO_DISPATCH, true);
-            $observer->getControllerAction()->getResponse()->setRedirect($url);
+        } catch (Exception $e) {
+            $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }
 
         return $this;

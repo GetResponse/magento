@@ -51,11 +51,11 @@ class CustomerSubscribedDuringRegistration implements ObserverInterface
 
     public function execute(Observer $observer): CustomerSubscribedDuringRegistration
     {
-        $scope = $this->magentoStore->getCurrentScope();
-        /** @var Customer $customer */
-        $customer = $observer->getCustomer();
-
         try {
+            $scope = $this->magentoStore->getCurrentScope();
+            /** @var Customer $customer */
+            $customer = $observer->getCustomer();
+
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
             if ($pluginMode->isNewVersion()) {

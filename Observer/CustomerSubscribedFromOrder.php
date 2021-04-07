@@ -57,17 +57,17 @@ class CustomerSubscribedFromOrder implements ObserverInterface
 
     public function execute(EventObserver $observer): CustomerSubscribedFromOrder
     {
-        /** @var Order $order */
-        $order = $observer->getOrder();
-
-        if (empty($order->getCustomerId())) {
-            return $this;
-        }
-
-        $scope = $this->magentoStore->getCurrentScope();
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-
         try {
+            /** @var Order $order */
+            $order = $observer->getOrder();
+
+            if (empty($order->getCustomerId())) {
+                return $this;
+            }
+
+            $scope = $this->magentoStore->getCurrentScope();
+            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
+
             if ($pluginMode->isNewVersion()) {
                 $this->apiService->createCustomer($order->getCustomerId(), $scope);
             } else {
