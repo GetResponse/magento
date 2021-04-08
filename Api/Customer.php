@@ -80,7 +80,7 @@ class Customer implements JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'callback_type' => 'customer/update',
+            'callback_type' => CallbackType::CUSTOMER_UPDATE,
             'id' => $this->id,
             'email' => $this->email,
             'first_name' => $this->firstName,

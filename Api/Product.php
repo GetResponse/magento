@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Api;
 
 use JsonSerializable;
+use Magento\Framework\Validator\Test\Unit\Test\Callback;
 
 class Product implements JsonSerializable
 {
@@ -100,7 +101,7 @@ class Product implements JsonSerializable
         }
 
         return [
-            'callable_type' => 'products/update',
+            'callback_type' => CallbackType::PRODUCT_UPDATE,
             'id' => $this->id,
             'name' => $this->name,
             'type' => $this->type,

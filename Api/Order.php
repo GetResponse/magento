@@ -70,7 +70,7 @@ class Order implements JsonSerializable
         }
 
         return [
-            'callback_type' => 'order/update',
+            'callback_type' => CallbackType::ORDER_UPDATE,
             'id' => $this->id,
             'cart_id' => $this->cartId,
             'contact_email' => $this->contactEmail,

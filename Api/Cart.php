@@ -94,7 +94,7 @@ class Cart implements JsonSerializable
         }
 
         return [
-            'callback_type' => 'cart/update',
+            'callback_type' => CallbackType::CHECKOUT_UPDATE,
             'id' => $this->id,
             'contact_email' => $this->customer->getEmail(),
             'customer' => $this->customer->jsonSerialize(),
