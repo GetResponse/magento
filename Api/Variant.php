@@ -16,6 +16,7 @@ class Variant implements JsonSerializable
     private $previousPrice;
     private $previousPriceTax;
     private $quantity;
+    private $url;
     private $position;
     private $barcode;
     private $description;
@@ -31,6 +32,7 @@ class Variant implements JsonSerializable
         ?float $previousPrice,
         ?float $previousPriceTax,
         int $quantity,
+        string $url,
         ?int $position,
         ?int $barcode,
         string $description,
@@ -44,6 +46,7 @@ class Variant implements JsonSerializable
         $this->previousPrice = $previousPrice;
         $this->previousPriceTax = $previousPriceTax;
         $this->quantity = $quantity;
+        $this->url = $url;
         $this->position = $position;
         $this->barcode = $barcode;
         $this->description = $description;
@@ -66,6 +69,7 @@ class Variant implements JsonSerializable
             'previous_price' => $this->previousPrice,
             'previous_price_tax' => $this->previousPriceTax,
             'quantity' => $this->quantity,
+            'url' => $this->url,
             'position' => $this->position,
             'barcode' => $this->barcode,
             'description' => $this->description,
