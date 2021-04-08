@@ -569,7 +569,7 @@ class Repository
 
     private function getScope($scopeId): string
     {
-        return $scopeId === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_WEBSITES;
+        return $scopeId === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
     }
 
     private function getScopeId($scopeId): string

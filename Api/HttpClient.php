@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
+use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\Serialize\SerializerInterface;
 use JsonSerializable;
+use Magento\Store\Model\StoreManagerInterface;
 
 class HttpClient
 {
@@ -15,11 +17,16 @@ class HttpClient
 
     private $curl;
     private $jsonHelper;
+    private $storeManager;
 
-    public function __construct(Curl $curl, SerializerInterface $jsonHelper)
-    {
+    public function __construct(
+        Curl $curl,
+        SerializerInterface $jsonHelper,
+        StoreManagerInterface $storeManager
+    ) {
         $this->curl = $curl;
         $this->jsonHelper = $jsonHelper;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -39,6 +46,8 @@ class HttpClient
         JsonSerializable $object = null
     ): string {
         $this->curl->addHeader('Content-Type', 'application/json');
+        $this->curl->addHeader('X-Shop-Domain', $this->storeManager->getStore()->getBaseUrl());
+        $this->curl->addHeader('X-Hmac-Sha256', $this->createHmac($object));
 
         $method === self::POST ? $this->curl->post($url, $this->jsonHelper->serialize($object)) : $this->curl->get($url);
 
@@ -47,5 +56,10 @@ class HttpClient
         }
 
         return $this->curl->getBody();
+    }
+
+    private function createHmac(JsonSerializable $object): string
+    {
+        return base64_encode(hash_hmac('sha256', $this->jsonHelper->serialize($object->jsonSerialize()), Config::API_APP_SECRET, true));
     }
 }

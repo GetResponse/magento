@@ -72,7 +72,7 @@ class MagentoStore extends AbstractHelper
 
     public function getCurrentScope(): Scope
     {
-        return new Scope($this->storeManager->getStore()->getWebsiteId());
+        return new Scope($this->storeManager->getStore()->getId());
     }
 
     public function shouldRedirectToStore(): bool
