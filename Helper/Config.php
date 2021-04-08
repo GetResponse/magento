@@ -33,7 +33,6 @@ class Config
     const CACHE_KEY = 'getresponse_cache';
     const CACHE_TIME = 600; // 10 minutes of cache time
     const SCOPE_TAG = 'scope';
-    const SCOPE = 'websites';
     const SCOPE_SESSION = 'grScopeId';
 
     const API_APP_SECRET = '010b02c432482c288dca40f5dae0b132';

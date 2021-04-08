@@ -278,7 +278,7 @@ class ShareCodeRepository implements DbRepositoryInterface
     private function getScope(): string
     {
         $scopeId = $this->magentoStore->getCurrentScope()->getScopeId();
-        return $scopeId === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_WEBSITES;
+        return $scopeId === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
     }
 
     private function getScopeId(): string

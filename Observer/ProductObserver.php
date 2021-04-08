@@ -35,13 +35,13 @@ class ProductObserver implements ObserverInterface
         try {
             /** @var Product $product */
             $product = $observer->getProduct();
-            $websiteIds = $product->getWebsiteIds();
+            $storeIds = $product->getStoreIds();
 
-            foreach ($websiteIds as $websiteId) {
+            foreach ($storeIds as $storeId) {
                 $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
                 if ($pluginMode->isNewVersion()) {
-                    $this->apiService->createProduct($product, new Scope($websiteId));
+                    $this->apiService->createProduct($product, new Scope($storeId));
                 }
             }
         } catch (Exception $e) {
