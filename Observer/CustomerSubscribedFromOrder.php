@@ -69,7 +69,7 @@ class CustomerSubscribedFromOrder implements ObserverInterface
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
             if ($pluginMode->isNewVersion()) {
-                $this->apiService->createCustomer($order->getCustomerId(), $scope);
+                $this->apiService->createCustomer((int)$order->getCustomerId(), $scope);
             } else {
                 $this->handleOldVersion($order, $scope);
             }

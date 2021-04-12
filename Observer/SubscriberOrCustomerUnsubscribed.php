@@ -59,7 +59,7 @@ class SubscriberOrCustomerUnsubscribed implements ObserverInterface
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
             if ($pluginMode->isNewVersion()) {
-                $this->apiService->createCustomer($subscriber->getCustomerId(), $scope);
+                $this->apiService->createCustomer((int)$subscriber->getCustomerId(), $scope);
             } else {
                 $this->handleOldVersion($subscriber, $scope);
             }
