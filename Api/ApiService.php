@@ -89,7 +89,7 @@ class ApiService
 
         $this->httpClient->post(
             $liveSynchronization->getCallbackUrl(),
-            $this->orderFactory->crate($order)
+            $this->orderFactory->create($order)
         );
     }
 
