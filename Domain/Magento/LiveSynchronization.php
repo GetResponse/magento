@@ -68,7 +68,7 @@ class LiveSynchronization
 
     public function shouldImportCustomer(): bool
     {
-        return $this->isActive() && $this->isContactSynchronization();
+        return $this->isActive() && ($this->isEcommerceSynchronization() || $this->isContactSynchronization());
     }
 
     /**
