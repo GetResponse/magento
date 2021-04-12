@@ -8,7 +8,7 @@ class AddressFactory
 {
     public function create($address): ?Address
     {
-        if (false === $address) {
+        if (empty($address)) {
             return null;
         }
 
