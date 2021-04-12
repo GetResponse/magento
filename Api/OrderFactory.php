@@ -60,7 +60,8 @@ class OrderFactory
                         (int)$child->getProduct()->getId(),
                         (float)$child->getPrice(),
                         (float)$child->getPriceInclTax(),
-                        (int)$child->getQtyOrdered()
+                        (int)$child->getQtyOrdered(),
+                        (string) $child->getSku()
                     );
                 }
             } else {
@@ -69,7 +70,8 @@ class OrderFactory
                     (int)$item->getProduct()->getId(),
                     (float)$item->getPrice(),
                     (float)$item->getPriceInclTax(),
-                    (int)$item->getQtyOrdered()
+                    (int)$item->getQtyOrdered(),
+                    (string) $item->getSku()
                 );
             }
         }

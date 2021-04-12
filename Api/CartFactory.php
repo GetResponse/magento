@@ -48,7 +48,8 @@ class CartFactory
                         (int)$child->getProduct()->getId(),
                         (float)$child->getPrice(),
                         (float)$child->getPriceInclTax(),
-                        (int)$child->getQty()
+                        (int)$child->getQty(),
+                        (string) $child->getSku()
                     );
                 }
             } else {
@@ -56,7 +57,8 @@ class CartFactory
                     (int)$item->getProduct()->getId(),
                     (float)$item->getPrice(),
                     (float)$item->getPriceInclTax(),
-                    (int)$item->getQty()
+                    (int)$item->getQty(),
+                    (string) $item->getSku()
                 );
             }
         }

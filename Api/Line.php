@@ -12,17 +12,20 @@ class Line implements JsonSerializable
     private $price;
     private $priceTax;
     private $quantity;
+    private $sku;
 
     public function __construct(
         int $variantId,
         float $price,
         float $priceTax,
-        int $quantity
+        int $quantity,
+        string $sku
     ) {
         $this->variantId = $variantId;
         $this->price = $price;
         $this->priceTax = $priceTax;
         $this->quantity = $quantity;
+        $this->sku = $sku;
     }
 
     public function getVariantId(): int
@@ -45,6 +48,11 @@ class Line implements JsonSerializable
         return $this->quantity;
     }
 
+    public function getSku(): string
+    {
+        return $this->sku;
+    }
+
     public function jsonSerialize(): array
     {
         return [
@@ -52,6 +60,7 @@ class Line implements JsonSerializable
             'price' => $this->price,
             'price_tax' => $this->priceTax,
             'quantity' => $this->quantity,
+            'sku' => $this->sku
         ];
     }
 }
