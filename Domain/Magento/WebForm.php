@@ -81,4 +81,14 @@ class WebForm
             $data['web_form']['block']
         );
     }
+
+    public static function createFromArray(array $data): WebForm
+    {
+        return new WebForm(
+            (bool) isset($data['isEnabled']) ,
+            $data['url'],
+            $data['webFormId'],
+            $data['place']
+        );
+    }
 }
