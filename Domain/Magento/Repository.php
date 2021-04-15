@@ -572,8 +572,8 @@ class Repository
         return $scopeId === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
     }
 
-    private function getScopeId($scopeId): string
+    private function getScopeId($scopeId): int
     {
-        return (string) ($scopeId ?? Store::DEFAULT_STORE_ID);
+        return (int) ($scopeId ?? Store::DEFAULT_STORE_ID);
     }
 }
