@@ -7,19 +7,19 @@ namespace GetResponse\GetResponseIntegration\Extensions;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Api\Data\CustomerExtensionFactory;
 use Magento\Customer\Api\Data\CustomerExtensionInterface;
-use Magento\Newsletter\Model\Subscriber;
+use Magento\Newsletter\Model\SubscriberFactory;
 
 class Customer
 {
     private $extensionFactory;
-    private $subscriberModel;
+    private $subscriberFactory;
 
     public function __construct(
         CustomerExtensionFactory $extensionFactory,
-        Subscriber $subscriberModel
+        SubscriberFactory $subscriberFactory
     ) {
         $this->extensionFactory = $extensionFactory;
-        $this->subscriberModel = $subscriberModel;
+        $this->subscriberFactory = $subscriberFactory;
     }
 
     public function afterGetExtensionAttributes(
@@ -31,9 +31,9 @@ class Customer
             $extension = $this->extensionFactory->create();
         }
 
-        $subscriber = $this->subscriberModel->loadByEmail($customer->getEmail());
-
-        $extension->setIsSubscribed($subscriber->isSubscribed());
+        $extension->setIsSubscribed(
+            (bool) $this->subscriberFactory->create()->loadByEmail($customer->getEmail())->isSubscribed()
+        );
         $customer->setExtensionAttributes($extension);
 
         return $extension;
