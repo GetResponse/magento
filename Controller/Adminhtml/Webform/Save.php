@@ -40,9 +40,9 @@ class Save extends AbstractController
 
         $params = [
             'isEnabled' => isset($data['isEnabled']) && 1 === (int) $data['isEnabled'],
-            'url' => isset($data['url']) ? $data['url'] : '',
-            'webFormId' => isset($data['webformId']) ? $data['webformId'] : '',
-            'place' => isset($data['sidebar']) ? $data['sidebar'] : ''
+            'url' => $data['url'] ?? '',
+            'webFormId' => $data['webformId'] ?? '',
+            'place' => $data['sidebar'] ?? ''
         ];
 
         $webForm = WebForm::createFromArray($params);

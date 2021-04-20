@@ -61,7 +61,7 @@ class WebForm
             return new WebForm(false, '', '', '');
         }
         return new WebForm(
-            isset($data['isEnabled']) ? (bool) $data['isEnabled'] : false,
+            isset($data['isEnabled']) && (bool)$data['isEnabled'],
             $data['url'],
             $data['webformId'],
             $data['sidebar']
@@ -75,7 +75,7 @@ class WebForm
         }
 
         return new WebForm(
-            isset($data['web_form']['is_active']) ? (bool) $data['web_form']['is_active'] : false,
+            isset($data['web_form']['is_active']) && (bool)$data['web_form']['is_active'],
             $data['web_form']['url'],
             $data['web_form']['form_id'],
             $data['web_form']['block']
@@ -85,7 +85,7 @@ class WebForm
     public static function createFromArray(array $data): WebForm
     {
         return new WebForm(
-            (bool) isset($data['isEnabled']) ,
+            (bool) $data['isEnabled'],
             $data['url'],
             $data['webFormId'],
             $data['place']
