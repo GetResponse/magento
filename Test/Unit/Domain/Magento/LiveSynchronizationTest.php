@@ -18,7 +18,7 @@ class LiveSynchronizationTest extends BaseTestCase
         $isActive = true;
         $callbackUrl = 'https://app.getrepsonse.com/#d5fj2dof3ij';
 
-        $liveSynchronization = new LiveSynchronization($isActive, $callbackUrl);
+        $liveSynchronization = new LiveSynchronization($isActive, $callbackUrl, LiveSynchronization::TYPE_ECOMMERCE);
 
         self::assertEquals($isActive, $liveSynchronization->isActive());
         self::assertEquals($callbackUrl, $liveSynchronization->getCallbackUrl());
@@ -41,9 +41,10 @@ class LiveSynchronizationTest extends BaseTestCase
     {
         $isActive = true;
         $data = [
-            'liveSynchronization' => [
-                'isActive' => $isActive,
-                'callbackUrl' => 'https://app.getrepsonse.com/#d5fj2dof3ij'
+            'live_synchronization' => [
+                'is_active' => $isActive,
+                'url' => 'https://app.getrepsonse.com/#d5fj2dof3ij',
+                'type' => LiveSynchronization::TYPE_ECOMMERCE
             ]
         ];
 

@@ -46,4 +46,18 @@ class CustomerFactory
             )
         );
     }
+
+    public function createFromSubscriber(Subscriber $subscriber): Customer
+    {
+        return new Customer(
+            (int)$subscriber->getId(),
+            $subscriber->getEmail(),
+            '',
+            '',
+            $subscriber->isSubscribed(),
+            null,
+            [],
+            []
+        );
+    }
 }

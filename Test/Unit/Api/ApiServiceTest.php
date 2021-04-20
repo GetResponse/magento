@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use GetResponse\GetResponseIntegration\Api\ApiService;
 use GetResponse\GetResponseIntegration\Api\CartFactory;
+use GetResponse\GetResponseIntegration\Api\CustomerFactory;
 use GetResponse\GetResponseIntegration\Api\HttpClient;
 use GetResponse\GetResponseIntegration\Api\OrderFactory;
 use GetResponse\GetResponseIntegration\Api\ProductFactory;
@@ -15,21 +16,24 @@ use Magento\Catalog\Model\Product;
 use Magento\Customer\Model\Customer as MagentoCustomer;
 use Magento\Quote\Model\Quote;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class ApiServiceTest extends BaseTestCase
 {
     private const CALLBACK_URL = 'http://app.getresponse.com/callback/#d93jd9dj39';
 
-    /** @var object|PHPUnit_Framework_MockObject_MockObject|Repository */
+    /** @var object|MockObject|Repository */
     private $repositoryMock;
-    /** @var object|PHPUnit_Framework_MockObject_MockObject|HttpClient */
+    /** @var object|MockObject|HttpClient */
     private $httpClientMock;
-    /** @var object|PHPUnit_Framework_MockObject_MockObject|CartFactory */
+    /** @var object|MockObject|CartFactory */
     private $cartFactory;
-    /** @var object|PHPUnit_Framework_MockObject_MockObject|OrderFactory */
+    /** @var object|MockObject|OrderFactory */
     private $orderFactory;
-    /** @var object|PHPUnit_Framework_MockObject_MockObject|ProductFactory */
+    /** @var object|MockObject|ProductFactory */
     private $productFactory;
+    /** @var object|MockObject|CustomerFactory */
+    private $customerFactory;
 
     private $sut;
 
@@ -40,13 +44,15 @@ class ApiServiceTest extends BaseTestCase
         $this->cartFactory = $this->getMockWithoutConstructing(CartFactory::class);
         $this->orderFactory = $this->getMockWithoutConstructing(OrderFactory::class);
         $this->productFactory = $this->getMockWithoutConstructing(ProductFactory::class);
+        $this->customerFactory = $this->getMockWithoutConstructing(CustomerFactory::class);
 
         $this->sut = new ApiService(
             $this->repositoryMock,
             $this->httpClientMock,
             $this->cartFactory,
             $this->orderFactory,
-            $this->productFactory
+            $this->productFactory,
+            $this->customerFactory
         );
 
     }
@@ -61,7 +67,7 @@ class ApiServiceTest extends BaseTestCase
 
         $scope = new Scope(1);
 
-        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL);
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_ECOMMERCE);
 
         $this->repositoryMock
             ->expects(self::once())
@@ -115,7 +121,7 @@ class ApiServiceTest extends BaseTestCase
         $product = ApiFaker::createProduct();
 
         $scope = new Scope(1);
-        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL);
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
 
         $this->repositoryMock
             ->expects(self::once())

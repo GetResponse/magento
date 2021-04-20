@@ -8,8 +8,9 @@ use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Magento\Catalog\Model\Product as MagentoProduct;
+use Magento\Newsletter\Model\Subscriber;
 use Magento\Quote\Model\Quote;
-use \Magento\Sales\Model\Order as MagentoOrder;
+use Magento\Sales\Model\Order as MagentoOrder;
 
 class ApiService
 {
@@ -128,6 +129,22 @@ class ApiService
         $this->httpClient->post(
             $liveSynchronization->getCallbackUrl(),
             $this->productFactory->create($product, $scope)
+        );
+    }
+
+    public function createSubscriber(Subscriber $subscriber, Scope $scope): void
+    {
+        $liveSynchronization = LiveSynchronization::createFromRepository(
+            $this->repository->getLiveSynchronization($scope->getScopeId())
+        );
+
+        if (!$liveSynchronization->shouldImportCustomer()) {
+            return;
+        }
+
+        $this->httpClient->post(
+            $liveSynchronization->getCallbackUrl(),
+            $this->customerFactory->createFromSubscriber($subscriber)
         );
     }
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Test\Unit\Block;
 
 use GetResponse\GetResponseIntegration\Block\Webform;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\ReadModel\AccountReadModel;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
@@ -16,8 +15,6 @@ class WebformTest extends BaseTestCase
 {
     /** @var Repository|MockObject */
     private $repository;
-    /** @var AccountReadModel|MockObject */
-    private $accountReadModel;
 
     /** @var Webform() */
     private $webformBlock;
@@ -28,13 +25,11 @@ class WebformTest extends BaseTestCase
         $context = $this->getMockWithoutConstructing(Context::class);
         /** @var MagentoStore $magentoStore */
         $magentoStore = $this->getMockWithoutConstructing(MagentoStore::class);
-        $this->accountReadModel = $this->getMockWithoutConstructing(AccountReadModel::class);
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
 
         $this->webformBlock = new Webform(
             $context,
             $magentoStore,
-            $this->accountReadModel,
             $this->repository
         );
     }
@@ -42,25 +37,14 @@ class WebformTest extends BaseTestCase
     /**
      * @test
      * @dataProvider webFormToDisplayProvider
-     * @param $expectedUrl
-     * @param bool $isConnected
-     * @param bool $isEnabled
-     * @param string $sidebar
-     * @param string $placement
-     * @param string $url
      */
     public function shouldReturnWebFormUrlToDisplay(
         $expectedUrl,
-        bool $isConnected,
         bool $isEnabled,
         string $sidebar,
         string $placement,
         string $url
-    ) {
-        $this->accountReadModel
-            ->expects(self::once())
-            ->method('isConnected')
-            ->willReturn($isConnected);
+    ): void {
 
         $this->repository
             ->method('getWebformSettings')
@@ -80,7 +64,6 @@ class WebformTest extends BaseTestCase
         return [
             [
                'expectedUrl' => null,
-                'isConnected' => false,
                 'isEnabled' => false,
                 'sidebar' => 'bottom',
                 'placement' => 'bottom',
@@ -88,7 +71,6 @@ class WebformTest extends BaseTestCase
             ],
             [
                 'expectedUrl' => null,
-                'isConnected' => true,
                 'isEnabled' => false,
                 'sidebar' => 'bottom',
                 'placement' => 'bottom',
@@ -96,7 +78,6 @@ class WebformTest extends BaseTestCase
             ],
             [
                 'expectedUrl' => null,
-                'isConnected' => true,
                 'isEnabled' => true,
                 'sidebar' => 'bottom',
                 'placement' => 'top',
@@ -104,7 +85,6 @@ class WebformTest extends BaseTestCase
             ],
             [
                 'expectedUrl' => 'http://getresponse.com/script.js',
-                'isConnected' => true,
                 'isEnabled' => true,
                 'sidebar' => 'bottom',
                 'placement' => 'bottom',

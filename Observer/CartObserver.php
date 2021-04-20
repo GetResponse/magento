@@ -102,7 +102,7 @@ class CartObserver implements ObserverInterface
     {
         $shopId = $this->ecommerceReadModel->getShopId($scope);
 
-        if (empty($shopId) || $this->getContactFromGetResponse($scope)) {
+        if (empty($shopId) || null === $this->getContactFromGetResponse($scope)) {
             return;
         }
 
@@ -111,6 +111,5 @@ class CartObserver implements ObserverInterface
             $this->ecommerceReadModel->getListId($scope),
             $shopId,
             $scope
-        );
-    }
+        );}
 }

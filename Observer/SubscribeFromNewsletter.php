@@ -61,14 +61,14 @@ class SubscribeFromNewsletter implements ObserverInterface
 
             $customer = $this->customer->setStore($store)->loadByEmail($subscriber->getEmail());
 
-            if (null === $customer->getId()) {
-                return $this;
-            }
-
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
             if ($pluginMode->isNewVersion()) {
-                $this->apiService->createCustomer((int)$customer->getId(), $scope);
+                if (null === $customer->getId()) {
+                    $this->apiService->createSubscriber($subscriber);
+                } else {
+                    $this->apiService->createCustomer((int)$customer->getId(), $scope);
+                }
             } else {
                 $this->handleOldVersion($scope, $subscriber->getEmail());
             }

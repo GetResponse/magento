@@ -36,7 +36,7 @@ class MagentoCustomerAttributeService
     {
         try {
 
-            $customerAddress = $customer->getDefaultShippingAddress();
+            $customerAddress = $customer->getDefaultShipping();
 
             if (!$customerAddress) {
                 return null;

@@ -18,6 +18,7 @@ use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Presenter\Api\Section\General;
 use GetResponse\GetResponseIntegration\Presenter\Api\ConfigurationPresenter;
 use GetResponse\GetResponseIntegration\Presenter\Api\Section\Store;
+use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\Phrase;
 use Magento\Framework\Webapi\Exception as WebapiException;
@@ -32,16 +33,19 @@ class ConfigurationController extends ApiController
 
     private $moduleList;
     private $request;
+    private $cacheManager;
 
     public function __construct(
         Repository $repository,
         MagentoStore $magentoStore,
         ModuleListInterface $moduleList,
-        Request $request
+        Request $request,
+        Manager $cacheManager
     ) {
         parent::__construct($repository, $magentoStore);
         $this->moduleList = $moduleList;
         $this->request = $request;
+        $this->cacheManager = $cacheManager;
     }
 
     /**
@@ -80,6 +84,8 @@ class ConfigurationController extends ApiController
         foreach ($this->magentoStore->getMagentoStores() as $storeId => $storeName) {
             $this->repository->clearConfiguration($storeId);
         }
+
+        $this->cacheManager->clean(['config']);
     }
 
     /**
@@ -106,6 +112,8 @@ class ConfigurationController extends ApiController
             $this->repository->saveWebformSettings($webForm, $scope);
             $this->repository->saveWebEventTracking($webEventTracking, $scope);
             $this->repository->saveLiveSynchronization($liveSynchronization, $scope);
+
+            $this->cacheManager->clean(['config']);
 
         } catch (RequestValidationException $e) {
             throw new WebapiException(new Phrase($e->getMessage()));
@@ -145,7 +153,7 @@ class ConfigurationController extends ApiController
             new FacebookAdsPixel(false, ''),
             new FacebookBusinessExtension(false, ''),
             new WebForm(false, '', '', ''),
-            new WebEventTracking(false, ''),
+            new WebEventTracking(false, false, ''),
             new LiveSynchronization(false, '', '')
         );
     }

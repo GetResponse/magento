@@ -203,7 +203,8 @@ class UpgradeData implements UpgradeDataInterface
                 $row['active_subscription'],
                 $row['update'],
                 $row['campaign_id'],
-                $row['cycle_day']
+                $row['cycle_day'],
+                $row['autoresponderId']
             );
 
             $this->configWriter->save(
@@ -228,7 +229,11 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         foreach ($data as $row) {
-            $webEventTracking = new WebEventTracking($row['web_traffic'], $row['tracking_code_snippet']);
+            $webEventTracking = new WebEventTracking(
+                $row['web_traffic'],
+                $row['isFeatureTrackingEnabled'],
+                $row['tracking_code_snippet']
+            );
 
             $this->configWriter->save(
                 Config::CONFIG_DATA_WEB_EVENT_TRACKING,
