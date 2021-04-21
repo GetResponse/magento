@@ -35,15 +35,14 @@ class ModuleController
         try {
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
             $pluginMode->switch($mode);
+
+            if ($pluginMode->isNewVersion()) {
+                foreach ($this->magentoStore->getMagentoStores() as $storeId => $storeName) {
+                    $this->repository->clearDatabase($storeId);
+                }
+            }
+
             $this->repository->savePluginMode($pluginMode);
-
-            if (false === $pluginMode->isNewVersion()) {
-                return;
-            }
-
-            foreach ($this->magentoStore->getMagentoStores() as $storeId => $storeName) {
-                $this->repository->clearConfiguration($storeId);
-            }
 
         } catch (PluginModeException $e) {
             throw new WebapiException(new Phrase($e->getMessage()));
