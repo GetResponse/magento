@@ -12,7 +12,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistrati
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Backend\App\Action\Context;
 
 class Save extends AbstractController
@@ -56,7 +55,6 @@ class Save extends AbstractController
         $campaignId = $data['campaign_id'];
 
         if (empty($campaignId)) {
-
             return $this->redirect($this->_redirect->getRefererUrl(), Message::SELECT_CONTACT_LIST, true);
         }
 

@@ -12,7 +12,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand\ExportO
 use GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand\ExportOnDemandValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\CustomerReadModel;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Helper\Route;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use Magento\Backend\App\Action\Context;
 

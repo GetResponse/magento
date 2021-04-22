@@ -17,6 +17,4 @@ class Scope
     {
         return $this->scopeId;
     }
-
-
 }

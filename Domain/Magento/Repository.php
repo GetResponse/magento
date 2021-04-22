@@ -11,9 +11,9 @@ use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
-use Magento\Framework\Serialize\SerializerInterface;
 
 class Repository
 {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use Exception;
 use GetResponse\GetResponseIntegration\Api\ApiService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\Command\AddContact;
@@ -16,11 +17,10 @@ use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
+use Magento\Customer\Model\Customer;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Newsletter\Model\Subscriber;
-use Exception;
-use \Magento\Customer\Model\Customer;
 use Magento\Store\Model\StoreRepository;
 
 class SubscribeFromNewsletter implements ObserverInterface
@@ -72,7 +72,6 @@ class SubscribeFromNewsletter implements ObserverInterface
             } else {
                 $this->handleOldVersion($scope, $subscriber->getEmail());
             }
-
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }
@@ -106,5 +105,4 @@ class SubscribeFromNewsletter implements ObserverInterface
             )
         );
     }
-
 }

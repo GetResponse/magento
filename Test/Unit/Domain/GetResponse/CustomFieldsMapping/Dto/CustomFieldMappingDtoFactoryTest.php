@@ -52,7 +52,7 @@ class CustomFieldMappingDtoFactoryTest extends BaseTestCase
     {
         $this->assertEquals(
             $customFieldMappingDto,
-            $this->sut->createFromRequestData($magentoAttributeCode,$grCustomFieldId)
+            $this->sut->createFromRequestData($magentoAttributeCode, $grCustomFieldId)
         );
     }
 

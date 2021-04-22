@@ -40,7 +40,6 @@ class Index extends AbstractController
         $data = $this->request->getPostValue();
 
         if (isset($data['updateWebTraffic'])) {
-
             $webEventTracking = WebEventTracking::createFromRepository(
                 $this->repository->getWebEventTracking($this->scope->getScopeId())
             );

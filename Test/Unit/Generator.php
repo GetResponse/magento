@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Test\Unit;
 
 use GrShareCode\Address\Address;
@@ -75,11 +75,9 @@ class Generator
      */
     public static function createProductsCollection($productsCount = 1, $variantsCount = 1)
     {
-
         $products = new ProductsCollection();
 
         for ($i = 0; $i < $productsCount; $i++) {
-
             $products->add(
                 (new Product(
                     $i + 1,
@@ -135,5 +133,4 @@ class Generator
 
         return $categoryCollection;
     }
-
 }

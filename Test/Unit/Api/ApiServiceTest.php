@@ -9,13 +9,13 @@ use GetResponse\GetResponseIntegration\Api\HttpClient;
 use GetResponse\GetResponseIntegration\Api\OrderFactory;
 use GetResponse\GetResponseIntegration\Api\ProductFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GetResponse\GetResponseIntegration\Test\Unit\ApiFaker;
 use Magento\Catalog\Model\Product;
 use Magento\Customer\Model\Customer as MagentoCustomer;
 use Magento\Quote\Model\Quote;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class ApiServiceTest extends BaseTestCase
@@ -54,7 +54,6 @@ class ApiServiceTest extends BaseTestCase
             $this->productFactory,
             $this->customerFactory
         );
-
     }
 
     /**

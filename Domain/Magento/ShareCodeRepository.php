@@ -93,7 +93,6 @@ class ShareCodeRepository implements DbRepositoryInterface
         );
     }
 
-
     public function saveProductMapping(ProductMapping $productMapping)
     {
         $productMap = $this->objectManager->create(ProductMap::class);

@@ -111,5 +111,6 @@ class CartObserver implements ObserverInterface
             $this->ecommerceReadModel->getListId($scope),
             $shopId,
             $scope
-        );}
+        );
+    }
 }

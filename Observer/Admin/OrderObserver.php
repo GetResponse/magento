@@ -21,7 +21,7 @@ use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Contact\Contact;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
-use \Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order;
 
 class OrderObserver implements ObserverInterface
 {
@@ -64,7 +64,6 @@ class OrderObserver implements ObserverInterface
             } else {
                 $this->handleOldVersion($order);
             }
-
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }

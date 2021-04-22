@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Extensions;
 
-use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Api\Data\CustomerExtensionFactory;
 use Magento\Customer\Api\Data\CustomerExtensionInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Newsletter\Model\SubscriberFactory;
 
 class Customer
@@ -26,7 +26,6 @@ class Customer
         CustomerInterface $customer,
         ?CustomerExtensionInterface $extension = null
     ): ?CustomerExtensionInterface {
-
         if (null === $extension) {
             $extension = $this->extensionFactory->create();
         }

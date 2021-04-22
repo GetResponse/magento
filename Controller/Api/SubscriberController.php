@@ -6,10 +6,10 @@ namespace GetResponse\GetResponseIntegration\Controller\Api;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
+use Magento\Framework\Webapi\Exception as WebapiException;
 use Magento\Newsletter\Model\ResourceModel\Subscriber\Collection;
 use Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory;
 use Magento\Newsletter\Model\Subscriber as SubscriberModel;
-use Magento\Framework\Webapi\Exception as WebapiException;
 
 /**
  * @api

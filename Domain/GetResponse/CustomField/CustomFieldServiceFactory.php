@@ -29,5 +29,4 @@ class CustomFieldServiceFactory
             $this->apiClientFactory->createGetResponseApiClient($scope)
         );
     }
-
 }

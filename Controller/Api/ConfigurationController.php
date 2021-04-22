@@ -15,8 +15,8 @@ use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebForm;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
-use GetResponse\GetResponseIntegration\Presenter\Api\Section\General;
 use GetResponse\GetResponseIntegration\Presenter\Api\ConfigurationPresenter;
+use GetResponse\GetResponseIntegration\Presenter\Api\Section\General;
 use GetResponse\GetResponseIntegration\Presenter\Api\Section\Store;
 use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\Module\ModuleListInterface;
@@ -115,7 +115,6 @@ class ConfigurationController extends ApiController
 
             $this->clearCache();
             $this->cacheManager->clean(['config']);
-
         } catch (RequestValidationException $e) {
             throw new WebapiException(new Phrase($e->getMessage()));
         }

@@ -42,5 +42,4 @@ class OrderServiceTest extends BaseTestCase
             $this->getMockWithoutConstructing(Scope::class)
         );
     }
-
 }

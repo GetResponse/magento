@@ -6,8 +6,6 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapp
 
 use Exception;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMapping;
-use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
-use Magento\Customer\Model\Address;
 use Magento\Customer\Model\Data\Customer;
 
 class MagentoCustomerAttributeService
@@ -37,8 +35,7 @@ class MagentoCustomerAttributeService
     {
         try {
             $customerAddress = [];
-            if ($customer->getAddresses() !== null)
-            {
+            if ($customer->getAddresses() !== null) {
                 foreach ($customer->getAddresses() as $address) {
                     $customerAddress = $address->__toArray();
                 }

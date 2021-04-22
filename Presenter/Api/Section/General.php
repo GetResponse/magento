@@ -17,7 +17,6 @@ class General
         $this->pluginMode = $pluginMode;
     }
 
-
     /**
      * @return string
      */

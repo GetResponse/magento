@@ -45,7 +45,6 @@ class UpgradeData implements UpgradeDataInterface
 
         if (version_compare($context->getVersion(), '1', '>')
             && version_compare($context->getVersion(), '20.1.1', '<=')) {
-
             $this->ver2011updateConnectionSettings($setup);
             $this->ver2011updateRegistrationSettings($setup);
             $this->ver2011migrateAccountSettings($setup);
@@ -57,7 +56,6 @@ class UpgradeData implements UpgradeDataInterface
 
         if (version_compare($context->getVersion(), '20.1.1', '>=')
             && version_compare($context->getVersion(), '20.3.4', '<=')) {
-
             $this->ver2034migrateCustomFieldsMapping();
         }
 
@@ -107,8 +105,6 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         foreach ($data as $row) {
-
-
             $data = [
                 'firstName' => $row['first_name'],
                 'lastName' => $row['first_name'],

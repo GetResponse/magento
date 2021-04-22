@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Api;
 
 use Magento\Quote\Model\Quote\Item;
-use \Magento\Sales\Model\Order as MagentoOrder;
+use Magento\Sales\Model\Order as MagentoOrder;
 
 class OrderFactory
 {
@@ -55,7 +55,6 @@ class OrderFactory
             if (!empty($children)) {
                 /** @var Item $child */
                 foreach ($children as $child) {
-
                     $lines[] = new Line(
                         (int)$child->getProduct()->getId(),
                         (float)$child->getPrice(),
@@ -65,7 +64,6 @@ class OrderFactory
                     );
                 }
             } else {
-
                 $lines[] = new Line(
                     (int)$item->getProduct()->getId(),
                     (float)$item->getPrice(),

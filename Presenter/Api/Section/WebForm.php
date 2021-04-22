@@ -15,7 +15,6 @@ class WebForm
         $this->webForm = $webForm;
     }
 
-
     /**
      * @return bool
      */

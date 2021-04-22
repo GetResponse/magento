@@ -6,9 +6,8 @@ namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Newsletter;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\Magento\NewsletterSettingsFactory;
-use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Helper\Route;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action\Context;
 
 class Save extends AbstractController

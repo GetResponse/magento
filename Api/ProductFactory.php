@@ -28,7 +28,6 @@ class ProductFactory
         $variants = [];
 
         if ($product->getTypeId() === Configurable::TYPE_CODE) {
-
             $usedProducts = $product->getTypeInstance()->getUsedProducts($product);
             /** @var MagentoProduct $childProduct */
             foreach ($usedProducts as $childProduct) {
@@ -59,7 +58,6 @@ class ProductFactory
                 );
             }
         } else {
-
             $images = [];
             foreach ($product->getMediaGalleryImages() as $image) {
                 $images[] = new Image(

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Api;
 
 use GetResponse\GetResponseIntegration\Helper\Config;
+use JsonSerializable;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\Serialize\SerializerInterface;
-use JsonSerializable;
 use Magento\Store\Model\StoreManagerInterface;
 
 class HttpClient

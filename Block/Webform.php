@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Block;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebForm as WebFormSettings;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
 class Webform extends Template
 {

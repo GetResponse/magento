@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Api;
 
 use JsonSerializable;
-use Magento\Framework\Validator\Test\Unit\Test\Callback;
 
 class Product implements JsonSerializable
 {

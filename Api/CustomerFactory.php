@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-use \Magento\Customer\Model\Customer as MagentoCustomer;
+use Magento\Customer\Model\Customer as MagentoCustomer;
 use Magento\Newsletter\Model\Subscriber;
 
 class CustomerFactory

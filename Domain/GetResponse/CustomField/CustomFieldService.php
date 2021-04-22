@@ -30,5 +30,4 @@ class CustomFieldService
 
         return $grCustomFieldService->getCustomFieldsForMapping();
     }
-
 }

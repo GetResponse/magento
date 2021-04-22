@@ -9,7 +9,6 @@ use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Store\ReadModel\StoreReadModel;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Helper\Route;
 use GrShareCode\Shop\Command\AddShopCommand;
 use GrShareCode\Shop\ShopService;
 use Magento\Backend\App\Action\Context;
@@ -52,7 +51,6 @@ class CreateShop extends AbstractController
             );
 
             return $this->renderJson(['shopId' => $shopId, 'name' => $data['shop_name']]);
-
         } catch (Exception $e) {
             return $this->renderJson(['error' => $e->getMessage()]);
         }

@@ -43,7 +43,6 @@ abstract class ApiController
             throw new WebapiException(new Phrase('Incorrect scope.'));
         }
 
-
         $this->scope = new Scope($scope);
     }
 

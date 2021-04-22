@@ -51,7 +51,9 @@ class OrderServiceFactoryTest extends BaseTestCase
         $getresponseApiClient = new GetresponseApiClient(
             new GetresponseApi(
                 new ApiKeyAuthorization(
-                    $apiKey, Authorization::SMB, $domain
+                    $apiKey,
+                    Authorization::SMB,
+                    $domain
                 ),
                 Config::X_APP_ID,
                 new UserAgentHeader(

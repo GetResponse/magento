@@ -45,7 +45,6 @@ class WebformTest extends BaseTestCase
         string $placement,
         string $url
     ): void {
-
         $this->repository
             ->method('getWebformSettings')
             ->willReturn([

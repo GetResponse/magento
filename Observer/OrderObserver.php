@@ -14,6 +14,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Command\AddOrder
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Exception\InvalidOrderException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
@@ -22,7 +23,6 @@ use GrShareCode\Contact\Contact;
 use Magento\Customer\Model\Session;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Sales\Model\Order;
 
 class OrderObserver implements ObserverInterface

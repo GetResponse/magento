@@ -43,7 +43,6 @@ class ModuleController
             }
 
             $this->repository->savePluginMode($pluginMode);
-
         } catch (PluginModeException $e) {
             throw new WebapiException(new Phrase($e->getMessage()));
         }

@@ -87,10 +87,10 @@ class LiveSynchronization
         }
 
         if (true === $data['live_synchronization']['is_active'] && !in_array(
-                $data['live_synchronization']['type'],
-                [self::TYPE_CONTACT, self::TYPE_PRODUCT, self::TYPE_ECOMMERCE],
-                true
-            )) {
+            $data['live_synchronization']['type'],
+            [self::TYPE_CONTACT, self::TYPE_PRODUCT, self::TYPE_ECOMMERCE],
+            true
+        )) {
             throw new RequestValidationException('Invalid live synchronization type');
         }
 

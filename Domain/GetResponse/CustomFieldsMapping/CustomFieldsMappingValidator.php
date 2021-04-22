@@ -17,7 +17,6 @@ class CustomFieldsMappingValidator
         $getResponseCustomFields = [];
 
         foreach ($customFieldMappingDtoCollection as $customFieldMappingDto) {
-
             if (empty($customFieldMappingDto->getGetResponseCustomFieldId())) {
                 $this->errorMessage = Message::CUSTOM_FIELDS_MAPPING_VALIDATION_GETRESPONSE_CUSTOM_FIELD_EMPTY;
 

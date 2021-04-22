@@ -39,7 +39,9 @@ class AccountReadModelTest extends BaseTestCase
         $domain = 'getresponse';
 
         $expectedSettings = new ConnectionSettings(
-            $apiKey, $url, $domain
+            $apiKey,
+            $url,
+            $domain
         );
 
         $this->repository
@@ -77,7 +79,16 @@ class AccountReadModelTest extends BaseTestCase
         $countryCodeObject->countryCode = $countryCode;
 
         $expectedAccount = new Account(
-            $firstName, $lastName, $email, $companyName, $phone, $state, $city, $street, $zipCode, $countryCode
+            $firstName,
+            $lastName,
+            $email,
+            $companyName,
+            $phone,
+            $state,
+            $city,
+            $street,
+            $zipCode,
+            $countryCode
         );
 
         $this->repository
@@ -135,6 +146,5 @@ class AccountReadModelTest extends BaseTestCase
 
         $result = $this->accountReadModel->getHiddenApiKey($this->scope);
         self::assertEquals($hiddenApiKey, $result);
-
     }
 }
