@@ -37,7 +37,7 @@ class OrderFactory
             (float)$order->getBaseShippingAmount(),
             $order->getOrderCurrencyCode(),
             $order->getStatus(),
-            null,
+            $order->getStatus(),
             $shippingAddress,
             $billingAddress,
             $order->getCreatedAt(),
