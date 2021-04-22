@@ -85,7 +85,7 @@ class ConfigurationController extends ApiController
             $this->repository->clearConfiguration($storeId);
         }
 
-        $this->cacheManager->clean(['config']);
+        $this->clearCache();
     }
 
     /**
@@ -113,6 +113,7 @@ class ConfigurationController extends ApiController
             $this->repository->saveWebEventTracking($webEventTracking, $scope);
             $this->repository->saveLiveSynchronization($liveSynchronization, $scope);
 
+            $this->clearCache();
             $this->cacheManager->clean(['config']);
 
         } catch (RequestValidationException $e) {
@@ -156,5 +157,10 @@ class ConfigurationController extends ApiController
             new WebEventTracking(false, false, ''),
             new LiveSynchronization(false, '', '')
         );
+    }
+
+    private function clearCache(): void
+    {
+        $this->cacheManager->clean(['full_page', 'config']);
     }
 }
