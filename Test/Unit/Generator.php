@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
+
 namespace GetResponse\GetResponseIntegration\Test\Unit;
 
 use GrShareCode\Address\Address;
 use GrShareCode\Address\Address as GrAddress;
-use GrShareCode\Order\Order;
 use GrShareCode\Product\Category\Category;
 use GrShareCode\Product\Category\CategoryCollection;
 use GrShareCode\Product\Product;
@@ -13,39 +15,12 @@ use GrShareCode\Product\Variant\Images\ImagesCollection;
 use GrShareCode\Product\Variant\Variant;
 use GrShareCode\Product\Variant\VariantsCollection;
 
-/**
- * Class Generator
- * @package GetResponse\GetResponseIntegration\Test\Unit
- */
 class Generator
 {
     /**
-     * @return Order
-     */
-    public static function createGrOrder($orderId = '')
-    {
-        return new Order(
-            '1000021',
-            new ProductsCollection(),
-            80.00,
-            99.99,
-            '',
-            'PLN',
-            'pending',
-            '20000043',
-            '',
-            20.00,
-            '',
-            '2018-09-22T12:01:01+0000',
-            self::createAddress(),
-            self::createAddress()
-        );
-    }
-
-    /**
      * @return Address
      */
-    public static function createAddress()
+    public static function createAddress(): GrAddress
     {
         return new Address('POL', 'default-address');
     }
@@ -53,7 +28,7 @@ class Generator
     /**
      * @return GrAddress
      */
-    public static function createGrAddress()
+    public static function createGrAddress(): GrAddress
     {
         return (new Address('POL', 'Poland'))
             ->setFirstName('Adam')
@@ -73,7 +48,7 @@ class Generator
      * @param int $variantsCount
      * @return ProductsCollection
      */
-    public static function createProductsCollection($productsCount = 1, $variantsCount = 1)
+    public static function createProductsCollection($productsCount = 1, $variantsCount = 1): ProductsCollection
     {
         $products = new ProductsCollection();
 
@@ -95,7 +70,7 @@ class Generator
      * @param int $count - number of variants in collection
      * @return VariantsCollection
      */
-    public static function createProductVariants($count = 1)
+    public static function createProductVariants($count = 1): VariantsCollection
     {
         $variants = new VariantsCollection();
 
@@ -126,7 +101,7 @@ class Generator
     /**
      * @return CategoryCollection
      */
-    public static function createCategoriesCollection()
+    public static function createCategoriesCollection(): CategoryCollection
     {
         $categoryCollection = new CategoryCollection();
         $categoryCollection->add(new Category('t-shirts'));

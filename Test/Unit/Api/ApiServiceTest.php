@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace GetResponse\GetResponseIntegration\Test\Unit\Api;
+
 use GetResponse\GetResponseIntegration\Api\ApiService;
 use GetResponse\GetResponseIntegration\Api\CartFactory;
 use GetResponse\GetResponseIntegration\Api\CustomerFactory;
