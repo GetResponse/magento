@@ -12,7 +12,7 @@ if ($webTrafficTracking->isFeatureTrackingEnabled()): ?>
 <form method="post" action="<?php echo $block->getUrlWithScope('getresponse/webtraffic/index'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
     <div class="page-main-actions">
-        <?php require('switch_scope.phtml') ?>
+        <?php require 'switch_scope.phtml'?>
         <div class="page-main-hint">
             <span>Enable event tracking in GetResponse to uncover who is visiting your stores, how often, and why.<br/>Analyze and react to customer buying habits.</span>
         </div>
@@ -30,7 +30,7 @@ if ($webTrafficTracking->isFeatureTrackingEnabled()): ?>
                id="web_traffic"
                value="1"
                class="admin__control-checkbox"
-            <?php if ($webTrafficTracking->isEnabled()):?>
+            <?php if ($webTrafficTracking->isActive()):?>
                checked="checked"
             <?php endif ?>
         />

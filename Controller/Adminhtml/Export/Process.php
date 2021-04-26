@@ -12,7 +12,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand\ExportO
 use GetResponse\GetResponseIntegration\Domain\GetResponse\ExportOnDemand\ExportOnDemandValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\CustomerReadModel;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Helper\Route;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use Magento\Backend\App\Action\Context;
 
@@ -43,10 +42,6 @@ class Process extends AbstractController
     public function execute()
     {
         parent::execute();
-
-        if (!$this->isConnected()) {
-            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
-        }
 
         $exportOnDemandDto = $this->exportOnDemandDtoFactory->createFromRequest(
             $this->request->getPostValue()

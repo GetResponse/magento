@@ -42,8 +42,17 @@ class AccountTest extends BaseTestCase
     public function shouldReturnAccountInfo()
     {
         $account = new Account(
-            '33303939', 'testName', 'testLastName', 'testEmail', 'testCompanyName', 'testPhone', 'testState',
-            'testCity', 'testStreet', 'testZipCode');
+            '33303939',
+            'testName',
+            'testLastName',
+            'testEmail',
+            'testCompanyName',
+            'testPhone',
+            'testState',
+            'testCity',
+            'testStreet',
+            'testZipCode'
+        );
 
         $this->accountReadModel
             ->expects(self::once())->method('getAccount')
@@ -65,7 +74,6 @@ class AccountTest extends BaseTestCase
             ->willReturn(true);
 
         self::assertEquals(true, $this->accountBlock->isConnectedToGetResponse());
-
     }
 
     /**
@@ -83,6 +91,5 @@ class AccountTest extends BaseTestCase
         $apiKey = $this->accountBlock->getHiddenApiKey();
 
         self::assertEquals($hiddenApiKey, $apiKey);
-
     }
 }

@@ -15,7 +15,7 @@ if ($isApiActive) {
 <form method="post" action="<?php echo $block->getUrlWithScope('getresponse/account/save'); ?>">
     <?php echo $block->getBlockHtml('formkey'); ?>
     <div class="page-main-actions">
-        <?php require('switch_scope.phtml') ?>
+        <?php require 'switch_scope.phtml'?>
         <div class="page-main-hint">
             <span>Use API key to connect your site and GetResponse.</span>
         </div>
@@ -68,8 +68,8 @@ if ($isApiActive) {
                             <div class="admin__field-control control">
                                 <div class="admin__field">
                                     <select id="url" name="url" title="Account Type" class="select admin__control-select" aria-required="true">
-                                        <option value="https://api3.getresponse360.com/v3/" <?php if('https://api3.getresponse360.com/v3/' === $block->getLastPostedApiUrl()) { ?> selected="selected"<?php } ?>>GetResponse Enterprise COM</option>
-                                        <option value="https://api3.getresponse360.pl/v3/" <?php if('https://api3.getresponse360.pl/v3/' === $block->getLastPostedApiUrl()) { ?> selected="selected"<?php } ?>>GetResponse Enterprise PL</option>
+                                        <option value="https://api3.getresponse360.com/v3/" <?php if ('https://api3.getresponse360.com/v3/' === $block->getLastPostedApiUrl()) { ?> selected="selected"<?php } ?>>GetResponse Enterprise COM</option>
+                                        <option value="https://api3.getresponse360.pl/v3/" <?php if ('https://api3.getresponse360.pl/v3/' === $block->getLastPostedApiUrl()) { ?> selected="selected"<?php } ?>>GetResponse Enterprise PL</option>
                                     </select>
                                 </div>
                             </div>

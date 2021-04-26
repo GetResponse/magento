@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Account;
 
 use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
-use GetResponse\GetResponseIntegration\Helper\Message;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\Message;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Cache\Manager;
 

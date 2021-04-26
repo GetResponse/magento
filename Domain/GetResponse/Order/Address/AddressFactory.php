@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Address;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\Country\ReadModel\Query\CountryId;
 use GetResponse\GetResponseIntegration\Domain\Magento\Country\ReadModel\CountryReadModel;
+use GetResponse\GetResponseIntegration\Domain\Magento\Country\ReadModel\Query\CountryId;
 use GrShareCode\Address\Address;
 use GrShareCode\Address\AddressFactory as GrAddressFactory;
 use Magento\Sales\Model\Order;

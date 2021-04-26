@@ -300,7 +300,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
         $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_product_map'));
 
-
         $table = $setup->getConnection()->newTable(
             $setup->getTable('getresponse_product_map')
         )->addColumn(

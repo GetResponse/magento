@@ -37,14 +37,9 @@ class Index extends AbstractController
             return $this->redirectToStore(Route::WEB_TRAFFIC_INDEX_ROUTE);
         }
 
-        if (!$this->isConnected()) {
-            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
-        }
-
         $data = $this->request->getPostValue();
 
         if (isset($data['updateWebTraffic'])) {
-
             $webEventTracking = WebEventTracking::createFromRepository(
                 $this->repository->getWebEventTracking($this->scope->getScopeId())
             );
@@ -61,7 +56,7 @@ class Index extends AbstractController
 
             $this->cacheTypeList->cleanType(Type::TYPE_IDENTIFIER);
 
-            $message = ($newWebEventTracking->isEnabled()) ? Message::WEB_EVENT_TRAFFIC_ENABLED : Message::WEB_EVENT_TRAFFIC_DISABLED;
+            $message = ($newWebEventTracking->isActive()) ? Message::WEB_EVENT_TRAFFIC_ENABLED : Message::WEB_EVENT_TRAFFIC_DISABLED;
 
             return $this->redirect($this->_redirect->getRefererUrl(), $message);
         }

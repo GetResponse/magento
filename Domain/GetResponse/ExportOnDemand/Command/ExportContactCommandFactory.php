@@ -42,7 +42,6 @@ class ExportContactCommandFactory
         Subscriber $subscriber,
         ExportOnDemand $exportOnDemand
     ): ExportContactCommand {
-
         if (!$this->subscriberIsAlsoCustomer($subscriber)) {
             return $this->createExportCommandForSubscriber($subscriber, $exportOnDemand);
         }

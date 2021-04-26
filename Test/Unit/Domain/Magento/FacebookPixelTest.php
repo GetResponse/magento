@@ -13,7 +13,7 @@ class FacebookPixelTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldCreateFacebookPixel()
+    public function shouldCreateFacebookPixel(): void
     {
         $isActive = true;
         $snippet = '<script>alert("1")</script>';
@@ -27,7 +27,7 @@ class FacebookPixelTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldCreateFacebookPixelFromRepository()
+    public function shouldCreateFacebookPixelFromRepository(): void
     {
         $facebookPixel = FacebookPixel::createFromRepository([]);
 
@@ -51,15 +51,15 @@ class FacebookPixelTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldCreateFacebookPixelFromRequest()
+    public function shouldCreateFacebookPixelFromRequest(): void
     {
         $isActive = true;
         $snippet = '<script>alert("1")</script>';
 
         $data = [
-            'facebookPixel' => [
-                'isActive' => $isActive,
-                'codeSnippet' => $snippet
+            'facebook_pixel' => [
+                'is_active' => $isActive,
+                'snippet' => $snippet
             ]
         ];
 
@@ -72,7 +72,7 @@ class FacebookPixelTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldThrowExceptionWhenCreateFacebookPixelFromRequest()
+    public function shouldThrowExceptionWhenCreateFacebookPixelFromRequest(): void
     {
         $this->expectException(RequestValidationException::class);
         FacebookPixel::createFromRequest([]);

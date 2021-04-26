@@ -71,5 +71,4 @@ class Message
     const CUSTOM_FIELDS_MAPPING_VALIDATION_GETRESPONSE_CUSTOM_FIELD_DUPLICATED = 'Mapping: GetResponse custom field is used more than once';
 
     const API_ERROR_MESSAGE = 'The API key seems incorrect. Please check if you typed or pasted it correctly. If you recently generated a new key, please make sure you’re using the right one';
-
 }

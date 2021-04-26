@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Model;
 
-use Magento\Framework\Model\AbstractModel;
 use GetResponse\GetResponseIntegration\Model\ResourceModel\OrderMap as ResourceOrderMap;
+use Magento\Framework\Model\AbstractModel;
 
 class OrderMap extends AbstractModel
 {

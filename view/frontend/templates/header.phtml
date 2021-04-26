@@ -7,10 +7,7 @@ use GetResponse\GetResponseIntegration\Block\Header;
 /** @var Header $block */
 $data = $block->getTrackingData();
 
-if ('' !== $data['trackingCodeSnippet']) {
-    echo $data['trackingCodeSnippet'];
-}
-
-if ('' !== $data['facebookPixelCodeSnippet']) {
-    echo $data['facebookPixelCodeSnippet'];
-}
+echo $data['trackingCodeSnippet'];
+echo $data['facebookPixelCodeSnippet'];
+echo $data['facebookAdsPixelCodeSnippet'];
+echo $data['facebookBusinessExtensionCodeSnippet'];

@@ -51,6 +51,6 @@ class AdminTemplate extends Template
 
     public function getPageUrlForScope(int $scope): string
     {
-        return $this->getUrl($this->routePrefix . '/' . Config::SCOPE_TAG . '/' .  $scope);
+        return $this->getUrl($this->routePrefix . '/' . Config::SCOPE_TAG . '/' . $scope);
     }
 }

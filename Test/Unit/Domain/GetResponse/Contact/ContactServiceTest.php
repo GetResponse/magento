@@ -65,7 +65,6 @@ class ContactServiceTest extends BaseTestCase
             ->method('create')
             ->willReturn($this->grContactServiceMock);
 
-
         $this->grContactServiceMock
             ->expects(self::once())
             ->method('addContact')
@@ -146,5 +145,4 @@ class ContactServiceTest extends BaseTestCase
             ]
         ];
     }
-
 }

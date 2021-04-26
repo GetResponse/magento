@@ -17,19 +17,24 @@ use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreManagerInterface;
 
 class UpgradeData implements UpgradeDataInterface
 {
     private $configWriter;
     private $cacheManager;
+    private $storeManager;
 
     public function __construct(
         WriterInterface $configWriter,
-        Manager $cacheManager
+        Manager $cacheManager,
+        StoreManagerInterface $storeManager
     ) {
         $this->configWriter = $configWriter;
         $this->cacheManager = $cacheManager;
+        $this->storeManager = $storeManager;
     }
 
     public function upgrade(
@@ -40,7 +45,6 @@ class UpgradeData implements UpgradeDataInterface
 
         if (version_compare($context->getVersion(), '1', '>')
             && version_compare($context->getVersion(), '20.1.1', '<=')) {
-
             $this->ver2011updateConnectionSettings($setup);
             $this->ver2011updateRegistrationSettings($setup);
             $this->ver2011migrateAccountSettings($setup);
@@ -52,8 +56,11 @@ class UpgradeData implements UpgradeDataInterface
 
         if (version_compare($context->getVersion(), '20.1.1', '>=')
             && version_compare($context->getVersion(), '20.3.4', '<=')) {
-
             $this->ver2034migrateCustomFieldsMapping();
+        }
+
+        if (version_compare($context->getVersion(), '20.5.0', '<=')) {
+            $this->ver2050migrateStores($setup);
         }
 
         $setup->endSetup();
@@ -98,8 +105,6 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         foreach ($data as $row) {
-
-
             $data = [
                 'firstName' => $row['first_name'],
                 'lastName' => $row['first_name'],
@@ -194,7 +199,8 @@ class UpgradeData implements UpgradeDataInterface
                 $row['active_subscription'],
                 $row['update'],
                 $row['campaign_id'],
-                $row['cycle_day']
+                $row['cycle_day'],
+                $row['autoresponderId']
             );
 
             $this->configWriter->save(
@@ -221,7 +227,7 @@ class UpgradeData implements UpgradeDataInterface
         foreach ($data as $row) {
             $webEventTracking = new WebEventTracking(
                 $row['web_traffic'],
-                $row['feature_tracking'],
+                $row['isFeatureTrackingEnabled'],
                 $row['tracking_code_snippet']
             );
 
@@ -242,5 +248,30 @@ class UpgradeData implements UpgradeDataInterface
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
+    }
+
+    private function ver2050migrateStores(ModuleDataSetupInterface $setup): void
+    {
+        $query = "UPDATE %s SET scope = '%s', scope_id = '%s' WHERE scope = '%s' AND scope_id = '%s' and path like '%s'";
+
+        $data = [];
+        $stores = $this->storeManager->getStores();
+        foreach ($stores as $store) {
+            $data[$store->getWebsiteId()] = $store->getId();
+        }
+
+        foreach ($data as $websiteId => $storeId) {
+            $sql = sprintf(
+                $query,
+                $setup->getTable('core_config_data'),
+                ScopeInterface::SCOPE_STORES,
+                $storeId,
+                ScopeInterface::SCOPE_WEBSITES,
+                $websiteId,
+                'getresponse%'
+            );
+
+            $setup->getConnection()->query($sql)->execute();
+        }
     }
 }

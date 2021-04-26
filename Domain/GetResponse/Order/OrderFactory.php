@@ -32,7 +32,6 @@ class OrderFactory
 
         /** @var Item $orderItem */
         foreach ($order->getAllVisibleItems() as $orderItem) {
-
             if (!$orderItem->getProduct()) {
                 throw InvalidOrderException::forItemWithEmptyProduct($orderItem);
             }

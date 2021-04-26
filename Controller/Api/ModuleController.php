@@ -6,32 +6,45 @@ namespace GetResponse\GetResponseIntegration\Controller\Api;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginModeException;
-use Magento\Backend\App\Action\Context;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\MagentoStore;
+use Magento\Framework\Phrase;
+use Magento\Framework\Webapi\Exception as WebapiException;
 
 /**
  * @api
  */
-class ModuleController extends ApiController
+class ModuleController
 {
-    const MODE_PARAM = 'mode';
+    private $repository;
+    private $magentoStore;
 
-    public function __construct(Context $context)
+    public function __construct(Repository $repository, MagentoStore $magentoStore)
     {
-        parent::__construct($context);
-        $this->initialize();
+        $this->repository = $repository;
+        $this->magentoStore = $magentoStore;
     }
 
     /**
-     * @throws PluginModeException
+     * @param string $mode
      * @return void
+     * @throws WebapiException
      */
-    public function switch()
+    public function switch(string $mode): void
     {
-        $newMode = $this->request->getBodyParams()[self::MODE_PARAM] ?? '';
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode($this->scope->getScopeId()));
+        try {
+            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
+            $pluginMode->switch($mode);
 
-        $pluginMode->switch($newMode);
-        $this->repository->savePluginMode($pluginMode, $this->scope->getScopeId());
-        return null;
+            if ($pluginMode->isNewVersion()) {
+                foreach ($this->magentoStore->getMagentoStores() as $storeId => $storeName) {
+                    $this->repository->clearDatabase($storeId);
+                }
+            }
+
+            $this->repository->savePluginMode($pluginMode);
+        } catch (PluginModeException $e) {
+            throw new WebapiException(new Phrase($e->getMessage()));
+        }
     }
 }
