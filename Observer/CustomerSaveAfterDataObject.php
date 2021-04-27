@@ -21,7 +21,7 @@ use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
-class CustomerSubscribedDuringRegistration implements ObserverInterface
+class CustomerSaveAfterDataObject implements ObserverInterface
 {
     private $contactService;
     private $subscribeViaRegistrationService;
@@ -49,20 +49,17 @@ class CustomerSubscribedDuringRegistration implements ObserverInterface
         $this->apiService = $apiService;
     }
 
-    public function execute(Observer $observer): CustomerSubscribedDuringRegistration
+    public function execute(Observer $observer): CustomerSaveAfterDataObject
     {
         try {
-            $scope = $this->magentoStore->getCurrentScope();
-            /** @var Customer $customer */
-            $customer = $observer->getCustomer();
-
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-
-            if ($pluginMode->isNewVersion()) {
-                $this->apiService->createCustomer((int)$customer->getId(), $scope);
-            } else {
-                $this->handleOldVersion($customer, $scope);
+            if (!$pluginMode->isNewVersion()) {
+                return $this;
             }
+
+            $customerId = (int)$observer->getCustomerDataObject()->getId();
+            $scope = $this->magentoStore->getCurrentScope();
+            $this->apiService->createCustomer($customerId, $scope);
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }

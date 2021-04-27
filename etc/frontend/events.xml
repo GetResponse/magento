@@ -31,7 +31,7 @@
     <event name="newsletter_subscriber_save_after">
         <observer name="newsletter_subscriber_save_after" instance="GetResponse\GetResponseIntegration\Observer\SubscribeFromNewsletter"/>
     </event>
-    <event name="customer_register_success">
-        <observer name="customer_register" instance="GetResponse\GetResponseIntegration\Observer\CustomerSubscribedDuringRegistration" />
+    <event name="customer_save_after_data_object">
+        <observer name="customer_save_after_data_object_getresponse" instance="GetResponse\GetResponseIntegration\Observer\CustomerSaveAfterDataObject" />
     </event>
 </config>

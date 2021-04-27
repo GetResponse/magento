@@ -57,17 +57,11 @@ class SubscribeFromNewsletter implements ObserverInterface
             $scope = $this->magentoStore->getCurrentScope();
             /** @var Subscriber $subscriber */
             $subscriber = $observer->getSubscriber();
-            $store = $this->storeRepository->getById($subscriber->getStoreId());
-
-            $customer = $this->customer->setStore($store)->loadByEmail($subscriber->getEmail());
-
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
             if ($pluginMode->isNewVersion()) {
-                if (null === $customer->getId()) {
-                    $this->apiService->createSubscriber($subscriber);
-                } else {
-                    $this->apiService->createCustomer((int)$customer->getId(), $scope);
+                if (!$subscriber->getCustomerId()) {
+                    $this->apiService->createSubscriber($subscriber, $scope);
                 }
             } else {
                 $this->handleOldVersion($scope, $subscriber->getEmail());

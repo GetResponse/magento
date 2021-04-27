@@ -32,15 +32,29 @@ class CustomerFactory
         $billingAddress = $this->addressFactory->create($customer->getDefaultBillingAddress());
         $shippingAddress = $this->addressFactory->create($customer->getDefaultShippingAddress());
 
+        $customFields = [
+            'website_id' => $customer->getWebsiteId(),
+            'group_id' => $customer->getGroupId(),
+            'store_id' => $customer->getStoreId(),
+            'create_at' => $customer->getCreatedAtTimestamp(),
+            'is_active' => $customer->getData('is_active'),
+            'prefix' => $customer->getData('prefix'),
+            'dob' => $customer->getData('dob'),
+            'tax_vat' => $customer->getData('taxvat'),
+            'gender' => $customer->getData('gender'),
+            'middlename' => $customer->getData('middlename'),
+        ];
+
         return new Customer(
             (int)$customer->getId(),
             $customer->getEmail(),
             $customer->getFirstname(),
             $customer->getLastname(),
             $isSubscribed,
-            $shippingAddress,
+            $billingAddress,
             [],
             array_merge(
+                $customFields,
                 null !== $billingAddress ? $billingAddress->toCustomFieldsArray('billing') : [],
                 null !== $shippingAddress ? $shippingAddress->toCustomFieldsArray('shipping') : []
             )
