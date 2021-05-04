@@ -41,7 +41,7 @@ class CustomerFactory
             'prefix' => $customer->getData('prefix'),
             'dob' => $customer->getData('dob'),
             'tax_vat' => $customer->getData('taxvat'),
-            'gender' => $customer->getData('gender'),
+            'gender' => $customer->getAttribute('gender')->getSource()->getOptionText($customer->getData('gender')),
             'middlename' => $customer->getData('middlename'),
         ];
 
