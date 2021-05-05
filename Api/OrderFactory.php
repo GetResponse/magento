@@ -27,6 +27,7 @@ class OrderFactory
 
         return new Order(
             (int)$order->getId(),
+            (string)$order->getIncrementId(),
             (int)$order->getQuoteId(),
             $order->getCustomerEmail(),
             $this->customerFactory->create((int)$order->getCustomerId()),
