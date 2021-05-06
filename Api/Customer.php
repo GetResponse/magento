@@ -18,7 +18,7 @@ class Customer implements JsonSerializable
     private $customFields;
 
     public function __construct(
-        int $id,
+        ?int $id,
         string $email,
         string $firstName,
         string $lastName,
@@ -37,7 +37,7 @@ class Customer implements JsonSerializable
         $this->customFields = $customFields;
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

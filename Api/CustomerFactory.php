@@ -6,6 +6,7 @@ namespace GetResponse\GetResponseIntegration\Api;
 
 use Magento\Customer\Model\Customer as MagentoCustomer;
 use Magento\Newsletter\Model\Subscriber;
+use Magento\Sales\Model\Order as MagentoOrder;
 
 class CustomerFactory
 {
@@ -26,8 +27,7 @@ class CustomerFactory
     public function create(int $id): Customer
     {
         $customer = $this->magentoCustomer->load($id);
-        $subscriber = $this->subscriber->loadByCustomerId($id);
-        $isSubscribed = $subscriber->isSubscribed();
+        $isSubscribed = $this->isCustomerSubscriber($id);
 
         $billingAddress = $this->addressFactory->create($customer->getDefaultBillingAddress());
         $shippingAddress = $this->addressFactory->create($customer->getDefaultShippingAddress());
@@ -61,6 +61,39 @@ class CustomerFactory
         );
     }
 
+    public function createFromOrder(MagentoOrder $order): Customer
+    {
+        $isSubscribed = $this->isCustomerSubscriber($order->getCustomerId());
+
+        $billingAddress = $this->addressFactory->create($order->getBillingAddress());
+        $shippingAddress = $this->addressFactory->create($order->getShippingAddress());
+
+        $customFields = [
+            'group_id' => $order->getCustomerGroupId(),
+            'store_id' => $order->getStoreId(),
+            'prefix' => $order->getCustomerPrefix(),
+            'dob' => $order->getCustomerDob(),
+            'tax_vat' => $order->getCustomerTaxvat(),
+            'gender' => $order->getCustomerGender(),
+            'middlename' => $order->getCustomerMiddlename(),
+        ];
+
+        return new Customer(
+            $order->getCustomerId(),
+            $order->getCustomerEmail(),
+            $order->getCustomerFirstname(),
+            $order->getCustomerLastname(),
+            $isSubscribed,
+            $this->addressFactory->create($order->getBillingAddress()),
+            [],
+            array_merge(
+                $customFields,
+                null !== $billingAddress ? $billingAddress->toCustomFieldsArray('billing') : [],
+                null !== $shippingAddress ? $shippingAddress->toCustomFieldsArray('shipping') : []
+            )
+        );
+    }
+
     public function createFromSubscriber(Subscriber $subscriber): Customer
     {
         return new Customer(
@@ -73,5 +106,16 @@ class CustomerFactory
             [],
             []
         );
+    }
+
+    private function isCustomerSubscriber(?int $customerId): bool
+    {
+        if (null === $customerId) {
+            return false;
+        }
+
+        $subscriber = $this->subscriber->loadByCustomerId($customerId);
+
+        return $subscriber->isSubscribed();
     }
 }
