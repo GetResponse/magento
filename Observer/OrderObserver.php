@@ -62,11 +62,6 @@ class OrderObserver implements ObserverInterface
     public function execute(EventObserver $observer): OrderObserver
     {
         try {
-            // if customer is not logged in - skip
-            if (false === $this->customerSession->isLoggedIn()) {
-                return $this;
-            }
-
             $order = $observer->getOrder();
             $scope = $this->magentoStore->getCurrentScope();
 
