@@ -25,7 +25,7 @@ class CartFactory
             (int)$quote->getId(),
             $this->customerFactory->create((int) $quote->getCustomerId()),
             $this->createLinesFromQuote($quote),
-            (float)$quote->getGrandTotal(),
+            (float)$quote->getTotals()['subtotal']->getValue(),
             (float)$quote->getGrandTotal(),
             $quote->getQuoteCurrencyCode(),
             $this->cartHelper->getCartUrl(),
@@ -39,28 +39,13 @@ class CartFactory
         $lines = [];
 
         foreach ($quote->getAllVisibleItems() as $item) {
-            $children = $item->getChildren();
-
-            if (!empty($children)) {
-                /** @var Item $child */
-                foreach ($children as $child) {
-                    $lines[] = new Line(
-                        (int)$child->getProduct()->getId(),
-                        (float)$child->getPrice(),
-                        (float)$child->getPriceInclTax(),
-                        (int)$child->getQty(),
-                        (string) $child->getSku()
-                    );
-                }
-            } else {
-                $lines[] = new Line(
-                    (int)$item->getProduct()->getId(),
-                    (float)$item->getPrice(),
-                    (float)$item->getPriceInclTax(),
-                    (int)$item->getQty(),
-                    (string) $item->getSku()
-                );
-            }
+            $lines[] = new Line(
+                (int)$item->getProduct()->getId(),
+                (float)$item->getConvertedPrice(),
+                (float)$item->getPriceInclTax(),
+                (int)$item->getTotalQty(),
+                (string) $item->getSku()
+            );
         }
 
         return $lines;
