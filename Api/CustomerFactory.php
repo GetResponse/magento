@@ -63,7 +63,9 @@ class CustomerFactory
 
     public function createFromOrder(MagentoOrder $order): Customer
     {
-        $isSubscribed = $this->isCustomerSubscriber($order->getCustomerId());
+        $customerId = null === $order->getCustomerId() ? null : (int)$order->getCustomerId();
+
+        $isSubscribed = $this->isCustomerSubscriber($customerId);
 
         $billingAddress = $this->addressFactory->create($order->getBillingAddress());
         $shippingAddress = $this->addressFactory->create($order->getShippingAddress());
@@ -79,7 +81,7 @@ class CustomerFactory
         ];
 
         return new Customer(
-            $order->getCustomerId(),
+            $customerId,
             $order->getCustomerEmail(),
             $order->getCustomerFirstname(),
             $order->getCustomerLastname(),

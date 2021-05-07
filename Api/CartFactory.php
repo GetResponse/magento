@@ -25,7 +25,7 @@ class CartFactory
             (int)$quote->getId(),
             $this->customerFactory->create((int) $quote->getCustomerId()),
             $this->createLinesFromQuote($quote),
-            (float)$quote->getTotals()['subtotal']->getValue(),
+            (float)$quote->getSubtotal(),
             (float)$quote->getGrandTotal(),
             $quote->getQuoteCurrencyCode(),
             $this->cartHelper->getCartUrl(),

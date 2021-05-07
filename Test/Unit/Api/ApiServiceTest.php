@@ -161,6 +161,6 @@ class ApiServiceTest extends BaseTestCase
             ->method('post')
             ->with($liveSynchronization->getCallbackUrl(), $product);
 
-        $this->sut->createProduct($productMock, $scope);
+        $this->sut->upsertProductCatalog($productMock, $scope);
     }
 }

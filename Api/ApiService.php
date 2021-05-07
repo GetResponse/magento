@@ -116,7 +116,7 @@ class ApiService
     /**
      * @throws HttpClientException
      */
-    public function createProduct(MagentoProduct $product, Scope $scope): void
+    public function upsertProductCatalog(MagentoProduct $product, Scope $scope): void
     {
         $liveSynchronization = LiveSynchronization::createFromRepository(
             $this->repository->getLiveSynchronization($scope->getScopeId())
@@ -126,10 +126,11 @@ class ApiService
             return;
         }
 
-        $this->httpClient->post(
-            $liveSynchronization->getCallbackUrl(),
-            $this->productFactory->create($product, $scope)
-        );
+        $productsToUpsert = $this->productFactory->create($product, $scope);
+        foreach ($productsToUpsert as $productToUpsert) {
+            $callbackUrl = $liveSynchronization->getCallbackUrl();
+            $this->httpClient->post($callbackUrl, $productToUpsert);
+        }
     }
 
     public function createSubscriber(Subscriber $subscriber, Scope $scope): void

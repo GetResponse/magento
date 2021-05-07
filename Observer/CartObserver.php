@@ -81,7 +81,7 @@ class CartObserver implements ObserverInterface
      * @throws ApiException
      * @throws GetresponseApiException
      */
-    private function getContactFromGetResponse(Scope $scope): Contact
+    private function getContactFromGetResponse(Scope $scope): ?Contact
     {
         $contactListId = $this->ecommerceReadModel->getListId($scope);
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\ProductReadModel;
+use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\Query\GetProduct;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\Product as MagentoProduct;
@@ -14,16 +16,55 @@ class ProductFactory
 {
     private $categoryRepository;
     private $stockRepository;
+    private $productReadModel;
 
     public function __construct(
         CategoryRepository $categoryRepository,
-        StockItemRepository $stockRepository
+        StockItemRepository $stockRepository,
+        ProductReadModel $productReadModel
     ) {
         $this->categoryRepository = $categoryRepository;
         $this->stockRepository = $stockRepository;
+        $this->productReadModel = $productReadModel;
     }
 
-    public function create(MagentoProduct $product, Scope $scope): Product
+    /**
+     * @return Product[]
+     */
+    public function create(MagentoProduct $product, Scope $scope): array
+    {
+        $magentoProducts = $this->getParentProducts($product);
+
+        $products = [];
+        foreach ($magentoProducts as $magentoProduct) {
+            $products[] = $this->createFromMagentoProduct($magentoProduct, $scope);
+        }
+
+        return $products;
+    }
+
+    /**
+     * @return MagentoProduct[]
+     */
+    private function getParentProducts(MagentoProduct $product): array
+    {
+        $products = [$product];
+
+        if ((int)$product->getVisibility() === MagentoProduct\Visibility::VISIBILITY_NOT_VISIBLE) {
+            $products = $this->productReadModel->getProductParents(new GetProduct($product->getId()));
+        }
+
+        return $products;
+    }
+
+    /**
+     * @param MagentoProduct $product
+     * @param Scope $scope
+     *
+     * @return Product
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    private function createFromMagentoProduct(MagentoProduct $product, Scope $scope): Product
     {
         $variants = [];
 
@@ -49,7 +90,7 @@ class ProductFactory
                     (float)$childProduct->getPrice(),
                     null,
                     null,
-                    (int) $stockItem->getQty(),
+                    (int)$stockItem->getQty(),
                     $childProduct->setStoreId($scope->getScopeId())->getUrlModel()->getUrlInStore($childProduct),
                     0,
                     null,
@@ -76,7 +117,7 @@ class ProductFactory
                 (float)$product->getPrice(),
                 null,
                 null,
-                (int) $stockItem->getQty(),
+                (int)$stockItem->getQty(),
                 $product->setStoreId($scope->getScopeId())->getUrlModel()->getUrlInStore($product),
                 0,
                 null,
