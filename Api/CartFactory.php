@@ -23,7 +23,7 @@ class CartFactory
     {
         return new Cart(
             (int)$quote->getId(),
-            $this->customerFactory->create((int) $quote->getCustomerId()),
+            $this->customerFactory->create($quote->getCustomer(), (int)$quote->getStoreId()),
             $this->createLinesFromQuote($quote),
             (float)$quote->getSubtotal(),
             (float)$quote->getGrandTotal(),

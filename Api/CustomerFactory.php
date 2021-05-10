@@ -4,45 +4,60 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-use Magento\Customer\Model\Customer as MagentoCustomer;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\AddressInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Newsletter\Model\Subscriber;
 use Magento\Sales\Model\Order as MagentoOrder;
+use Magento\Store\Model\StoreManagerInterface;
 
 class CustomerFactory
 {
-    private $magentoCustomer;
+    private $customerRepository;
     private $subscriber;
     private $addressFactory;
+    private $storeManager;
 
     public function __construct(
-        MagentoCustomer $magentoCustomer,
+        CustomerRepositoryInterface $customerRepository,
         Subscriber $subscriber,
-        AddressFactory $addressFactory
+        AddressFactory $addressFactory,
+        StoreManagerInterface $storeManager
     ) {
-        $this->magentoCustomer = $magentoCustomer;
+        $this->customerRepository = $customerRepository;
         $this->subscriber = $subscriber;
         $this->addressFactory = $addressFactory;
+        $this->storeManager = $storeManager;
     }
 
-    public function create(int $id): Customer
+    public function create(CustomerInterface $customer, int $storeId): Customer
     {
-        $customer = $this->magentoCustomer->load($id);
-        $isSubscribed = $this->isCustomerSubscriber($id);
+        $customerId = $customer->getId();
+        $websiteId = $this->storeManager->getStore($storeId)->getWebsiteId();
+        $isSubscribed = $this->isCustomerSubscribed((int)$customerId, (int)$websiteId);
 
-        $billingAddress = $this->addressFactory->create($customer->getDefaultBillingAddress());
-        $shippingAddress = $this->addressFactory->create($customer->getDefaultShippingAddress());
+        $billingAddress = null;
+        $shippingAddress = null;
+        foreach ($customer->getAddresses() as $address) {
+            if ($address->isDefaultBilling()) {
+                $billingAddress = $this->addressFactory->createFromCustomer($address);
+            }
+            if ($address->isDefaultShipping()) {
+                $shippingAddress = $this->addressFactory->createFromCustomer($address);
+            }
+        }
 
         $customFields = [
             'website_id' => $customer->getWebsiteId(),
             'group_id' => $customer->getGroupId(),
             'store_id' => $customer->getStoreId(),
-            'create_at' => $customer->getCreatedAtTimestamp(),
-            'is_active' => $customer->getData('is_active'),
-            'prefix' => $customer->getData('prefix'),
-            'dob' => $customer->getData('dob'),
-            'tax_vat' => $customer->getData('taxvat'),
-            'gender' => $customer->getData('gender'),
-            'middlename' => $customer->getData('middlename'),
+            'create_at' => $customer->getCreatedAt(),
+            'prefix' => $customer->getPrefix(),
+            'sufix' => $customer->getSuffix(),
+            'dob' => $customer->getDob(),
+            'tax_vat' => $customer->getTaxvat(),
+            'gender' => $customer->getGender(),
+            'middlename' => $customer->getMiddlename(),
         ];
 
         return new Customer(
@@ -61,14 +76,26 @@ class CustomerFactory
         );
     }
 
-    public function createFromOrder(MagentoOrder $order): Customer
+    public function createFromOrder(MagentoOrder $order, int $storeId): Customer
     {
+        $websiteId = $this->storeManager->getStore($storeId)->getWebsiteId();
         $customerId = null === $order->getCustomerId() ? null : (int)$order->getCustomerId();
+        $isSubscribed = $this->isCustomerSubscribed($customerId, (int)$websiteId);
 
-        $isSubscribed = $this->isCustomerSubscriber($customerId);
+        $billingAddress = null;
+        $shippingAddress = null;
 
-        $billingAddress = $this->addressFactory->create($order->getBillingAddress());
-        $shippingAddress = $this->addressFactory->create($order->getShippingAddress());
+        if (null !== $customerId) {
+            $customer = $this->customerRepository->getById($customerId);
+            foreach ($customer->getAddresses() as $customerAddress) {
+                if ($customerAddress->isDefaultBilling()) {
+                    $billingAddress = $this->addressFactory->createFromCustomer($customerAddress);
+                }
+                if ($customerAddress->isDefaultShipping()) {
+                    $shippingAddress = $this->addressFactory->createFromCustomer($customerAddress);
+                }
+            }
+        }
 
         $customFields = [
             'group_id' => $order->getCustomerGroupId(),
@@ -86,7 +113,7 @@ class CustomerFactory
             $order->getCustomerFirstname(),
             $order->getCustomerLastname(),
             $isSubscribed,
-            $this->addressFactory->create($order->getBillingAddress()),
+            $billingAddress,
             [],
             array_merge(
                 $customFields,
@@ -96,7 +123,107 @@ class CustomerFactory
         );
     }
 
-    public function createFromSubscriber(Subscriber $subscriber): Customer
+    public function createFromCustomerAddress(AddressInterface $address, int $storeId): Customer
+    {
+        $websiteId = $this->storeManager->getStore($storeId)->getWebsiteId();
+        $customerId = (int)$address->getCustomerId();
+        $isSubscribed = $this->isCustomerSubscribed($customerId, (int)$websiteId);
+        $customer = $this->customerRepository->getById($customerId);
+
+        $billingAddress = null;
+        $shippingAddress = null;
+
+        foreach ($customer->getAddresses() as $customerAddress) {
+            if ($customerAddress->isDefaultBilling()) {
+                $billingAddress = $this->addressFactory->createFromCustomer($customerAddress);
+            }
+            if ($customerAddress->isDefaultShipping()) {
+                $shippingAddress = $this->addressFactory->createFromCustomer($customerAddress);
+            }
+        }
+
+        if ($address->isDefaultBilling()) {
+            $billingAddress = $this->addressFactory->createFromCustomer($address);
+        }
+        if ($address->isDefaultShipping()) {
+            $shippingAddress = $this->addressFactory->createFromCustomer($address);
+        }
+
+        $customFields = [
+            'website_id' => $customer->getWebsiteId(),
+            'group_id' => $customer->getGroupId(),
+            'store_id' => $customer->getStoreId(),
+            'create_at' => $customer->getCreatedAt(),
+            'prefix' => $customer->getPrefix(),
+            'sufix' => $customer->getSuffix(),
+            'dob' => $customer->getDob(),
+            'tax_vat' => $customer->getTaxvat(),
+            'gender' => $customer->getGender(),
+            'middlename' => $customer->getMiddlename(),
+        ];
+
+        return new Customer(
+            $customerId,
+            $customer->getEmail(),
+            $customer->getFirstname(),
+            $customer->getLastname(),
+            $isSubscribed,
+            $billingAddress,
+            [],
+            array_merge(
+                $customFields,
+                null !== $billingAddress ? $billingAddress->toCustomFieldsArray('billing') : [],
+                null !== $shippingAddress ? $shippingAddress->toCustomFieldsArray('shipping') : []
+            )
+        );
+    }
+
+    public function createFromNewsletterSubscription(Subscriber $subscriber): Customer
+    {
+        $customerId = (int)$subscriber->getCustomerId();
+        $customer = $this->customerRepository->getById($customerId);
+
+        $billingAddress = null;
+        $shippingAddress = null;
+        foreach ($customer->getAddresses() as $address) {
+            if ($address->isDefaultBilling()) {
+                $billingAddress = $this->addressFactory->createFromCustomer($address);
+            }
+            if ($address->isDefaultShipping()) {
+                $shippingAddress = $this->addressFactory->createFromCustomer($address);
+            }
+        }
+
+        $customFields = [
+            'website_id' => $customer->getWebsiteId(),
+            'group_id' => $customer->getGroupId(),
+            'store_id' => $customer->getStoreId(),
+            'create_at' => $customer->getCreatedAt(),
+            'prefix' => $customer->getPrefix(),
+            'sufix' => $customer->getSuffix(),
+            'dob' => $customer->getDob(),
+            'tax_vat' => $customer->getTaxvat(),
+            'gender' => $customer->getGender(),
+            'middlename' => $customer->getMiddlename(),
+        ];
+
+        return new Customer(
+            $customerId,
+            $customer->getEmail(),
+            $customer->getFirstname(),
+            $customer->getLastname(),
+            $subscriber->isSubscribed(),
+            $billingAddress,
+            [],
+            array_merge(
+                $customFields,
+                null !== $billingAddress ? $billingAddress->toCustomFieldsArray('billing') : [],
+                null !== $shippingAddress ? $shippingAddress->toCustomFieldsArray('shipping') : []
+            )
+        );
+    }
+
+    public function createFromNewsletterSubscriber(Subscriber $subscriber): Customer
     {
         return new Customer(
             (int)$subscriber->getId(),
@@ -110,13 +237,13 @@ class CustomerFactory
         );
     }
 
-    private function isCustomerSubscriber(?int $customerId): bool
+    private function isCustomerSubscribed(?int $customerId, int $websiteId): bool
     {
         if (null === $customerId) {
             return false;
         }
 
-        $subscriber = $this->subscriber->loadByCustomerId($customerId);
+        $subscriber = $this->subscriber->loadByCustomer($customerId, $websiteId);
 
         return $subscriber->isSubscribed();
     }

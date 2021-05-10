@@ -20,4 +20,10 @@
     <event name="customer_save_after_data_object">
         <observer name="customer_save_after_data_object_getresponse" instance="GetResponse\GetResponseIntegration\Observer\CustomerSaveAfterDataObject" />
     </event>
+    <event name="customer_address_save_after">
+        <observer name="customer_address_save_after_getresponse" instance="GetResponse\GetResponseIntegration\Observer\CustomerAddressSaveAfterObject" />
+    </event>
+    <event name="newsletter_subscriber_save_commit_after">
+        <observer name="newsletter_subscriber_save_commit_after_getresponse" instance="GetResponse\GetResponseIntegration\Observer\NewsletterSubscriberSaveCommitAfterObject" />
+    </event>
 </config>

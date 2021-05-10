@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
-use GetResponse\GetResponseIntegration\Api\ApiService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\Command\AddContact;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\ContactService;
@@ -17,11 +16,9 @@ use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Contact\ContactCustomField\ContactCustomFieldsCollection;
-use Magento\Customer\Model\Customer;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Newsletter\Model\Subscriber;
-use Magento\Store\Model\StoreRepository;
 
 class SubscribeFromNewsletter implements ObserverInterface
 {
@@ -29,26 +26,17 @@ class SubscribeFromNewsletter implements ObserverInterface
     private $contactService;
     private $magentoStore;
     private $logger;
-    private $apiService;
-    private $customer;
-    private $storeRepository;
 
     public function __construct(
         Repository $repository,
         ContactService $contactService,
         MagentoStore $magentoStore,
-        Logger $logger,
-        ApiService $apiService,
-        Customer $customer,
-        StoreRepository $storeRepository
+        Logger $logger
     ) {
         $this->repository = $repository;
         $this->contactService = $contactService;
         $this->magentoStore = $magentoStore;
         $this->logger = $logger;
-        $this->apiService = $apiService;
-        $this->customer = $customer;
-        $this->storeRepository = $storeRepository;
     }
 
     public function execute(EventObserver $observer): SubscribeFromNewsletter
@@ -59,11 +47,7 @@ class SubscribeFromNewsletter implements ObserverInterface
             $subscriber = $observer->getSubscriber();
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
-            if ($pluginMode->isNewVersion()) {
-                if (!$subscriber->getCustomerId()) {
-                    $this->apiService->createSubscriber($subscriber, $scope);
-                }
-            } else {
+            if (!$pluginMode->isNewVersion()) {
                 $this->handleOldVersion($scope, $subscriber->getEmail());
             }
         } catch (Exception $e) {

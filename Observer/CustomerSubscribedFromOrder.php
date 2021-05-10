@@ -61,7 +61,8 @@ class CustomerSubscribedFromOrder implements ObserverInterface
             /** @var Order $order */
             $order = $observer->getOrder();
 
-            if (empty($order->getCustomerId())) {
+            $customerId = $order->getCustomerId();
+            if (empty($customerId)) {
                 return $this;
             }
 
@@ -69,7 +70,8 @@ class CustomerSubscribedFromOrder implements ObserverInterface
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
             if ($pluginMode->isNewVersion()) {
-                $this->apiService->createCustomer((int)$order->getCustomerId(), $scope);
+                $customer = $this->customerReadModel->getCustomerById(new CustomerId($customerId));
+                $this->apiService->upsertCustomer($customer, $scope);
             } else {
                 $this->handleOldVersion($order, $scope);
             }

@@ -42,7 +42,7 @@ class LiveSynchronizationTest extends BaseTestCase
         $isActive = true;
         $data = [
             'live_synchronization' => [
-                'is_active' => $isActive,
+                'isEnabled' => $isActive,
                 'url' => 'https://app.getrepsonse.com/#d5fj2dof3ij',
                 'type' => LiveSynchronization::TYPE_ECOMMERCE
             ]
