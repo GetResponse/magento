@@ -243,7 +243,8 @@ class CustomerFactory
             return false;
         }
 
-        $subscriber = $this->subscriber->loadByCustomer($customerId, $websiteId);
+//        $subscriber = $this->subscriber->loadByCustomer($customerId, $websiteId);
+        $subscriber = $this->subscriber->loadByCustomerId($customerId);
 
         return $subscriber->isSubscribed();
     }
