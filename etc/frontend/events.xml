@@ -6,6 +6,12 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+
+    <!-- ONE PAGE SUCCESS -->
+    <event name="checkout_onepage_controller_success_action">
+        <observer name="create_ecommerce_order" instance="GetResponse\GetResponseIntegration\Observer\OrderObserver"/>
+    </event>
+
     <!-- NORMAL CHECKOUT SUCCESS -->
     <event name="sales_order_save_commit_after">
         <observer name="update_ecommerce_order" instance="GetResponse\GetResponseIntegration\Observer\OrderObserver"/>
