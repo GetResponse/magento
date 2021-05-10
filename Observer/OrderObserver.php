@@ -30,7 +30,6 @@ class OrderObserver implements ObserverInterface
     private $orderService;
     private $logger;
     private $addOrderCommandFactory;
-    private $magentoStore;
     private $customerSession;
     private $ecommerceReadModel;
     private $contactReadModel;
@@ -44,7 +43,6 @@ class OrderObserver implements ObserverInterface
         AddOrderCommandFactory $addOrderCommandFactory,
         EcommerceReadModel $ecommerceReadModel,
         ContactReadModel $contactReadModel,
-        MagentoStore $magentoStore,
         Repository $repository,
         ApiService $apiService
     ) {
@@ -54,7 +52,6 @@ class OrderObserver implements ObserverInterface
         $this->customerSession = $customerSession;
         $this->ecommerceReadModel = $ecommerceReadModel;
         $this->contactReadModel = $contactReadModel;
-        $this->magentoStore = $magentoStore;
         $this->repository = $repository;
         $this->apiService = $apiService;
     }
@@ -63,7 +60,7 @@ class OrderObserver implements ObserverInterface
     {
         try {
             $order = $observer->getOrder();
-            $scope = $this->magentoStore->getCurrentScope();
+            $scope = new Scope($order->getStoreId());
 
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 

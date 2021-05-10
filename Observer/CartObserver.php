@@ -27,7 +27,6 @@ class CartObserver implements ObserverInterface
 {
     private $cartService;
     private $logger;
-    private $magentoStore;
     private $customerSession;
     private $ecommerceReadModel;
     private $contactReadModel;
@@ -38,7 +37,6 @@ class CartObserver implements ObserverInterface
         Session $customerSession,
         CartService $cartService,
         Logger $logger,
-        MagentoStore $magentoStore,
         EcommerceReadModel $ecommerceReadModel,
         ContactReadModel $contactReadModel,
         Repository $repository,
@@ -46,7 +44,6 @@ class CartObserver implements ObserverInterface
     ) {
         $this->cartService = $cartService;
         $this->logger = $logger;
-        $this->magentoStore = $magentoStore;
         $this->customerSession = $customerSession;
         $this->ecommerceReadModel = $ecommerceReadModel;
         $this->contactReadModel = $contactReadModel;
@@ -61,8 +58,9 @@ class CartObserver implements ObserverInterface
                 return $this;
             }
 
+            /** @var Quote $quote */
             $quote = $observer->getCart()->getQuote();
-            $scope = $this->magentoStore->getCurrentScope();
+            $scope = new Scope($quote->getStoreId());
 
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 

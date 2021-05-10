@@ -8,7 +8,7 @@ use Exception;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Helper\MagentoStore;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
@@ -20,20 +20,17 @@ class CustomerRegisterSuccess implements ObserverInterface
 {
     private $request;
     private $magentoSubscriber;
-    private $magentoStore;
     private $logger;
     private $repository;
 
     public function __construct(
         RequestInterface $request,
         MagentoSubscriber $magentoSubscriber,
-        MagentoStore $magentoStore,
         Repository $repository,
         Logger $logger
     ) {
         $this->request = $request;
         $this->magentoSubscriber = $magentoSubscriber;
-        $this->magentoStore = $magentoStore;
         $this->repository = $repository;
         $this->logger = $logger;
     }
@@ -46,7 +43,8 @@ class CustomerRegisterSuccess implements ObserverInterface
                 return $this;
             }
 
-            $scope = $this->magentoStore->getCurrentScope();
+            $scope = new Scope($observer->getCustomer()->getStoreId());
+//            $scope = $this->magentoStore->getCurrentScope();
             $liveSynchronization = LiveSynchronization::createFromRepository(
                 $this->repository->getLiveSynchronization($scope->getScopeId())
             );

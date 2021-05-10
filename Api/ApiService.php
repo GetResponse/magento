@@ -57,7 +57,7 @@ class ApiService
 
         $this->httpClient->post(
             $liveSynchronization->getCallbackUrl(),
-            $this->customerFactory->createFromCustomerAddress($address, (int)$scope->getScopeId())
+            $this->customerFactory->createFromCustomerAddress($address)
         );
     }
 
@@ -76,7 +76,7 @@ class ApiService
 
         $this->httpClient->post(
             $liveSynchronization->getCallbackUrl(),
-            $this->customerFactory->create($customer, (int)$scope->getScopeId())
+            $this->customerFactory->create($customer)
         );
     }
 

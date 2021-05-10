@@ -17,7 +17,6 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\Query\C
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
-use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use Magento\Framework\Event\Observer as EventObserver;
@@ -30,7 +29,6 @@ class CustomerSubscribedFromOrder implements ObserverInterface
     private $contactService;
     private $contactCustomFieldsCollectionFactory;
     private $subscribeViaRegistrationService;
-    private $magentoStore;
     private $customerReadModel;
     private $logger;
     private $apiService;
@@ -40,7 +38,6 @@ class CustomerSubscribedFromOrder implements ObserverInterface
         ContactService $contactService,
         SubscribeViaRegistrationService $subscribeViaRegistrationService,
         ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory,
-        MagentoStore $magentoStore,
         CustomerReadModel $customerReadModel,
         Logger $logger,
         ApiService $apiService
@@ -49,7 +46,6 @@ class CustomerSubscribedFromOrder implements ObserverInterface
         $this->contactService = $contactService;
         $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
         $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
-        $this->magentoStore = $magentoStore;
         $this->customerReadModel = $customerReadModel;
         $this->logger = $logger;
         $this->apiService = $apiService;
@@ -66,7 +62,7 @@ class CustomerSubscribedFromOrder implements ObserverInterface
                 return $this;
             }
 
-            $scope = $this->magentoStore->getCurrentScope();
+            $scope = new Scope($order->getStoreId());
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
             if ($pluginMode->isNewVersion()) {
@@ -117,7 +113,7 @@ class CustomerSubscribedFromOrder implements ObserverInterface
 
         $this->contactService->addContact(
             new AddContact(
-                $this->magentoStore->getCurrentScope(),
+                new Scope($order->getStoreId()),
                 $customerEmail,
                 $order->getCustomerFirstname(),
                 $order->getCustomerLastname(),

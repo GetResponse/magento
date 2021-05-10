@@ -24,27 +24,24 @@ class SubscribeFromNewsletter implements ObserverInterface
 {
     private $repository;
     private $contactService;
-    private $magentoStore;
     private $logger;
 
     public function __construct(
         Repository $repository,
         ContactService $contactService,
-        MagentoStore $magentoStore,
         Logger $logger
     ) {
         $this->repository = $repository;
         $this->contactService = $contactService;
-        $this->magentoStore = $magentoStore;
         $this->logger = $logger;
     }
 
     public function execute(EventObserver $observer): SubscribeFromNewsletter
     {
         try {
-            $scope = $this->magentoStore->getCurrentScope();
             /** @var Subscriber $subscriber */
             $subscriber = $observer->getSubscriber();
+            $scope = new Scope($subscriber->getStoreId());
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
             if (!$pluginMode->isNewVersion()) {

@@ -30,11 +30,10 @@ class CustomerFactory
         $this->storeManager = $storeManager;
     }
 
-    public function create(CustomerInterface $customer, int $storeId): Customer
+    public function create(CustomerInterface $customer): Customer
     {
         $customerId = $customer->getId();
-        $websiteId = $this->storeManager->getStore($storeId)->getWebsiteId();
-        $isSubscribed = $this->isCustomerSubscribed((int)$customerId, (int)$websiteId);
+        $isSubscribed = $this->isCustomerSubscribed((int)$customerId);
 
         $billingAddress = null;
         $shippingAddress = null;
@@ -76,11 +75,10 @@ class CustomerFactory
         );
     }
 
-    public function createFromOrder(MagentoOrder $order, int $storeId): Customer
+    public function createFromOrder(MagentoOrder $order): Customer
     {
-        $websiteId = $this->storeManager->getStore($storeId)->getWebsiteId();
         $customerId = null === $order->getCustomerId() ? null : (int)$order->getCustomerId();
-        $isSubscribed = $this->isCustomerSubscribed($customerId, (int)$websiteId);
+        $isSubscribed = $this->isCustomerSubscribed($customerId);
 
         $billingAddress = null;
         $shippingAddress = null;
@@ -123,11 +121,10 @@ class CustomerFactory
         );
     }
 
-    public function createFromCustomerAddress(AddressInterface $address, int $storeId): Customer
+    public function createFromCustomerAddress(AddressInterface $address): Customer
     {
-        $websiteId = $this->storeManager->getStore($storeId)->getWebsiteId();
         $customerId = (int)$address->getCustomerId();
-        $isSubscribed = $this->isCustomerSubscribed($customerId, (int)$websiteId);
+        $isSubscribed = $this->isCustomerSubscribed($customerId);
         $customer = $this->customerRepository->getById($customerId);
 
         $billingAddress = null;
@@ -237,7 +234,7 @@ class CustomerFactory
         );
     }
 
-    private function isCustomerSubscribed(?int $customerId, int $websiteId): bool
+    private function isCustomerSubscribed(?int $customerId): bool
     {
         if (null === $customerId) {
             return false;

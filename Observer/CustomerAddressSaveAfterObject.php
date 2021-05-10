@@ -24,27 +24,15 @@ use Magento\Framework\Event\ObserverInterface;
 
 class CustomerAddressSaveAfterObject implements ObserverInterface
 {
-    private $contactService;
-    private $subscribeViaRegistrationService;
-    private $contactCustomFieldsCollectionFactory;
-    private $magentoStore;
     private $logger;
     private $repository;
     private $apiService;
 
     public function __construct(
-        ContactService $contactService,
-        SubscribeViaRegistrationService $subscribeViaRegistrationService,
-        ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory,
-        MagentoStore $magentoStore,
         Logger $logger,
         Repository $repository,
         ApiService $apiService
     ) {
-        $this->contactService = $contactService;
-        $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
-        $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
-        $this->magentoStore = $magentoStore;
         $this->logger = $logger;
         $this->repository = $repository;
         $this->apiService = $apiService;
@@ -58,8 +46,8 @@ class CustomerAddressSaveAfterObject implements ObserverInterface
                 return $this;
             }
 
-            $scope = $this->magentoStore->getCurrentScope();
             $customerAddress = $observer->getCustomerAddress();
+            $scope = new Scope($customerAddress->getStoreId());
             /** @var AddressInterface $address */
             $address = $customerAddress->getDataModel();
 
@@ -85,31 +73,4 @@ class CustomerAddressSaveAfterObject implements ObserverInterface
         return $this;
     }
 
-    /**
-     * @throws ApiException
-     * @throws GetresponseApiException
-     */
-    private function handleOldVersion(Customer $customer, Scope $scope): void
-    {
-        $registrationSettings = $this->subscribeViaRegistrationService->getSettings($scope);
-
-        if (!$registrationSettings->isEnabled()) {
-            return;
-        }
-
-        $contactCustomFieldsCollection = $this->contactCustomFieldsCollectionFactory->createForCustomer(
-            $customer,
-            $this->subscribeViaRegistrationService->getCustomFieldMappingSettings($scope),
-            $registrationSettings->isUpdateCustomFieldsEnalbed()
-        );
-
-        $this->contactService->addContact(
-            AddContact::createFromCustomer(
-                $customer,
-                $registrationSettings,
-                $contactCustomFieldsCollection,
-                $scope
-            )
-        );
-    }
 }

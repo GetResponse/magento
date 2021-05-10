@@ -26,7 +26,6 @@ class CustomerSaveAfterDataObject implements ObserverInterface
     private $contactService;
     private $subscribeViaRegistrationService;
     private $contactCustomFieldsCollectionFactory;
-    private $magentoStore;
     private $logger;
     private $repository;
     private $apiService;
@@ -35,7 +34,6 @@ class CustomerSaveAfterDataObject implements ObserverInterface
         ContactService $contactService,
         SubscribeViaRegistrationService $subscribeViaRegistrationService,
         ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory,
-        MagentoStore $magentoStore,
         Repository $repository,
         ApiService $apiService,
         Logger $logger
@@ -43,7 +41,6 @@ class CustomerSaveAfterDataObject implements ObserverInterface
         $this->contactService = $contactService;
         $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
         $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
-        $this->magentoStore = $magentoStore;
         $this->repository = $repository;
         $this->apiService = $apiService;
         $this->logger = $logger;
@@ -53,12 +50,16 @@ class CustomerSaveAfterDataObject implements ObserverInterface
     {
         try {
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
+
+            $customer = $observer->getCustomerDataObject();
+            $scope = new Scope($customer->getStoreId());
+
             if (!$pluginMode->isNewVersion()) {
+                $this->handleOldVersion($customer, $scope);
+
                 return $this;
             }
 
-            $customer = $observer->getCustomerDataObject();
-            $scope = $this->magentoStore->getCurrentScope();
             $this->apiService->upsertCustomer($customer, $scope);
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);

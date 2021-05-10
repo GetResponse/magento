@@ -26,7 +26,6 @@ class NewsletterSubscriberSaveCommitAfterObject implements ObserverInterface
     private $contactService;
     private $subscribeViaRegistrationService;
     private $contactCustomFieldsCollectionFactory;
-    private $magentoStore;
     private $logger;
     private $repository;
     private $apiService;
@@ -35,7 +34,6 @@ class NewsletterSubscriberSaveCommitAfterObject implements ObserverInterface
         ContactService $contactService,
         SubscribeViaRegistrationService $subscribeViaRegistrationService,
         ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory,
-        MagentoStore $magentoStore,
         Logger $logger,
         Repository $repository,
         ApiService $apiService
@@ -43,7 +41,6 @@ class NewsletterSubscriberSaveCommitAfterObject implements ObserverInterface
         $this->contactService = $contactService;
         $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
         $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
-        $this->magentoStore = $magentoStore;
         $this->logger = $logger;
         $this->repository = $repository;
         $this->apiService = $apiService;
@@ -57,8 +54,8 @@ class NewsletterSubscriberSaveCommitAfterObject implements ObserverInterface
                 return $this;
             }
 
-            $scope = $this->magentoStore->getCurrentScope();
             $subscriber = $observer->getSubscriber();
+            $scope = new Scope($subscriber->getStoreId());
             $customerId = $subscriber->getCustomerId();
 
             if (!empty($customerId)) {
