@@ -82,7 +82,7 @@ class Order implements JsonSerializable
             'lines' => $lines,
             'url' => $this->url,
             'total_price' => $this->totalPrice,
-            'total_tax_price' => $this->totalPriceTax,
+            'total_price_tax' => $this->totalPriceTax,
             'shipping_price' => $this->shippingPrice,
             'currency' => $this->currency,
             'status' => $this->status,
