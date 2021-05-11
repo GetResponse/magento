@@ -48,6 +48,7 @@ class HttpClient
         $this->curl->addHeader('Content-Type', 'application/json');
         $this->curl->addHeader('X-Shop-Domain', $this->storeManager->getStore()->getBaseUrl());
         $this->curl->addHeader('X-Hmac-Sha256', $this->createHmac($object));
+        $this->curl->addHeader('X-Timestamp', date('Y-m-d H:i:s.') . gettimeofday()['usec']);
 
         $method === self::POST ? $this->curl->post($url, $this->jsonHelper->serialize($object)) : $this->curl->get($url);
 
@@ -60,6 +61,13 @@ class HttpClient
 
     private function createHmac(JsonSerializable $object): string
     {
-        return base64_encode(hash_hmac('sha256', $this->jsonHelper->serialize($object->jsonSerialize()), Config::API_APP_SECRET, true));
+        return base64_encode(
+            hash_hmac(
+                'sha256',
+                $this->jsonHelper->serialize($object->jsonSerialize()),
+                Config::API_APP_SECRET,
+                true
+            )
+        );
     }
 }
