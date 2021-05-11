@@ -73,14 +73,10 @@ class ProductFactory
             $usedProducts = $product->getTypeInstance()->getUsedProducts($product);
             /** @var MagentoProduct $childProduct */
             foreach ($usedProducts as $childProduct) {
-                $images = [];
-                foreach ($childProduct->getMediaGalleryImages() as $image) {
-                    $images[] = new Image(
-                        $image->getData('url'),
-                        (int)$image->getData('position')
-                    );
+                $images = $this->getImages($childProduct);
+                if (empty($images)) {
+                    $images = $this->getImages($product);
                 }
-
                 $stockItem = $this->stockRepository->get($childProduct->getId());
 
                 $variants[] = new Variant(
@@ -100,13 +96,7 @@ class ProductFactory
                 );
             }
         } else {
-            $images = [];
-            foreach ($product->getMediaGalleryImages() as $image) {
-                $images[] = new Image(
-                    $image->getData('url'),
-                    (int)$image->getData('position')
-                );
-            }
+            $images = $this->getImages($product);
 
             $stockItem = $this->stockRepository->get($product->getId());
 
@@ -170,5 +160,18 @@ class ProductFactory
         $mainUrl = $parentProduct->setStoreId($storeId)->getUrlModel()->getUrlInStore($parentProduct);
 
         return $mainUrl . ($options ? '#' . $options : '');
+    }
+
+    private function getImages(MagentoProduct $product): array
+    {
+        $images = [];
+        foreach ($product->getMediaGalleryImages() as $image) {
+            $images[] = new Image(
+                $image->getData('url'),
+                (int)$image->getData('position')
+            );
+        }
+
+        return $images;
     }
 }
