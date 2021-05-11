@@ -112,7 +112,7 @@ class ProductFactory
                 $product->setStoreId($scope->getScopeId())->getUrlModel()->getUrlInStore($product),
                 0,
                 null,
-                $product->getData('short_description') ?? '',
+                (string)$product->getData('short_description'),
                 $images
             );
         }
