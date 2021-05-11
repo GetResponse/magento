@@ -11,6 +11,7 @@ use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\Product as MagentoProduct;
 use Magento\CatalogInventory\Model\Stock\StockItemRepository;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 class ProductFactory
 {
@@ -62,7 +63,7 @@ class ProductFactory
      * @param Scope $scope
      *
      * @return Product
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
      */
     private function createFromMagentoProduct(MagentoProduct $product, Scope $scope): Product
     {
@@ -91,7 +92,7 @@ class ProductFactory
                     null,
                     null,
                     (int)$stockItem->getQty(),
-                    $childProduct->setStoreId($scope->getScopeId())->getUrlModel()->getUrlInStore($childProduct),
+                    $this->getProductConfigurableUrl($product, $childProduct, (int)$scope->getScopeId()),
                     0,
                     null,
                     $childProduct->getData('short_description') ?? '',
@@ -149,5 +150,25 @@ class ProductFactory
             $product->getCreatedAt(),
             $product->getUpdatedAt()
         );
+    }
+
+    private function getProductConfigurableUrl(
+        MagentoProduct $parentProduct,
+        MagentoProduct $simpleProduct,
+        int $storeId
+    ): string {
+        $configType = $parentProduct->getTypeInstance();
+        $attributes = $configType->getConfigurableAttributesAsArray($parentProduct);
+        $options = [];
+        foreach ($attributes as $attribute) {
+            $id = $attribute['attribute_id'];
+            $value = $simpleProduct->getData($attribute['attribute_code']);
+            $options[$id] = $value;
+        }
+        $options = http_build_query($options);
+
+        $mainUrl = $parentProduct->setStoreId($storeId)->getUrlModel()->getUrlInStore($parentProduct);
+
+        return $mainUrl . ($options ? '#' . $options : '');
     }
 }
