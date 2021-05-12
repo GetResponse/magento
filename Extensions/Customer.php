@@ -35,7 +35,8 @@ class Customer
             return $extension;
         }
 
-        $subscriber = $this->subscriberResource->loadByCustomerData($customer);
+        $subscriber = $this->subscriberResource->loadByEmail($customer->getEmail());
+
         $subscriberStatus = !empty($subscriber['subscriber_status']) ? (int)$subscriber['subscriber_status'] : 0;
         $isSubscribed = $subscriberStatus === SubscriberModel::STATUS_SUBSCRIBED;
         $extension->setIsSubscribed($isSubscribed);
