@@ -33,7 +33,8 @@ class Customer
         if (false === $customer->getEmail()) {
             return $extension;
         }
-        $subscriber = $this->subscriberFactory->create()->loadByEmail($customer->getEmail());
+
+        $subscriber = $this->subscriberFactory->create()->loadByCustomerId($customer->getEmail());
         $extension->setIsSubscribed((bool)$subscriber->isSubscribed());
         $customer->setExtensionAttributes($extension);
 
