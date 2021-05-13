@@ -20,11 +20,8 @@ class ProductObserver implements ObserverInterface
     private $repository;
     private $apiService;
 
-    public function __construct(
-        Logger $logger,
-        Repository $repository,
-        ApiService $apiService
-    ) {
+    public function __construct(Logger $logger, Repository $repository, ApiService $apiService)
+    {
         $this->logger = $logger;
         $this->repository = $repository;
         $this->apiService = $apiService;
@@ -33,20 +30,22 @@ class ProductObserver implements ObserverInterface
     public function execute(EventObserver $observer): ProductObserver
     {
         try {
+            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
+            if (!$pluginMode->isNewVersion()) {
+                return $this;
+            }
+
             /** @var Product $product */
             $product = $observer->getProduct();
             $storeIds = $product->getStoreIds();
 
             foreach ($storeIds as $storeId) {
-                $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-
-                if ($pluginMode->isNewVersion()) {
-                    $this->apiService->createProduct($product, new Scope($storeId));
-                }
+                $this->apiService->upsertProductCatalog($product, new Scope($storeId));
             }
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }
+
         return $this;
     }
 }

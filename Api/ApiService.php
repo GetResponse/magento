@@ -8,6 +8,8 @@ use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Magento\Catalog\Model\Product as MagentoProduct;
+use Magento\Customer\Api\Data\AddressInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Newsletter\Model\Subscriber;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Model\Order as MagentoOrder;
@@ -20,6 +22,7 @@ class ApiService
     private $orderFactory;
     private $productFactory;
     private $customerFactory;
+    private $subscriberFactory;
 
     public function __construct(
         Repository $repository,
@@ -27,7 +30,8 @@ class ApiService
         CartFactory $cartFactory,
         OrderFactory $orderFactory,
         ProductFactory $productFactory,
-        CustomerFactory $customerFactory
+        CustomerFactory $customerFactory,
+        SubscriberFactory $subscriberFactory
     ) {
         $this->repository = $repository;
         $this->httpClient = $httpClient;
@@ -35,12 +39,13 @@ class ApiService
         $this->orderFactory = $orderFactory;
         $this->productFactory = $productFactory;
         $this->customerFactory = $customerFactory;
+        $this->subscriberFactory = $subscriberFactory;
     }
 
     /**
      * @throws HttpClientException
      */
-    public function createCustomer(int $customerId, Scope $scope): void
+    public function upsertCustomerAddress(AddressInterface $address, Scope $scope): void
     {
         $liveSynchronization = LiveSynchronization::createFromRepository(
             $this->repository->getLiveSynchronization($scope->getScopeId())
@@ -52,7 +57,45 @@ class ApiService
 
         $this->httpClient->post(
             $liveSynchronization->getCallbackUrl(),
-            $this->customerFactory->create($customerId)
+            $this->customerFactory->createFromCustomerAddress($address)
+        );
+    }
+
+    /**
+     * @throws HttpClientException
+     */
+    public function upsertCustomer(CustomerInterface $customer, Scope $scope): void
+    {
+        $liveSynchronization = LiveSynchronization::createFromRepository(
+            $this->repository->getLiveSynchronization($scope->getScopeId())
+        );
+
+        if (!$liveSynchronization->shouldImportCustomer()) {
+            return;
+        }
+
+        $this->httpClient->post(
+            $liveSynchronization->getCallbackUrl(),
+            $this->customerFactory->create($customer)
+        );
+    }
+
+    /**
+     * @throws HttpClientException
+     */
+    public function upsertCustomerSubscription(Subscriber $subscriber, Scope $scope): void
+    {
+        $liveSynchronization = LiveSynchronization::createFromRepository(
+            $this->repository->getLiveSynchronization($scope->getScopeId())
+        );
+
+        if (!$liveSynchronization->shouldImportCustomer()) {
+            return;
+        }
+
+        $this->httpClient->post(
+            $liveSynchronization->getCallbackUrl(),
+            $this->customerFactory->createFromNewsletterSubscription($subscriber)
         );
     }
 
@@ -116,7 +159,7 @@ class ApiService
     /**
      * @throws HttpClientException
      */
-    public function createProduct(MagentoProduct $product, Scope $scope): void
+    public function upsertProductCatalog(MagentoProduct $product, Scope $scope): void
     {
         $liveSynchronization = LiveSynchronization::createFromRepository(
             $this->repository->getLiveSynchronization($scope->getScopeId())
@@ -126,13 +169,14 @@ class ApiService
             return;
         }
 
-        $this->httpClient->post(
-            $liveSynchronization->getCallbackUrl(),
-            $this->productFactory->create($product, $scope)
-        );
+        $productsToUpsert = $this->productFactory->create($product, $scope);
+        foreach ($productsToUpsert as $productToUpsert) {
+            $callbackUrl = $liveSynchronization->getCallbackUrl();
+            $this->httpClient->post($callbackUrl, $productToUpsert);
+        }
     }
 
-    public function createSubscriber(Subscriber $subscriber, Scope $scope): void
+    public function upsertSubscriber(Subscriber $subscriber, Scope $scope): void
     {
         $liveSynchronization = LiveSynchronization::createFromRepository(
             $this->repository->getLiveSynchronization($scope->getScopeId())
@@ -144,7 +188,7 @@ class ApiService
 
         $this->httpClient->post(
             $liveSynchronization->getCallbackUrl(),
-            $this->customerFactory->createFromSubscriber($subscriber)
+            $this->subscriberFactory->create($subscriber)
         );
     }
 }

@@ -9,6 +9,7 @@ use JsonSerializable;
 class Order implements JsonSerializable
 {
     private $id;
+    private $orderNo;
     private $cartId;
     private $contactEmail;
     private $customer;
@@ -28,6 +29,7 @@ class Order implements JsonSerializable
 
     public function __construct(
         int $id,
+        string $orderNo,
         int $cartId,
         string $contactEmail,
         Customer $customer,
@@ -45,6 +47,7 @@ class Order implements JsonSerializable
         ?string $updatedAt
     ) {
         $this->id = $id;
+        $this->orderNo = $orderNo;
         $this->cartId = $cartId;
         $this->contactEmail = $contactEmail;
         $this->customer = $customer;
@@ -72,13 +75,14 @@ class Order implements JsonSerializable
         return [
             'callback_type' => CallbackType::ORDER_UPDATE,
             'id' => $this->id,
+            'orderNo' => $this->orderNo,
             'cart_id' => $this->cartId,
             'contact_email' => $this->contactEmail,
             'customer' => $this->customer->jsonSerialize(),
             'lines' => $lines,
             'url' => $this->url,
             'total_price' => $this->totalPrice,
-            'total_tax_price' => $this->totalPriceTax,
+            'total_price_tax' => $this->totalPriceTax,
             'shipping_price' => $this->shippingPrice,
             'currency' => $this->currency,
             'status' => $this->status,

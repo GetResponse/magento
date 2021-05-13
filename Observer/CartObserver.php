@@ -14,7 +14,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Ecommerce\ReadModel\Ec
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
-use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Contact\Contact;
@@ -27,7 +26,6 @@ class CartObserver implements ObserverInterface
 {
     private $cartService;
     private $logger;
-    private $magentoStore;
     private $customerSession;
     private $ecommerceReadModel;
     private $contactReadModel;
@@ -38,7 +36,6 @@ class CartObserver implements ObserverInterface
         Session $customerSession,
         CartService $cartService,
         Logger $logger,
-        MagentoStore $magentoStore,
         EcommerceReadModel $ecommerceReadModel,
         ContactReadModel $contactReadModel,
         Repository $repository,
@@ -46,7 +43,6 @@ class CartObserver implements ObserverInterface
     ) {
         $this->cartService = $cartService;
         $this->logger = $logger;
-        $this->magentoStore = $magentoStore;
         $this->customerSession = $customerSession;
         $this->ecommerceReadModel = $ecommerceReadModel;
         $this->contactReadModel = $contactReadModel;
@@ -61,8 +57,9 @@ class CartObserver implements ObserverInterface
                 return $this;
             }
 
+            /** @var Quote $quote */
             $quote = $observer->getCart()->getQuote();
-            $scope = $this->magentoStore->getCurrentScope();
+            $scope = new Scope($quote->getStoreId());
 
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
@@ -81,7 +78,7 @@ class CartObserver implements ObserverInterface
      * @throws ApiException
      * @throws GetresponseApiException
      */
-    private function getContactFromGetResponse(Scope $scope): Contact
+    private function getContactFromGetResponse(Scope $scope): ?Contact
     {
         $contactListId = $this->ecommerceReadModel->getListId($scope);
 

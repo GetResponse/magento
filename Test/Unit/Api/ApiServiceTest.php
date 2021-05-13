@@ -10,6 +10,7 @@ use GetResponse\GetResponseIntegration\Api\CustomerFactory;
 use GetResponse\GetResponseIntegration\Api\HttpClient;
 use GetResponse\GetResponseIntegration\Api\OrderFactory;
 use GetResponse\GetResponseIntegration\Api\ProductFactory;
+use GetResponse\GetResponseIntegration\Api\SubscriberFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
@@ -36,6 +37,8 @@ class ApiServiceTest extends BaseTestCase
     private $productFactory;
     /** @var object|MockObject|CustomerFactory */
     private $customerFactory;
+    /** @var object|MockObject|SubscriberFactory */
+    private $subscriberFactory;
 
     private $sut;
 
@@ -47,6 +50,7 @@ class ApiServiceTest extends BaseTestCase
         $this->orderFactory = $this->getMockWithoutConstructing(OrderFactory::class);
         $this->productFactory = $this->getMockWithoutConstructing(ProductFactory::class);
         $this->customerFactory = $this->getMockWithoutConstructing(CustomerFactory::class);
+        $this->subscriberFactory = $this->getMockWithoutConstructing(SubscriberFactory::class);
 
         $this->sut = new ApiService(
             $this->repositoryMock,
@@ -54,7 +58,8 @@ class ApiServiceTest extends BaseTestCase
             $this->cartFactory,
             $this->orderFactory,
             $this->productFactory,
-            $this->customerFactory
+            $this->customerFactory,
+            $this->subscriberFactory
         );
     }
 
@@ -154,13 +159,13 @@ class ApiServiceTest extends BaseTestCase
             ->expects(self::once())
             ->method('create')
             ->with($productMock, $scope)
-            ->willReturn($product);
+            ->willReturn([$product]);
 
         $this->httpClientMock
             ->expects(self::once())
             ->method('post')
             ->with($liveSynchronization->getCallbackUrl(), $product);
 
-        $this->sut->createProduct($productMock, $scope);
+        $this->sut->upsertProductCatalog($productMock, $scope);
     }
 }

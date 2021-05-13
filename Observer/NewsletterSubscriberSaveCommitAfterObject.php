@@ -14,19 +14,17 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistrati
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
-use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
-class CustomerSubscribedDuringRegistration implements ObserverInterface
+class NewsletterSubscriberSaveCommitAfterObject implements ObserverInterface
 {
     private $contactService;
     private $subscribeViaRegistrationService;
     private $contactCustomFieldsCollectionFactory;
-    private $magentoStore;
     private $logger;
     private $repository;
     private $apiService;
@@ -35,7 +33,6 @@ class CustomerSubscribedDuringRegistration implements ObserverInterface
         ContactService $contactService,
         SubscribeViaRegistrationService $subscribeViaRegistrationService,
         ContactCustomFieldsCollectionFactory $contactCustomFieldsCollectionFactory,
-        MagentoStore $magentoStore,
         Logger $logger,
         Repository $repository,
         ApiService $apiService
@@ -43,26 +40,29 @@ class CustomerSubscribedDuringRegistration implements ObserverInterface
         $this->contactService = $contactService;
         $this->subscribeViaRegistrationService = $subscribeViaRegistrationService;
         $this->contactCustomFieldsCollectionFactory = $contactCustomFieldsCollectionFactory;
-        $this->magentoStore = $magentoStore;
         $this->logger = $logger;
         $this->repository = $repository;
         $this->apiService = $apiService;
     }
 
-    public function execute(Observer $observer): CustomerSubscribedDuringRegistration
+    public function execute(Observer $observer): NewsletterSubscriberSaveCommitAfterObject
     {
         try {
-            $scope = $this->magentoStore->getCurrentScope();
-            /** @var Customer $customer */
-            $customer = $observer->getCustomer();
-
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-
-            if ($pluginMode->isNewVersion()) {
-                $this->apiService->createCustomer((int)$customer->getId(), $scope);
-            } else {
-                $this->handleOldVersion($customer, $scope);
+            if (!$pluginMode->isNewVersion()) {
+                return $this;
             }
+
+            $subscriber = $observer->getSubscriber();
+            $scope = new Scope($subscriber->getStoreId());
+            $customerId = $subscriber->getCustomerId();
+
+            if (!empty($customerId)) {
+                $this->apiService->upsertCustomerSubscription($subscriber, $scope);
+                return $this;
+            }
+
+            $this->apiService->upsertSubscriber($subscriber, $scope);
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }

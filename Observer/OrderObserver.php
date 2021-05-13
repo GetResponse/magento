@@ -16,7 +16,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
-use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Contact\Contact;
@@ -30,7 +29,6 @@ class OrderObserver implements ObserverInterface
     private $orderService;
     private $logger;
     private $addOrderCommandFactory;
-    private $magentoStore;
     private $customerSession;
     private $ecommerceReadModel;
     private $contactReadModel;
@@ -44,7 +42,6 @@ class OrderObserver implements ObserverInterface
         AddOrderCommandFactory $addOrderCommandFactory,
         EcommerceReadModel $ecommerceReadModel,
         ContactReadModel $contactReadModel,
-        MagentoStore $magentoStore,
         Repository $repository,
         ApiService $apiService
     ) {
@@ -54,7 +51,6 @@ class OrderObserver implements ObserverInterface
         $this->customerSession = $customerSession;
         $this->ecommerceReadModel = $ecommerceReadModel;
         $this->contactReadModel = $contactReadModel;
-        $this->magentoStore = $magentoStore;
         $this->repository = $repository;
         $this->apiService = $apiService;
     }
@@ -62,13 +58,8 @@ class OrderObserver implements ObserverInterface
     public function execute(EventObserver $observer): OrderObserver
     {
         try {
-            // if customer is not logged in - skip
-            if (false === $this->customerSession->isLoggedIn()) {
-                return $this;
-            }
-
             $order = $observer->getOrder();
-            $scope = $this->magentoStore->getCurrentScope();
+            $scope = new Scope($order->getStoreId());
 
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 

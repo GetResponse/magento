@@ -9,14 +9,7 @@
 
     <!-- ONE PAGE SUCCESS -->
     <event name="checkout_onepage_controller_success_action">
-        <observer name="new_subscriber_after_submit" instance="GetResponse\GetResponseIntegration\Observer\CustomerSubscribedFromOrder"/>
         <observer name="create_ecommerce_order" instance="GetResponse\GetResponseIntegration\Observer\OrderObserver"/>
-
-    </event>
-
-    <!-- NORMAL CHECKOUT SUCCESS -->
-    <event name="sales_order_save_after">
-        <observer name="new_subscriber_after_submit" instance="GetResponse\GetResponseIntegration\Observer\CustomerSubscribedFromOrder"/>
     </event>
 
     <!-- NORMAL CHECKOUT SUCCESS -->
@@ -32,6 +25,15 @@
         <observer name="newsletter_subscriber_save_after" instance="GetResponse\GetResponseIntegration\Observer\SubscribeFromNewsletter"/>
     </event>
     <event name="customer_register_success">
-        <observer name="customer_register" instance="GetResponse\GetResponseIntegration\Observer\CustomerSubscribedDuringRegistration" />
+        <observer name="customer_register_success_getresponse" instance="GetResponse\GetResponseIntegration\Observer\CustomerRegisterSuccess" />
+    </event>
+    <event name="customer_save_after_data_object">
+        <observer name="customer_save_after_data_object_getresponse" instance="GetResponse\GetResponseIntegration\Observer\CustomerSaveAfterDataObject" />
+    </event>
+    <event name="customer_address_save_after">
+        <observer name="customer_address_save_after_getresponse" instance="GetResponse\GetResponseIntegration\Observer\CustomerAddressSaveAfterObject" />
+    </event>
+    <event name="newsletter_subscriber_save_commit_after">
+        <observer name="newsletter_subscriber_save_commit_after_getresponse" instance="GetResponse\GetResponseIntegration\Observer\NewsletterSubscriberSaveCommitAfterObject" />
     </event>
 </config>

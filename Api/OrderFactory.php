@@ -12,29 +12,35 @@ class OrderFactory
     private $customerFactory;
     private $addressFactory;
 
-    public function __construct(
-        CustomerFactory $customerFactory,
-        AddressFactory $addressFactory
-    ) {
+    public function __construct(CustomerFactory $customerFactory, AddressFactory $addressFactory)
+    {
         $this->customerFactory = $customerFactory;
         $this->addressFactory = $addressFactory;
     }
 
     public function create(MagentoOrder $order): Order
     {
-        $shippingAddress = $this->addressFactory->create($order->getShippingAddress());
-        $billingAddress = $this->addressFactory->create($order->getBillingAddress());
+        $shippingAddress = null;
+        if ($order->getShippingAddress()) {
+            $shippingAddress = $this->addressFactory->createFromOrder($order->getShippingAddress());
+        }
+
+        $billingAddress = null;
+        if ($order->getBillingAddress()) {
+            $billingAddress = $this->addressFactory->createFromOrder($order->getBillingAddress());
+        }
 
         return new Order(
             (int)$order->getId(),
+            (string)$order->getIncrementId(),
             (int)$order->getQuoteId(),
             $order->getCustomerEmail(),
-            $this->customerFactory->create((int)$order->getCustomerId()),
+            $this->customerFactory->createFromOrder($order, (int)$order->getStoreId()),
             $this->createLinesFromOrder($order),
             null,
-            (float)$order->getBaseSubtotal(),
+            (float)$order->getSubtotal(),
             (float)$order->getGrandTotal(),
-            (float)$order->getBaseShippingAmount(),
+            (float)$order->getShippingAmount(),
             $order->getOrderCurrencyCode(),
             $order->getStatus(),
             $order->getStatus(),
