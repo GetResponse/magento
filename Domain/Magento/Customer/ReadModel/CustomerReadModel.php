@@ -8,7 +8,6 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\Query\C
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
-use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Newsletter\Model\Subscriber;
 

@@ -49,8 +49,8 @@ class AccountReadModel
                 "*",
                 strlen($connectionSettings->getApiKey()) - 6
             ) . substr(
-            $connectionSettings->getApiKey(),
-            -6
-        );
+                $connectionSettings->getApiKey(),
+                -6
+            );
     }
 }

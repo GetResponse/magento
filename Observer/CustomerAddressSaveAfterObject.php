@@ -6,19 +6,11 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\Command\AddContact;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\ContactService;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactCustomFieldsCollectionFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
-use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
-use GrShareCode\Api\Exception\GetresponseApiException;
 use Magento\Customer\Api\Data\AddressInterface;
-use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
@@ -65,12 +57,10 @@ class CustomerAddressSaveAfterObject implements ObserverInterface
                 $this->apiService->upsertCustomerAddress($address, $scope);
                 return $this;
             }
-
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }
 
         return $this;
     }
-
 }

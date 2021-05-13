@@ -44,7 +44,6 @@ class CustomerRegisterSuccess implements ObserverInterface
             }
 
             $scope = new Scope($observer->getCustomer()->getStoreId());
-//            $scope = $this->magentoStore->getCurrentScope();
             $liveSynchronization = LiveSynchronization::createFromRepository(
                 $this->repository->getLiveSynchronization($scope->getScopeId())
             );
@@ -64,5 +63,4 @@ class CustomerRegisterSuccess implements ObserverInterface
 
         return $this;
     }
-
 }

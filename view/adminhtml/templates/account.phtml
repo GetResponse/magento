@@ -22,13 +22,13 @@ if ($isApiActive) {
         <div class="page-actions">
             <div class="page-actions-inner">
                 <div class="page-actions-buttons">
-                    <?php if (!$isApiActive) : ?>
+                    <?php if (!$isApiActive): ?>
                         <button id="saveBtn" title="Connect" type="submit" class="action-default scalable connect primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
                             <span class="ui-button-text">
                                 <span>Connect</span>
                             </span>
                         </button>
-                        <?php else : ?>
+                        <?php else: ?>
                         <button id="disconnectBtn" title="disconnect" class="action-default scalable disconnect primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
                             <span class="ui-button-text">
                                 <span>Disconnect</span>
@@ -42,7 +42,7 @@ if ($isApiActive) {
     <div id="page:main-container" class="page-columns">
         <div class="admin__old">
             <div id="container" class="main-col">
-                <?php if (!$isApiActive) : ?>
+                <?php if (!$isApiActive): ?>
                     <fieldset class="fieldset admin__fieldset no-display" id="apiKey_fieldset" style="display: block;">
                         <div class="admin__field field field-basic_apiKey required _required with-note">
                             <label class="label admin__field-label" for="apiKey">
@@ -91,7 +91,7 @@ if ($isApiActive) {
                         </div>
                     </fieldset>
 
-                    <?php else : ?>
+                    <?php else: ?>
                     <legend class="admin__legend legend title">
                         <span>GetResponse account data</span>
                     </legend>
@@ -114,7 +114,7 @@ if ($isApiActive) {
                         </tr>
                         <?php endif; ?>
                             <?php
-                            if ($isApiActive) : ?>
+                            if ($isApiActive): ?>
                         <tr>
                             <td>Name:</td>
                             <td><?php echo $account->getFirstName() . ' ' . $account->getLastName(); ?></td>
@@ -123,7 +123,7 @@ if ($isApiActive) {
                             <td>Email:</td>
                             <td><?php echo $account->getEmail(); ?></td>
                         </tr>
-                        <?php if (!empty($account->getCompanyName())) : ?>
+                                <?php if (!empty($account->getCompanyName())): ?>
                             <tr>
                                 <td>Company:</td>
                                 <td><?php echo $account->getCompanyName(); ?></td>
@@ -138,9 +138,9 @@ if ($isApiActive) {
                             <td><?php echo $account->getStreet() . ' ' . $account->getZipCode() . ' ' . $account->getCity() . ' ' . $account->getState() . ' ' . $account->getCountryCode(); ?></td>
                         </tr>
                     </table>
-                <?php
+                                <?php
                 endif;
-                ?>
+                            ?>
             </div>
         </div>
     </div>

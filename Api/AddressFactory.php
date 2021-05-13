@@ -52,5 +52,4 @@ class AddressFactory
             $address->getCompany()
         );
     }
-
 }
