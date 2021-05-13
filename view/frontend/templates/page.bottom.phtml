@@ -9,6 +9,5 @@ use GetResponse\GetResponseIntegration\Helper\BlockPosition;
 $webFormUrl = $block->getWebFormUrlToDisplay(BlockPosition::BOTTOM);
 
 if (null !== $webFormUrl) {
-    echo '<script type="text/javascript" src="' . $webFormUrl .'"></script>';
+    echo '<script type="text/javascript" src="' . $webFormUrl . '"></script>';
 }
-

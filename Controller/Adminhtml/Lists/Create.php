@@ -12,7 +12,6 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\ListValidator;
 use GetResponse\GetResponseIntegration\Domain\Magento\Store\ReadModel\StoreReadModel;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Exception\ListValidationException;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Helper\Route;
 use GrShareCode\ContactList\ContactListService;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
@@ -35,10 +34,6 @@ class Create extends AbstractController
     public function execute()
     {
         parent::execute();
-
-        if (!$this->isConnected()) {
-            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
-        }
 
         $backUrl = $this->getRequest()->getParam('back_url');
 

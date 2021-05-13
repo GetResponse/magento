@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Block\Admin;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking as WebEventTrackingSettings;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Framework\View\Element\Template\Context;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
 class WebEventTracking extends AdminTemplate
 {

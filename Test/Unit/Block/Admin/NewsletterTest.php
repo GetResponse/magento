@@ -105,7 +105,6 @@ class NewsletterTest extends BaseTestCase
                 'autoresponderId' => $autoresponderId
             ]);
 
-
         $settings = $this->newsletterBlock->getNewsletterSettings();
         self::assertEquals($expectedSettings, $settings);
     }

@@ -16,6 +16,8 @@ class Config
     const CONFIG_DATA_PLUGIN_MODE = 'getresponse/plugin-mode';
     const CONFIG_LIVE_SYNCHRONIZATION = 'getresponse/live-synchronization';
     const CONFIG_DATA_FACEBOOK_PIXEL_SNIPPET = 'getresponse/facebook-pixel-snippet';
+    const CONFIG_DATA_FACEBOOK_ADS_PIXEL_SNIPPET = 'getresponse/facebook-ads-pixel-snippet';
+    const CONFIG_DATA_FACEBOOK_BUSINESS_EXTENSION_SNIPPET = 'getresponse/facebook-business-extension-snippet';
     const CONFIG_DATA_REGISTRATION_SETTINGS = 'getresponse/registration/settings';
     const CONFIG_DATA_REGISTRATION_CUSTOMS = 'getresponse/registration/customs';
     const CONFIG_DATA_NEWSLETTER_SETTINGS = 'getresponse/newsletter/settings';
@@ -31,6 +33,7 @@ class Config
     const CACHE_KEY = 'getresponse_cache';
     const CACHE_TIME = 600; // 10 minutes of cache time
     const SCOPE_TAG = 'scope';
-    const SCOPE = 'websites';
     const SCOPE_SESSION = 'grScopeId';
+
+    const API_APP_SECRET = '010b02c432482c288dca40f5dae0b132';
 }

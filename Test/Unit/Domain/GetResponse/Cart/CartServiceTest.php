@@ -11,10 +11,10 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Quote\ReadModel\Query\Quot
 use GetResponse\GetResponseIntegration\Domain\Magento\Quote\ReadModel\QuoteReadModel;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
+use GrShareCode\Cart\CartService as GrCartService;
 use GrShareCode\Product\Product;
 use Magento\Checkout\Helper\Cart as CartHelper;
 use Magento\Quote\Model\Quote;
-use GrShareCode\Cart\CartService as GrCartService;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class CartServiceTest extends BaseTestCase

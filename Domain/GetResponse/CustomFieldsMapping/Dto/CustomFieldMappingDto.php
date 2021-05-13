@@ -34,5 +34,4 @@ class CustomFieldMappingDto
     {
         return $this->getResponseCustomFieldId;
     }
-
 }

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Setup;
 
+use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
-use Magento\Framework\DB\Ddl\Table;
 use Zend_Db_Exception;
 
 class InstallSchema implements InstallSchemaInterface
@@ -112,7 +112,6 @@ class InstallSchema implements InstallSchemaInterface
         $setup->getConnection()->createTable($table);
 
         $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_product_map'));
-
 
         $table = $setup->getConnection()->newTable(
             $setup->getTable('getresponse_product_map')

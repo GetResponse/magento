@@ -36,7 +36,16 @@ class Save extends AbstractController
             return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
         }
 
-        $webForm = WebForm::createFromRequest($this->request->getPostValue());
+        $data = $this->request->getPostValue();
+
+        $params = [
+            'isEnabled' => isset($data['isEnabled']) && 1 === (int) $data['isEnabled'],
+            'url' => $data['url'] ?? '',
+            'webFormId' => $data['webformId'] ?? '',
+            'place' => $data['sidebar'] ?? ''
+        ];
+
+        $webForm = WebForm::createFromArray($params);
 
         if ($webForm->isEnabled()) {
             $error = $this->validateWebFormData($webForm);

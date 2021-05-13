@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Model;
 
-use Magento\Framework\Model\AbstractModel;
 use GetResponse\GetResponseIntegration\Model\ResourceModel\ProductMap as ResourceProductMap;
+use Magento\Framework\Model\AbstractModel;
 
 class ProductMap extends AbstractModel
 {

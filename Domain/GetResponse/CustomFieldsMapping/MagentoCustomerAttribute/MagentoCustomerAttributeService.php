@@ -6,7 +6,6 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapp
 
 use Exception;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMapping;
-use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
 use Magento\Customer\Model\Data\Customer;
 
 class MagentoCustomerAttributeService
@@ -29,27 +28,22 @@ class MagentoCustomerAttributeService
     private function getCustomerAttributeValueByCode(Customer $customer, $attributeCode)
     {
         $params = $customer->__toArray();
-        return isset($params[$attributeCode]) ? $params[$attributeCode] : null;
+        return $params[$attributeCode] ?? null;
     }
 
-    private function getAddressAttributeValueByCode(Customer $customer, $attributeCode)
+    private function getAddressAttributeValueByCode(Customer $customer, $attributeCode): ?string
     {
         try {
-
-            $customerAddress = $customer->getDefaultShippingAddress();
-
-            if (!$customerAddress) {
-                return null;
+            $customerAddress = [];
+            if ($customer->getAddresses() !== null) {
+                foreach ($customer->getAddresses() as $address) {
+                    $customerAddress = $address->__toArray();
+                }
             }
 
-            /** @var Attribute $customerAttribute */
-            $customerAddressAttribute = $customerAddress->getAttributes()[$attributeCode];
+            $attribute = $customerAddress[$attributeCode] ?? null;
 
-            if (!$customerAddressAttribute) {
-                return null;
-            }
-
-            return $customerAddress->getData($attributeCode);
+            return is_array($attribute) ? implode(' - ', $attribute) : $attribute;
         } catch (Exception $e) {
             return null;
         }

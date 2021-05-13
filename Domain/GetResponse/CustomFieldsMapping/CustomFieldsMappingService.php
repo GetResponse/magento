@@ -60,7 +60,6 @@ class CustomFieldsMappingService
         }
 
         foreach ($this->addressCollectionFactory->create() as $addressAttribute) {
-
             if (null === $addressAttribute->getFrontendLabel()) {
                 continue;
             }

@@ -18,7 +18,7 @@ $confirmationBodies = $block->getSubscriptionConfirmationsBody();
     <input type="hidden" name="back_url" value="<?php echo $block->getBackUrl()?>" />
 
     <div class="page-main-actions">
-        <?php require('switch_scope.phtml') ?>
+        <?php require 'switch_scope.phtml'?>
         <div class="page-main-hint"></div>
         <div class="page-actions">
             <div class="page-actions-inner">
@@ -117,11 +117,11 @@ $confirmationBodies = $block->getSubscriptionConfirmationsBody();
                             <select name="confirmation_body" id="confirmation_body" class="select admin__control-select" aria-required="true">
                                 <option value="">Select confirmation message body template</option>
                                 <?php
-                                    if (isset($confirmationBodies)) {
-                                        foreach ($confirmationBodies as $body) {
-                                            echo '<option value="' . $body['subscriptionConfirmationBodyId'] . '">(' . $body['name'] . ') ' . $body['contentPlain'] . '</option>';
-                                        }
+                                if (isset($confirmationBodies)) {
+                                    foreach ($confirmationBodies as $body) {
+                                        echo '<option value="' . $body['subscriptionConfirmationBodyId'] . '">(' . $body['name'] . ') ' . $body['contentPlain'] . '</option>';
                                     }
+                                }
                                 ?>
                             </select>
                             <div class="validation-message"></div>

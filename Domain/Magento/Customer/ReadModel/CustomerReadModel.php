@@ -7,7 +7,7 @@ namespace GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel;
 use GetResponse\GetResponseIntegration\Domain\Magento\Customer\ReadModel\Query\CustomerId;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Magento\Customer\Api\CustomerRepositoryInterface;
-use Magento\Customer\Model\Data\Customer;
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Newsletter\Model\Subscriber;
 
@@ -24,7 +24,7 @@ class CustomerReadModel
         $this->customerRepository = $customerRepository;
     }
 
-    public function getCustomerById(CustomerId $query): Customer
+    public function getCustomerById(CustomerId $query): CustomerInterface
     {
         return $this->customerRepository->getById($query->getId());
     }

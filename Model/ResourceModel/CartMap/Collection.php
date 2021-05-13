@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Model\ResourceModel\CartMap;
 
+use GetResponse\GetResponseIntegration\Model\CartMap;
 use GetResponse\GetResponseIntegration\Model\ResourceModel\CartMap as ResourceCartMap;
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
-use GetResponse\GetResponseIntegration\Model\CartMap;
 
 class Collection extends AbstractCollection
 {

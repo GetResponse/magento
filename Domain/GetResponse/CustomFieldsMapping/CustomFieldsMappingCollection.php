@@ -62,9 +62,7 @@ class CustomFieldsMappingCollection implements IteratorAggregate
 
         /** @var CustomFieldMappingDto $customFieldMappingDto */
         foreach ($customFieldMappingDtoCollection as $customFieldMappingDto) {
-
             $collection->add(
-
                 new CustomFieldsMapping(
                     $customFieldMappingDto->getGetResponseCustomFieldId(),
                     $customFieldMappingDto->getMagentoAttributeCode(),
@@ -73,7 +71,6 @@ class CustomFieldsMappingCollection implements IteratorAggregate
                     ''
                 )
             );
-
         }
 
         return $collection;

@@ -9,7 +9,6 @@ use GetResponse\GetResponseIntegration\Domain\Magento\EcommerceSettingsFactory;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\ValidationException;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Helper\Route;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Cache\TypeListInterface;
 
@@ -31,10 +30,6 @@ class Save extends AbstractController
     public function execute()
     {
         parent::execute();
-
-        if (!$this->isConnected()) {
-            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
-        }
 
         try {
             $settings = EcommerceSettingsFactory::createFromPost($this->request->getPostValue());

@@ -14,4 +14,7 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Customer\Api\Data\CustomerInterface">
+        <plugin name="CustomerExtensionAttributeOperations" type="GetResponse\GetResponseIntegration\Extensions\Customer" sortOrder="1" />
+    </type>
 </config>

@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
+use GetResponse\GetResponseIntegration\Api\ApiService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\ContactReadModel;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\Query\ContactByEmail;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Ecommerce\ReadModel\EcommerceReadModel;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Command\AddOrderCommandFactory;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Exception\InvalidOrderException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
+use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
-use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GrShareCode\Api\Exception\GetresponseApiException;
 use GrShareCode\Contact\Contact;
@@ -21,69 +24,50 @@ use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Model\Order;
 
-class CreateOrderHandler implements ObserverInterface
+class OrderObserver implements ObserverInterface
 {
     private $orderService;
-    private $orderFactory;
     private $logger;
     private $addOrderCommandFactory;
-    private $magentoStore;
     private $customerSession;
     private $ecommerceReadModel;
     private $contactReadModel;
+    private $repository;
+    private $apiService;
 
     public function __construct(
         Session $customerSession,
-        Order $orderFactory,
         OrderService $orderService,
-        Logger $getResponseLogger,
+        Logger $logger,
         AddOrderCommandFactory $addOrderCommandFactory,
         EcommerceReadModel $ecommerceReadModel,
         ContactReadModel $contactReadModel,
-        MagentoStore $magentoStore
+        Repository $repository,
+        ApiService $apiService
     ) {
         $this->orderService = $orderService;
-        $this->orderFactory = $orderFactory;
-        $this->logger = $getResponseLogger;
+        $this->logger = $logger;
         $this->addOrderCommandFactory = $addOrderCommandFactory;
         $this->customerSession = $customerSession;
         $this->ecommerceReadModel = $ecommerceReadModel;
         $this->contactReadModel = $contactReadModel;
-        $this->magentoStore = $magentoStore;
+        $this->repository = $repository;
+        $this->apiService = $apiService;
     }
 
-    public function execute(EventObserver $observer)
+    public function execute(EventObserver $observer): OrderObserver
     {
-        $scope = $this->magentoStore->getCurrentScope();
-
         try {
-            $shopId = $this->ecommerceReadModel->getShopId($scope);
+            $order = $observer->getOrder();
+            $scope = new Scope($order->getStoreId());
 
-            if (empty($shopId)) {
-                return $this;
+            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
+
+            if ($pluginMode->isNewVersion()) {
+                $this->apiService->createOrder($order, $scope);
+            } else {
+                $this->handleOldVersion($order, $scope);
             }
-
-            if (false === $this->customerSession->isLoggedIn()) {
-                return $this;
-            }
-
-            if (null === $this->getContactFromGetResponse($scope)) {
-                return $this;
-            }
-
-            $order = $this->orderFactory->load(
-                $observer->getEvent()->getOrderIds()[0]
-            );
-
-            $this->orderService->addOrder(
-                $this->addOrderCommandFactory->createForMagentoOrder(
-                    $order,
-                    $this->ecommerceReadModel->getListId($scope),
-                    $shopId
-                ),
-                $scope
-            );
-
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }
@@ -92,12 +76,33 @@ class CreateOrderHandler implements ObserverInterface
     }
 
     /**
-     * @param Scope $scope
-     * @return null|Contact
+     * @throws ApiException
+     * @throws GetresponseApiException
+     * @throws InvalidOrderException
+     */
+    private function handleOldVersion(Order $order, Scope $scope): void
+    {
+        $shopId = $this->ecommerceReadModel->getShopId($scope);
+
+        if (empty($shopId) || null === $this->getContactFromGetResponse($scope)) {
+            return;
+        }
+
+        $this->orderService->addOrder(
+            $this->addOrderCommandFactory->createForMagentoOrder(
+                $order,
+                $this->ecommerceReadModel->getListId($scope),
+                $shopId
+            ),
+            $scope
+        );
+    }
+
+    /**
      * @throws ApiException
      * @throws GetresponseApiException
      */
-    private function getContactFromGetResponse(Scope $scope)
+    private function getContactFromGetResponse(Scope $scope): ?Contact
     {
         $contactListId = $this->ecommerceReadModel->getListId($scope);
 

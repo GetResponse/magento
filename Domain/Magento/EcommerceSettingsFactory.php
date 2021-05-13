@@ -13,7 +13,7 @@ class EcommerceSettingsFactory
      */
     public static function createFromPost($data): EcommerceSettings
     {
-        if (isset($data['ecommerce_status']) &&(int) $data['ecommerce_status'] === 1) {
+        if (isset($data['ecommerce_status']) && (int) $data['ecommerce_status'] === 1) {
             return new EcommerceSettings(EcommerceSettings::STATUS_ENABLED, $data['shop_id'], $data['list_id']);
         }
 

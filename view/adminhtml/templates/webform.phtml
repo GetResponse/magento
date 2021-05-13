@@ -15,7 +15,7 @@ $webformSettings = $block->getWebFormSettings();
     <?php echo $block->getBlockHtml('formkey'); ?>
 
     <div class="page-main-actions">
-        <?php require('switch_scope.phtml') ?>
+        <?php require 'switch_scope.phtml'?>
         <div class="page-main-hint">
             <span>Add forms (or exit popups) to your store. Get new contacts when your customers fill them out.</span>
         </div>
@@ -63,7 +63,7 @@ $webformSettings = $block->getWebFormSettings();
                                             <option
                                                 value="<?php echo $form->getWebFormId()?>"
                                                 data-url="<?php echo $form->getScriptUrl()?>"
-                                                <?php if($webformSettings->getWebFormId() === $form->getWebFormId()):?>
+                                                <?php if ($webformSettings->getWebFormId() === $form->getWebFormId()):?>
                                                     selected="selected"
                                                 <?php endif ?>
                                             ><?php echo $form->getName() ?></option>

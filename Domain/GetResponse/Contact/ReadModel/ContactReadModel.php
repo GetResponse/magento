@@ -44,7 +44,10 @@ class ContactReadModel
 
         $contact = $contactService->findContact(
             new FindContactCommand(
-                $query->getEmail(), $query->getContactListId(), false)
+                $query->getEmail(),
+                $query->getContactListId(),
+                false
+            )
         );
 
         if (!$contact) {

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Model;
 
-use Magento\Framework\Model\AbstractModel;
 use GetResponse\GetResponseIntegration\Model\ResourceModel\CartMap as ResourceCartMap;
+use Magento\Framework\Model\AbstractModel;
 
 class CartMap extends AbstractModel
 {

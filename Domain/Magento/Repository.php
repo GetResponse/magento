@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\FacebookPixel;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Account\Account;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\CustomFieldsMappingCollection;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistration;
@@ -13,9 +11,9 @@ use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
-use Magento\Framework\Serialize\SerializerInterface;
 
 class Repository
 {
@@ -110,11 +108,35 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    public function saveFacebookPixelSnippet(FacebookPixel $facebookPixelSettings, $scopeId)
+    public function saveFacebookPixelSnippet(FacebookPixel $facebookPixelSettings, $scopeId): void
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_FACEBOOK_PIXEL_SNIPPET,
             $this->serializer->serialize($facebookPixelSettings->toArray()),
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        $this->cacheManager->clean(['config']);
+    }
+
+    public function saveFacebookAdsPixelSnippet(FacebookAdsPixel $facebookAdsPixelSettings, $scopeId): void
+    {
+        $this->configWriter->save(
+            Config::CONFIG_DATA_FACEBOOK_ADS_PIXEL_SNIPPET,
+            $this->serializer->serialize($facebookAdsPixelSettings->toArray()),
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        $this->cacheManager->clean(['config']);
+    }
+
+    public function saveFacebookBusinessExtensionSnippet(FacebookBusinessExtension $facebookBusinessExtension, $scopeId): void
+    {
+        $this->configWriter->save(
+            Config::CONFIG_DATA_FACEBOOK_BUSINESS_EXTENSION_SNIPPET,
+            $this->serializer->serialize($facebookBusinessExtension->toArray()),
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
@@ -150,22 +172,48 @@ class Repository
         return $this->serializer->unserialize($data);
     }
 
-    public function getPluginMode($scopeId)
+    public function getFacebookAdsPixelSnippet($scopeId): array
     {
-        return $this->scopeConfig->getValue(
-            Config::CONFIG_DATA_PLUGIN_MODE,
+        $data = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_FACEBOOK_ADS_PIXEL_SNIPPET,
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
+
+        if (empty($data)) {
+            return [];
+        }
+        return $this->serializer->unserialize($data);
     }
 
-    public function savePluginMode(PluginMode $pluginMode, $scopeId)
+    public function getFacebookBusinessExtensionSnippet($scopeId): array
+    {
+        $data = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_FACEBOOK_BUSINESS_EXTENSION_SNIPPET,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        if (empty($data)) {
+            return [];
+        }
+        return $this->serializer->unserialize($data);
+    }
+
+    public function getPluginMode(): ?string
+    {
+        $value = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_PLUGIN_MODE
+        );
+
+        return is_null($value) ? null : (string)$value;
+    }
+
+    public function savePluginMode(PluginMode $pluginMode): void
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_PLUGIN_MODE,
-            $pluginMode->getMode(),
-            $this->getScope($scopeId),
-            $this->getScopeId($scopeId)
+            $pluginMode->getMode()
         );
 
         $this->cacheManager->clean(['config']);
@@ -173,18 +221,23 @@ class Repository
 
     public function getLiveSynchronization($scopeId)
     {
-        return $this->scopeConfig->getValue(
+        $data = $this->scopeConfig->getValue(
             Config::CONFIG_LIVE_SYNCHRONIZATION,
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
+
+        if (empty($data)) {
+            return [];
+        }
+        return $this->serializer->unserialize($data);
     }
 
-    public function saveLiveSynchronization(LiveSynchronization $liveSynchronization, $scopeId)
+    public function saveLiveSynchronization(LiveSynchronization $liveSynchronization, $scopeId): void
     {
         $this->configWriter->save(
             Config::CONFIG_LIVE_SYNCHRONIZATION,
-            (int)$liveSynchronization->isActive(),
+            $this->serializer->serialize($liveSynchronization->toArray()),
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );
@@ -192,7 +245,7 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    public function saveShopStatus($status, $scopeId)
+    public function saveShopStatus($status, $scopeId): void
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_SHOP_STATUS,
@@ -204,7 +257,7 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    public function saveShopId($shopId, $scopeId)
+    public function saveShopId($shopId, $scopeId): void
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_SHOP_ID,
@@ -216,7 +269,7 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    public function saveEcommerceListId($listId, $scopeId)
+    public function saveEcommerceListId($listId, $scopeId): void
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_ECOMMERCE_LIST_ID,
@@ -228,7 +281,7 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    public function saveAccountDetails(Account $account, $scopeId)
+    public function saveAccountDetails(Account $account, $scopeId): void
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_ACCOUNT,
@@ -380,7 +433,26 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    private function clearCustomOrigin($scopeId)
+    public function clearConfiguration($scopeId): void
+    {
+        $keys = [
+            Config::CONFIG_DATA_FACEBOOK_PIXEL_SNIPPET,
+            Config::CONFIG_DATA_FACEBOOK_ADS_PIXEL_SNIPPET,
+            Config::CONFIG_DATA_FACEBOOK_BUSINESS_EXTENSION_SNIPPET,
+            Config::CONFIG_DATA_WEBFORMS_SETTINGS,
+            Config::CONFIG_DATA_WEB_EVENT_TRACKING,
+            Config::CONFIG_LIVE_SYNCHRONIZATION
+        ];
+
+        foreach ($keys as $key) {
+            $this->configWriter->delete($key, $this->getScope($scopeId), $this->getScopeId($scopeId));
+        }
+
+        $this->configWriter->delete(Config::CONFIG_DATA_PLUGIN_MODE, $this->getScope(null), $this->getScopeId(null));
+        $this->cacheManager->clean(['config']);
+    }
+
+    private function clearCustomOrigin($scopeId): void
     {
         $this->configWriter->delete(
             Config::CONFIG_DATA_ORIGIN_CUSTOM_FIELD_ID,
@@ -497,11 +569,11 @@ class Repository
 
     private function getScope($scopeId): string
     {
-        return $scopeId === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_WEBSITES;
+        return $scopeId === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES;
     }
 
-    private function getScopeId($scopeId): string
+    private function getScopeId($scopeId): int
     {
-        return (string) ($scopeId ?? Store::DEFAULT_STORE_ID);
+        return (int) ($scopeId ?? Store::DEFAULT_STORE_ID);
     }
 }

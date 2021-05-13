@@ -42,7 +42,7 @@ class OrderFactoryTest extends BaseTestCase
      */
     public function shouldCreateValidOrder()
     {
-        $productCollection =  Generator::createProductsCollection(2,1);
+        $productCollection =  Generator::createProductsCollection(2, 1);
 
         $orderItemMock = $this->getMockWithoutConstructing(Item::class);
         $orderItemMock
@@ -75,7 +75,6 @@ class OrderFactoryTest extends BaseTestCase
         $this->magentoOrderMock
             ->method('getAllVisibleItems')
             ->willReturn([$orderItemMock, $orderItemMock]);
-
 
         $this->productFactory
             ->expects(self::exactly(2))

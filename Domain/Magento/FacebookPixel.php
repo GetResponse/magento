@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
-class FacebookPixel
+class FacebookPixel implements SnippetInterface
 {
     private $isActive;
     private $codeSnippet;
@@ -54,10 +54,10 @@ class FacebookPixel
      */
     public static function createFromRequest(array $data): FacebookPixel
     {
-        if (!isset($data['facebookPixel'])) {
+        if (!isset($data['facebook_pixel'])) {
             throw RequestValidationException::create('Incorrect FacebookPixel params');
         }
 
-        return new FacebookPixel($data['facebookPixel']['isActive'], $data['facebookPixel']['codeSnippet']);
+        return new FacebookPixel($data['facebook_pixel']['is_active'], $data['facebook_pixel']['snippet']);
     }
 }

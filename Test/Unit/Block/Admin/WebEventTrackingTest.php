@@ -39,10 +39,9 @@ class WebEventTrackingTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldReturnWebEventTrackingCode()
+    public function shouldReturnWebEventTrackingCode(): void
     {
         $isEnabled = true;
-        $isFeatureTrackingEnabled = false;
         $snippet = '<script>function trackingCodeSnippet() {}</script>';
 
         $this->repository
@@ -50,16 +49,11 @@ class WebEventTrackingTest extends BaseTestCase
             ->method('getWebEventTracking')
             ->willReturn([
                 'isEnabled' => $isEnabled,
-                'isFeatureTrackingEnabled' => $isFeatureTrackingEnabled,
+                'isFeatureTrackingEnabled' => true,
                 'codeSnippet' => $snippet
             ]);
 
-        $expectedSettings = new WebEventTrackingSettings(
-            $isEnabled,
-            $isFeatureTrackingEnabled,
-            $snippet
-        );
-
+        $expectedSettings = new WebEventTrackingSettings($isEnabled, true, $snippet);
         $settings = $this->trackingBlock->getWebEventTracking();
 
         self::assertEquals($expectedSettings, $settings);

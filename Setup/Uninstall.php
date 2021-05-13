@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Setup;
 
+use GetResponse\GetResponseIntegration\Helper\Config;
+use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\App\Cache\Type\Config as FrameworkCacheType;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UninstallInterface;
-use Magento\Framework\App\Config\Storage\WriterInterface;
-use Magento\Framework\App\Cache\Manager;
-use GetResponse\GetResponseIntegration\Helper\Config;
 use Magento\PageCache\Model\Cache\Type as PageCacheType;
 use Magento\Store\Model\Store;
 

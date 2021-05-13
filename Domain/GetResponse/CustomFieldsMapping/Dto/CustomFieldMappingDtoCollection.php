@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Dto;
 
 use ArrayIterator;
-use IteratorAggregate;
 use Countable;
+use IteratorAggregate;
 
 class CustomFieldMappingDtoCollection implements Countable, IteratorAggregate
 {
@@ -32,7 +32,6 @@ class CustomFieldMappingDtoCollection implements Countable, IteratorAggregate
         }
 
         foreach ($data['custom'] as $key => $customs) {
-
             $collection->add(
                 $this->customFieldMappingDtoFactory->createFromRequestData(
                     $data['custom'][$key],

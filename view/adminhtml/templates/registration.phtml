@@ -16,7 +16,7 @@ $registrationSettings = $block->getRegistrationSettings();
     <?php echo $block->getBlockHtml('formkey'); ?>
 
     <div class="page-main-actions">
-        <?php require('switch_scope.phtml') ?>
+        <?php require 'switch_scope.phtml'?>
         <div class="page-main-hint">
             <span>Get new contacts in GetResponse when people register as customers</span>
         </div>
@@ -44,7 +44,7 @@ $registrationSettings = $block->getRegistrationSettings();
                         <div class="admin__field-control control">
                             <div class="admin__field admin__field-option gr_enabled__field">
                                 <input id="gr_enabled" name="gr_enabled" class="admin__control-checkbox" type="checkbox" value="1"
-                                    <?php if($registrationSettings->isEnabled()): ?>checked="checked" <?php endif ?>
+                                    <?php if ($registrationSettings->isEnabled()): ?>checked="checked" <?php endif ?>
                                 >
                                 <label class="admin__field-label" for="gr_enabled">Add contacts to GetResponse during registration</label>
                             </div>

@@ -13,19 +13,21 @@ class LiveSynchronizationTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldCreateLiveSynchronization()
+    public function shouldCreateLiveSynchronization(): void
     {
         $isActive = true;
+        $callbackUrl = 'https://app.getrepsonse.com/#d5fj2dof3ij';
 
-        $liveSynchronization = new LiveSynchronization($isActive);
+        $liveSynchronization = new LiveSynchronization($isActive, $callbackUrl, LiveSynchronization::TYPE_ECOMMERCE);
 
         self::assertEquals($isActive, $liveSynchronization->isActive());
+        self::assertEquals($callbackUrl, $liveSynchronization->getCallbackUrl());
     }
 
     /**
      * @test
      */
-    public function shouldCreateFacebookPixelFromRepository()
+    public function shouldCreateFacebookPixelFromRepository(): void
     {
         $liveSynchronization = LiveSynchronization::createFromRepository([]);
 
@@ -35,11 +37,16 @@ class LiveSynchronizationTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldCreateFacebookPixelFromRequest()
+    public function shouldCreateFacebookPixelFromRequest(): void
     {
         $isActive = true;
-
-        $data = ['liveSynchronization' => ['isActive' => $isActive,]];
+        $data = [
+            'live_synchronization' => [
+                'is_active' => $isActive,
+                'url' => 'https://app.getrepsonse.com/#d5fj2dof3ij',
+                'type' => LiveSynchronization::TYPE_ECOMMERCE
+            ]
+        ];
 
         $liveSynchronization = LiveSynchronization::createFromRequest($data);
 
@@ -49,7 +56,7 @@ class LiveSynchronizationTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldThrowExceptionWhenCreateFacebookPixelFromRequest()
+    public function shouldThrowExceptionWhenCreateFacebookPixelFromRequest(): void
     {
         $this->expectException(RequestValidationException::class);
         LiveSynchronization::createFromRequest([]);

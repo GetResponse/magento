@@ -10,7 +10,6 @@ use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\CustomField\CustomField;
 use GrShareCode\CustomField\CustomFieldCollection;
-use GrShareCode\CustomField\CustomFieldFilter\TextFieldCustomFieldFilter;
 use GrShareCode\CustomField\CustomFieldService as GrCustomFieldService;
 use PHPUnit\Framework\MockObject\MockObject;
 

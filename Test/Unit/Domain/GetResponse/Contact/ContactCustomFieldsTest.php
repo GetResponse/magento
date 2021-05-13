@@ -112,7 +112,7 @@ class ContactCustomFieldsTest extends BaseTestCase
                 [$customFieldsMapping1, $customer],
                 [$customFieldsMapping2, $customer],
                 [$customFieldsMapping3, $customer]
-             )
+            )
             ->willReturn($customerAttributeValue1, $customerAttributeValue2, $customerAttributeValue3);
 
         $isCustomFieldUpdateEnabled = true;
@@ -196,5 +196,4 @@ class ContactCustomFieldsTest extends BaseTestCase
 
         $this->assertEquals($expectedContactCustomFieldsCollection, $actualContactCustomFieldsCollection);
     }
-
 }

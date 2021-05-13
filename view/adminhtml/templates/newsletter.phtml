@@ -16,7 +16,7 @@ $newsletter = $block->getNewsletterSettings();
     <?php echo $block->getBlockHtml('formkey'); ?>
 
     <div class="page-main-actions">
-        <?php require('switch_scope.phtml') ?>
+        <?php require 'switch_scope.phtml'?>
         <div class="page-main-hint">
             <span>Get new contacts in GetResponse each time somebody signed up to your newsletter.</span>
         </div>
@@ -44,7 +44,7 @@ $newsletter = $block->getNewsletterSettings();
                         <div class="admin__field-control control">
                             <div class="admin__field admin__field-option gr_enabled__field">
                                 <input id="gr_enabled" name="gr_enabled" class="admin__control-checkbox" type="checkbox" value="1"
-                                    <?php if($newsletter->isEnabled()): ?>checked="checked" <?php endif ?>
+                                    <?php if ($newsletter->isEnabled()): ?>checked="checked" <?php endif ?>
                                 >
                                 <label class="admin__field-label" for="gr_enabled">Add customers to GetResponse contact list when they subscribe to newsletter</label>
                             </div>

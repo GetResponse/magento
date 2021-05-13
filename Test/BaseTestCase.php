@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Test;
 
 class BaseTestCase extends \PHPUnit\Framework\TestCase
 {
-
     /**
      * @param string $name
      * @param string[] $methodsToOverride

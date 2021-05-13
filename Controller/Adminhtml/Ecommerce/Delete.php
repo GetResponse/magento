@@ -9,7 +9,6 @@ use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiClientFactory;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Exception\IdNotFoundException;
 use GetResponse\GetResponseIntegration\Helper\Message;
-use GetResponse\GetResponseIntegration\Helper\Route;
 use GrShareCode\Shop\Command\DeleteShopCommand;
 use GrShareCode\Shop\ShopService;
 use Magento\Backend\App\Action\Context;
@@ -27,10 +26,6 @@ class Delete extends AbstractController
     public function execute()
     {
         parent::execute();
-
-        if (!$this->isConnected()) {
-            return $this->redirectToStore(Route::ACCOUNT_INDEX_ROUTE);
-        }
 
         try {
             $id = $this->request->getParam('id');

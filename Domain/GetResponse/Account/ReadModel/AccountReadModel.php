@@ -46,11 +46,11 @@ class AccountReadModel
 
         return
             str_repeat(
-            "*",
-            strlen($connectionSettings->getApiKey()) - 6
-        ) . substr(
-            $connectionSettings->getApiKey(),
-            -6
-        );
+                "*",
+                strlen($connectionSettings->getApiKey()) - 6
+            ) . substr(
+                $connectionSettings->getApiKey(),
+                -6
+            );
     }
 }

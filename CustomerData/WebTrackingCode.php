@@ -24,5 +24,4 @@ class WebTrackingCode implements SectionSourceInterface
             'customerEmail' => $email,
         ];
     }
-
 }

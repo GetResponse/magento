@@ -21,6 +21,7 @@ class ProductReadModel
     public function getProduct(GetProduct $query): Product
     {
         $productObject = $this->objectManager->create(Product::class);
+
         return $productObject->load($query->getId());
     }
 
@@ -30,5 +31,21 @@ class ProductReadModel
         $parentProductsIds = $productObject->getParentIdsByChild($query->getId());
 
         return $this->getProduct(new GetProduct($parentProductsIds[0]));
+    }
+
+    /**
+     * @return Product[]
+     */
+    public function getProductParents(GetProduct $query): array
+    {
+        $productObject = $this->objectManager->create(Configurable::class);
+        $parentProductsIds = $productObject->getParentIdsByChild($query->getId());
+
+        $products = [];
+        foreach ($parentProductsIds as $parentProductsId) {
+            $products[] = $this->getProduct(new GetProduct($parentProductsId));
+        }
+
+        return $products;
     }
 }

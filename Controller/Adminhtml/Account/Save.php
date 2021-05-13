@@ -84,7 +84,6 @@ class Save extends AbstractController
             $this->cacheManager->clean(['config']);
 
             return $this->redirect($this->_redirect->getRefererUrl(), Message::ACCOUNT_CONNECTED);
-
         } catch (Exception $e) {
             return $this->redirect($this->_redirect->getRefererUrl(), Message::API_ERROR_MESSAGE, true);
         }
