@@ -8,7 +8,6 @@ use GetResponse\GetResponseIntegration\Api\Address;
 use GetResponse\GetResponseIntegration\Api\Cart;
 use GetResponse\GetResponseIntegration\Api\Customer;
 use GetResponse\GetResponseIntegration\Api\Product;
-use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 
 class ApiFaker
 {
@@ -64,7 +63,7 @@ class ApiFaker
         return new Product(
             659,
             'Josef Seibel Men - Graphite',
-            Configurable::TYPE_CODE,
+            'configurable',
             'https://magento.com/product/3fu#3fuf9',
             'product',
             [],
