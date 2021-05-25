@@ -260,7 +260,7 @@ class CustomerFactoryTest extends BaseTestCase
         $gender = 1;
         $middleName = '';
 
-        /** @var AddressInterface|MockObject $orderMock */
+        /** @var AddressInterface|MockObject $addressMock */
         $addressMock = $this->getMockWithoutConstructing(AddressInterface::class);
         $addressMock->method('getCustomerId')->willReturn($customerId);
 
@@ -459,6 +459,7 @@ class CustomerFactoryTest extends BaseTestCase
     {
         $customerId = 100232;
         $customerEmail = 'some@email.com';
+        /** @var Subscriber|MockObject $subscriberMock */
         $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
         $subscriberMock->method('getId')->willReturn($customerId);
         $subscriberMock->method('getEmail')->willReturn($customerEmail);
