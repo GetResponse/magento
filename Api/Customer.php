@@ -86,7 +86,7 @@ class Customer implements JsonSerializable
             'first_name' => $this->firstName,
             'last_name' => $this->lastName,
             'accepts_marketing' => $this->isMarketingAccepted,
-            'address' => $this->address,
+            'address' => $this->address->jsonSerialize(),
             'tags' => $this->tags,
             'customFields' => $this->customFields
         ];
