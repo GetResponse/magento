@@ -26,14 +26,14 @@ class CartObserver implements ObserverInterface
 {
     private $cartService;
     private $logger;
-    private $customerSession;
+    private $session;
     private $ecommerceReadModel;
     private $contactReadModel;
     private $repository;
     private $apiService;
 
     public function __construct(
-        Session $customerSession,
+        Session $session,
         CartService $cartService,
         Logger $logger,
         EcommerceReadModel $ecommerceReadModel,
@@ -43,7 +43,7 @@ class CartObserver implements ObserverInterface
     ) {
         $this->cartService = $cartService;
         $this->logger = $logger;
-        $this->customerSession = $customerSession;
+        $this->session = $session;
         $this->ecommerceReadModel = $ecommerceReadModel;
         $this->contactReadModel = $contactReadModel;
         $this->repository = $repository;
@@ -53,7 +53,7 @@ class CartObserver implements ObserverInterface
     public function execute(EventObserver $observer): CartObserver
     {
         try {
-            if (false === $this->customerSession->isLoggedIn()) {
+            if (false === $this->session->isLoggedIn()) {
                 return $this;
             }
 
@@ -84,7 +84,7 @@ class CartObserver implements ObserverInterface
 
         return $this->contactReadModel->findContactByEmail(
             new ContactByEmail(
-                $this->customerSession->getCustomer()->getEmail(),
+                $this->session->getCustomer()->getEmail(),
                 $contactListId,
                 $scope
             )
