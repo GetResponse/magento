@@ -25,14 +25,11 @@ class CustomerRegisterSuccessTest extends BaseTestCase
     private $repositoryMock;
     /** @var MagentoSubscriber|MockObject */
     private $magentoSubscriberMock;
-
     /** @var CustomerRegisterSuccess */
     private $sut;
 
     public function setUp(): void
     {
-        parent::setUp();
-
         $this->requestMock = $this->getMockWithoutConstructing(RequestInterface::class);
         $this->magentoSubscriberMock = $this->getMockWithoutConstructing(MagentoSubscriber::class);
         $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
@@ -105,15 +102,6 @@ class CustomerRegisterSuccessTest extends BaseTestCase
             ->disableOriginalConstructor()
             ->setMethods(['getCustomer'])
             ->getMock();
-
-        $this->repositoryMock
-            ->expects(self::once())
-            ->method('getPluginMode')
-            ->willReturn(PluginMode::MODE_OLD);
-
-        $this->repositoryMock
-            ->expects(self::never())
-            ->method('getLiveSynchronization');
 
         $this->requestMock
             ->expects(self::never())

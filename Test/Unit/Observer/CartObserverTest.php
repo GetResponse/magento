@@ -33,8 +33,6 @@ class CartObserverTest extends BaseTestCase
 
     public function setUp(): void
     {
-        parent::setUp();
-
         $this->sessionMock = $this->getMockWithoutConstructing(Session::class);
         /** @var CartService|MockObject $cartServiceMock */
         $cartServiceMock = $this->getMockWithoutConstructing(CartService::class);

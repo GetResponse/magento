@@ -32,7 +32,20 @@ class AddressFactoryTest extends BaseTestCase
         $phone = '544404400';
         $company = 'Company';
 
-        $expectedAddress = new Address($name, $countryCode, $firstName, $lastName, $address1, $address2, $city, $zipCode, $province, $provinceCode, $phone, $company);
+        $expectedAddress = new Address(
+            $name,
+            $countryCode,
+            $firstName,
+            $lastName,
+            $address1,
+            $address2,
+            $city,
+            $zipCode,
+            $province,
+            $provinceCode,
+            $phone,
+            $company
+        );
 
         /** @var AddressInterface|MockObject $customerAddressMock */
         $customerAddressMock = $this->getMockWithoutConstructing(AddressInterface::class);
@@ -75,7 +88,20 @@ class AddressFactoryTest extends BaseTestCase
         $phone = '544404400';
         $company = 'Company';
 
-        $expectedAddress = new Address($name, $countryCode, $firstName, $lastName, $address1, $address2, $city, $zipCode, $province, $provinceCode, $phone, $company);
+        $expectedAddress = new Address(
+            $name,
+            $countryCode,
+            $firstName,
+            $lastName,
+            $address1,
+            $address2,
+            $city,
+            $zipCode,
+            $province,
+            $provinceCode,
+            $phone,
+            $company
+        );
 
         /** @var OrderAddressInterface|MockObject $orderAddressMock */
         $orderAddressMock = $this->getMockWithoutConstructing(OrderAddressInterface::class);

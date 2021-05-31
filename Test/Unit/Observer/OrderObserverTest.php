@@ -31,8 +31,6 @@ class OrderObserverTest extends BaseTestCase
 
     public function setUp(): void
     {
-        parent::setUp();
-
         /** @var Session|MockObject $customerSessionMock */
         $customerSessionMock = $this->getMockWithoutConstructing(Session::class);
         /** @var OrderService|MockObject $orderServiceMock */

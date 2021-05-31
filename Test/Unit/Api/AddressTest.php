@@ -14,7 +14,20 @@ class AddressTest extends BaseTestCase
      */
     public function shouldNormalizeToCustomFieldsArray(): void
     {
-        $address = new Address('TestAddress', 'PL', 'John', 'Smith', 'Street 12', 'XYZ', 'City', '99-001', 'Province', '9009', '544404400', 'Company');
+        $address = new Address(
+            'TestAddress',
+            'PL',
+            'John',
+            'Smith',
+            'Street 12',
+            'XYZ',
+            'City',
+            '99-001',
+            'Province',
+            '9009',
+            '544404400',
+            'Company'
+        );
 
         $expectedData = [
             'my_name' => 'TestAddress',

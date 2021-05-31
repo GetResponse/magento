@@ -33,8 +33,6 @@ class ProductFactoryTest extends BaseTestCase
 
     public function setUp(): void
     {
-        parent::setUp();
-
         $this->categoryRepositoryMock = $this->getMockWithoutConstructing(CategoryRepository::class);
         $this->stockRepositoryMock = $this->getMockWithoutConstructing(StockItemRepository::class);
         $this->productReadModelMock = $this->getMockWithoutConstructing(ProductReadModel::class);

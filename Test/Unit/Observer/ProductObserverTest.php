@@ -26,8 +26,6 @@ class ProductObserverTest extends BaseTestCase
 
     public function setUp(): void
     {
-        parent::setUp();
-
         /** @var Logger|MockObject $loggerMock */
         $loggerMock = $this->getMockWithoutConstructing(Logger::class);
         $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);

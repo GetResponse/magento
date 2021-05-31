@@ -25,8 +25,6 @@ class SubscribeFromNewsletterTest extends BaseTestCase
 
     public function setUp(): void
     {
-        parent::setUp();
-
         /** @var Logger|MockObject $loggerMock */
         $loggerMock = $this->getMockWithoutConstructing(Logger::class);
         /** @var ContactService|MockObject $contactServiceMock */

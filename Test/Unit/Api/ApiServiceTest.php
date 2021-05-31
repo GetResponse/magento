@@ -41,7 +41,7 @@ class ApiServiceTest extends BaseTestCase
     private $customerFactoryMock;
     /** @var MockObject|SubscriberFactory */
     private $subscriberFactoryMock;
-
+    /** @var ApiService */
     private $sut;
 
     public function setUp(): void

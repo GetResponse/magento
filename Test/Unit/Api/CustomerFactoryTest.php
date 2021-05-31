@@ -29,8 +29,6 @@ class CustomerFactoryTest extends BaseTestCase
 
     public function setUp(): void
     {
-        parent::setUp();
-
         $this->customerRepositoryMock = $this->getMockWithoutConstructing(CustomerRepositoryInterface::class);
         $this->subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
         $this->addressFactoryMock = $this->getMockWithoutConstructing(AddressFactory::class);
