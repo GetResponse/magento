@@ -10,7 +10,6 @@ use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\Product as MagentoProduct;
 use Magento\CatalogInventory\Model\Stock\StockItemRepository;
-use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 class ProductFactory
@@ -18,15 +17,18 @@ class ProductFactory
     private $categoryRepository;
     private $stockRepository;
     private $productReadModel;
+    private $productType;
 
     public function __construct(
         CategoryRepository $categoryRepository,
         StockItemRepository $stockRepository,
-        ProductReadModel $productReadModel
+        ProductReadModel $productReadModel,
+        ProductType $productType
     ) {
         $this->categoryRepository = $categoryRepository;
         $this->stockRepository = $stockRepository;
         $this->productReadModel = $productReadModel;
+        $this->productType = $productType;
     }
 
     /**
@@ -69,7 +71,7 @@ class ProductFactory
     {
         $variants = [];
 
-        if ($product->getTypeId() === Configurable::TYPE_CODE) {
+        if ($this->productType->isProductConfigurable($product->getTypeId())) {
             $usedProducts = $product->getTypeInstance()->getUsedProducts($product);
             /** @var MagentoProduct $childProduct */
             foreach ($usedProducts as $childProduct) {

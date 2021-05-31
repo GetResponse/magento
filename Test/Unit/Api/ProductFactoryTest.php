@@ -8,6 +8,7 @@ use GetResponse\GetResponseIntegration\Api\Category;
 use GetResponse\GetResponseIntegration\Api\Image;
 use GetResponse\GetResponseIntegration\Api\Product;
 use GetResponse\GetResponseIntegration\Api\ProductFactory;
+use GetResponse\GetResponseIntegration\Api\ProductType;
 use GetResponse\GetResponseIntegration\Api\Variant;
 use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\ProductReadModel;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
@@ -17,6 +18,7 @@ use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\Product\Url;
 use Magento\CatalogInventory\Model\Stock\Item;
 use Magento\CatalogInventory\Model\Stock\StockItemRepository;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use PHPUnit\Framework\MockObject\MockObject;
 use Magento\Catalog\Model\Product as MagentoProduct;
 
@@ -33,6 +35,12 @@ class ProductFactoryTest extends BaseTestCase
 
     public function setUp(): void
     {
+        $productType = $this->getMockBuilder(ProductType::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['isProductConfigurable'])
+            ->getMock();
+
+        $productType->method('isProductConfigurable')->willReturn(false);
         $this->categoryRepositoryMock = $this->getMockWithoutConstructing(CategoryRepository::class);
         $this->stockRepositoryMock = $this->getMockWithoutConstructing(StockItemRepository::class);
         $this->productReadModelMock = $this->getMockWithoutConstructing(ProductReadModel::class);
@@ -40,7 +48,8 @@ class ProductFactoryTest extends BaseTestCase
         $this->sut = new ProductFactory(
             $this->categoryRepositoryMock,
             $this->stockRepositoryMock,
-            $this->productReadModelMock
+            $this->productReadModelMock,
+            $productType
         );
     }
 
