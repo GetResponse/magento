@@ -11,7 +11,7 @@ use GetResponse\GetResponseIntegration\Api\Product;
 
 class ApiFaker
 {
-    public static function createApiAddress(): Address
+    public static function createAddress(): Address
     {
         return new Address(
             'Brian Sings',
@@ -37,9 +37,9 @@ class ApiFaker
             'Brian',
             'Sings',
             true,
-            self::createApiAddress(),
+            self::createAddress(),
             [],
-            self::createApiAddress()->toCustomFieldsArray('shipping')
+            self::createAddress()->toCustomFieldsArray('shipping')
         );
     }
 

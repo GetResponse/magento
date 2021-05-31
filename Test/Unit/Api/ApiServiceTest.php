@@ -15,52 +15,186 @@ use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
-use GetResponse\GetResponseIntegration\Test\Unit\ApiFaker;
 use Magento\Catalog\Model\Product;
-use Magento\Customer\Model\Customer as MagentoCustomer;
+use Magento\Customer\Api\Data\AddressInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Newsletter\Model\Subscriber;
 use Magento\Quote\Model\Quote;
 use PHPUnit\Framework\MockObject\MockObject;
+use GetResponse\GetResponseIntegration\Api\Product as GrProduct;
 
 class ApiServiceTest extends BaseTestCase
 {
     private const CALLBACK_URL = 'http://app.getresponse.com/callback/#d93jd9dj39';
 
-    /** @var object|MockObject|Repository */
+    /** @var MockObject|Repository */
     private $repositoryMock;
-    /** @var object|MockObject|HttpClient */
+    /** @var MockObject|HttpClient */
     private $httpClientMock;
-    /** @var object|MockObject|CartFactory */
-    private $cartFactory;
-    /** @var object|MockObject|OrderFactory */
-    private $orderFactory;
-    /** @var object|MockObject|ProductFactory */
-    private $productFactory;
-    /** @var object|MockObject|CustomerFactory */
-    private $customerFactory;
-    /** @var object|MockObject|SubscriberFactory */
-    private $subscriberFactory;
-
+    /** @var MockObject|CartFactory */
+    private $cartFactoryMock;
+    /** @var MockObject|OrderFactory */
+    private $orderFactoryMock;
+    /** @var MockObject|ProductFactory */
+    private $productFactoryMock;
+    /** @var MockObject|CustomerFactory */
+    private $customerFactoryMock;
+    /** @var MockObject|SubscriberFactory */
+    private $subscriberFactoryMock;
+    /** @var ApiService */
     private $sut;
 
     public function setUp(): void
     {
         $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
         $this->httpClientMock = $this->getMockWithoutConstructing(HttpClient::class);
-        $this->cartFactory = $this->getMockWithoutConstructing(CartFactory::class);
-        $this->orderFactory = $this->getMockWithoutConstructing(OrderFactory::class);
-        $this->productFactory = $this->getMockWithoutConstructing(ProductFactory::class);
-        $this->customerFactory = $this->getMockWithoutConstructing(CustomerFactory::class);
-        $this->subscriberFactory = $this->getMockWithoutConstructing(SubscriberFactory::class);
+        $this->cartFactoryMock = $this->getMockWithoutConstructing(CartFactory::class);
+        $this->orderFactoryMock = $this->getMockWithoutConstructing(OrderFactory::class);
+        $this->productFactoryMock = $this->getMockWithoutConstructing(ProductFactory::class);
+        $this->customerFactoryMock = $this->getMockWithoutConstructing(CustomerFactory::class);
+        $this->subscriberFactoryMock = $this->getMockWithoutConstructing(SubscriberFactory::class);
 
         $this->sut = new ApiService(
             $this->repositoryMock,
             $this->httpClientMock,
-            $this->cartFactory,
-            $this->orderFactory,
-            $this->productFactory,
-            $this->customerFactory,
-            $this->subscriberFactory
+            $this->cartFactoryMock,
+            $this->orderFactoryMock,
+            $this->productFactoryMock,
+            $this->customerFactoryMock,
+            $this->subscriberFactoryMock
         );
+    }
+
+    /**
+     * @test
+     */
+    public function shouldUpsertCustomerAddress(): void
+    {
+        /** @var AddressInterface|MockObject $addressMock */
+        $addressMock = $this->getMockWithoutConstructing(AddressInterface::class);
+        $scope = new Scope(1);
+
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_CONTACT);
+
+        $this->repositoryMock
+            ->expects(self::once())
+            ->method('getLiveSynchronization')
+            ->with($scope->getScopeId())
+            ->willReturn($liveSynchronization->toArray());
+
+        $this->httpClientMock->expects(self::once())->method('post');
+
+        $this->sut->upsertCustomerAddress($addressMock, $scope);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotUpsertCustomerAddress(): void
+    {
+        /** @var AddressInterface|MockObject $addressMock */
+        $addressMock = $this->getMockWithoutConstructing(AddressInterface::class);
+        $scope = new Scope(1);
+
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
+
+        $this->repositoryMock
+            ->expects(self::once())
+            ->method('getLiveSynchronization')
+            ->with($scope->getScopeId())
+            ->willReturn($liveSynchronization->toArray());
+
+        $this->httpClientMock->expects(self::never())->method('post');
+
+        $this->sut->upsertCustomerAddress($addressMock, $scope);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldUpsertCustomer(): void
+    {
+        /** @var CustomerInterface|MockObject $addressMock */
+        $customerMock = $this->getMockWithoutConstructing(CustomerInterface::class);
+        $scope = new Scope(1);
+
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_CONTACT);
+
+        $this->repositoryMock
+            ->expects(self::once())
+            ->method('getLiveSynchronization')
+            ->with($scope->getScopeId())
+            ->willReturn($liveSynchronization->toArray());
+
+        $this->httpClientMock->expects(self::once())->method('post');
+
+        $this->sut->upsertCustomer($customerMock, $scope);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotUpsertCustomer(): void
+    {
+        /** @var CustomerInterface|MockObject $addressMock */
+        $customerMock = $this->getMockWithoutConstructing(CustomerInterface::class);
+        $scope = new Scope(1);
+
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
+
+        $this->repositoryMock
+            ->expects(self::once())
+            ->method('getLiveSynchronization')
+            ->with($scope->getScopeId())
+            ->willReturn($liveSynchronization->toArray());
+
+        $this->httpClientMock->expects(self::never())->method('post');
+
+        $this->sut->upsertCustomer($customerMock, $scope);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldUpsertCustomerSubscription(): void
+    {
+        /** @var Subscriber|MockObject $addressMock */
+        $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
+        $scope = new Scope(1);
+
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_CONTACT);
+
+        $this->repositoryMock
+            ->expects(self::once())
+            ->method('getLiveSynchronization')
+            ->with($scope->getScopeId())
+            ->willReturn($liveSynchronization->toArray());
+
+        $this->httpClientMock->expects(self::once())->method('post');
+
+        $this->sut->upsertCustomerSubscription($subscriberMock, $scope);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotUpsertCustomerSubscription(): void
+    {
+        /** @var Subscriber|MockObject $addressMock */
+        $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
+        $scope = new Scope(1);
+
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
+
+        $this->repositoryMock
+            ->expects(self::once())
+            ->method('getLiveSynchronization')
+            ->with($scope->getScopeId())
+            ->willReturn($liveSynchronization->toArray());
+
+        $this->httpClientMock->expects(self::never())->method('post');
+
+        $this->sut->upsertCustomerSubscription($subscriberMock, $scope);
     }
 
     /**
@@ -68,8 +202,8 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldCreateCart(): void
     {
-        $customer = ApiFaker::createCustomer();
-        $cart = ApiFaker::createCart();
+        /** @var Quote|MockObject $quoteMock */
+        $quoteMock = $this->getMockWithoutConstructing(Quote::class);
 
         $scope = new Scope(1);
 
@@ -81,40 +215,9 @@ class ApiServiceTest extends BaseTestCase
             ->with($scope->getScopeId())
             ->willReturn($liveSynchronization->toArray());
 
-        $customerMock = $this->getMockBuilder(MagentoCustomer::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $customerMock
-            ->method('__call')
-            ->withConsecutive(['getId', 'getEmail', 'getFirstname', 'getLastname'])
-            ->willReturnOnConsecutiveCalls(
-                $customer->getId(),
-                $customer->getEmail(),
-                $customer->getFirstName(),
-                $customer->getLastName()
-            );
-
-        $quoteMock = $this->getMockBuilder(Quote::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $quoteMock
-            ->method('getId')
-            ->willReturn($cart->getId());
-        $quoteMock
-            ->method('getCustomer')
-            ->willReturn($customerMock);
-
-        $this->cartFactory
-            ->expects(self::once())
-            ->method('create')
-            ->with($quoteMock)
-            ->willReturn($cart);
-
         $this->httpClientMock
             ->expects(self::once())
-            ->method('post')
-            ->with($liveSynchronization->getCallbackUrl(), $cart);
+            ->method('post');
 
         $this->sut->createCart($quoteMock, $scope);
     }
@@ -122,11 +225,13 @@ class ApiServiceTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldCreateProduct(): void
+    public function shouldNotCreateCart(): void
     {
-        $product = ApiFaker::createProduct();
+        /** @var Quote|MockObject $quoteMock */
+        $quoteMock = $this->getMockWithoutConstructing(Quote::class);
 
         $scope = new Scope(1);
+
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
 
         $this->repositoryMock
@@ -135,37 +240,164 @@ class ApiServiceTest extends BaseTestCase
             ->with($scope->getScopeId())
             ->willReturn($liveSynchronization->toArray());
 
-        $productMock = $this->getMockBuilder(Product::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->httpClientMock
+            ->expects(self::never())
+            ->method('post');
 
-        $productMock
-            ->method('getId')
-            ->willReturn($product->getId());
-        $productMock
-            ->method('getName')
-            ->willReturn($product->getName());
-        $productMock
-            ->method('getTypeId')
-            ->willReturn($product->getType());
-        $productMock
-            ->method('getCreatedAt')
-            ->willReturn($product->getCreatedAt());
-        $productMock
-            ->method('getUpdatedAt')
-            ->willReturn($product->getUpdatedAt());
+        $this->sut->createCart($quoteMock, $scope);
+    }
 
-        $this->productFactory
+    /**
+     * @test
+     */
+    public function shouldCreateOrder(): void
+    {
+        /** @var Quote|MockObject $quoteMock */
+        $quoteMock = $this->getMockWithoutConstructing(Quote::class);
+
+        $scope = new Scope(1);
+
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_ECOMMERCE);
+
+        $this->repositoryMock
             ->expects(self::once())
-            ->method('create')
-            ->with($productMock, $scope)
-            ->willReturn([$product]);
+            ->method('getLiveSynchronization')
+            ->with($scope->getScopeId())
+            ->willReturn($liveSynchronization->toArray());
 
         $this->httpClientMock
             ->expects(self::once())
-            ->method('post')
-            ->with($liveSynchronization->getCallbackUrl(), $product);
+            ->method('post');
+
+        $this->sut->createCart($quoteMock, $scope);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotCreateOrder(): void
+    {
+        /** @var Quote|MockObject $quoteMock */
+        $quoteMock = $this->getMockWithoutConstructing(Quote::class);
+
+        $scope = new Scope(1);
+
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
+
+        $this->repositoryMock
+            ->expects(self::once())
+            ->method('getLiveSynchronization')
+            ->with($scope->getScopeId())
+            ->willReturn($liveSynchronization->toArray());
+
+        $this->httpClientMock
+            ->expects(self::never())
+            ->method('post');
+
+        $this->sut->createCart($quoteMock, $scope);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldUpsertProductCatalog(): void
+    {
+        /** @var Product|MockObject $quoteMock */
+        $productMock = $this->getMockWithoutConstructing(Product::class);
+        $productsToUpsert = [$this->getMockWithoutConstructing(GrProduct::class)];
+        $scope = new Scope(1);
+
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_ECOMMERCE);
+
+        $this->repositoryMock
+            ->expects(self::once())
+            ->method('getLiveSynchronization')
+            ->with($scope->getScopeId())
+            ->willReturn($liveSynchronization->toArray());
+
+        $this->productFactoryMock->expects(self::once())->method('create')->willReturn($productsToUpsert);
+
+        $this->httpClientMock
+            ->expects(self::once())
+            ->method('post');
 
         $this->sut->upsertProductCatalog($productMock, $scope);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotUpsertProductCatalog(): void
+    {
+        /** @var Product|MockObject $quoteMock */
+        $productMock = $this->getMockWithoutConstructing(Product::class);
+
+        $scope = new Scope(1);
+
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_CONTACT);
+
+        $this->repositoryMock
+            ->expects(self::once())
+            ->method('getLiveSynchronization')
+            ->with($scope->getScopeId())
+            ->willReturn($liveSynchronization->toArray());
+
+        $this->productFactoryMock->expects(self::never())->method('create');
+
+        $this->httpClientMock
+            ->expects(self::never())
+            ->method('post');
+
+        $this->sut->upsertProductCatalog($productMock, $scope);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldUpsertSubscriber(): void
+    {
+        /** @var Subscriber|MockObject $subscriberMock */
+        $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
+
+        $scope = new Scope(1);
+
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_CONTACT);
+
+        $this->repositoryMock
+            ->expects(self::once())
+            ->method('getLiveSynchronization')
+            ->with($scope->getScopeId())
+            ->willReturn($liveSynchronization->toArray());
+
+        $this->httpClientMock
+            ->expects(self::once())
+            ->method('post');
+
+        $this->sut->upsertSubscriber($subscriberMock, $scope);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotUpsertSubscriber(): void
+    {
+        /** @var Subscriber|MockObject $subscriberMock */
+        $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
+
+        $scope = new Scope(1);
+
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
+
+        $this->repositoryMock
+            ->expects(self::once())
+            ->method('getLiveSynchronization')
+            ->with($scope->getScopeId())
+            ->willReturn($liveSynchronization->toArray());
+
+        $this->httpClientMock
+            ->expects(self::never())
+            ->method('post');
+
+        $this->sut->upsertSubscriber($subscriberMock, $scope);
     }
 }

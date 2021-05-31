@@ -9,25 +9,21 @@ use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Newsletter\Model\Subscriber;
 use Magento\Sales\Model\Order as MagentoOrder;
-use Magento\Store\Model\StoreManagerInterface;
 
 class CustomerFactory
 {
     private $customerRepository;
     private $subscriber;
     private $addressFactory;
-    private $storeManager;
 
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
         Subscriber $subscriber,
-        AddressFactory $addressFactory,
-        StoreManagerInterface $storeManager
+        AddressFactory $addressFactory
     ) {
         $this->customerRepository = $customerRepository;
         $this->subscriber = $subscriber;
         $this->addressFactory = $addressFactory;
-        $this->storeManager = $storeManager;
     }
 
     public function create(CustomerInterface $customer): Customer
@@ -240,7 +236,6 @@ class CustomerFactory
             return false;
         }
 
-//        $subscriber = $this->subscriber->loadByCustomer($customerId, $websiteId);
         $subscriber = $this->subscriber->loadByCustomerId($customerId);
 
         return $subscriber->isSubscribed();

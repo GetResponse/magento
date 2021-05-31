@@ -28,10 +28,6 @@ class Category implements JsonSerializable
         $this->url = $url;
     }
 
-    public function toApiRequest(): array
-    {
-    }
-
     public function jsonSerialize(): array
     {
         return [

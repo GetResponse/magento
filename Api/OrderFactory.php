@@ -35,7 +35,7 @@ class OrderFactory
             (string)$order->getIncrementId(),
             (int)$order->getQuoteId(),
             $order->getCustomerEmail(),
-            $this->customerFactory->createFromOrder($order, (int)$order->getStoreId()),
+            $this->customerFactory->createFromOrder($order),
             $this->createLinesFromOrder($order),
             null,
             (float)$order->getSubtotal(),
