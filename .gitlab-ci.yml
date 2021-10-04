@@ -3,8 +3,8 @@ stages:
 - test
 - upload_to_s3
 
-composer_install:php71:
-  image: grintegrations/php71_cli
+composer_install:
+  image: docker.int.getresponse.com/integrations/magento/magento-image-cli:latest
   stage: install_dependencies
   script:
   - composer config -a -g http-basic.repo.magento.com $COMPOSER_REPO_MAGENTO_USERNAME $COMPOSER_REPO_MAGENTO_PASSWORD
@@ -16,8 +16,8 @@ composer_install:php71:
   except:
   - develop
 
-test:app-php71:
-  image: grintegrations/php71_cli
+test:phpunit:
+  image: docker.int.getresponse.com/integrations/magento/magento-image-cli:latest
   stage: test
   tags:
   - kubernetes-ci
@@ -26,7 +26,7 @@ test:app-php71:
   except:
   - develop
   dependencies:
-  - composer_install:php71
+  - composer_install
 
 upload to s3:
   stage: upload_to_s3
