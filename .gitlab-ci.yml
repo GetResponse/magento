@@ -1,6 +1,7 @@
 stages:
 - install_dependencies
 - test
+- upload_to_s3
 
 composer_install:php71:
   image: grintegrations/php71_cli
@@ -26,3 +27,14 @@ test:app-php71:
   - develop
   dependencies:
   - composer_install:php71
+
+upload to s3:
+  stage: upload_to_s3
+  only:
+    - tags
+  tags:
+    - kubernetes-us
+  script:
+    - tar --exclude='.git' --exclude='composer.*' --exclude='.gitignore' --exclude='.gitlab-ci.yml' --exclude='README.md' --exclude='CHANGELOG.md' --exclude='release.sh' -czf /tmp/$CI_COMMIT_TAG.tar.gz .
+    - mv /tmp/$CI_COMMIT_TAG.tar.gz .
+    - aws --only-show-errors --endpoint-url https://s3.eu-central-1.amazonaws.com s3 cp $CI_COMMIT_TAG.tar.gz s3://gr-deployment/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/releases/
