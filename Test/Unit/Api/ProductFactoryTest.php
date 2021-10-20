@@ -108,7 +108,8 @@ class ProductFactoryTest extends BaseTestCase
         $magentoProductMock->method('setStoreId')->willReturn($magentoProductMock);
         $magentoProductMock->method('getUrlModel')->willReturn($urlMock);
         $magentoProductMock->method('getCategoryIds')->willReturn([$categoryId]);
-        $magentoProductMock->method('getData')->with('short_description')->willReturn($variantDescription);
+        $magentoProductMock->method('getData')->with('description')->willReturn($variantDescription);
+        $magentoProductMock->method('getData')->with('short_description')->willReturn($variantShortDescription);
         $magentoProductMock->method('getMediaGalleryImages')->willReturn([$mediaMock]);
         $magentoProductMock->method('getCreatedAt')->willReturn($createdAt);
         $magentoProductMock->method('getUpdatedAt')->willReturn($updatedAt);

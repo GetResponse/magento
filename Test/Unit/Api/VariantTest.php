@@ -56,7 +56,7 @@ class VariantTest extends BaseTestCase
         ];
 
         $variant = new Variant(
-            $id, 
+            $id,
             $name,
             $sku,
             $price,
