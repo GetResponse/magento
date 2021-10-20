@@ -20,9 +20,9 @@ class Variant implements JsonSerializable
     private $position;
     private $barcode;
     private $description;
+    private $shortDescription;
     /** @var null|Image[] */
     private $images;
-    private $shortDescription;
 
     public function __construct(
         int $id,

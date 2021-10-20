@@ -2,14 +2,20 @@
 
 namespace GetResponse\GetResponseIntegration\Test;
 
-class BaseTestCase extends \PHPUnit\Framework\TestCase
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+
+class BaseTestCase extends TestCase
 {
     /**
-     * @param string $name
      * @param string[] $methodsToOverride
-     * @return \PHPUnit_Framework_MockObject_MockObject|object
+     * @psalm-template RealInstanceType of object
+     * @psalm-param class-string<RealInstanceType> $name
+     * @psalm-return MockObject|RealInstanceType
+     * @return MockObject
      */
-    protected function getMockWithoutConstructing($name, array $methodsToOverride = [])
+
+    protected function getMockWithoutConstructing(string $name, array $methodsToOverride = [])
     {
         return $this->getMockBuilder($name)
             ->disableOriginalConstructor()
