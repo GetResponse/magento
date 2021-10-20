@@ -79,6 +79,7 @@ class ProductFactoryTest extends BaseTestCase
         $variantPosition = 0;
         $variantBarcode = null;
         $variantDescription = 'Test Product - Variant 1 description';
+        $variantShortDescription = 'Test Product - Variant 1 short description';
         $variantImages = [$image];
 
         $categoryId = 13;
@@ -134,6 +135,7 @@ class ProductFactoryTest extends BaseTestCase
             $variantPosition,
             $variantBarcode,
             $variantDescription,
+            $variantShortDescription,
             $variantImages
         );
 
