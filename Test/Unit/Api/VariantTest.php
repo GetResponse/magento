@@ -27,6 +27,7 @@ class VariantTest extends BaseTestCase
         $position = 0;
         $barcode = 110202;
         $description = 'description for product variant';
+        $shortDescription = 'short description for product variant';
         $imageSrc = 'http://store.magento.com/product/1/image/22929';
         $imagePosition = 0;
 
@@ -45,6 +46,7 @@ class VariantTest extends BaseTestCase
             'position' => $position,
             'barcode' => $barcode,
             'description' => $description,
+            'short_description' => $shortDescription,
             'images' => [
                 [
                     'src' => $imageSrc,
@@ -53,7 +55,22 @@ class VariantTest extends BaseTestCase
             ]
         ];
 
-        $variant = new Variant($id, $name, $sku, $price, $priceTax, $previousPrice, $previousPriceTax, $quantity, $url, $position, $barcode, $description, [$image]);
+        $variant = new Variant(
+            $id,
+            $name,
+            $sku,
+            $price,
+            $priceTax,
+            $previousPrice,
+            $previousPriceTax,
+            $quantity,
+            $url,
+            $position,
+            $barcode,
+            $description,
+            $shortDescription,
+            [$image]
+        );
         self::assertEquals($expectedVariant, $variant->jsonSerialize());
     }
 }

@@ -20,6 +20,7 @@ class Variant implements JsonSerializable
     private $position;
     private $barcode;
     private $description;
+    private $shortDescription;
     /** @var null|Image[] */
     private $images;
 
@@ -36,6 +37,7 @@ class Variant implements JsonSerializable
         ?int $position,
         ?int $barcode,
         string $description,
+        ?string $shortDescription,
         ?array $images
     ) {
         $this->id = $id;
@@ -50,6 +52,7 @@ class Variant implements JsonSerializable
         $this->position = $position;
         $this->barcode = $barcode;
         $this->description = $description;
+        $this->shortDescription = $shortDescription;
         $this->images = $images;
     }
 
@@ -73,6 +76,7 @@ class Variant implements JsonSerializable
             'position' => $this->position,
             'barcode' => $this->barcode,
             'description' => $this->description,
+            'short_description' => $this->shortDescription,
             'images' => $images
         ];
     }

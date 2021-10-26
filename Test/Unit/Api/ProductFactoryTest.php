@@ -30,26 +30,27 @@ class ProductFactoryTest extends BaseTestCase
     private $stockRepositoryMock;
     /** @var ProductReadModel|MockObject */
     private $productReadModelMock;
+    /** @var ProductType|MockObject */
+    private $productTypeMock;
     /** @var ProductFactory */
     private $sut;
 
     public function setUp(): void
     {
-        $productType = $this->getMockBuilder(ProductType::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['isProductConfigurable'])
-            ->getMock();
-
-        $productType->method('isProductConfigurable')->willReturn(false);
+        $this->productTypeMock = $this->getMockWithoutConstructing(ProductType::class);
         $this->categoryRepositoryMock = $this->getMockWithoutConstructing(CategoryRepository::class);
         $this->stockRepositoryMock = $this->getMockWithoutConstructing(StockItemRepository::class);
         $this->productReadModelMock = $this->getMockWithoutConstructing(ProductReadModel::class);
+
+        $this->productTypeMock
+            ->method('isProductConfigurable')
+            ->willReturn(false);
 
         $this->sut = new ProductFactory(
             $this->categoryRepositoryMock,
             $this->stockRepositoryMock,
             $this->productReadModelMock,
-            $productType
+            $this->productTypeMock
         );
     }
 
@@ -79,6 +80,7 @@ class ProductFactoryTest extends BaseTestCase
         $variantPosition = 0;
         $variantBarcode = null;
         $variantDescription = 'Test Product - Variant 1 description';
+        $variantShortDescription = 'Test Product - Variant 1 short description';
         $variantImages = [$image];
 
         $categoryId = 13;
@@ -107,7 +109,9 @@ class ProductFactoryTest extends BaseTestCase
         $magentoProductMock->method('setStoreId')->willReturn($magentoProductMock);
         $magentoProductMock->method('getUrlModel')->willReturn($urlMock);
         $magentoProductMock->method('getCategoryIds')->willReturn([$categoryId]);
-        $magentoProductMock->method('getData')->with('short_description')->willReturn($variantDescription);
+        $magentoProductMock->method('getData')
+            ->withConsecutive(['description'], ['short_description'])
+            ->willReturnOnConsecutiveCalls($variantDescription, $variantShortDescription);
         $magentoProductMock->method('getMediaGalleryImages')->willReturn([$mediaMock]);
         $magentoProductMock->method('getCreatedAt')->willReturn($createdAt);
         $magentoProductMock->method('getUpdatedAt')->willReturn($updatedAt);
@@ -134,6 +138,7 @@ class ProductFactoryTest extends BaseTestCase
             $variantPosition,
             $variantBarcode,
             $variantDescription,
+            $variantShortDescription,
             $variantImages
         );
 
@@ -148,8 +153,9 @@ class ProductFactoryTest extends BaseTestCase
             $createdAt,
             $updatedAt
         );
-
+//dd($expectedProduct);
         $products = $this->sut->create($magentoProductMock, $scope);
+;
         self::assertEquals([$expectedProduct], $products);
     }
 }
