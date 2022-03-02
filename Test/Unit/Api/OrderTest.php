@@ -22,7 +22,7 @@ class OrderTest extends BaseTestCase
         $line = new Line(40003, 9.99, 12.22, 40, 'variant_40003');
 
         $id = 10001;
-        $orderNo = 'order_100001';
+        $orderNumber = 'order_100001';
         $cartId = 10030;
         $contactEmail = 'some@example.com';
         $url = 'https://store.magento.com';
@@ -46,7 +46,7 @@ class OrderTest extends BaseTestCase
         $expectedData = [
             'callback_type' => 'orders/update',
             'id' => $id,
-            'orderNo' => $orderNo,
+            'order_number' => $orderNumber,
             'cart_id' => $cartId,
             'contact_email' => $contactEmail,
             'customer' => [
@@ -78,7 +78,7 @@ class OrderTest extends BaseTestCase
 
         $order = new Order(
             $id,
-            $orderNo,
+            $orderNumber,
             $cartId,
             $contactEmail,
             new Customer(

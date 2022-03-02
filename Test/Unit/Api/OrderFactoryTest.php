@@ -40,7 +40,7 @@ class OrderFactoryTest extends BaseTestCase
     public function shouldCreateOrder(): void
     {
         $orderId = 10001;
-        $orderNo = 'order_100001';
+        $orderNumber = 'order_100001';
         $cartId = 10030;
         $contactEmail = 'some@example.com';
         $totalPrice = 9.99;
@@ -85,7 +85,7 @@ class OrderFactoryTest extends BaseTestCase
         $magentoOrderMock->method('getBillingAddress')->willReturn($orderAddressMock);
 
         $magentoOrderMock->method('getId')->willReturn($orderId);
-        $magentoOrderMock->method('getIncrementId')->willReturn($orderNo);
+        $magentoOrderMock->method('getIncrementId')->willReturn($orderNumber);
         $magentoOrderMock->method('getQuoteId')->willReturn($cartId);
         $magentoOrderMock->method('getCustomerEmail')->willReturn($contactEmail);
         $magentoOrderMock->method('getSubtotal')->willReturn($totalPrice);
@@ -115,7 +115,7 @@ class OrderFactoryTest extends BaseTestCase
 
         $expectedOrder = new Order(
             $orderId,
-            $orderNo,
+            $orderNumber,
             $cartId,
             $contactEmail,
             $customer,
