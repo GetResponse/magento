@@ -37,7 +37,7 @@ class Variant implements JsonSerializable
         ?int $position,
         ?int $barcode,
         string $description,
-        ?string $shortDescription,
+        string $shortDescription,
         ?array $images
     ) {
         $this->id = $id;
