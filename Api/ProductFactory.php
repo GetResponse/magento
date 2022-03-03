@@ -93,8 +93,8 @@ class ProductFactory
                     $this->getProductConfigurableUrl($product, $childProduct, (int)$scope->getScopeId()),
                     0,
                     null,
-                    $childProduct->getData('description') ?? '',
-                    $childProduct->getData('short_description') ?? '',
+                    (string)$childProduct->getData('description'),
+                    (string)$childProduct->getData('short_description'),
                     $images
                 );
             }
@@ -115,8 +115,8 @@ class ProductFactory
                 $product->setStoreId($scope->getScopeId())->getUrlModel()->getUrlInStore($product),
                 0,
                 null,
-                $product->getData('description') ?? '',
-                $product->getData('short_description') ?? '',
+                (string)$product->getData('description'),
+                (string)$product->getData('short_description'),
                 $images
             );
         }
