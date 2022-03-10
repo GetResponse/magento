@@ -96,16 +96,13 @@ class OrderFactoryTest extends BaseTestCase
         $magentoOrderMock->method('getCreatedAt')->willReturn($createdAt);
         $magentoOrderMock->method('getUpdatedAt')->willReturn($updatedAt);
 
-        $productMock = $this->getMockWithoutConstructing(Product::class);
-        $productMock->method('getId')->willReturn($line->getVariantId());
-
         $itemMock = $this->getMockBuilder(Item::class)
             ->disableOriginalConstructor()
             ->setMethods(['getChildren', 'getProduct', 'getPrice', 'getPriceInclTax', 'getQtyOrdered', 'getSku'])
             ->getMock();
 
         $itemMock->method('getChildren')->willReturn([]);
-        $itemMock->method('getProduct')->willReturn($productMock);
+        $itemMock->method('getProductId')->willReturn($line->getVariantId());
         $itemMock->method('getPrice')->willReturn($line->getPrice());
         $itemMock->method('getPriceInclTax')->willReturn($line->getPriceTax());
         $itemMock->method('getQtyOrdered')->willReturn($line->getQuantity());
