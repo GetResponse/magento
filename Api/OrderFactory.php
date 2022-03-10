@@ -62,7 +62,7 @@ class OrderFactory
                 /** @var Item $child */
                 foreach ($children as $child) {
                     $lines[] = new Line(
-                        (int)$item->getProductId(),
+                        (int)$child->getProductId(),
                         (float)$child->getPrice(),
                         (float)$child->getPriceInclTax(),
                         (int)$child->getQtyOrdered(),
