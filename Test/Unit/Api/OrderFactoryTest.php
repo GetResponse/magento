@@ -98,7 +98,7 @@ class OrderFactoryTest extends BaseTestCase
 
         $itemMock = $this->getMockBuilder(Item::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getChildren', 'getProduct', 'getPrice', 'getPriceInclTax', 'getQtyOrdered', 'getSku'])
+            ->setMethods(['getChildren', 'getProductId', 'getPrice', 'getPriceInclTax', 'getQtyOrdered', 'getSku'])
             ->getMock();
 
         $itemMock->method('getChildren')->willReturn([]);
