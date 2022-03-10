@@ -61,12 +61,8 @@ class OrderFactory
             if (!empty($children)) {
                 /** @var Item $child */
                 foreach ($children as $child) {
-                    if (null === $child->getProduct()) {
-                        continue;
-                    }
-
                     $lines[] = new Line(
-                        (int)$child->getProduct()->getId(),
+                        (int)$item->getProductId(),
                         (float)$child->getPrice(),
                         (float)$child->getPriceInclTax(),
                         (int)$child->getQtyOrdered(),
@@ -74,12 +70,8 @@ class OrderFactory
                     );
                 }
             } else {
-                if (null === $item->getProduct()) {
-                    continue;
-                }
-
                 $lines[] = new Line(
-                    (int)$item->getProduct()->getId(),
+                    (int)$item->getProductId(),
                     (float)$item->getPrice(),
                     (float)$item->getPriceInclTax(),
                     (int)$item->getQtyOrdered(),
