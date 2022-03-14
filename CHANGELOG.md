@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.5.5] - 2022-03-14
+### Fix
+- fixed error when editing customer in admin panel
+
 ## [20.5.4] - 2022-03-02
 ### Fix
 - added fix for short description and description
