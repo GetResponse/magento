@@ -56,7 +56,9 @@ class CartObserver implements ObserverInterface
             if (false === $this->session->isLoggedIn()) {
                 return $this;
             }
-
+            if (is_null($observer->getCart()) || is_null($observer->getCart()->getQuote())) {
+                return $this;
+            }
             /** @var Quote $quote */
             $quote = $observer->getCart()->getQuote();
             $scope = new Scope($quote->getStoreId());

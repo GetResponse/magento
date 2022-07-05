@@ -38,6 +38,10 @@ class CustomerAddressSaveAfterObject implements ObserverInterface
                 return $this;
             }
 
+            if (is_null($observer->getCustomerAddress())) {
+                return $this;
+            }
+
             $customerAddress = $observer->getCustomerAddress();
             $scope = new Scope($customerAddress->getStoreId());
             /** @var AddressInterface $address */

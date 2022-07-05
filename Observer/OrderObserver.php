@@ -59,6 +59,11 @@ class OrderObserver implements ObserverInterface
     {
         try {
             $order = $observer->getOrder();
+
+            if (is_null($order)) {
+                return $this;
+            }
+
             $scope = new Scope($order->getStoreId());
 
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());

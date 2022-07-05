@@ -56,6 +56,10 @@ class OrderObserver implements ObserverInterface
         /** @var Order $order */
         $order = $observer->getEvent()->getOrder();
 
+        if (is_null($order)) {
+            return $this;
+        }
+
         try {
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 

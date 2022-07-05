@@ -35,6 +35,10 @@ class ProductObserver implements ObserverInterface
                 return $this;
             }
 
+            if (is_null($observer->getProduct())) {
+                return $this;
+            }
+
             /** @var Product $product */
             $product = $observer->getProduct();
             $storeIds = $product->getStoreIds();

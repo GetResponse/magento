@@ -50,6 +50,10 @@ class CustomerSaveAfterDataObject implements ObserverInterface
         try {
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
+            if (is_null($observer->getCustomerDataObject())) {
+                return $this;
+            }
+
             $customer = $observer->getCustomerDataObject();
             $scope = new Scope($customer->getStoreId());
 

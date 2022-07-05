@@ -42,7 +42,9 @@ class CustomerRegisterSuccess implements ObserverInterface
             if (!$pluginMode->isNewVersion()) {
                 return $this;
             }
-
+            if (is_null($observer->getCustomer())) {
+                return $this;
+            }
             $scope = new Scope($observer->getCustomer()->getStoreId());
             $liveSynchronization = LiveSynchronization::createFromRepository(
                 $this->repository->getLiveSynchronization($scope->getScopeId())
