@@ -56,6 +56,14 @@ class OrderObserver implements ObserverInterface
         /** @var Order $order */
         $order = $observer->getEvent()->getOrder();
 
+        if ($order === null) {
+            $this->logger->addNotice('Order in observer is empty', [
+                'observerName' => $observer->getName(),
+                'eventName' => $observer->getEventName(),
+            ]);
+            return $this;
+        }
+
         try {
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 

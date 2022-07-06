@@ -35,6 +35,14 @@ class ProductObserver implements ObserverInterface
                 return $this;
             }
 
+            if (null === $observer->getProduct()) {
+                $this->logger->addNotice('Product in observer is empty', [
+                    'observerName' => $observer->getName(),
+                    'eventName' => $observer->getEventName(),
+                ]);
+                return $this;
+            }
+
             /** @var Product $product */
             $product = $observer->getProduct();
             $storeIds = $product->getStoreIds();

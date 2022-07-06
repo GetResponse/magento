@@ -53,6 +53,14 @@ class NewsletterSubscriberSaveCommitAfterObject implements ObserverInterface
                 return $this;
             }
 
+            if (null === $observer->getSubscriber()) {
+                $this->logger->addNotice('Subscriber in observer is empty', [
+                    'observerName' => $observer->getName(),
+                    'eventName' => $observer->getEventName(),
+                ]);
+                return $this;
+            }
+
             $subscriber = $observer->getSubscriber();
             $scope = new Scope($subscriber->getStoreId());
             $customerId = $subscriber->getCustomerId();

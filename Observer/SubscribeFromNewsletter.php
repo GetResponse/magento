@@ -38,6 +38,13 @@ class SubscribeFromNewsletter implements ObserverInterface
     public function execute(EventObserver $observer): SubscribeFromNewsletter
     {
         try {
+            if (null === $observer->getSubscriber()) {
+                $this->logger->addNotice('Subscriber in observer is empty', [
+                    'observerName' => $observer->getName(),
+                    'eventName' => $observer->getEventName(),
+                ]);
+                return $this;
+            }
             /** @var Subscriber $subscriber */
             $subscriber = $observer->getSubscriber();
             $scope = new Scope($subscriber->getStoreId());
