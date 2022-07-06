@@ -60,7 +60,11 @@ class OrderObserver implements ObserverInterface
         try {
             $order = $observer->getOrder();
 
-            if (is_null($order)) {
+            if (empty($order)) {
+                $this->logger->addNotice('Order in observer is empty', [
+                    'observerName' => $observer->getName(),
+                    'eventName' => $observer->getEventName(),
+                ]);
                 return $this;
             }
 

@@ -38,7 +38,11 @@ class CustomerAddressSaveAfterObject implements ObserverInterface
                 return $this;
             }
 
-            if (is_null($observer->getCustomerAddress())) {
+            if (null === $observer->getCustomerAddress()) {
+                $this->logger->addNotice('CustomerAddress in observer is empty', [
+                    'observerName' => $observer->getName(),
+                    'eventName' => $observer->getEventName(),
+                ]);
                 return $this;
             }
 

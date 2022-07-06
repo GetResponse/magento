@@ -50,7 +50,11 @@ class CustomerSaveAfterDataObject implements ObserverInterface
         try {
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
 
-            if (is_null($observer->getCustomerDataObject())) {
+            if (null === $observer->getCustomerDataObject()) {
+                $this->logger->addNotice('CustomerDataObject in observer is empty', [
+                    'observerName' => $observer->getName(),
+                    'eventName' => $observer->getEventName(),
+                ]);
                 return $this;
             }
 

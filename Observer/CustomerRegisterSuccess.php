@@ -42,7 +42,11 @@ class CustomerRegisterSuccess implements ObserverInterface
             if (!$pluginMode->isNewVersion()) {
                 return $this;
             }
-            if (is_null($observer->getCustomer())) {
+            if (null === $observer->getCustomer()) {
+                $this->logger->addNotice('Customer in observer is empty', [
+                    'observerName' => $observer->getName(),
+                    'eventName' => $observer->getEventName(),
+                ]);
                 return $this;
             }
             $scope = new Scope($observer->getCustomer()->getStoreId());
