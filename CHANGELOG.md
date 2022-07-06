@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.5.6] - 2022-07-06
+### Fix
+- fixed error of missing object in observer
+
 ## [20.5.5] - 2022-03-14
 ### Fix
 - fixed error when editing customer in admin panel
