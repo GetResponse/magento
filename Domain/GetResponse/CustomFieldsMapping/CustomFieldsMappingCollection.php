@@ -96,6 +96,7 @@ class CustomFieldsMappingCollection implements IteratorAggregate
         $this->items[] = $item;
     }
 
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new ArrayIterator($this->items);

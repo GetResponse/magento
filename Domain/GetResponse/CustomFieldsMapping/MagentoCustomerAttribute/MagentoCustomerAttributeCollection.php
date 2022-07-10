@@ -11,6 +11,7 @@ class MagentoCustomerAttributeCollection implements IteratorAggregate
 {
     private $items = [];
 
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new ArrayIterator($this->items);

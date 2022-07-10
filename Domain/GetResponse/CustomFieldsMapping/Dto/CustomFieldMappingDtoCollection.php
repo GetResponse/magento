@@ -48,11 +48,13 @@ class CustomFieldMappingDtoCollection implements Countable, IteratorAggregate
         $this->items[] = $item;
     }
 
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new ArrayIterator($this->items);
     }
 
+    #[\ReturnTypeWillChange]
     public function count()
     {
         return count($this->items);

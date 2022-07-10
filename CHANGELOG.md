@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.5.7] - 2022-07-10
+### Fix
+- added doctype for php8.1 compatibility
+
 ## [20.5.6] - 2022-07-06
 ### Fix
 - fixed error of missing object in observer
