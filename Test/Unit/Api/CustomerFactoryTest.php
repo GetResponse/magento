@@ -27,7 +27,7 @@ class CustomerFactoryTest extends BaseTestCase
     /** @var CustomerFactory */
     private $sut;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->customerRepositoryMock = $this->getMockWithoutConstructing(CustomerRepositoryInterface::class);
         $this->subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);

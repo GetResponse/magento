@@ -29,7 +29,7 @@ class OrderFactoryTest extends BaseTestCase
     /** @var OrderFactory */
     private $orderFactory;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->magentoOrderMock = $this->getMockWithoutConstructing(Order::class);
         $this->productFactory = $this->getMockWithoutConstructing(ProductFactory::class);

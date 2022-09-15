@@ -26,7 +26,7 @@ class NewsletterTest extends BaseTestCase
     /** @var Repository|MockObject */
     private $repository;
 
-    public function setUp()
+    protected function setUp(): void
     {
         /** @var Context|MockObject $context */
         $context = $this->getMockWithoutConstructing(Context::class);

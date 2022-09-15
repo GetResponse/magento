@@ -19,7 +19,7 @@ class WebformTest extends BaseTestCase
     /** @var Webform() */
     private $webformBlock;
 
-    public function setUp()
+    protected function setUp(): void
     {
         /** @var Context $context */
         $context = $this->getMockWithoutConstructing(Context::class);

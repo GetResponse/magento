@@ -44,7 +44,7 @@ class ApiServiceTest extends BaseTestCase
     /** @var ApiService */
     private $sut;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
         $this->httpClientMock = $this->getMockWithoutConstructing(HttpClient::class);

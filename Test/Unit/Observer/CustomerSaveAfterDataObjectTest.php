@@ -27,7 +27,7 @@ class CustomerSaveAfterDataObjectTest extends BaseTestCase
     /** @var CustomerSaveAfterDataObject */
     private $sut;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         /** @var ContactService|MockObject $contactServiceMock */
         $contactServiceMock = $this->getMockWithoutConstructing(ContactService::class);

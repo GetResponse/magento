@@ -24,7 +24,7 @@ class ProductObserverTest extends BaseTestCase
     /** @var ProductObserver */
     private $sut;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         /** @var Logger|MockObject $loggerMock */
         $loggerMock = $this->getMockWithoutConstructing(Logger::class);

@@ -20,7 +20,7 @@ class WebEventTrackingTest extends BaseTestCase
     /** @var WebEventTracking */
     private $trackingBlock;
 
-    public function setUp()
+    protected function setUp(): void
     {
         /** @var Context $context */
         $context = $this->getMockWithoutConstructing(Context::class);

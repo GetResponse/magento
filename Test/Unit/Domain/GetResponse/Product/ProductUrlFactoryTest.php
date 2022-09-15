@@ -18,7 +18,7 @@ class ProductUrlFactoryTest extends BaseTestCase
     /** @var ProductUrlFactory */
     private $productUrlFactory;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->productReadModel = $this->getMockWithoutConstructing(ProductReadModel::class);
         $this->productUrlFactory = new ProductUrlFactory($this->productReadModel);

@@ -27,7 +27,7 @@ class OrderFactoryTest extends BaseTestCase
     /** @var OrderFactory */
     private $sut;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->customerFactoryMock = $this->getMockWithoutConstructing(CustomerFactory::class);
         $this->addressFactoryMock = $this->getMockWithoutConstructing(AddressFactory::class);

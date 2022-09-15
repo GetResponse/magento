@@ -27,7 +27,7 @@ class WebformTest extends BaseTestCase
     /** @var GetresponseApiClient|MockObject */
     private $grApiClient;
 
-    public function setUp()
+    protected function setUp(): void
     {
         /** @var Context $context */
         $context = $this->getMockWithoutConstructing(Context::class);

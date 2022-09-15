@@ -22,7 +22,7 @@ class AccountReadModelTest extends BaseTestCase
     /** @var Scope|MockObject */
     private $scope;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
         $this->accountReadModel = new AccountReadModel($this->repository);

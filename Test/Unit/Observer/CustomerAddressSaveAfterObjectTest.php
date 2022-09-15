@@ -25,7 +25,7 @@ class CustomerAddressSaveAfterObjectTest extends BaseTestCase
     /** @var CustomerAddressSaveAfterObject */
     private $sut;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         /** @var Logger|MockObject $logger */
         $logger = $this->getMockWithoutConstructing(Logger::class);

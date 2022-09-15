@@ -22,7 +22,7 @@ class CartFactoryTest extends BaseTestCase
     /** @var CartFactory */
     private $sut;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->cartHelperMock = $this->getMockWithoutConstructing(CartHelper::class);
         $this->customerFactoryMock = $this->getMockWithoutConstructing(CustomerFactory::class);

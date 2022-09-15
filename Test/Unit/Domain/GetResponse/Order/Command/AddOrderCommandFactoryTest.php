@@ -19,7 +19,7 @@ class AddOrderCommandFactoryTest extends BaseTestCase
     /** @var AddOrderCommandFactory */
     private $addOrderCommandFactory;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->orderFactory = $this->getMockWithoutConstructing(OrderFactory::class);
         $this->addOrderCommandFactory = new AddOrderCommandFactory($this->orderFactory);

@@ -22,7 +22,7 @@ class CustomFieldServiceTest extends BaseTestCase
     /** @var CustomFieldService */
     private $sut;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->customFieldServiceFactory = $this->getMockWithoutConstructing(CustomFieldServiceFactory::class);
         $this->scope = $this->getMockWithoutConstructing(Scope::class);

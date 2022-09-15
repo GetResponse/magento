@@ -22,7 +22,7 @@ class ContactCustomFieldsTest extends BaseTestCase
     /** @var MagentoCustomerAttributeService|MockObject */
     private $magentoCustomerAttributeService;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->magentoCustomerAttributeService = $this->getMockWithoutConstructing(MagentoCustomerAttributeService::class);
         $this->sut = new ContactCustomFieldsCollectionFactory($this->magentoCustomerAttributeService);

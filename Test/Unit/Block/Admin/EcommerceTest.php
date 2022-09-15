@@ -28,7 +28,7 @@ class EcommerceTest extends BaseTestCase
     /** @var GetresponseApiClient|MockObject */
     private $grApiClient;
 
-    public function setUp()
+    protected function setUp(): void
     {
         /** @var Context|MockObject $context */
         $context = $this->getMockWithoutConstructing(Context::class);

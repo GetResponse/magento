@@ -19,7 +19,7 @@ class HeaderTest extends BaseTestCase
     /** @var Header */
     private $headerBlock;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         /** @var Context $context */
         $context = $this->getMockWithoutConstructing(Context::class);

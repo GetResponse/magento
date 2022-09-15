@@ -29,7 +29,7 @@ class OrderObserverTest extends BaseTestCase
     /** @var OrderObserver */
     private $sut;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         /** @var Session|MockObject $customerSessionMock */
         $customerSessionMock = $this->getMockWithoutConstructing(Session::class);
