@@ -28,7 +28,7 @@ class CustomerRegisterSuccessTest extends BaseTestCase
     /** @var CustomerRegisterSuccess */
     private $sut;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->requestMock = $this->getMockWithoutConstructing(RequestInterface::class);
         $this->magentoSubscriberMock = $this->getMockWithoutConstructing(MagentoSubscriber::class);

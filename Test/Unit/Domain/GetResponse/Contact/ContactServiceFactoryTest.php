@@ -27,7 +27,7 @@ class ContactServiceFactoryTest extends BaseTestCase
     /** @var Scope|MockObject */
     private $scope;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->shareCodeRepository = $this->getMockWithoutConstructing(ShareCodeRepository::class);
         $this->getResponseApiClientFactory = $this->getMockWithoutConstructing(ApiClientFactory::class);

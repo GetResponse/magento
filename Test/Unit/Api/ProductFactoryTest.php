@@ -35,7 +35,7 @@ class ProductFactoryTest extends BaseTestCase
     /** @var ProductFactory */
     private $sut;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->productTypeMock = $this->getMockWithoutConstructing(ProductType::class);
         $this->categoryRepositoryMock = $this->getMockWithoutConstructing(CategoryRepository::class);

@@ -25,7 +25,7 @@ class ContactServiceTest extends BaseTestCase
     /** @var Scope|MockObject */
     private $scope;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->grContactServiceMock = $this->getMockWithoutConstructing(GrContactService::class);
 

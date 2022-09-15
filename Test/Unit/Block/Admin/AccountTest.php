@@ -20,7 +20,7 @@ class AccountTest extends BaseTestCase
     /** @var AccountBlock accountBlock */
     private $accountBlock;
 
-    public function setUp()
+    protected function setUp(): void
     {
         /** @var Context|MockObject $context */
         $context = $this->getMockWithoutConstructing(Context::class);

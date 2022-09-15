@@ -30,7 +30,7 @@ class CustomFieldsMappingServiceTest extends BaseTestCase
     /** @var CustomFieldsMappingService */
     private $sut;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
         $this->customerAttributeCollectionFactory = $this->getMockWithoutConstructing(CollectionFactory::class, ['create']);

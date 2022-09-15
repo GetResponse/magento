@@ -1,42 +1,62 @@
 stages:
 - install_dependencies
 - test
-- upload_to_s3
 
-composer_install:
-  image: docker.int.getresponse.com/integrations/magento/magento-image-cli:latest
+.exclude-branch-develop:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+      when: never
+    - when: on_success
+
+composer_install:php71:
+  image: magento/magento-cloud-docker-php:7.1-cli-1.1
   stage: install_dependencies
   script:
-  - composer config -a -g http-basic.repo.magento.com $COMPOSER_REPO_MAGENTO_USERNAME $COMPOSER_REPO_MAGENTO_PASSWORD
-  - composer install --prefer-dist --no-progress --optimize-autoloader
+    - composer config -a -g http-basic.repo.magento.com $COMPOSER_REPO_MAGENTO_USERNAME $COMPOSER_REPO_MAGENTO_PASSWORD
+    - composer install --prefer-dist --verbose
   artifacts:
     paths:
-    - vendor/
+      - vendor/
     expire_in: 2 hrs
-  except:
-  - develop
+  rules:
+    - !reference [ .exclude-branch-develop, rules ]
 
-test:phpunit:
-  image: docker.int.getresponse.com/integrations/magento/magento-image-cli:latest
+test:phpunit:php71:
+  needs: [ 'composer_install:php71' ]
+  image: magento/magento-cloud-docker-php:7.1-cli-1.1
   stage: test
   tags:
-  - kubernetes-ci
+    - kubernetes-ci
   script:
-  - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit.xml --colors=never
-  except:
-  - develop
+    - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit.xml --colors=never
+  rules:
+    - !reference [ .exclude-branch-develop, rules ]
   dependencies:
-  - composer_install
+    - composer_install:php71
 
-upload to s3:
-  stage: upload_to_s3
-  only:
-    - tags
-  tags:
-    - kubernetes-us
+composer_install:php81:
+  image: magento/magento-cloud-docker-php:8.1-cli-1.3.3
+  stage: install_dependencies
   script:
-    - PLUGIN_VERSION=$(cat composer.json | jq -r .version)
-    - if [[ $PLUGIN_VERSION != $CI_COMMIT_TAG ]]; then echo "Plugin version defined in composer.json and in the tag is different"; exit 1; fi
-    - tar --exclude='.git' --exclude='composer.*' --exclude='.gitignore' --exclude='.gitlab-ci.yml' --exclude='README.md' --exclude='CHANGELOG.md' --exclude='release.sh' -czf /tmp/$CI_COMMIT_TAG.tar.gz .
-    - mv /tmp/$CI_COMMIT_TAG.tar.gz .
-    - aws --only-show-errors --endpoint-url https://s3.eu-central-1.amazonaws.com s3 cp $CI_COMMIT_TAG.tar.gz s3://gr-deployment/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/releases/
+    - composer config -a -g http-basic.repo.magento.com $COMPOSER_REPO_MAGENTO_USERNAME $COMPOSER_REPO_MAGENTO_PASSWORD
+    - composer install --prefer-dist --verbose --ignore-platform-reqs
+  artifacts:
+    paths:
+      - vendor/
+    expire_in: 2 hrs
+  rules:
+    - !reference [ .exclude-branch-develop, rules ]
+
+test:phpunit:php81:
+  needs: [ 'composer_install:php81' ]
+  image: magento/magento-cloud-docker-php:8.1-cli-1.3.3
+  stage: test
+  tags:
+    - kubernetes-ci
+  script:
+    - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit.xml --colors=never
+  rules:
+    - !reference [ .exclude-branch-develop, rules ]
+  dependencies:
+    - composer_install:php81
+

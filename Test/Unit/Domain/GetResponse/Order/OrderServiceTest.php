@@ -20,7 +20,7 @@ class OrderServiceTest extends BaseTestCase
     /** @var OrderServiceFactory|MockObject */
     private $orderServiceFactoryMock;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->grOrderServiceMock = $this->getMockWithoutConstructing(GrOrderService::class);
         $this->orderServiceFactoryMock = $this->getMockWithoutConstructing(OrderServiceFactory::class);

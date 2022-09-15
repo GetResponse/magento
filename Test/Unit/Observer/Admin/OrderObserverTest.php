@@ -29,7 +29,7 @@ class OrderObserverTest extends BaseTestCase
     /** @var OrderObserver */
     private $sut;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         /** @var OrderService|MockObject $orderServiceMock */
         $orderServiceMock = $this->getMockWithoutConstructing(OrderService::class);

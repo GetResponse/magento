@@ -32,7 +32,7 @@ class CartServiceTest extends BaseTestCase
     /** @var Scope|MockObject */
     private $scope;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->grCartService = $this->getMockWithoutConstructing(GrCartService::class);
         $this->cartHelper = $this->getMockWithoutConstructing(CartHelper::class);

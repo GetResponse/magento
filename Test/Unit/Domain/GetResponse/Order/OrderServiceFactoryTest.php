@@ -32,7 +32,7 @@ class OrderServiceFactoryTest extends BaseTestCase
     /** @var GrOrderServiceFactory|MockObject */
     private $grOrderServiceFactory;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->sharedCodeRepositoryMock = $this->getMockWithoutConstructing(ShareCodeRepository::class);
         $this->getResponseApiClientFactory = $this->getMockWithoutConstructing(ApiClientFactory::class);
