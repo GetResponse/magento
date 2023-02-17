@@ -15,11 +15,10 @@ class BaseTestCase extends TestCase
      * @return MockObject
      */
 
-    protected function getMockWithoutConstructing(string $name, array $methodsToOverride = [])
+    protected function getMockWithoutConstructing(string $name)
     {
         return $this->getMockBuilder($name)
             ->disableOriginalConstructor()
-            ->setMethods($methodsToOverride)
             ->getMock();
     }
 }
