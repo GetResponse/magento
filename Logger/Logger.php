@@ -13,7 +13,7 @@ class Logger extends MonologLogger
      * methods exists to version 2.x where notice and error methods are available right now.
      * To perform full support for our clients using Magento 2.x we decide to modify our logger.
      */
-    public function addNotice(string $message, array $context): void
+    public function addNotice($message, array $context = [])
     {
         if (method_exists(MonologLogger::class, 'notice')) {
             parent::notice($message, $context);
@@ -22,7 +22,7 @@ class Logger extends MonologLogger
         }
     }
 
-    public function addError(string $message, array $context): void
+    public function addError($message, array $context = [])
     {
         if (method_exists(MonologLogger::class, 'error')) {
             parent::error($message, $context);
