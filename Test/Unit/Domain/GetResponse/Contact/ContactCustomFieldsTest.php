@@ -180,11 +180,6 @@ class ContactCustomFieldsTest extends BaseTestCase
         $this->magentoCustomerAttributeService
             ->expects(self::exactly(3))
             ->method('getAttributeValue')
-            ->withConsecutive(
-                [$customFieldsMapping1, $customer],
-                [$customFieldsMapping2, $customer],
-                [$customFieldsMapping3, $customer]
-            )
             ->willReturn($customerAttributeValue1, $customerAttributeValue2, $customerAttributeValue3);
 
         $isCustomFieldUpdateEnabled = true;

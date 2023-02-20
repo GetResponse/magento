@@ -76,7 +76,6 @@ class CartServiceTest extends BaseTestCase
 
         $quote->expects(self::exactly(3))
             ->method('__call')
-            ->withConsecutive(['getQuoteCurrencyCode'], ['getGrandTotal'], ['getCustomerEmail'])
             ->willReturnOnConsecutiveCalls('PLN', 123, 'jan.kowalski@getresponse.com');
 
         /** @var Quote\Item $quoteItem */

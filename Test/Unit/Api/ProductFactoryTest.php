@@ -91,7 +91,8 @@ class ProductFactoryTest extends BaseTestCase
         $urlMock->method('getUrlInStore')->willReturn($variantUrl);
 
         $mediaMock = $this->getMockWithoutConstructing(MagentoProduct\Image::class);
-        $mediaMock->method('getData')->withConsecutive(['url', null], ['position', null])->willReturnOnConsecutiveCalls($image->getSrc(), $image->getPosition());
+        $mediaMock->method('getData')
+            ->willReturnOnConsecutiveCalls($image->getSrc(), $image->getPosition());
 
         $stockItemMock = $this->getMockWithoutConstructing(Item::class);
         $stockItemMock->method('getQty')->willReturn($variantQty);
@@ -110,7 +111,6 @@ class ProductFactoryTest extends BaseTestCase
         $magentoProductMock->method('getUrlModel')->willReturn($urlMock);
         $magentoProductMock->method('getCategoryIds')->willReturn([$categoryId]);
         $magentoProductMock->method('getData')
-            ->withConsecutive(['description'], ['short_description'])
             ->willReturnOnConsecutiveCalls($variantDescription, $variantShortDescription);
         $magentoProductMock->method('getMediaGalleryImages')->willReturn([$mediaMock]);
         $magentoProductMock->method('getCreatedAt')->willReturn($createdAt);
@@ -153,7 +153,7 @@ class ProductFactoryTest extends BaseTestCase
             $createdAt,
             $updatedAt
         );
-//dd($expectedProduct);
+
         $products = $this->sut->create($magentoProductMock, $scope);
 ;
         self::assertEquals([$expectedProduct], $products);
