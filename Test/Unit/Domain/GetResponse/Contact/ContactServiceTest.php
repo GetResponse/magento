@@ -90,7 +90,7 @@ class ContactServiceTest extends BaseTestCase
     /**
      * @return array
      */
-    public function shouldCreateValidAddContactCommandProvider()
+    public static function shouldCreateValidAddContactCommandProvider()
     {
         return [
             [

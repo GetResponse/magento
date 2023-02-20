@@ -136,7 +136,7 @@ class ListsTest extends BaseTestCase
         self::assertEquals($expectedUrl, $url);
     }
 
-    public function backUrlProvider(): array
+    public static function backUrlProvider(): array
     {
         return [
             ['export', 'getresponse/export/index'],

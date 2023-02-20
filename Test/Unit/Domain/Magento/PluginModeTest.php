@@ -62,7 +62,7 @@ class PluginModeTest extends BaseTestCase
         $sut->switch($newMode);
     }
 
-    public function switchModeProvider(): array
+    public static function switchModeProvider(): array
     {
         return [
             ['aaa', 'bbb'],
