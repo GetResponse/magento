@@ -68,10 +68,7 @@ class OrderObserverTest extends BaseTestCase
         $orderMock = $this->getMockWithoutConstructing(MagentoOrder::class);
         $orderMock->method('getStoreId')->willReturn($storeId);
 
-        $observerMock = $this->getMockBuilder(EventObserver::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getOrder'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getOrder']);
         $observerMock->method('getOrder')->willReturn($orderMock);
 
         $this->repositoryMock
@@ -97,10 +94,7 @@ class OrderObserverTest extends BaseTestCase
         $orderMock = $this->getMockWithoutConstructing(MagentoOrder::class);
         $orderMock->method('getStoreId')->willReturn($storeId);
 
-        $observerMock = $this->getMockBuilder(EventObserver::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getOrder'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getOrder']);
         $observerMock->method('getOrder')->willReturn($orderMock);
 
         $this->repositoryMock

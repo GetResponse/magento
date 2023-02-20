@@ -48,10 +48,7 @@ class ProductObserverTest extends BaseTestCase
         $productMock = $this->getMockWithoutConstructing(MagentoProduct::class);
         $productMock->method('getStoreIds')->willReturn([$storeId]);
 
-        $observerMock = $this->getMockBuilder(EventObserver::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getProduct'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getProduct']);
         $observerMock->method('getProduct')->willReturn($productMock);
 
         $this->repositoryMock
@@ -72,10 +69,7 @@ class ProductObserverTest extends BaseTestCase
      */
     public function shouldNotUpsertProductCatalogWhenOldPluginMode(): void
     {
-        $observerMock = $this->getMockBuilder(EventObserver::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getProduct'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getProduct']);
 
         $this->repositoryMock
             ->expects(self::once())

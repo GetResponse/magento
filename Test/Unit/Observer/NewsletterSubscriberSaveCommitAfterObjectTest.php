@@ -59,18 +59,12 @@ class NewsletterSubscriberSaveCommitAfterObjectTest extends BaseTestCase
         $customerId = 200043;
 
         /** @var Subscriber|MockObject $subscriberMock */
-        $subscriberMock = $this->getMockBuilder(Subscriber::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getCustomerId', 'getStoreId'])
-            ->getMock();
+        $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class, [], ['getCustomerId', 'getStoreId']);
         $subscriberMock->method('getCustomerId')->willReturn($customerId);
         $subscriberMock->method('getStoreId')->willReturn($storeId);
 
         /** @var Observer|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(Observer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getSubscriber'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getSubscriber']);
         $observerMock->method('getSubscriber')->willReturn($subscriberMock);
 
         $this->repositoryMock
@@ -92,10 +86,7 @@ class NewsletterSubscriberSaveCommitAfterObjectTest extends BaseTestCase
     public function shouldNotUpsertCustomerSubscriptionWhenOldPluginMode(): void
     {
         /** @var Observer|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(Observer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getSubscriber'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getSubscriber']);
 
         $this->repositoryMock
             ->expects(self::once())
@@ -117,18 +108,12 @@ class NewsletterSubscriberSaveCommitAfterObjectTest extends BaseTestCase
         $storeId = 3;
 
         /** @var Subscriber|MockObject $subscriberMock */
-        $subscriberMock = $this->getMockBuilder(Subscriber::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getCustomerId', 'getStoreId'])
-            ->getMock();
+        $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class, [], ['getCustomerId', 'getStoreId']);
         $subscriberMock->method('getCustomerId')->willReturn(null);
         $subscriberMock->method('getStoreId')->willReturn($storeId);
 
         /** @var Observer|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(Observer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getSubscriber'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getSubscriber']);
         $observerMock->method('getSubscriber')->willReturn($subscriberMock);
 
         $this->repositoryMock

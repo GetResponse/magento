@@ -79,7 +79,6 @@ class ApiServiceTest extends BaseTestCase
         $this->repositoryMock
             ->expects(self::once())
             ->method('getLiveSynchronization')
-            ->with($scope->getScopeId())
             ->willReturn($liveSynchronization->toArray());
 
         $this->httpClientMock->expects(self::once())->method('post');

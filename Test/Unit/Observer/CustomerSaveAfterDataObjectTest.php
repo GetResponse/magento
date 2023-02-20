@@ -59,17 +59,11 @@ class CustomerSaveAfterDataObjectTest extends BaseTestCase
         $customerId = 23001;
 
         /** @var Customer|MockObject $customerMock */
-        $customerMock = $this->getMockBuilder(Customer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getStoreId', 'getId'])
-            ->getMock();
+        $customerMock = $this->getMockWithoutConstructing(Customer::class, ['getStoreId', 'getId']);
         $customerMock->method('getStoreId')->willReturn($storeId);
         $customerMock->method('getId')->willReturn($customerId);
         /** @var Observer|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(Observer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getCustomerDataObject'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getCustomerDataObject']);
         $observerMock->method('getCustomerDataObject')->willReturn($customerMock);
 
         $this->repositoryMock

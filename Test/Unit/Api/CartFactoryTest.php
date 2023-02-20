@@ -41,10 +41,11 @@ class CartFactoryTest extends BaseTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $quoteMock = $this->getMockBuilder(Quote::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getId', 'getCustomer', 'getAllVisibleItems', 'getSubtotal', 'getGrandTotal', 'getQuoteCurrencyCode', 'getCreatedAt', 'getUpdatedAt'])
-            ->getMock();
+        $quoteMock = $this->getMockWithoutConstructing(
+            Quote::class,
+            ['getId', 'getCustomer', 'getAllVisibleItems', 'getCreatedAt', 'getUpdatedAt'],
+            ['getSubtotal', 'getGrandTotal', 'getQuoteCurrencyCode']
+        );
 
         $quoteMock->method('getId')->willReturn($expectedCart->getId());
         $quoteMock->method('getCustomer')->willReturn($customerMock);

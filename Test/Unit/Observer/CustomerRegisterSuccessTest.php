@@ -53,19 +53,13 @@ class CustomerRegisterSuccessTest extends BaseTestCase
         $customerId = 2456;
 
         /** @var Customer|MockObject $customerMock */
-        $customerMock = $this->getMockBuilder(Customer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getStoreId', 'getId'])
-            ->getMock();
+        $customerMock = $this->getMockWithoutConstructing(Customer::class, ['getId'], ['getStoreId']);
 
         $customerMock->method('getStoreId')->willReturn($storeId);
         $customerMock->method('getId')->willReturn($customerId);
 
         /** @var Observer|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(Observer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getCustomer'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getCustomer']);
         $observerMock->method('getCustomer')->willReturn($customerMock);
 
         $this->repositoryMock
@@ -98,10 +92,7 @@ class CustomerRegisterSuccessTest extends BaseTestCase
     public function shouldNotSubscribeCustomerWhenOldPluginVersion(): void
     {
         /** @var Observer|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(Observer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getCustomer'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getCustomer']);
 
         $this->requestMock
             ->expects(self::never())
@@ -122,18 +113,12 @@ class CustomerRegisterSuccessTest extends BaseTestCase
         $storeId = 3;
 
         /** @var Customer|MockObject $customerMock */
-        $customerMock = $this->getMockBuilder(Customer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getStoreId', 'getId'])
-            ->getMock();
+        $customerMock = $this->getMockWithoutConstructing(Customer::class, ['getId'], ['getStoreId']);
 
         $customerMock->method('getStoreId')->willReturn($storeId);
 
         /** @var Observer|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(Observer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getCustomer'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getCustomer']);
         $observerMock->method('getCustomer')->willReturn($customerMock);
 
         $this->repositoryMock
@@ -167,19 +152,13 @@ class CustomerRegisterSuccessTest extends BaseTestCase
         $customerId = 2456;
 
         /** @var Customer|MockObject $customerMock */
-        $customerMock = $this->getMockBuilder(Customer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getStoreId', 'getId'])
-            ->getMock();
+        $customerMock = $this->getMockWithoutConstructing(Customer::class, ['getId'], ['getStoreId']);
 
         $customerMock->method('getStoreId')->willReturn($storeId);
         $customerMock->method('getId')->willReturn($customerId);
 
         /** @var Observer|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(Observer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getCustomer'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getCustomer']);
         $observerMock->method('getCustomer')->willReturn($customerMock);
 
         $this->repositoryMock

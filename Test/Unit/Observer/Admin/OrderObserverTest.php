@@ -66,7 +66,7 @@ class OrderObserverTest extends BaseTestCase
         $orderMock = $this->getMockWithoutConstructing(Order::class);
         $orderMock->method('getStoreId')->willReturn($storeId);
         /** @var Event|MockObject $eventMock */
-        $eventMock = $this->getMockBuilder(Event::class)->disableOriginalConstructor()->setMethods(['getOrder'])->getMock();
+        $eventMock = $this->getMockWithoutConstructing(Event::class, [], ['getOrder']);
         $eventMock->method('getOrder')->willReturn($orderMock);
         /** @var EventObserver|MockObject $observerMock */
         $observerMock = $this->getMockWithoutConstructing(EventObserver::class);
@@ -96,7 +96,7 @@ class OrderObserverTest extends BaseTestCase
         $orderMock = $this->getMockWithoutConstructing(Order::class);
         $orderMock->method('getStoreId')->willReturn($storeId);
         /** @var Event|MockObject $eventMock */
-        $eventMock = $this->getMockBuilder(Event::class)->disableOriginalConstructor()->setMethods(['getOrder'])->getMock();
+        $eventMock = $this->getMockWithoutConstructing(Event::class, [], ['getOrder']);
         $eventMock->method('getOrder')->willReturn($orderMock);
         /** @var EventObserver|MockObject $observerMock */
         $observerMock = $this->getMockWithoutConstructing(EventObserver::class);
