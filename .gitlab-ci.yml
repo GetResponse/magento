@@ -22,7 +22,7 @@ composer_install:php72:
     - !reference [ .exclude-branch-develop, rules ]
 
 test:phpunit:php72:
-  needs: [ 'composer_install:php71' ]
+  needs: [ 'composer_install:php72' ]
   image: magento/magento-cloud-docker-php:7.2-cli-1.3.5
   stage: test
   tags:
