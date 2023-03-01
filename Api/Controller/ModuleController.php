@@ -2,29 +2,19 @@
 
 declare(strict_types=1);
 
-namespace GetResponse\GetResponseIntegration\Controller\Api;
+namespace GetResponse\GetResponseIntegration\Api\Controller;
 
+use GetResponse\GetResponseIntegration\Controller\Api\ModuleControllerInterface;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginModeException;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Framework\Phrase;
 use Magento\Framework\Webapi\Exception as WebapiException;
 
 /**
  * @api
  */
-class ModuleController
+class ModuleController extends ApiController implements ModuleControllerInterface
 {
-    private $repository;
-    private $magentoStore;
-
-    public function __construct(Repository $repository, MagentoStore $magentoStore)
-    {
-        $this->repository = $repository;
-        $this->magentoStore = $magentoStore;
-    }
-
     /**
      * @param string $mode
      * @return void
