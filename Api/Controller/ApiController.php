@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GetResponse\GetResponseIntegration\Controller\Api;
+namespace GetResponse\GetResponseIntegration\Api\Controller;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;

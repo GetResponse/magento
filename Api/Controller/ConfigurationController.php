@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace GetResponse\GetResponseIntegration\Controller\Api;
+namespace GetResponse\GetResponseIntegration\Api\Controller;
 
+use GetResponse\GetResponseIntegration\Controller\Api\ConfigurationControllerInterface;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookAdsPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookBusinessExtension;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookPixel;
@@ -27,7 +28,7 @@ use Magento\Framework\Webapi\Rest\Request;
 /**
  * @api
  */
-class ConfigurationController extends ApiController
+class ConfigurationController extends ApiController implements ConfigurationControllerInterface
 {
     private const MODULE_NAME = 'GetResponse_GetResponseIntegration';
 
@@ -49,7 +50,7 @@ class ConfigurationController extends ApiController
     }
 
     /**
-     * @return ConfigurationPresenter
+     * @return \GetResponse\GetResponseIntegration\Presenter\Api\ConfigurationPresenter
      */
     public function list(): ConfigurationPresenter
     {

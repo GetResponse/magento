@@ -104,8 +104,8 @@ class CustomerFactory
         return new Customer(
             $customerId,
             $order->getCustomerEmail(),
-            $order->getCustomerFirstname(),
-            $order->getCustomerLastname(),
+            $order->getCustomerFirstname() ?? '',
+            $order->getCustomerLastname() ?? '',
             $isSubscribed,
             $billingAddress,
             [],

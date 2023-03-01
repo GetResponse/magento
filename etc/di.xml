@@ -17,4 +17,7 @@
     <type name="Magento\Customer\Api\Data\CustomerInterface">
         <plugin name="CustomerExtensionAttributeOperations" type="GetResponse\GetResponseIntegration\Extensions\Customer" sortOrder="1" />
     </type>
+    <preference for="GetResponse\GetResponseIntegration\Controller\Api\ModuleControllerInterface" type="GetResponse\GetResponseIntegration\Api\Controller\ModuleController"/>
+    <preference for="GetResponse\GetResponseIntegration\Controller\Api\SubscriberControllerInterface" type="GetResponse\GetResponseIntegration\Api\Controller\SubscriberController"/>
+    <preference for="GetResponse\GetResponseIntegration\Controller\Api\ConfigurationControllerInterface" type="GetResponse\GetResponseIntegration\Api\Controller\ConfigurationController"/>
 </config>

@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace GetResponse\GetResponseIntegration\Controller\Api;
+namespace GetResponse\GetResponseIntegration\Api\Controller;
 
+use GetResponse\GetResponseIntegration\Controller\Api\SubscriberControllerInterface;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Framework\Webapi\Exception as WebapiException;
@@ -14,7 +15,7 @@ use Magento\Newsletter\Model\Subscriber as SubscriberModel;
 /**
  * @api
  */
-class SubscriberController extends ApiController
+class SubscriberController extends ApiController implements SubscriberControllerInterface
 {
     private $subscriberCollectionFactory;
 
@@ -36,7 +37,7 @@ class SubscriberController extends ApiController
     /**
      * @param int $pageSize
      * @param int $currentPage
-     * @return array
+     * @return mixed
      */
     public function list(int $pageSize, int $currentPage): array
     {
