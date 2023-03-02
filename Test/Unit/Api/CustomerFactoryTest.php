@@ -362,10 +362,11 @@ class CustomerFactoryTest extends BaseTestCase
         $middleName = '';
 
         /** @var Subscriber|MockObject $subscriberMock */
-        $subscriberMock = $this->getMockBuilder(Subscriber::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getCustomerId', 'isSubscribed'])
-            ->getMock();
+        $subscriberMock = $this->getMockWithoutConstructing(
+            Subscriber::class,
+            ['isSubscribed'],
+            ['getCustomerId']
+        );
 
         $subscriberMock->method('isSubscribed')->willReturn(true);
         $subscriberMock->method('getCustomerId')->willReturn($customerId);
@@ -376,7 +377,7 @@ class CustomerFactoryTest extends BaseTestCase
 
         $addressMock->method('isDefaultBilling')->willReturn(true);
         $addressMock->method('isDefaultShipping')->willReturn(true);
-//
+
         /** @var CustomerInterface|MockObject $customerMock */
         $customerMock = $this->getMockWithoutConstructing(CustomerInterface::class);
         $customerMock->method('getAddresses')->willReturn([$addressMock]);

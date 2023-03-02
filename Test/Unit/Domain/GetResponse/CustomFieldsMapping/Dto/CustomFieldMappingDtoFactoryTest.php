@@ -32,7 +32,7 @@ class CustomFieldMappingDtoFactoryTest extends BaseTestCase
     /**
      * @return array
      */
-    public function getInvalidMagentoAttributeCode()
+    public static function getInvalidMagentoAttributeCode()
     {
         return [
             ['magentoAttributeCode'],
@@ -59,7 +59,7 @@ class CustomFieldMappingDtoFactoryTest extends BaseTestCase
     /**
      * @return array
      */
-    public function getCustomFieldMappingDtoProvider()
+    public static function getCustomFieldMappingDtoProvider()
     {
         return [
             [

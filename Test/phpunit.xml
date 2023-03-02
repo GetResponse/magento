@@ -1,26 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<phpunit
-        backupGlobals="false"
-        backupStaticAttributes="false"
-        colors="true"
-        convertErrorsToExceptions="true"
-        convertNoticesToExceptions="true"
-        convertWarningsToExceptions="true"
-        processIsolation="false"
-        stopOnFailure="false"
-        bootstrap="bootstrap.php">
-
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" backupStaticAttributes="false" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="false" convertWarningsToExceptions="true" convertDeprecationsToExceptions="false" processIsolation="false" stopOnFailure="false" bootstrap="bootstrap.php" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+    <coverage includeUncoveredFiles="true" processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">../Block</directory>
+            <directory suffix=".php">../Domain</directory>
+            <directory suffix=".php">../Observer</directory>
+        </include>
+    </coverage>
     <testsuites>
         <testsuite name="unit">
             <directory>Unit</directory>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true" addUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">../Block</directory>
-            <directory suffix=".php">../Domain</directory>
-            <directory suffix=".php">../Observer</directory>
-        </whitelist>
-    </filter>
 </phpunit>

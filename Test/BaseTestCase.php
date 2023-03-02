@@ -7,19 +7,22 @@ use PHPUnit\Framework\TestCase;
 
 class BaseTestCase extends TestCase
 {
-    /**
-     * @param string[] $methodsToOverride
-     * @psalm-template RealInstanceType of object
-     * @psalm-param class-string<RealInstanceType> $name
-     * @psalm-return MockObject|RealInstanceType
-     * @return MockObject
-     */
+    protected function getMockWithoutConstructing(
+        string $name,
+        array $existedMethodsToMock = [],
+        array $newMethodsToMock = []
+    ): MockObject {
+        $mock = $this->getMockBuilder($name)
+            ->disableOriginalConstructor();
 
-    protected function getMockWithoutConstructing(string $name, array $methodsToOverride = [])
-    {
-        return $this->getMockBuilder($name)
-            ->disableOriginalConstructor()
-            ->setMethods($methodsToOverride)
-            ->getMock();
+        if (0 < count($existedMethodsToMock)) {
+            $mock->onlyMethods($existedMethodsToMock);
+        }
+
+        if (0 < count($newMethodsToMock)) {
+            $mock->addMethods($newMethodsToMock);
+        }
+
+        return $mock->getMock();
     }
 }

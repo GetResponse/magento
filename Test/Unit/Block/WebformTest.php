@@ -58,7 +58,7 @@ class WebformTest extends BaseTestCase
         self::assertEquals($expectedUrl, $webformUrl);
     }
 
-    public function webFormToDisplayProvider(): array
+    public static function webFormToDisplayProvider(): array
     {
         return [
             [

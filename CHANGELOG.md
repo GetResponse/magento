@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.5.8] - 2023-02-17
+### Fix
+- added backward compatibility for Monolog changes between version 1.x and 2.x
+- 
 ## [20.5.7] - 2022-07-10
 ### Fix
 - added doctype for php8.1 compatibility

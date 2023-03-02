@@ -47,17 +47,11 @@ class CustomerAddressSaveAfterObjectTest extends BaseTestCase
         $addressModelMock->method('isDefaultBilling')->willReturn(true);
         $addressModelMock->method('isDefaultShipping')->willReturn(false);
         /** @var Address|MockObject $addressMock */
-        $addressMock = $this->getMockBuilder(Address::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getDataModel', 'getStoreId'])
-            ->getMock();
+        $addressMock = $this->getMockWithoutConstructing(Address::class, ['getDataModel'], ['getStoreId']);
         $addressMock->method('getDataModel')->willReturn($addressModelMock);
         $addressMock->method('getStoreId')->willReturn($storeId);
         /** @var Observer|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(Observer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getCustomerAddress'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getCustomerAddress']);
 
         $observerMock->method('getCustomerAddress')->willReturn($addressMock);
 
@@ -77,10 +71,7 @@ class CustomerAddressSaveAfterObjectTest extends BaseTestCase
     public function shouldNotUpdateCustomerAddressWhenOldPluginVersion(): void
     {
         /** @var Observer|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(Observer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getCustomerAddress'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getCustomerAddress']);
 
         $this->repositoryMock->expects(self::once())->method('getPluginMode')->willReturn(PluginMode::MODE_OLD);
 
@@ -103,18 +94,12 @@ class CustomerAddressSaveAfterObjectTest extends BaseTestCase
         $addressModelMock->method('isDefaultBilling')->willReturn(false);
         $addressModelMock->method('isDefaultShipping')->willReturn(false);
         /** @var Address|MockObject $addressMock */
-        $addressMock = $this->getMockBuilder(Address::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getDataModel', 'getStoreId', 'getData'])
-            ->getMock();
+        $addressMock = $this->getMockWithoutConstructing(Address::class, ['getDataModel', 'getData'], ['getStoreId']);
         $addressMock->method('getDataModel')->willReturn($addressModelMock);
         $addressMock->method('getStoreId')->willReturn($storeId);
         $addressMock->method('getData')->willReturn(false);
         /** @var Observer|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(Observer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getCustomerAddress'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getCustomerAddress']);
 
         $observerMock->method('getCustomerAddress')->willReturn($addressMock);
 

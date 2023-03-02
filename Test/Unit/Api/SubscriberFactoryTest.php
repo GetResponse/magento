@@ -25,7 +25,8 @@ class SubscriberFactoryTest extends BaseTestCase
         /** @var MagentoSubscriber|MockObject $magentoSubscriberMock */
         $magentoSubscriberMock = $this->getMockBuilder(MagentoSubscriber::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getId', 'getEmail', 'isSubscribed', 'getStoreId'])
+            ->onlyMethods(['getId', 'getEmail', 'isSubscribed'])
+            ->addMethods(['getStoreId'])
             ->getMock();
 
         $magentoSubscriberMock->method('getId')->willReturnOnConsecutiveCalls($id);

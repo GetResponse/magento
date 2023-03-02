@@ -47,17 +47,11 @@ class SubscribeFromNewsletterTest extends BaseTestCase
         $email = 'some@example.com';
 
         /** @var Subscriber|MockObject $subscriberMock */
-        $subscriberMock = $this->getMockBuilder(Subscriber::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getStoreId', 'getEmail'])
-            ->getMock();
+        $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class, ['getEmail'], ['getStoreId']);
         $subscriberMock->method('getStoreId')->willReturn($storeId);
         $subscriberMock->method('getEmail')->willReturn($email);
         /** @var EventObserver|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(EventObserver::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getSubscriber'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getSubscriber']);
         $observerMock->method('getSubscriber')->willReturn($subscriberMock);
 
         $this->repositoryMock
@@ -90,17 +84,11 @@ class SubscribeFromNewsletterTest extends BaseTestCase
         $storeId = 3;
 
         /** @var Subscriber|MockObject $subscriberMock */
-        $subscriberMock = $this->getMockBuilder(Subscriber::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getStoreId', 'getEmail'])
-            ->getMock();
+        $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class, ['getEmail'], ['getStoreId']);
         $subscriberMock->method('getStoreId')->willReturn($storeId);
 
         /** @var EventObserver|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(EventObserver::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getSubscriber'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getSubscriber']);
         $observerMock->method('getSubscriber')->willReturn($subscriberMock);
 
         $this->repositoryMock

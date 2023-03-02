@@ -70,10 +70,12 @@ class CartObserverTest extends BaseTestCase
         $cartMock = $this->getMockWithoutConstructing(Cart::class);
         $cartMock->method('getQuote')->willReturn($quoteMock);
         /** @var EventObserver|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(EventObserver::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getCart'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(
+            EventObserver::class,
+            [],
+            ['getCart']
+        );
+
         $observerMock->method('getCart')->willReturn($cartMock);
 
         $this->sessionMock->expects(self::once())->method('isLoggedIn')->willReturn(true);
@@ -101,10 +103,7 @@ class CartObserverTest extends BaseTestCase
         $cartMock = $this->getMockWithoutConstructing(Cart::class);
         $cartMock->method('getQuote')->willReturn($quoteMock);
         /** @var EventObserver|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(EventObserver::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getCart'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getCart']);
         $observerMock->method('getCart')->willReturn($cartMock);
 
         $this->sessionMock->expects(self::once())->method('isLoggedIn')->willReturn(true);
@@ -131,10 +130,7 @@ class CartObserverTest extends BaseTestCase
         $cartMock = $this->getMockWithoutConstructing(Cart::class);
         $cartMock->method('getQuote')->willReturn($quoteMock);
         /** @var EventObserver|MockObject $observerMock */
-        $observerMock = $this->getMockBuilder(EventObserver::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getCart'])
-            ->getMock();
+        $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getCart']);
         $observerMock->method('getCart')->willReturn($cartMock);
 
         $this->sessionMock->expects(self::once())->method('isLoggedIn')->willReturn(false);
