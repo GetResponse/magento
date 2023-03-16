@@ -79,7 +79,8 @@ class ProductFactory
                 if (empty($images)) {
                     $images = $this->getImages($product);
                 }
-                $stockItem = $this->stockRepository->get($childProduct->getId());
+
+                $stockItem = $childProduct->getExtensionAttributes()->getStockItem();
 
                 $variants[] = new Variant(
                     (int)$childProduct->getId(),
@@ -101,7 +102,7 @@ class ProductFactory
         } else {
             $images = $this->getImages($product);
 
-            $stockItem = $this->stockRepository->get($product->getId());
+            $stockItem = $product->getExtensionAttributes()->getStockItem();
 
             $variants[] = new Variant(
                 (int)$product->getId(),
