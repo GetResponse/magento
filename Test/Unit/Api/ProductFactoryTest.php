@@ -16,9 +16,8 @@ use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Catalog\Model\Category as MagentoCategory;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\Product\Url;
-use Magento\CatalogInventory\Model\Stock\Item;
-use Magento\CatalogInventory\Model\Stock\StockItemRepository;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+use Magento\Framework\Api\ExtensionAttributesInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use Magento\Catalog\Model\Product as MagentoProduct;
 
@@ -26,8 +25,6 @@ class ProductFactoryTest extends BaseTestCase
 {
     /** @var CategoryRepository|MockObject */
     private $categoryRepositoryMock;
-    /** @var StockItemRepository|MockObject */
-    private $stockRepositoryMock;
     /** @var ProductReadModel|MockObject */
     private $productReadModelMock;
     /** @var ProductType|MockObject */
@@ -39,7 +36,6 @@ class ProductFactoryTest extends BaseTestCase
     {
         $this->productTypeMock = $this->getMockWithoutConstructing(ProductType::class);
         $this->categoryRepositoryMock = $this->getMockWithoutConstructing(CategoryRepository::class);
-        $this->stockRepositoryMock = $this->getMockWithoutConstructing(StockItemRepository::class);
         $this->productReadModelMock = $this->getMockWithoutConstructing(ProductReadModel::class);
 
         $this->productTypeMock
@@ -48,7 +44,6 @@ class ProductFactoryTest extends BaseTestCase
 
         $this->sut = new ProductFactory(
             $this->categoryRepositoryMock,
-            $this->stockRepositoryMock,
             $this->productReadModelMock,
             $this->productTypeMock
         );
@@ -94,10 +89,8 @@ class ProductFactoryTest extends BaseTestCase
         $mediaMock->method('getData')
             ->willReturnOnConsecutiveCalls($image->getSrc(), $image->getPosition());
 
-        $stockItemMock = $this->getMockWithoutConstructing(Item::class);
-        $stockItemMock->method('getQty')->willReturn($variantQty);
-
-        $this->stockRepositoryMock->method('get')->willReturn($stockItemMock);
+        $extensionAttributesMock = $this->getMockWithoutConstructing(ExtensionAttributesInterface::class);
+        $extensionAttributesMock->method('getStockItem')->willReturn($variantQty);
 
         /** @var MagentoProduct|MockObject $magentoProductMock */
         $magentoProductMock = $this->getMockWithoutConstructing(MagentoProduct::class);
@@ -115,6 +108,7 @@ class ProductFactoryTest extends BaseTestCase
         $magentoProductMock->method('getMediaGalleryImages')->willReturn([$mediaMock]);
         $magentoProductMock->method('getCreatedAt')->willReturn($createdAt);
         $magentoProductMock->method('getUpdatedAt')->willReturn($updatedAt);
+        $magentoProductMock->method('getExtensionAttributes')->willReturn($extensionAttributesMock);
 
         $category = new Category($categoryId, $parentCategoryId, $categoryName);
 

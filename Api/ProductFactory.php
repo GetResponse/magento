@@ -9,24 +9,20 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\Query\Ge
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\Product as MagentoProduct;
-use Magento\CatalogInventory\Model\Stock\StockItemRepository;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 class ProductFactory
 {
     private $categoryRepository;
-    private $stockRepository;
     private $productReadModel;
     private $productType;
 
     public function __construct(
         CategoryRepository $categoryRepository,
-        StockItemRepository $stockRepository,
         ProductReadModel $productReadModel,
         ProductType $productType
     ) {
         $this->categoryRepository = $categoryRepository;
-        $this->stockRepository = $stockRepository;
         $this->productReadModel = $productReadModel;
         $this->productType = $productType;
     }
