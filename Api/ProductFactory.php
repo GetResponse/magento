@@ -67,6 +67,10 @@ class ProductFactory
     {
         $variants = [];
 
+        $extensionAttributes = $product->getExtensionAttributes();
+
+        $productQuantity = $extensionAttributes !== null ? (int) $extensionAttributes->getStockItem() : 0;
+
         if ($this->productType->isProductConfigurable($product->getTypeId())) {
             $usedProducts = $product->getTypeInstance()->getUsedProducts($product);
             /** @var MagentoProduct $childProduct */
@@ -76,8 +80,6 @@ class ProductFactory
                     $images = $this->getImages($product);
                 }
 
-                $stockItem = $childProduct->getExtensionAttributes()->getStockItem();
-
                 $variants[] = new Variant(
                     (int)$childProduct->getId(),
                     $childProduct->getName(),
@@ -86,7 +88,7 @@ class ProductFactory
                     (float)$childProduct->getPrice(),
                     null,
                     null,
-                    (int)$stockItem->getQty(),
+                    $productQuantity,
                     $this->getProductConfigurableUrl($product, $childProduct, (int)$scope->getScopeId()),
                     0,
                     null,
@@ -98,8 +100,6 @@ class ProductFactory
         } else {
             $images = $this->getImages($product);
 
-            $stockItem = $product->getExtensionAttributes()->getStockItem();
-
             $variants[] = new Variant(
                 (int)$product->getId(),
                 $product->getName(),
@@ -108,7 +108,7 @@ class ProductFactory
                 (float)$product->getPrice(),
                 null,
                 null,
-                (int)$stockItem->getQty(),
+                $productQuantity,
                 $product->setStoreId($scope->getScopeId())->getUrlModel()->getUrlInStore($product),
                 0,
                 null,
