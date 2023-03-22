@@ -9,24 +9,20 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\Query\Ge
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\Product as MagentoProduct;
-use Magento\CatalogInventory\Model\Stock\StockItemRepository;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 class ProductFactory
 {
     private $categoryRepository;
-    private $stockRepository;
     private $productReadModel;
     private $productType;
 
     public function __construct(
         CategoryRepository $categoryRepository,
-        StockItemRepository $stockRepository,
         ProductReadModel $productReadModel,
         ProductType $productType
     ) {
         $this->categoryRepository = $categoryRepository;
-        $this->stockRepository = $stockRepository;
         $this->productReadModel = $productReadModel;
         $this->productType = $productType;
     }
@@ -79,7 +75,6 @@ class ProductFactory
                 if (empty($images)) {
                     $images = $this->getImages($product);
                 }
-                $stockItem = $this->stockRepository->get($childProduct->getId());
 
                 $variants[] = new Variant(
                     (int)$childProduct->getId(),
@@ -89,7 +84,7 @@ class ProductFactory
                     (float)$childProduct->getPrice(),
                     null,
                     null,
-                    (int)$stockItem->getQty(),
+                    $this->getProductQuantity((int)$childProduct->getId()),
                     $this->getProductConfigurableUrl($product, $childProduct, (int)$scope->getScopeId()),
                     0,
                     null,
@@ -101,8 +96,6 @@ class ProductFactory
         } else {
             $images = $this->getImages($product);
 
-            $stockItem = $this->stockRepository->get($product->getId());
-
             $variants[] = new Variant(
                 (int)$product->getId(),
                 $product->getName(),
@@ -111,7 +104,7 @@ class ProductFactory
                 (float)$product->getPrice(),
                 null,
                 null,
-                (int)$stockItem->getQty(),
+                $this->getProductQuantity((int)$product->getId()),
                 $product->setStoreId($scope->getScopeId())->getUrlModel()->getUrlInStore($product),
                 0,
                 null,
@@ -177,5 +170,17 @@ class ProductFactory
         }
 
         return $images;
+    }
+
+    private function getProductQuantity(int $productId): int
+    {
+        $product = $this->productReadModel->getProduct(new GetProduct($productId));
+        $extensionAttributes = $product->getExtensionAttributes();
+
+        if (null === $extensionAttributes || !method_exists($extensionAttributes, 'getStockItem')) {
+            return 0;
+        }
+
+        return (int) $extensionAttributes->getStockItem()->getQty();
     }
 }
