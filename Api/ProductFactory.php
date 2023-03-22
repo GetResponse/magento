@@ -67,10 +67,6 @@ class ProductFactory
     {
         $variants = [];
 
-        $extensionAttributes = $product->getExtensionAttributes();
-
-        $productQuantity = $extensionAttributes !== null ? (int) $extensionAttributes->getStockItem() : 0;
-
         if ($this->productType->isProductConfigurable($product->getTypeId())) {
             $usedProducts = $product->getTypeInstance()->getUsedProducts($product);
             /** @var MagentoProduct $childProduct */
@@ -88,7 +84,7 @@ class ProductFactory
                     (float)$childProduct->getPrice(),
                     null,
                     null,
-                    $productQuantity,
+                    $this->getProductQuantity((int)$childProduct->getId()),
                     $this->getProductConfigurableUrl($product, $childProduct, (int)$scope->getScopeId()),
                     0,
                     null,
@@ -108,7 +104,7 @@ class ProductFactory
                 (float)$product->getPrice(),
                 null,
                 null,
-                $productQuantity,
+                $this->getProductQuantity((int)$product->getId()),
                 $product->setStoreId($scope->getScopeId())->getUrlModel()->getUrlInStore($product),
                 0,
                 null,
@@ -174,5 +170,17 @@ class ProductFactory
         }
 
         return $images;
+    }
+
+    private function getProductQuantity(int $productId): int
+    {
+        $product = $this->productReadModel->getProduct(new GetProduct($productId));
+        $extensionAttributes = $product->getExtensionAttributes();
+
+        if (null === $extensionAttributes || !method_exists($extensionAttributes, 'getStockItem')) {
+            return 0;
+        }
+
+        return (int) $extensionAttributes->getStockItem()->getQty();
     }
 }
