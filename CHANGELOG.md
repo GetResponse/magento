@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.5.10] - 2023-05-10
+### Fix
+- added fix for newsletter subscription - name should be sent with email address.
+
 ## [20.5.9] - 2023-03-16
 ### Fix
 - Fixed product quantity retrieving from stock with stock item id in place of product id
