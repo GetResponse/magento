@@ -2,6 +2,10 @@
     <div id="customer-email-address" data-bind="attr: { 'customer-email': getResponseTrackingCode().customerEmail}"></div>
 </div>
 
+<div id="getresponse-view-item">
+    <div id="getresponse-product-item" data-json="{'name': 'test product', 'productId': 10}"></div>
+</div>
+
 <script>
     require([
         'jquery',
@@ -20,6 +24,18 @@
             ) {
                 gaSetUserId(customerEmail);
             }
+        });
+
+        $('body').on('DOMSubtreeModified', '#getresponse-view-item', function () {
+
+            console.log('load view item');
+
+            var viewItem = document.getElementById('getresponse-product-item');
+
+            var viewItem2 = $('#getresponse-product-item');
+            var viewItem2Json = $('#getresponse-product-item').data('json');
+
+            console.log('json', json);
         });
     });
 </script>
