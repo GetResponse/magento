@@ -216,20 +216,6 @@ class CustomerFactory
         );
     }
 
-    public function createFromNewsletterSubscriber(Subscriber $subscriber): Customer
-    {
-        return new Customer(
-            (int)$subscriber->getId(),
-            $subscriber->getEmail(),
-            '',
-            '',
-            $subscriber->isSubscribed(),
-            null,
-            [],
-            []
-        );
-    }
-
     private function isCustomerSubscribed(?int $customerId): bool
     {
         if (null === $customerId) {

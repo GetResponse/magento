@@ -450,32 +450,4 @@ class CustomerFactoryTest extends BaseTestCase
         $customer = $this->sut->createFromNewsletterSubscription($subscriberMock);
         self::assertEquals($expectedCustomer, $customer);
     }
-
-    /**
-     * @test
-     */
-    public function shouldCreateFromNewsletterSubscriber(): void
-    {
-        $customerId = 100232;
-        $customerEmail = 'some@email.com';
-        /** @var Subscriber|MockObject $subscriberMock */
-        $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
-        $subscriberMock->method('getId')->willReturn($customerId);
-        $subscriberMock->method('getEmail')->willReturn($customerEmail);
-        $subscriberMock->method('isSubscribed')->willReturn(true);
-
-        $expectedCustomer = new Customer(
-            $customerId,
-            $customerEmail,
-            '',
-            '',
-            true,
-            null,
-            [],
-            []
-        );
-
-        $customer = $this->sut->createFromNewsletterSubscriber($subscriberMock);
-        self::assertEquals($expectedCustomer, $customer);
-    }
 }

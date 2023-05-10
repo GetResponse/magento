@@ -19,22 +19,24 @@ class SubscriberFactoryTest extends BaseTestCase
     {
         $id = 1001;
         $email = 'some@email.com';
+        $name = 'John Smith';
         $isMarketingAccepted = true;
         $storeId = 5;
 
         /** @var MagentoSubscriber|MockObject $magentoSubscriberMock */
         $magentoSubscriberMock = $this->getMockBuilder(MagentoSubscriber::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getId', 'getEmail', 'isSubscribed'])
+            ->onlyMethods(['getId', 'getEmail', 'getSubscriberFullName', 'isSubscribed'])
             ->addMethods(['getStoreId'])
             ->getMock();
 
         $magentoSubscriberMock->method('getId')->willReturnOnConsecutiveCalls($id);
         $magentoSubscriberMock->method('getEmail')->willReturnOnConsecutiveCalls($email);
+        $magentoSubscriberMock->method('getSubscriberFullName')->willReturnOnConsecutiveCalls($name);
         $magentoSubscriberMock->method('isSubscribed')->willReturnOnConsecutiveCalls($isMarketingAccepted);
         $magentoSubscriberMock->method('getStoreId')->willReturnOnConsecutiveCalls($storeId);
 
-        $expectedSubscriber = new Subscriber($id, $email, '', $isMarketingAccepted, [], ['store_id' => $storeId]);
+        $expectedSubscriber = new Subscriber($id, $email, $name, $isMarketingAccepted, [], ['store_id' => $storeId]);
 
         $factory = new SubscriberFactory();
         $subscriber = $factory->create($magentoSubscriberMock);

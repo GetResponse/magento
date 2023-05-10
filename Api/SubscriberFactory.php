@@ -13,7 +13,7 @@ class SubscriberFactory
         return new Subscriber(
             (int)$magentoSubscriber->getId(),
             $magentoSubscriber->getEmail(),
-            '',
+            $magentoSubscriber->getSubscriberFullName(),
             $magentoSubscriber->isSubscribed(),
             [],
             [
