@@ -32,7 +32,7 @@ class SubscriberFactoryTest extends BaseTestCase
 
         $magentoSubscriberMock->method('getId')->willReturnOnConsecutiveCalls($id);
         $magentoSubscriberMock->method('getEmail')->willReturnOnConsecutiveCalls($email);
-        $magentoSubscriberMock->method('getSubscriberFullName')->willReturnOnConsecutiveCalls($name);
+        $magentoSubscriberMock->method('getSubscriberFullName')->willReturnOnConsecutiveCalls($name, $name);
         $magentoSubscriberMock->method('isSubscribed')->willReturnOnConsecutiveCalls($isMarketingAccepted);
         $magentoSubscriberMock->method('getStoreId')->willReturnOnConsecutiveCalls($storeId);
 
