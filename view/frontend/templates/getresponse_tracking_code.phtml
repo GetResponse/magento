@@ -2,10 +2,6 @@
     <div id="customer-email-address" data-bind="attr: { 'customer-email': getResponseTrackingCode().customerEmail}"></div>
 </div>
 
-<div id="getresponse-view-item">
-    <div id="getresponse-product-item" data-json="{'name': 'test product', 'productId': 10}"></div>
-</div>
-
 <script>
     require([
         'jquery',
@@ -26,16 +22,21 @@
             }
         });
 
-        $('body').on('DOMSubtreeModified', '#getresponse-view-item', function () {
+        $(document).ready(function() {
 
-            console.log('load view item');
+            var productItem = $('#getresponse-product-view');
 
-            var viewItem = document.getElementById('getresponse-product-item');
+            if (productItem.length) {
+                GrTracking('importScript', 'ec');
+                GrTracking('viewItem', productItem.data('json'));
+            }
 
-            var viewItem2 = $('#getresponse-product-item');
-            var viewItem2Json = $('#getresponse-product-item').data('json');
+            var categoryView = $('#getresponse-category-view');
 
-            console.log('json', json);
+            if (categoryView.length) {
+                GrTracking('importScript', 'ec');
+                GrTracking('viewCategory', categoryView.data('json'));
+            }
         });
     });
 </script>
