@@ -94,7 +94,7 @@ class WebEventTracking implements SnippetInterface
             (bool)$data['isEnabled'],
             (bool) $data['isFeatureTrackingEnabled'],
             $data['codeSnippet'],
-            $data['getresponseShopId'],
+            $data['getresponseShopId']
         );
     }
 }
