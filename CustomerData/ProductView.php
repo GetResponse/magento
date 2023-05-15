@@ -42,7 +42,7 @@ class ProductView extends WebEventView
             $payload = $this->getProductPayload($product);
         }
 
-        $html .= '<div id="getresponse-product-view" data-json=\'' . json_encode($payload) . '\'></div>';
+        $html .= '<script type="text/javascript">const GrViewProductItem = ' . json_encode($payload) . '</script>';
 
         return $html;
     }

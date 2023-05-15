@@ -25,7 +25,7 @@ class CategoryView extends WebEventView
             'name' => $category->getName()
         ];
 
-        $html .= '<div id="getresponse-category-view" data-json=\'' . json_encode($payload) . '\'></div>';
+        $html .= '<script type="text/javascript">const GrViewCategoryItem = ' . json_encode($payload) . '</script>';
 
         return $html;
     }
