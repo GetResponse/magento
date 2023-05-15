@@ -24,18 +24,14 @@
 
         $(document).ready(function() {
 
-            var productItem = $('#getresponse-product-view');
-
-            if (productItem.length) {
+            if (typeof GrViewCategoryItem !== 'undefined') {
                 GrTracking('importScript', 'ec');
-                GrTracking('viewItem', productItem.data('json'));
+                GrTracking('viewCategory', GrViewCategoryItem);
             }
 
-            var categoryView = $('#getresponse-category-view');
-
-            if (categoryView.length) {
+            if (typeof GrViewProductItem !== 'undefined') {
                 GrTracking('importScript', 'ec');
-                GrTracking('viewCategory', categoryView.data('json'));
+                GrTracking('viewItem', GrViewProductItem);
             }
         });
     });

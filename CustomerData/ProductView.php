@@ -53,7 +53,7 @@ class ProductView extends WebEventView
             $categories = [];
             foreach ($product->getCategoryIds() as $categoryId) {
                 $category = $this->categoryRepository->get($categoryId, $product->getStoreId());
-                $categories[] = ['name' => $category->getName()];
+                $categories[] = ['id' => $category->getId(), 'name' => $category->getName()];
             }
 
             return [
@@ -63,7 +63,7 @@ class ProductView extends WebEventView
                     'name' => $product->getName(),
                     'sku' => $product->getSku(),
                     'vendor' => null,
-                    'price' => $product->getPrice(),
+                    'price' => number_format((float)$product->getPrice(), 2),
                     'currency' => $product->getStore()->getBaseCurrencyCode()
                 ],
                 'categories' => $categories
