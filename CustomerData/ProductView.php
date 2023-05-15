@@ -7,7 +7,6 @@ namespace GetResponse\GetResponseIntegration\CustomerData;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Block\Product\View as Subject;
 use Magento\Catalog\Model\Product;
-use Magento\Store\Model\StoreManagerInterface;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable as TypeConfigurable;
 use Exception;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
@@ -18,10 +17,8 @@ class ProductView extends WebEventView
 
     private CategoryRepositoryInterface $categoryRepository;
 
-    public function __construct(
-        Repository $repository,
-        CategoryRepositoryInterface $categoryRepository
-    ) {
+    public function __construct(Repository $repository, CategoryRepositoryInterface $categoryRepository)
+    {
         parent::__construct($repository);
         $this->categoryRepository = $categoryRepository;
     }
@@ -56,6 +53,8 @@ class ProductView extends WebEventView
                 $categories[] = ['id' => $category->getId(), 'name' => $category->getName()];
             }
 
+            $finalPrice = $product->getPriceInfo()->getPrice('final_price')->getValue();
+
             return [
                 'shop' => ['id' => $this->getGetresponseShopId($product->getStoreId())],
                 'product' => [
@@ -63,8 +62,8 @@ class ProductView extends WebEventView
                     'name' => $product->getName(),
                     'sku' => $product->getSku(),
                     'vendor' => null,
-                    'price' => number_format((float)$product->getPrice(), 2),
-                    'currency' => $product->getStore()->getBaseCurrencyCode()
+                    'price' => number_format((float)$finalPrice, 2),
+                    'currency' => $product->getStore()->getCurrentCurrencyCode()
                 ],
                 'categories' => $categories
             ];
