@@ -1,0 +1,57 @@
+<div class="getresponse-recommendation-section" data-bind="scope: 'getresponse_recommendation_section'">
+    <div id="getresponse-recommendation" data-bind="attr: {
+        'getresponse-shop-id': getResponseRecommendation() && getResponseRecommendation().getResponseShopId,
+        'product-id-added-to-wishlist': getResponseRecommendation() && getResponseRecommendation().productIdAddedToWishList,
+        'product-id-removed-from-wishlist': getResponseRecommendation() &&  getResponseRecommendation().productIdRemovedFromWishList
+    }"></div>
+</div>
+
+<script>
+    require(['jquery', 'Magento_Customer/js/customer-data'], function ($,customerData) {
+
+        $('body').on('DOMSubtreeModified', '#getresponse-recommendation', function () {
+
+            const getResponseShopId = $('#getresponse-recommendation')?.attr('getresponse-shop-id');
+            const productIdAddedToWishList = $('#getresponse-recommendation')?.attr('product-id-added-to-wishlist');
+            const productIdRemovedFromWishList = $('#getresponse-recommendation')?.attr('product-id-removed-from-wishlist');
+
+            if (getResponseShopId === null) {
+                return false;
+            }
+
+            if (productIdAddedToWishList && !productIdRemovedFromWishList) {
+                const likeItemObject = {
+                    shop: {id: getResponseShopId},
+                    product: {id: productIdAddedToWishList}
+                };
+                GrTracking('importScript', 'ec');
+                GrTracking('likeItem', likeItemObject);
+                customerData.reload(['getresponse-recommendation']);
+            }
+
+            if (productIdRemovedFromWishList && !productIdAddedToWishList) {
+                const unlikeItemObject = {
+                    shop: {id: getResponseShopId},
+                    product: {id: productIdRemovedFromWishList}
+                };
+                GrTracking('importScript', 'ec');
+                GrTracking('unlikeItem', unlikeItemObject);
+                customerData.reload(['getresponse-recommendation']);
+            }
+        });
+    });
+</script>
+
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "Magento_Ui/js/core/app": {
+                "components": {
+                    "getresponse_recommendation_section": {
+                        "component": "GetResponse_GetResponseIntegration/js/getresponse_recommendation_section"
+                    }
+                }
+            }
+        }
+    }
+</script>

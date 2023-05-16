@@ -36,4 +36,10 @@
     <event name="newsletter_subscriber_save_commit_after">
         <observer name="newsletter_subscriber_save_commit_after_getresponse" instance="GetResponse\GetResponseIntegration\Observer\NewsletterSubscriberSaveCommitAfterObject" />
     </event>
+    <event name="wishlist_add_product">
+        <observer name="product_added_to_wish_list" instance="GetResponse\GetResponseIntegration\Observer\ProductAddedToWishList" />
+    </event>
+    <event name="controller_action_predispatch_wishlist_index_remove">
+        <observer name="product_removed_from_list" instance="GetResponse\GetResponseIntegration\Observer\ProductRemovedFromWishList" />
+    </event>
 </config>
