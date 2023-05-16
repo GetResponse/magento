@@ -9,4 +9,10 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Catalog\Block\Product\View">
+        <plugin name="getresponse-product-view" type="GetResponse\GetResponseIntegration\CustomerData\ProductView"/>
+    </type>
+    <type name="Magento\Catalog\Block\Category\View">
+        <plugin name="getresponse-category-view" type="GetResponse\GetResponseIntegration\CustomerData\CategoryView"/>
+    </type>
 </config>

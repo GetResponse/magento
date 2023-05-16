@@ -21,6 +21,19 @@
                 gaSetUserId(customerEmail);
             }
         });
+
+        $(document).ready(function() {
+
+            if (typeof GrViewCategoryItem !== 'undefined') {
+                GrTracking('importScript', 'ec');
+                GrTracking('viewCategory', GrViewCategoryItem);
+            }
+
+            if (typeof GrViewProductItem !== 'undefined') {
+                GrTracking('importScript', 'ec');
+                GrTracking('viewItem', GrViewProductItem);
+            }
+        });
     });
 </script>
 
