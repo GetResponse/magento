@@ -32,5 +32,9 @@
             <block name="getresponse.tracking.code" class="Magento\Framework\View\Element\Template" template="GetResponse_GetResponseIntegration::getresponse_tracking_code.phtml"/>
         </referenceContainer>
 
+        <referenceContainer name="head.additional">
+            <block name="getresponse.recommendation" class="Magento\Framework\View\Element\Template" template="GetResponse_GetResponseIntegration::getresponse_recommendation.phtml"/>
+        </referenceContainer>
+
     </body>
 </page>

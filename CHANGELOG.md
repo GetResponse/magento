@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.5.11] - 2023-05-16
+### Fix
+- added handle view product, view category, likedItem, unlikeItem events
+
 ## [20.5.10] - 2023-05-10
 ### Fix
 - added fix for newsletter subscription - name should be sent with email address.

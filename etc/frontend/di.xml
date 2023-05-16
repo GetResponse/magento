@@ -7,6 +7,11 @@
                     GetResponse\GetResponseIntegration\CustomerData\WebTrackingCode
                 </item>
             </argument>
+            <argument name="sectionSourceMap" xsi:type="array">
+                <item name="getresponse-recommendation" xsi:type="string">
+                    GetResponse\GetResponseIntegration\CustomerData\Recommendation
+                </item>
+            </argument>
         </arguments>
     </type>
     <type name="Magento\Catalog\Block\Product\View">
