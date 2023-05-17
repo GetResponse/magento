@@ -228,7 +228,8 @@ class UpgradeData implements UpgradeDataInterface
             $webEventTracking = new WebEventTracking(
                 $row['web_traffic'],
                 $row['isFeatureTrackingEnabled'],
-                $row['tracking_code_snippet']
+                $row['tracking_code_snippet'],
+                null
             );
 
             $this->configWriter->save(

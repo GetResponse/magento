@@ -154,7 +154,7 @@ class ConfigurationController extends ApiController implements ConfigurationCont
             new FacebookAdsPixel(false, ''),
             new FacebookBusinessExtension(false, ''),
             new WebForm(false, '', '', ''),
-            new WebEventTracking(false, false, ''),
+            new WebEventTracking(false, false, '', null),
             new LiveSynchronization(false, '', '')
         );
     }
