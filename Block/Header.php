@@ -7,6 +7,7 @@ namespace GetResponse\GetResponseIntegration\Block;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookAdsPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookBusinessExtension;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookPixel;
+use GetResponse\GetResponseIntegration\Domain\Magento\Recommendation;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
@@ -35,6 +36,7 @@ class Header extends Template
             'facebookPixelCodeSnippet' => $this->findFacebookPixelSnippet(),
             'facebookAdsPixelCodeSnippet' => $this->findFacebookAdsPixelSnippet(),
             'facebookBusinessExtensionCodeSnippet' => $this->findFacebookBusinessExtensionSnippet(),
+            'recommendationCodeSnippet' => $this->findRecommendationSnippet(),
         ];
     }
 
@@ -93,6 +95,21 @@ class Header extends Template
 
         if ($facebookBusinessExtension->isActive()) {
             return $facebookBusinessExtension->getCodeSnippet();
+        }
+
+        return null;
+    }
+
+    private function findRecommendationSnippet(): ?string
+    {
+        $recommendation = Recommendation::createFromRepository(
+            $this->repository->getRecommendationSnippet(
+                $this->magentoStore->getCurrentScope()->getScopeId()
+            )
+        );
+
+        if ($recommendation->isActive()) {
+            return $recommendation->getCodeSnippet();
         }
 
         return null;

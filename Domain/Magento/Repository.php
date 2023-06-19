@@ -200,6 +200,20 @@ class Repository
         return $this->serializer->unserialize($data);
     }
 
+    public function getRecommendationSnippet($scopeId): array
+    {
+        $data = $this->scopeConfig->getValue(
+            Config::CONFIG_DATA_RECOMMENDATION_SNIPPET,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        if (empty($data)) {
+            return [];
+        }
+        return $this->serializer->unserialize($data);
+    }
+
     public function getPluginMode(): ?string
     {
         $value = $this->scopeConfig->getValue(
@@ -238,6 +252,18 @@ class Repository
         $this->configWriter->save(
             Config::CONFIG_LIVE_SYNCHRONIZATION,
             $this->serializer->serialize($liveSynchronization->toArray()),
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        $this->cacheManager->clean(['config']);
+    }
+
+    public function saveRecommendationSnippet(Recommendation $recommendation, $scopeId): void
+    {
+        $this->configWriter->save(
+            Config::CONFIG_DATA_RECOMMENDATION_SNIPPET,
+            $this->serializer->serialize($recommendation->toArray()),
             $this->getScope($scopeId),
             $this->getScopeId($scopeId)
         );

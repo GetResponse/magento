@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.5.12] - 2023-05-16
+### Fix
+- added recommendation events
+- 
 ## [20.5.11] - 2023-05-16
 ### Fix
 - added handle view product, view category, likedItem, unlikeItem events

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace GetResponse\GetResponseIntegration\CustomerData;
+namespace GetResponse\GetResponseIntegration\CustomerData\TrackingCode;
 
 use Magento\Customer\CustomerData\SectionSourceInterface;
 use Magento\Customer\Helper\Session\CurrentCustomer;
 
-class WebTrackingCode implements SectionSourceInterface
+class CustomerSectionSource implements SectionSourceInterface
 {
     protected $currentCustomer;
 

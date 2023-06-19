@@ -2,20 +2,16 @@
 
 declare(strict_types=1);
 
-namespace GetResponse\GetResponseIntegration\CustomerData;
+namespace GetResponse\GetResponseIntegration\CustomerData\TrackingCode;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
-use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Framework\DataObject\IdentityInterface as Subject;
-use Magento\Catalog\Model\Category;
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\ConfigurableProduct\Model\Product\Type\Configurable as TypeConfigurable;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
-abstract class WebEventView
+abstract class TrackingCodeView
 {
-    protected Repository $repository;
+    protected $repository;
 
     public function __construct(Repository $repository)
     {
