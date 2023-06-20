@@ -47,14 +47,10 @@ class Recommendation implements SnippetInterface
      */
     public static function createFromRequest(array $data, bool $isRequired = false): self
     {
-        if (false === $isRequired) {
-            return new self(false, "");
-        }
-
-        if (!isset($data['recommendation'])) {
+        if ($isRequired && !isset($data['recommendation'])) {
             throw RequestValidationException::create('Incorrect Recommendation params');
         }
 
-        return new self($data['recommendation']['is_active'], $data['recommendation']['snippet']);
+        return new self($data['recommendation']['is_active'] ?? false, $data['recommendation']['snippet'] ?? "");
     }
 }
