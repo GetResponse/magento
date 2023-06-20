@@ -25,7 +25,8 @@ class BlogPageViewTest extends BaseTestCase
     /** @var Subject|MockObject */
     private $subjectMock;
 
-    private BlogPageView $sut;
+    /** @var BlogPageView */
+    private $sut;
 
     public function setUp(): void
     {

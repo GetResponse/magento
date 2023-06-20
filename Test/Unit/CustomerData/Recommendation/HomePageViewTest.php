@@ -25,7 +25,8 @@ class HomePageViewTest extends BaseTestCase
     /** @var Subject|MockObject */
     private $subjectMock;
 
-    private HomePageView $sut;
+    /** @var HomePageView */
+    private $sut;
 
     public function setUp(): void
     {

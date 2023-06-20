@@ -25,7 +25,8 @@ class CategoryViewTest extends BaseTestCase
     /** @var Subject|MockObject */
     private $subjectMock;
 
-    private CategoryView $sut;
+    /** @var CategoryView */
+    private $sut;
 
     public function setUp(): void
     {

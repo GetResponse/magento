@@ -33,7 +33,8 @@ class ProductViewTest extends BaseTestCase
     /** @var CategoryRepositoryInterface|MockObject */
     private $categoryRepositoryMock;
 
-    private ProductView $sut;
+    /** @var ProductView */
+    private $sut;
 
     public function setUp(): void
     {

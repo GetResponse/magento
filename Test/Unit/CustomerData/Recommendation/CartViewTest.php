@@ -25,7 +25,8 @@ class CartViewTest extends BaseTestCase
     /** @var Subject|MockObject */
     private $subjectMock;
 
-    private CartView $sut;
+    /** @var CartView */
+    private $sut;
 
     public function setUp(): void
     {
