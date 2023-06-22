@@ -8,6 +8,9 @@ use JsonSerializable;
 
 class Variant implements JsonSerializable
 {
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_INACTIVE = 'inactive';
+
     private $id;
     private $name;
     private $sku;
@@ -23,6 +26,7 @@ class Variant implements JsonSerializable
     private $shortDescription;
     /** @var null|Image[] */
     private $images;
+    private $status;
 
     public function __construct(
         int $id,
@@ -38,7 +42,8 @@ class Variant implements JsonSerializable
         ?int $barcode,
         string $description,
         string $shortDescription,
-        ?array $images
+        ?array $images,
+        string $status
     ) {
         $this->id = $id;
         $this->name = $name;
@@ -54,6 +59,7 @@ class Variant implements JsonSerializable
         $this->description = $description;
         $this->shortDescription = $shortDescription;
         $this->images = $images;
+        $this->status = $status;
     }
 
     public function jsonSerialize(): array
@@ -77,7 +83,8 @@ class Variant implements JsonSerializable
             'barcode' => $this->barcode,
             'description' => $this->description,
             'short_description' => $this->shortDescription,
-            'images' => $images
+            'images' => $images,
+            'status' => $this->status
         ];
     }
 }

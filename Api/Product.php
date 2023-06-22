@@ -8,6 +8,9 @@ use JsonSerializable;
 
 class Product implements JsonSerializable
 {
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_INACTIVE = 'inactive';
+
     private $id;
     private $name;
     private $type;
@@ -17,6 +20,7 @@ class Product implements JsonSerializable
     private $categories;
     /** @var Variant[] */
     private $variants;
+    private $status;
     private $createdAt;
     private $updatedAt;
 
@@ -28,6 +32,7 @@ class Product implements JsonSerializable
         string $vendor,
         array $categories,
         array $variants,
+        string $status,
         string $createdAt,
         ?string $updatedAt
     ) {
@@ -38,6 +43,7 @@ class Product implements JsonSerializable
         $this->vendor = $vendor;
         $this->categories = $categories;
         $this->variants = $variants;
+        $this->status = $status;
         $this->createdAt = $createdAt;
         $this->updatedAt = $updatedAt;
     }
@@ -77,6 +83,11 @@ class Product implements JsonSerializable
         return $this->variants;
     }
 
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
     public function getCreatedAt(): string
     {
         return $this->createdAt;
@@ -106,10 +117,11 @@ class Product implements JsonSerializable
             'type' => $this->type,
             'url' => $this->url,
             'vendor' => $this->vendor,
-            'created_at' => $this->createdAt,
-            'updated_at' => $this->updatedAt,
-            'categories' => $categories,
             'variants' => $variants,
+            'categories' => $categories,
+            'status' => $this->status,
+            'created_at' => $this->createdAt,
+            'updated_at' => $this->updatedAt
         ];
     }
 }

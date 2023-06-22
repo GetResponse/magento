@@ -38,6 +38,7 @@ class ProductTest extends BaseTestCase
             'type' => $type,
             'url' => $url,
             'vendor' => $vendor,
+            'status' => Product::STATUS_ACTIVE,
             'created_at' => $createdAt,
             'updated_at' => $updatedAt,
             'categories' => [
@@ -56,6 +57,7 @@ class ProductTest extends BaseTestCase
             $vendor,
             [$categoryMock],
             [$variantMock],
+            Product::STATUS_ACTIVE,
             $createdAt,
             $updatedAt
         );

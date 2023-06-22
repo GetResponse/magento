@@ -47,6 +47,7 @@ class ProductObserverTest extends BaseTestCase
 
         $productMock = $this->getMockWithoutConstructing(MagentoProduct::class);
         $productMock->method('getStoreIds')->willReturn([$storeId]);
+        $productMock->method('getStoreId')->willReturn($storeId);
 
         $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getProduct']);
         $observerMock->method('getProduct')->willReturn($productMock);

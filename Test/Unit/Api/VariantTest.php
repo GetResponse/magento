@@ -52,7 +52,8 @@ class VariantTest extends BaseTestCase
                     'src' => $imageSrc,
                     'position' => $imagePosition
                 ]
-            ]
+            ],
+            'status' => Variant::STATUS_ACTIVE
         ];
 
         $variant = new Variant(
@@ -69,7 +70,8 @@ class VariantTest extends BaseTestCase
             $barcode,
             $description,
             $shortDescription,
-            [$image]
+            [$image],
+            Variant::STATUS_ACTIVE
         );
         self::assertEquals($expectedVariant, $variant->jsonSerialize());
     }
