@@ -8,6 +8,7 @@ use GetResponse\GetResponseIntegration\Api\Category;
 use GetResponse\GetResponseIntegration\Api\Image;
 use GetResponse\GetResponseIntegration\Api\Product;
 use GetResponse\GetResponseIntegration\Api\ProductFactory;
+use GetResponse\GetResponseIntegration\Api\ProductSalePrice;
 use GetResponse\GetResponseIntegration\Api\ProductType;
 use GetResponse\GetResponseIntegration\Api\Variant;
 use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\ProductReadModel;
@@ -28,25 +29,22 @@ class ProductFactoryTest extends BaseTestCase
     private $categoryRepositoryMock;
     /** @var ProductReadModel|MockObject */
     private $productReadModelMock;
-    /** @var ProductType|MockObject */
-    private $productTypeMock;
     /** @var ProductFactory */
     private $sut;
 
     protected function setUp(): void
     {
-        $this->productTypeMock = $this->getMockWithoutConstructing(ProductType::class);
         $this->categoryRepositoryMock = $this->getMockWithoutConstructing(CategoryRepository::class);
         $this->productReadModelMock = $this->getMockWithoutConstructing(ProductReadModel::class);
 
-        $this->productTypeMock
-            ->method('isProductConfigurable')
-            ->willReturn(false);
+        /** @var ProductType|MockObject $productTypeMock */
+        $productTypeMock = $this->getMockWithoutConstructing(ProductType::class);
+        $productTypeMock->method('isProductConfigurable')->willReturn(false);
 
         $this->sut = new ProductFactory(
             $this->categoryRepositoryMock,
             $this->productReadModelMock,
-            $this->productTypeMock
+            $productTypeMock
         );
     }
 
@@ -116,6 +114,10 @@ class ProductFactoryTest extends BaseTestCase
         $magentoProductMock->method('getStatus')->willReturn(1);
         $magentoProductMock->method('getVisibility')->willReturn(2);
 
+        $magentoProductMock->method('getSpecialPrice')->willReturn('8.9900');
+        $magentoProductMock->method('getSpecialFromDate')->willReturn('2023-05-01 00:00:00');
+        $magentoProductMock->method('getSpecialToDate')->willReturn('2023-06-30 00:00:00');
+
         $this->productReadModelMock
             ->expects(self::once())
             ->method('getProduct')
@@ -130,6 +132,8 @@ class ProductFactoryTest extends BaseTestCase
         $categoryMock->method('getName')->willReturn($categoryName);
 
         $this->categoryRepositoryMock->method('get')->willReturn($categoryMock);
+
+        $productSalePrice = new ProductSalePrice(8.99, '2023-05-01 00:00:00', '2023-06-30 00:00:00');
 
         $variant = new Variant(
             $productId,
@@ -146,7 +150,8 @@ class ProductFactoryTest extends BaseTestCase
             $variantDescription,
             $variantShortDescription,
             $variantImages,
-            Variant::STATUS_ACTIVE
+            Variant::STATUS_ACTIVE,
+            $productSalePrice
         );
 
         $expectedProduct = new Product(

@@ -94,7 +94,8 @@ class ProductFactory
                     (string)$childProduct->getData('description'),
                     (string)$childProduct->getData('short_description'),
                     $images,
-                    $this->getProductVariantStatus($childProduct)
+                    $this->getProductVariantStatus($childProduct),
+                    $this->getSalesPrice($childProduct)
                 );
             }
         } else {
@@ -115,7 +116,8 @@ class ProductFactory
                 (string)$product->getData('description'),
                 (string)$product->getData('short_description'),
                 $images,
-                $this->getProductVariantStatus($product)
+                $this->getProductVariantStatus($product),
+                $this->getSalesPrice($product)
             );
         }
 
@@ -205,5 +207,16 @@ class ProductFactory
         $isVisible = (int) $product->getVisibility() !== self::PRODUCT_INVISIBLE;
 
         return $isStatusActive && $isVisible ? Variant::STATUS_ACTIVE : Variant::STATUS_INACTIVE;
+    }
+
+    private function getSalesPrice(MagentoProduct $childProduct): ?ProductSalePrice
+    {
+        $price = $childProduct->getSpecialPrice();
+        $fromDate = $childProduct->getSpecialFromDate();
+        $toDate = $childProduct->getSpecialToDate();
+
+        return null !== $price && null !== $fromDate && null !== $toDate
+            ? new ProductSalePrice((float)$price, $fromDate, $toDate)
+            : null;
     }
 }

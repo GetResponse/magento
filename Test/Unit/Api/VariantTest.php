@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Test\Unit\Api;
 
 use GetResponse\GetResponseIntegration\Api\Image;
+use GetResponse\GetResponseIntegration\Api\ProductSalePrice;
 use GetResponse\GetResponseIntegration\Api\Variant;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 
@@ -53,7 +54,10 @@ class VariantTest extends BaseTestCase
                     'position' => $imagePosition
                 ]
             ],
-            'status' => Variant::STATUS_ACTIVE
+            'status' => Variant::STATUS_ACTIVE,
+            'sale_price' => 9.99,
+            'sale_starts_at' => '2023-05-01 00:00:00',
+            'sale_ends_at' => '2023-06-30 00:00:00'
         ];
 
         $variant = new Variant(
@@ -71,7 +75,8 @@ class VariantTest extends BaseTestCase
             $description,
             $shortDescription,
             [$image],
-            Variant::STATUS_ACTIVE
+            Variant::STATUS_ACTIVE,
+            new ProductSalePrice(9.99, '2023-05-01 00:00:00', '2023-06-30 00:00:00')
         );
         self::assertEquals($expectedVariant, $variant->jsonSerialize());
     }
