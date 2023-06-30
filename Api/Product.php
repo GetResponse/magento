@@ -8,8 +8,8 @@ use JsonSerializable;
 
 class Product implements JsonSerializable
 {
-    public const STATUS_ACTIVE = 'active';
-    public const STATUS_INACTIVE = 'inactive';
+    public const STATUS_PUBLISH = 'publish';
+    public const STATUS_DRAFT = 'draft';
 
     private $id;
     private $name;

@@ -157,7 +157,7 @@ class ProductFactoryTest extends BaseTestCase
             $vendor,
             [$category],
             [$variant],
-            Product::STATUS_ACTIVE,
+            Product::STATUS_PUBLISH,
             $createdAt,
             $updatedAt
         );
@@ -273,7 +273,7 @@ class ProductFactoryTest extends BaseTestCase
             $vendor,
             [$category],
             [$variant],
-            Product::STATUS_INACTIVE,
+            Product::STATUS_DRAFT,
             $createdAt,
             $updatedAt
         );
