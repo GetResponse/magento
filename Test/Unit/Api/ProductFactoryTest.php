@@ -146,7 +146,7 @@ class ProductFactoryTest extends BaseTestCase
             $variantDescription,
             $variantShortDescription,
             $variantImages,
-            Variant::STATUS_ACTIVE
+            Product::STATUS_PUBLISH
         );
 
         $expectedProduct = new Product(
@@ -262,7 +262,7 @@ class ProductFactoryTest extends BaseTestCase
             $variantDescription,
             $variantShortDescription,
             $variantImages,
-            Variant::STATUS_INACTIVE
+            Product::STATUS_DRAFT
         );
 
         $expectedProduct = new Product(

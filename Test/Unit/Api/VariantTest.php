@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Test\Unit\Api;
 
 use GetResponse\GetResponseIntegration\Api\Image;
+use GetResponse\GetResponseIntegration\Api\Product;
 use GetResponse\GetResponseIntegration\Api\Variant;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 
@@ -53,7 +54,7 @@ class VariantTest extends BaseTestCase
                     'position' => $imagePosition
                 ]
             ],
-            'status' => Variant::STATUS_ACTIVE
+            'status' => Product::STATUS_PUBLISH
         ];
 
         $variant = new Variant(
@@ -71,7 +72,7 @@ class VariantTest extends BaseTestCase
             $description,
             $shortDescription,
             [$image],
-            Variant::STATUS_ACTIVE
+            Product::STATUS_PUBLISH
         );
         self::assertEquals($expectedVariant, $variant->jsonSerialize());
     }

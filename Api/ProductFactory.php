@@ -94,7 +94,7 @@ class ProductFactory
                     (string)$childProduct->getData('description'),
                     (string)$childProduct->getData('short_description'),
                     $images,
-                    $this->getProductVariantStatus($childProduct)
+                    $this->getProductStatus($childProduct)
                 );
             }
         } else {
@@ -115,7 +115,7 @@ class ProductFactory
                 (string)$product->getData('description'),
                 (string)$product->getData('short_description'),
                 $images,
-                $this->getProductVariantStatus($product)
+                $this->getProductStatus($product)
             );
         }
 
@@ -197,13 +197,5 @@ class ProductFactory
         $isVisible = (int) $product->getVisibility() !== self::PRODUCT_INVISIBLE;
 
         return $isStatusActive && $isVisible ? Product::STATUS_PUBLISH : Product::STATUS_DRAFT;
-    }
-
-    private function getProductVariantStatus(MagentoProduct $product): string
-    {
-        $isStatusActive = (int) $product->getStatus() === self::PRODUCT_STATUS_ACTIVE;
-        $isVisible = (int) $product->getVisibility() !== self::PRODUCT_INVISIBLE;
-
-        return $isStatusActive && $isVisible ? Variant::STATUS_ACTIVE : Variant::STATUS_INACTIVE;
     }
 }
