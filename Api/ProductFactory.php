@@ -187,7 +187,6 @@ class ProductFactory
             return 0;
         }
 
-        $a = $extensionAttributes->getStockItem();
         return (int) $extensionAttributes->getStockItem()->getQty();
     }
 
