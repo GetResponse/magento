@@ -150,7 +150,7 @@ class ProductFactoryTest extends BaseTestCase
             $variantDescription,
             $variantShortDescription,
             $variantImages,
-            Variant::STATUS_ACTIVE,
+            Product::STATUS_PUBLISH,
             $productSalePrice
         );
 
@@ -162,7 +162,7 @@ class ProductFactoryTest extends BaseTestCase
             $vendor,
             [$category],
             [$variant],
-            Product::STATUS_ACTIVE,
+            Product::STATUS_PUBLISH,
             $createdAt,
             $updatedAt
         );
@@ -267,7 +267,7 @@ class ProductFactoryTest extends BaseTestCase
             $variantDescription,
             $variantShortDescription,
             $variantImages,
-            Variant::STATUS_INACTIVE
+            Product::STATUS_DRAFT
         );
 
         $expectedProduct = new Product(
@@ -278,7 +278,7 @@ class ProductFactoryTest extends BaseTestCase
             $vendor,
             [$category],
             [$variant],
-            Product::STATUS_INACTIVE,
+            Product::STATUS_DRAFT,
             $createdAt,
             $updatedAt
         );

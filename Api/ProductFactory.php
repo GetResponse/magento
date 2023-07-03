@@ -94,7 +94,7 @@ class ProductFactory
                     (string)$childProduct->getData('description'),
                     (string)$childProduct->getData('short_description'),
                     $images,
-                    $this->getProductVariantStatus($childProduct),
+                    $this->getProductStatus($childProduct),
                     $this->getSalesPrice($childProduct)
                 );
             }
@@ -116,7 +116,7 @@ class ProductFactory
                 (string)$product->getData('description'),
                 (string)$product->getData('short_description'),
                 $images,
-                $this->getProductVariantStatus($product),
+                $this->getProductStatus($product),
                 $this->getSalesPrice($product)
             );
         }
@@ -189,7 +189,6 @@ class ProductFactory
             return 0;
         }
 
-        $a = $extensionAttributes->getStockItem();
         return (int) $extensionAttributes->getStockItem()->getQty();
     }
 
@@ -198,15 +197,7 @@ class ProductFactory
         $isStatusActive = (int) $product->getStatus() === self::PRODUCT_STATUS_ACTIVE;
         $isVisible = (int) $product->getVisibility() !== self::PRODUCT_INVISIBLE;
 
-        return $isStatusActive && $isVisible ? Product::STATUS_ACTIVE : Product::STATUS_INACTIVE;
-    }
-
-    private function getProductVariantStatus(MagentoProduct $product): string
-    {
-        $isStatusActive = (int) $product->getStatus() === self::PRODUCT_STATUS_ACTIVE;
-        $isVisible = (int) $product->getVisibility() !== self::PRODUCT_INVISIBLE;
-
-        return $isStatusActive && $isVisible ? Variant::STATUS_ACTIVE : Variant::STATUS_INACTIVE;
+        return $isStatusActive && $isVisible ? Product::STATUS_PUBLISH : Product::STATUS_DRAFT;
     }
 
     private function getSalesPrice(MagentoProduct $childProduct): ?ProductSalePrice

@@ -43,9 +43,15 @@ class ProductView extends RecommendationView
         if ($product->getTypeId() === TypeConfigurable::TYPE_CODE) {
             $usedProducts = $product->getTypeInstance()->getUsedProducts($product);
 
-            $rawProduct = count($usedProducts) > 0 ? $this->getProductPayload($usedProducts[0], $product) : [];
+            $rawProduct = count($usedProducts) > 0
+                ? $this->getProductPayload($usedProducts[0], $product)
+                : [];
         } else {
             $rawProduct = $this->getProductPayload($product);
+        }
+
+        if (empty($rawProduct)) {
+            return $html;
         }
 
         $payload = [
@@ -67,12 +73,14 @@ class ProductView extends RecommendationView
         $originalPrice = $specialPrice !== null && $productPrice !== $specialPrice ? $productPrice : "";
 
         if (null !== $parentProduct) {
+            $isSalable = $product->isSalable() && $parentProduct->isSalable();
             $productName = $parentProduct->getName();
             $productUrl = $parentProduct->getUrlModel()->getUrlInStore($parentProduct, ['_escape' => true]);
             $description = $this->getDescriptionWithoutHtmlTags($parentProduct->getDescription());
             $imageUrl = $this->getImageUrl($parentProduct);
             $categories = $this->getCategories($parentProduct);
         } else {
+            $isSalable = $product->isSalable();
             $productName = $product->getName();
             $productUrl = $product->getUrlModel()->getUrlInStore($product, ['_escape' => true]);
             $description = $this->getDescriptionWithoutHtmlTags($product->getDescription());
@@ -90,7 +98,7 @@ class ProductView extends RecommendationView
                 'imageUrl' => $imageUrl,
                 'description' => $description,
                 'category' => $categories,
-                'available' => true,
+                'available' => $isSalable,
                 'sku' => $product->getSku(),
                 'attribute1' => number_format((float) $originalPrice, 2, '.', ''),
                 'attribute2' => "",

@@ -8,9 +8,6 @@ use JsonSerializable;
 
 class Variant implements JsonSerializable
 {
-    public const STATUS_ACTIVE = 'active';
-    public const STATUS_INACTIVE = 'inactive';
-
     private $id;
     private $name;
     private $sku;
