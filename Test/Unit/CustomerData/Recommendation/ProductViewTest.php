@@ -42,7 +42,7 @@ class ProductViewTest extends BaseTestCase
         $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
         $this->requestMock = $this->getMockWithoutConstructing(Http::class);
         $this->subjectMock = $this->getMockWithoutConstructing(Subject::class, ['getNameInLayout', 'getProduct']);
-        $this->productMock = $this->getMockWithoutConstructing(Product::class, ['getTypeId', 'getPrice', 'getSpecialPrice', 'getName', 'getUrlModel', 'getCategoryIds', 'getMediaGalleryImages', 'getStoreId', 'getSku', 'getId'], ['getDescription']);
+        $this->productMock = $this->getMockWithoutConstructing(Product::class, ['getTypeId', 'getPrice', 'getSpecialPrice', 'getName', 'getUrlModel', 'getCategoryIds', 'getMediaGalleryImages', 'getStoreId', 'getSku', 'getId', 'isSalable'], ['getDescription']);
         $this->categoryRepositoryMock = $this->getMockWithoutConstructing(CategoryRepositoryInterface::class);
 
         $this->sut = new ProductView(
@@ -173,6 +173,11 @@ class ProductViewTest extends BaseTestCase
             ->expects(self::once())
             ->method('getMediaGalleryImages')
             ->willReturn([$imageMock]);
+
+        $this->productMock
+            ->expects(self::once())
+            ->method('isSalable')
+            ->willReturn(true);
 
         $expectedPayload = [
             'pageType' => ProductView::PAGE_TYPE,
