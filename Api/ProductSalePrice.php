@@ -12,7 +12,7 @@ class ProductSalePrice implements JsonSerializable
     private $saleStartsAt;
     private $saleEndsAt;
 
-    public function __construct(float $salePrice, string $saleStartsAt, string $saleEndsAt)
+    public function __construct(float $salePrice, ?string $saleStartsAt, ?string $saleEndsAt)
     {
         $this->salePrice = $salePrice;
         $this->saleStartsAt = $saleStartsAt;

@@ -206,8 +206,6 @@ class ProductFactory
         $fromDate = $childProduct->getSpecialFromDate();
         $toDate = $childProduct->getSpecialToDate();
 
-        return null !== $price && null !== $fromDate && null !== $toDate
-            ? new ProductSalePrice((float)$price, $fromDate, $toDate)
-            : null;
+        return null !== $price ? new ProductSalePrice((float)$price, $fromDate, $toDate) : null;
     }
 }
