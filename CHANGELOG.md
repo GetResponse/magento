@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.6.0] - 2023-07-03
+### Feat
+- handled product status and promo price in callbacks
+
 ## [20.5.12] - 2023-05-16
 ### Fix
 - added recommendation events
