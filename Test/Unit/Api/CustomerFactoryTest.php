@@ -450,4 +450,99 @@ class CustomerFactoryTest extends BaseTestCase
         $customer = $this->sut->createFromNewsletterSubscription($subscriberMock);
         self::assertEquals($expectedCustomer, $customer);
     }
+
+    public function shouldCreateFromCustomerWithEmptyName(): void
+    {
+        $customerId = 100232;
+        $customerEmail = 'some@email.com';
+        $websiteId = 2;
+        $groupId = 32;
+        $storeId = 4;
+        $createAt = '2021-05-21 12:39:59';
+        $prefix = 'my_';
+        $sufix = '';
+        $dob = '1985-09-21';
+        $taxVat = '19';
+        $gender = 1;
+        $middleName = '';
+
+        /** @var AddressInterface|MockObject $addressMock */
+        $addressMock = $this->getMockWithoutConstructing(AddressInterface::class);
+        $addressMock->method('isDefaultBilling')->willReturn(true);
+        $addressMock->method('isDefaultShipping')->willReturn(true);
+
+        /** @var CustomerInterface|MockObject $customerMock */
+        $customerMock = $this->getMockWithoutConstructing(CustomerInterface::class);
+        $customerMock->method('getId')->willReturn($customerId);
+        $customerMock->method('getEmail')->willReturn($customerEmail);
+        $customerMock->method('getFirstname')->willReturn(null);
+        $customerMock->method('getLastname')->willReturn(null);
+        $customerMock->method('getAddresses')->willReturn([$addressMock]);
+        $customerMock->method('getWebsiteId')->willReturn($websiteId);
+        $customerMock->method('getGroupId')->willReturn($groupId);
+        $customerMock->method('getStoreId')->willReturn($storeId);
+        $customerMock->method('getCreatedAt')->willReturn($createAt);
+        $customerMock->method('getPrefix')->willReturn($prefix);
+        $customerMock->method('getSuffix')->willReturn($sufix);
+        $customerMock->method('getDob')->willReturn($dob);
+        $customerMock->method('getTaxvat')->willReturn($taxVat);
+        $customerMock->method('getGender')->willReturn($gender);
+        $customerMock->method('getMiddlename')->willReturn($middleName);
+
+        $this->subscriberMock->method('isSubscribed')->willReturn(true);
+        $this->subscriberMock->method('loadByCustomerId')->willReturn($this->subscriberMock);
+
+        $address = ApiFaker::createAddress();
+
+        $this->addressFactoryMock->method('createFromCustomer')->willReturn($address);
+
+        $expectedCustomer = new Customer(
+            $customerId,
+            $customerEmail,
+            '',
+            '',
+            true,
+            $address,
+            [],
+            [
+                'website_id' => $websiteId,
+                'group_id' => $groupId,
+                'store_id' => $storeId,
+                'create_at' => $createAt,
+                'prefix' => $prefix,
+                'sufix' => $sufix,
+                'dob' => $dob,
+                'tax_vat' => $taxVat,
+                'gender' => $gender,
+                'middlename' => $middleName,
+                'billing_name' => 'Brian Sings',
+                'billing_country_code' => 'OK',
+                'billing_first_name' => 'Brian',
+                'billing_last_name' => 'Sings',
+                'billing_address1' => '4508  Memory Lane',
+                'billing_address2' => null,
+                'billing_city' => 'GUTHRIE',
+                'billing_zip_code' => '73044',
+                'billing_province' => 'Oklahoma',
+                'billing_province_code' => null,
+                'billing_phone' => '544404400',
+                'billing_company' => null,
+                'shipping_name' => 'Brian Sings',
+                'shipping_country_code' => 'OK',
+                'shipping_first_name' => 'Brian',
+                'shipping_last_name' => 'Sings',
+                'shipping_address1' => '4508  Memory Lane',
+                'shipping_address2' => null,
+                'shipping_city' => 'GUTHRIE',
+                'shipping_zip_code' => '73044',
+                'shipping_province' => 'Oklahoma',
+                'shipping_province_code' => null,
+                'shipping_phone' => '544404400',
+                'shipping_company' => null,
+            ]
+        );
+
+        $customer = $this->sut->create($customerMock);
+        self::assertEquals($expectedCustomer, $customer);
+    }
 }

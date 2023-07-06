@@ -58,8 +58,8 @@ class CustomerFactory
         return new Customer(
             (int)$customer->getId(),
             $customer->getEmail(),
-            $customer->getFirstname(),
-            $customer->getLastname(),
+            $customer->getFirstname() !== null ? $customer->getFirstname() : '',
+            $customer->getLastname() !== null ? $customer->getLastname() : '',
             $isSubscribed,
             $billingAddress,
             [],
