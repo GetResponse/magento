@@ -13,6 +13,9 @@ use Magento\Framework\Exception\NoSuchEntityException;
 
 class ProductFactory
 {
+    private const PRODUCT_STATUS_ACTIVE = 1;
+    private const PRODUCT_INVISIBLE = 1;
+
     private $categoryRepository;
     private $productReadModel;
     private $productType;
@@ -90,7 +93,9 @@ class ProductFactory
                     null,
                     (string)$childProduct->getData('description'),
                     (string)$childProduct->getData('short_description'),
-                    $images
+                    $images,
+                    $this->getProductStatus($childProduct),
+                    $this->getSalesPrice($childProduct)
                 );
             }
         } else {
@@ -110,7 +115,9 @@ class ProductFactory
                 null,
                 (string)$product->getData('description'),
                 (string)$product->getData('short_description'),
-                $images
+                $images,
+                $this->getProductStatus($product),
+                $this->getSalesPrice($product)
             );
         }
 
@@ -134,6 +141,7 @@ class ProductFactory
             '',
             $categories,
             $variants,
+            $this->getProductStatus($product),
             $product->getCreatedAt(),
             $product->getUpdatedAt()
         );
@@ -182,5 +190,22 @@ class ProductFactory
         }
 
         return (int) $extensionAttributes->getStockItem()->getQty();
+    }
+
+    private function getProductStatus(MagentoProduct $product): string
+    {
+        $isStatusActive = (int) $product->getStatus() === self::PRODUCT_STATUS_ACTIVE;
+        $isVisible = (int) $product->getVisibility() !== self::PRODUCT_INVISIBLE;
+
+        return $isStatusActive && $isVisible ? Product::STATUS_PUBLISH : Product::STATUS_DRAFT;
+    }
+
+    private function getSalesPrice(MagentoProduct $product): ?ProductSalePrice
+    {
+        $price = $product->getSpecialPrice();
+        $fromDate = $product->getSpecialFromDate();
+        $toDate = $product->getSpecialToDate();
+
+        return null !== $price ? new ProductSalePrice((float)$price, $fromDate, $toDate) : null;
     }
 }

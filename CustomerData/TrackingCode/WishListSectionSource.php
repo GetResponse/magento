@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GetResponse\GetResponseIntegration\CustomerData;
+namespace GetResponse\GetResponseIntegration\CustomerData\TrackingCode;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Recommendation\RecommendationSession;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
@@ -11,7 +11,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Customer\CustomerData\SectionSourceInterface;
 
-class Recommendation implements SectionSourceInterface
+class WishListSectionSource implements SectionSourceInterface
 {
     private $session;
     /** @var Repository */

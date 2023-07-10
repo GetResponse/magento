@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GetResponse\GetResponseIntegration\CustomerData;
+namespace GetResponse\GetResponseIntegration\CustomerData\TrackingCode;
 
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Block\Product\View as Subject;
@@ -11,11 +11,11 @@ use Magento\ConfigurableProduct\Model\Product\Type\Configurable as TypeConfigura
 use Exception;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
-class ProductView extends WebEventView
+class ProductView extends TrackingCodeView
 {
     const DISPLAY_BLOCK = 'product.info';
 
-    private CategoryRepositoryInterface $categoryRepository;
+    private $categoryRepository;
 
     public function __construct(Repository $repository, CategoryRepositoryInterface $categoryRepository)
     {

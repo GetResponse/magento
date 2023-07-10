@@ -40,6 +40,7 @@ class HeaderTest extends BaseTestCase
         $facebookPixelSnippet = 'facebookPixelSnippet';
         $facebookAdsPixelSnippet = 'facebookAdsPixelSnippet';
         $facebookBusinessExtensionSnippet = 'facebookBusinessExtensionSnippet';
+        $recommendationSnippet = 'recommendationSnippet';
         $isTrackingCodeEnabled = true;
 
         $this->repository
@@ -83,11 +84,22 @@ class HeaderTest extends BaseTestCase
                 ]
             );
 
+        $this->repository
+            ->expects(self::once())
+            ->method('getRecommendationSnippet')
+            ->willReturn(
+                [
+                    'isEnabled' => $isTrackingCodeEnabled,
+                    'codeSnippet' => $recommendationSnippet
+                ]
+            );
+
         $expected = [
             'trackingCodeSnippet' => $trackingCodeSnippet,
             'facebookPixelCodeSnippet' => $facebookPixelSnippet,
             'facebookAdsPixelCodeSnippet' => $facebookAdsPixelSnippet,
-            'facebookBusinessExtensionCodeSnippet' => $facebookBusinessExtensionSnippet
+            'facebookBusinessExtensionCodeSnippet' => $facebookBusinessExtensionSnippet,
+            'recommendationCodeSnippet' => $recommendationSnippet
         ];
 
         self::assertSame($expected, $this->headerBlock->getTrackingData());
@@ -102,6 +114,7 @@ class HeaderTest extends BaseTestCase
         $facebookPixelCodeSnippet = 'facebookPixelCodeSnippet';
         $facebookAdsPixelSnippet = 'facebookAdsPixelSnippet';
         $facebookBusinessExtensionSnippet = 'facebookBusinessExtensionSnippet';
+        $recommendationSnippet = 'recommendationSnippet';
 
         $isTrackingCodeEnabled = false;
 
@@ -146,11 +159,22 @@ class HeaderTest extends BaseTestCase
                 ]
             );
 
+        $this->repository
+            ->expects(self::once())
+            ->method('getRecommendationSnippet')
+            ->willReturn(
+                [
+                    'isEnabled' => $isTrackingCodeEnabled,
+                    'codeSnippet' => $recommendationSnippet
+                ]
+            );
+
         $expected = [
             'trackingCodeSnippet' => null,
             'facebookPixelCodeSnippet' => null,
             'facebookAdsPixelCodeSnippet' => null,
-            'facebookBusinessExtensionCodeSnippet' => null
+            'facebookBusinessExtensionCodeSnippet' => null,
+            'recommendationCodeSnippet' => null
         ];
         self::assertSame($expected, $this->headerBlock->getTrackingData());
     }

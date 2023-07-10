@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace GetResponse\GetResponseIntegration\CustomerData;
+namespace GetResponse\GetResponseIntegration\CustomerData\TrackingCode;
 
 use Magento\Catalog\Block\Category\View as Subject;
-use Magento\ConfigurableProduct\Model\Product\Type\Configurable as TypeConfigurable;
 
-class CategoryView extends WebEventView
+class CategoryView extends TrackingCodeView
 {
     const DISPLAY_BLOCK = 'category.cms';
 

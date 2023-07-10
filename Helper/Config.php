@@ -18,6 +18,7 @@ class Config
     const CONFIG_DATA_FACEBOOK_PIXEL_SNIPPET = 'getresponse/facebook-pixel-snippet';
     const CONFIG_DATA_FACEBOOK_ADS_PIXEL_SNIPPET = 'getresponse/facebook-ads-pixel-snippet';
     const CONFIG_DATA_FACEBOOK_BUSINESS_EXTENSION_SNIPPET = 'getresponse/facebook-business-extension-snippet';
+    const CONFIG_DATA_RECOMMENDATION_SNIPPET = 'getresponse/recommendation-snippet';
     const CONFIG_DATA_REGISTRATION_SETTINGS = 'getresponse/registration/settings';
     const CONFIG_DATA_REGISTRATION_CUSTOMS = 'getresponse/registration/customs';
     const CONFIG_DATA_NEWSLETTER_SETTINGS = 'getresponse/newsletter/settings';

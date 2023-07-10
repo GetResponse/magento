@@ -1,7 +1,7 @@
 {
     "name": "getresponse/magento2",
     "description": "GetResponse Integration for Magento2",
-    "version": "20.5.11",
+    "version": "20.6.0",
     "license": "OSL-3.0",
     "minimum-stability": "stable",
     "type": "magento2-module",
@@ -38,7 +38,8 @@
             "Test/MissingReferences/Magento/Sales/Api/Data/OrderExtensionInterface.php",
             "Test/MissingReferences/Magento/Sales/Api/Data/OrderItemExtensionInterface.php",
             "Test/MissingReferences/Magento/Customer/Model/ResourceModel/Address/Attribute/CollectionFactory.php",
-            "Test/MissingReferences/Magento/Customer/Model/ResourceModel/Attribute/CollectionFactory.php"
+            "Test/MissingReferences/Magento/Customer/Model/ResourceModel/Attribute/CollectionFactory.php",
+            "Test/MissingReferences/Magento/ConfigurableProduct/Model/Product/Type/Configurable.php"
         ]
     },
     "scripts": {

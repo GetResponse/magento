@@ -23,6 +23,8 @@ class Variant implements JsonSerializable
     private $shortDescription;
     /** @var null|Image[] */
     private $images;
+    private $status;
+    private $salePrice;
 
     public function __construct(
         int $id,
@@ -38,7 +40,9 @@ class Variant implements JsonSerializable
         ?int $barcode,
         string $description,
         string $shortDescription,
-        ?array $images
+        ?array $images,
+        string $status,
+        ?ProductSalePrice $salePrice = null
     ) {
         $this->id = $id;
         $this->name = $name;
@@ -54,6 +58,8 @@ class Variant implements JsonSerializable
         $this->description = $description;
         $this->shortDescription = $shortDescription;
         $this->images = $images;
+        $this->status = $status;
+        $this->salePrice = $salePrice;
     }
 
     public function jsonSerialize(): array
@@ -63,7 +69,7 @@ class Variant implements JsonSerializable
             $images[] = $image->jsonSerialize();
         }
 
-        return [
+        $payload = [
             'id' => $this->id,
             'name' => $this->name,
             'sku' => $this->sku,
@@ -77,7 +83,14 @@ class Variant implements JsonSerializable
             'barcode' => $this->barcode,
             'description' => $this->description,
             'short_description' => $this->shortDescription,
-            'images' => $images
+            'images' => $images,
+            'status' => $this->status
         ];
+
+        if (null !== $this->salePrice) {
+            $payload = array_merge($payload, $this->salePrice->jsonSerialize());
+        }
+
+        return $payload;
     }
 }
