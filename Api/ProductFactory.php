@@ -200,11 +200,11 @@ class ProductFactory
         return $isStatusActive && $isVisible ? Product::STATUS_PUBLISH : Product::STATUS_DRAFT;
     }
 
-    private function getSalesPrice(MagentoProduct $childProduct): ?ProductSalePrice
+    private function getSalesPrice(MagentoProduct $product): ?ProductSalePrice
     {
-        $price = $childProduct->getSpecialPrice();
-        $fromDate = $childProduct->getSpecialFromDate();
-        $toDate = $childProduct->getSpecialToDate();
+        $price = $product->getSpecialPrice();
+        $fromDate = $product->getSpecialFromDate();
+        $toDate = $product->getSpecialToDate();
 
         return null !== $price ? new ProductSalePrice((float)$price, $fromDate, $toDate) : null;
     }
