@@ -14,7 +14,7 @@ class CategoryView extends TrackingCodeView
     {
         $category = $subject->getCurrentCategory();
 
-        if (false === $this->isAllowed($subject, $category->getStoreId())) {
+        if ($category === null || false === $this->isAllowed($subject, $category->getStoreId())) {
             return $html;
         }
 
