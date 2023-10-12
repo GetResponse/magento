@@ -11,13 +11,10 @@
         $('body').on('DOMSubtreeModified', '#customer-email-address', function () {
 
             var customerEmail = document.getElementById('customer-email-address').getAttribute('customer-email');
-            var trackingCodeSnippet = document.getElementById('getresponse-tracking-code-snippet');
             var gaIsValuable = $.cookie('gaIsValuable');
+            var trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
 
-            if (customerEmail !== null
-                && trackingCodeSnippet !== null
-                && gaIsValuable !== '1'
-            ) {
+            if (customerEmail !== null && trackingCodeEnabled && gaIsValuable !== '1') {
                 gaSetUserId(customerEmail);
             }
         });

@@ -27,7 +27,7 @@ class ProductView extends TrackingCodeView
     {
         $product = $subject->getProduct();
 
-        if (false === $this->isAllowed($subject, $product->getStoreId())) {
+        if ($product === null || false === $this->isAllowed($subject, $product->getStoreId())) {
             return $html;
         }
 

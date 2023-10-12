@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\CustomerData\Recommendation;
 
+use Exception;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Catalog\Block\Product\View as Subject;
 use Magento\Catalog\Model\Product;
-use Magento\ConfigurableProduct\Model\Product\Type\Configurable as TypeConfigurable;
 use Magento\Framework\App\Request\Http;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
@@ -38,17 +38,7 @@ class ProductView extends RecommendationView
             return $html;
         }
 
-        $product = $subject->getProduct();
-
-        if ($product->getTypeId() === TypeConfigurable::TYPE_CODE) {
-            $usedProducts = $product->getTypeInstance()->getUsedProducts($product);
-
-            $rawProduct = count($usedProducts) > 0
-                ? $this->getProductPayload($usedProducts[0], $product)
-                : [];
-        } else {
-            $rawProduct = $this->getProductPayload($product);
-        }
+        $rawProduct = $this->getProductPayload($subject->getProduct());
 
         if (empty($rawProduct)) {
             return $html;
