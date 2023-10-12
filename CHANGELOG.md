@@ -1,5 +1,12 @@
 # Changelog
 
+## [20.6.1] - 2023-07-03
+### Fix
+- fixed github issue with missing product
+- fixed product id passed to recommendation event
+- fixed javascript analytics function usage
+
+
 ## [20.6.0] - 2023-07-03
 ### Feat
 - handled product status and promo price in callbacks
