@@ -42,7 +42,7 @@ class ProductViewTest extends BaseTestCase
         $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
         $this->requestMock = $this->getMockWithoutConstructing(Http::class);
         $this->subjectMock = $this->getMockWithoutConstructing(Subject::class, ['getNameInLayout', 'getProduct']);
-        $this->productMock = $this->getMockWithoutConstructing(Product::class, ['getTypeId', 'getPrice', 'getSpecialPrice', 'getName', 'getUrlModel', 'getCategoryIds', 'getMediaGalleryImages', 'getStoreId', 'getSku', 'getId', 'isSalable'], ['getDescription']);
+        $this->productMock = $this->getMockWithoutConstructing(Product::class, ['getPrice', 'getSpecialPrice', 'getName', 'getUrlModel', 'getCategoryIds', 'getMediaGalleryImages', 'getStoreId', 'getSku', 'getId', 'isSalable'], ['getDescription']);
         $this->categoryRepositoryMock = $this->getMockWithoutConstructing(CategoryRepositoryInterface::class);
 
         $this->sut = new ProductView(
@@ -128,11 +128,6 @@ class ProductViewTest extends BaseTestCase
             ->method('get')
             ->with(1, $storeId)
             ->willReturn($categoryMock);
-
-        $this->productMock
-            ->expects(self::once())
-            ->method('getTypeId')
-            ->willReturn('');
 
         $this->productMock
             ->expects(self::once())
