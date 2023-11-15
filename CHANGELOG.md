@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.6.2] - 2023-11-15
+### Feat
+- set plugin in new mode by default
+
 ## [20.6.1] - 2023-07-03
 ### Fix
 - fixed github issue with missing product

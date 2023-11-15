@@ -8,6 +8,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\CustomFieldsMapping\Cu
 use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistration;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsException;
 use GetResponse\GetResponseIntegration\Domain\Magento\ConnectionSettingsFactory;
+use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebForm;
 use GetResponse\GetResponseIntegration\Helper\Config;
@@ -51,6 +52,7 @@ class UpgradeData implements UpgradeDataInterface
             $this->ver2011migrateCustomFieldsSettings($setup);
             $this->ver2011migrateWebformSettings($setup);
             $this->ver2011migrateWebEventTrackingSettings($setup);
+            $this->ver2062setNewPluginMode();
             $this->cacheManager->clean(['config']);
         }
 
@@ -274,5 +276,10 @@ class UpgradeData implements UpgradeDataInterface
 
             $setup->getConnection()->query($sql)->execute();
         }
+    }
+
+    private function ver2062setNewPluginMode(): void
+    {
+        $this->configWriter->save(Config::CONFIG_DATA_PLUGIN_MODE, PluginMode::MODE_NEW);
     }
 }
