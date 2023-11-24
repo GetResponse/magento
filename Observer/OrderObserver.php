@@ -6,6 +6,7 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Api\ApiService;
+use GetResponse\GetResponseIntegration\Application\GetResponse\TrackingCode\OrderService as TrackingCodeOrderService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Api\ApiException;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\ContactReadModel;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\Query\ContactByEmail;
@@ -34,6 +35,7 @@ class OrderObserver implements ObserverInterface
     private $contactReadModel;
     private $repository;
     private $apiService;
+    private $trackingCodeOrderService;
 
     public function __construct(
         Session $customerSession,
@@ -43,7 +45,8 @@ class OrderObserver implements ObserverInterface
         EcommerceReadModel $ecommerceReadModel,
         ContactReadModel $contactReadModel,
         Repository $repository,
-        ApiService $apiService
+        ApiService $apiService,
+        TrackingCodeOrderService $trackingCodeOrderService
     ) {
         $this->orderService = $orderService;
         $this->logger = $logger;
@@ -53,6 +56,7 @@ class OrderObserver implements ObserverInterface
         $this->contactReadModel = $contactReadModel;
         $this->repository = $repository;
         $this->apiService = $apiService;
+        $this->trackingCodeOrderService = $trackingCodeOrderService;
     }
 
     public function execute(EventObserver $observer): OrderObserver
@@ -74,6 +78,7 @@ class OrderObserver implements ObserverInterface
 
             if ($pluginMode->isNewVersion()) {
                 $this->apiService->createOrder($order, $scope);
+                $this->trackingCodeOrderService->addToBuffer($order, $scope);
             } else {
                 $this->handleOldVersion($order, $scope);
             }

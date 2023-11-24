@@ -18,6 +18,7 @@ class ProductRemovedFromWishList implements ObserverInterface
 {
     private $session;
     private $logger;
+    private $repository;
     private $objectManager;
 
     public function __construct(

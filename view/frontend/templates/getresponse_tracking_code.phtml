@@ -1,14 +1,16 @@
 <div class="getresponse-tracking-code-section" data-bind="scope: 'getresponse_tracking_code_section'">
-    <div id="customer-email-address" data-bind="attr: { 'customer-email': getResponseTrackingCode().customerEmail}"></div>
+    <div id="customer-email-address" data-bind="attr: { 'customer-email': getResponseTrackingCode().customerEmail }"></div>
+    <div id="tracking-code-events" data-bind="attr: { 'cart': getResponseTrackingCode().cart }"></div>
 </div>
 
 <script>
     require([
         'jquery',
         'mage/cookies',
+        'Magento_Customer/js/customer-data'
     ], function ($) {
 
-        $('body').on('DOMSubtreeModified', '#customer-email-address', function () {
+        $('body').on('DOMSubtreeModified', '#customer-email-address', function (customerData) {
 
             var customerEmail = document.getElementById('customer-email-address').getAttribute('customer-email');
             var gaIsValuable = $.cookie('gaIsValuable');
@@ -16,6 +18,26 @@
 
             if (customerEmail !== null && trackingCodeEnabled && gaIsValuable !== '1') {
                 gaSetUserId(customerEmail);
+            }
+        });
+
+        $('body').on('DOMSubtreeModified', '#tracking-code-events', function () {
+
+            var rawCart = document.getElementById('tracking-code-events').getAttribute('cart');
+
+            if (rawCart === null) {
+                return;
+            }
+
+            var trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
+
+            var cart = JSON.parse(rawCart);
+
+            if (Object.keys(cart).length !== 0 && trackingCodeEnabled) {
+
+                GrTracking('importScript', 'ec');
+                GrTracking('cartUpdate', cart);
+                customerData.reload(['getresponse-tracking-code']);
             }
         });
 
