@@ -9,7 +9,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\TrackingC
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
-use Magento\Quote\Model\Quote;
+use Magento\Sales\Model\Order;
 
 class OrderService
 {
@@ -24,7 +24,7 @@ class OrderService
         $this->repository = $repository;
     }
 
-    public function addToBuffer(Quote $quote, Scope $scope): void
+    public function addToBuffer(Order $magentoOrder, Scope $scope): void
     {
         $webConnect = WebEventTracking::createFromRepository(
             $this->repository->getWebEventTracking($scope->getScopeId())
@@ -34,8 +34,7 @@ class OrderService
             return;
         }
 
-        $order = $this->orderFactory->create($quote);
+        $order = $this->orderFactory->create($magentoOrder);
         $this->session->addOrderToBuffer($order);
     }
-
 }

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\Model;
 
 use Magento\Catalog\Model\CategoryRepository;
-use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\Quote\Item;
+use Magento\Sales\Model\Order\Item;
+use Magento\Sales\Model\Order as MagentoOrder;
 
 class OrderFactory
 {
@@ -17,29 +17,29 @@ class OrderFactory
         $this->categoryRepository = $categoryRepository;
     }
 
-    public function create(Quote $quote): Order
+    public function create(MagentoOrder $magentoOrder): Order
     {
         return new Order(
-            (int) $quote->getId(),
-            (float) $quote->getGrandTotal(),
-            $quote->getQuoteCurrencyCode(),
-            '',
-            $this->createProducts($quote)
+            (int) $magentoOrder->getId(),
+            (int) $magentoOrder->getQuoteId(),
+            (float) $magentoOrder->getGrandTotal(),
+            $magentoOrder->getOrderCurrencyCode(),
+            $this->createProducts($magentoOrder)
         );
     }
 
-    private function createProducts(Quote $quote): array
+    private function createProducts(MagentoOrder $magentoOrder): array
     {
         $products = [];
 
-        foreach ($quote->getAllVisibleItems() as $item) {
+        foreach ($magentoOrder->getAllVisibleItems() as $item) {
             $products[] = new Product(
-                (int) $item->getProduct()->getId(),
+                (int)$item->getProductId(),
                 $item->getProduct()->getName(),
-                $item->getConvertedPrice(),
+                (float)$item->getPriceInclTax(),
                 $item->getSku(),
-                $quote->getQuoteCurrencyCode(),
-                (int) $item->getTotalQty(),
+                $magentoOrder->getOrderCurrencyCode(),
+                (int)$item->getQtyOrdered(),
                 $this->getCategories($item)
             );
         }

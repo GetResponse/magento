@@ -40,4 +40,7 @@
     <action name="checkout/cart/delete">
         <section name="getresponse-tracking-code"/>
     </action>
+    <action name="checkout/onepage/saveOrder">
+        <section name="getresponse-tracking-code"/>
+    </action>
 </config>

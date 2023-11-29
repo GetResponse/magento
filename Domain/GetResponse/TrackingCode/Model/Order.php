@@ -7,18 +7,18 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\Mod
 class Order
 {
     private $id;
+    private $cartId;
     private $price;
     private $currency;
-    private $url;
     /** @var array<Product> */
     private $products;
 
-    public function __construct(int $id, float $price, string $currency, string $url, array $products)
+    public function __construct(int $id, int $cartId, float $price, string $currency, array $products)
     {
         $this->id = $id;
+        $this->cartId = $cartId;
         $this->price = $price;
         $this->currency = $currency;
-        $this->url = $url;
         $this->products = $products;
     }
 
@@ -43,9 +43,9 @@ class Order
 
         return [
             'price' => $this->price,
-            'cartId' => (string)$this->id,
+            'cartId' => (string)$this->cartId,
+            'orderId' => (string)$this->id,
             'currency' => $this->currency,
-            'cartUrl' => $this->url,
             'products' => $products
         ];
     }
