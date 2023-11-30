@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Test\Unit\Observer;
 
 use GetResponse\GetResponseIntegration\Api\ApiService;
+use GetResponse\GetResponseIntegration\Application\GetResponse\TrackingCode\OrderService as TrackingCodeOrderService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\ContactReadModel;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Ecommerce\ReadModel\EcommerceReadModel;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Command\AddOrderCommandFactory;
@@ -22,10 +23,12 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 class OrderObserverTest extends BaseTestCase
 {
-    /** @var Repository|MockObject */
+    /** @var Repository&MockObject */
     private $repositoryMock;
-    /** @var ApiService|MockObject */
+    /** @var ApiService&MockObject */
     private $apiServiceMock;
+    /** @var TrackingCodeOrderService&MockObject */
+    private $trackingCodeOrderServiceMock;
     /** @var OrderObserver */
     private $sut;
 
@@ -45,6 +48,7 @@ class OrderObserverTest extends BaseTestCase
         $contactReadModelMock = $this->getMockWithoutConstructing(ContactReadModel::class);
         $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
         $this->apiServiceMock = $this->getMockWithoutConstructing(ApiService::class);
+        $this->trackingCodeOrderServiceMock = $this->getMockWithoutConstructing(TrackingCodeOrderService::class);
 
         $this->sut = new OrderObserver(
             $customerSessionMock,
@@ -54,7 +58,8 @@ class OrderObserverTest extends BaseTestCase
             $ecommerceReadModelMock,
             $contactReadModelMock,
             $this->repositoryMock,
-            $this->apiServiceMock
+            $this->apiServiceMock,
+            $this->trackingCodeOrderServiceMock
         );
     }
 
@@ -64,6 +69,7 @@ class OrderObserverTest extends BaseTestCase
     public function shouldCreateOrder(): void
     {
         $storeId = 3;
+        $scope = new Scope($storeId);
 
         $orderMock = $this->getMockWithoutConstructing(MagentoOrder::class);
         $orderMock->method('getStoreId')->willReturn($storeId);
@@ -79,7 +85,12 @@ class OrderObserverTest extends BaseTestCase
         $this->apiServiceMock
             ->expects(self::once())
             ->method('createOrder')
-            ->with($orderMock, new Scope($storeId));
+            ->with($orderMock, $scope);
+
+        $this->trackingCodeOrderServiceMock
+            ->expects(self::once())
+            ->method('addToBuffer')
+            ->with($orderMock, $scope);
 
         $this->sut->execute($observerMock);
     }
@@ -105,6 +116,10 @@ class OrderObserverTest extends BaseTestCase
         $this->apiServiceMock
             ->expects(self::never())
             ->method('createOrder');
+
+        $this->trackingCodeOrderServiceMock
+            ->expects(self::never())
+            ->method('addToBuffer');
 
         $this->sut->execute($observerMock);
     }

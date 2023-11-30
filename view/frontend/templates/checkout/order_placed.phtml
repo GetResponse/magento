@@ -4,7 +4,7 @@
 use GetResponse\GetResponseIntegration\Block\Checkout\OrderPlacedView;
 
 /** @var OrderPlacedView $block */
-$order = $block->getBufferedOrder()['order'] ?? [];
+$order = $block->getBufferedOrder()['order'];
 
 if (!empty($order)) {
     echo '<script type="text/javascript">const GrOrderPlaced = ' . json_encode($order) . '</script>';

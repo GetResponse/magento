@@ -37,4 +37,17 @@ class OrderService
         $order = $this->orderFactory->create($magentoOrder);
         $this->session->addOrderToBuffer($order);
     }
+
+    public function getOrderFromBuffer(Scope $scope): array
+    {
+        $webConnect = WebEventTracking::createFromRepository(
+            $this->repository->getWebEventTracking($scope->getScopeId())
+        );
+
+        if(!$webConnect->isActive()) {
+            return [];
+        }
+
+        return $this->session->getOrderFromBuffer();
+    }
 }

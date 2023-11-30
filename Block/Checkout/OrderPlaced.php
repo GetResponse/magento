@@ -4,43 +4,29 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Block\Checkout;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\TrackingCodeSession;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
-use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
+use GetResponse\GetResponseIntegration\Application\GetResponse\TrackingCode\OrderService;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 
 class OrderPlaced extends Template
 {
-    private $repository;
     private $magentoStore;
-    private $session;
+    private $orderService;
 
     public function __construct(
         Context $context,
-        Repository $repository,
-        MagentoStore $magentoStore,
-        TrackingCodeSession $session
+        OrderService $orderService,
+        MagentoStore $magentoStore
     ) {
         parent::__construct($context);
-        $this->repository = $repository;
         $this->magentoStore = $magentoStore;
-        $this->session = $session;
+        $this->orderService = $orderService;
     }
 
-    public function getBufferedOrder(): ?array
+    public function getBufferedOrder(): array
     {
-        $webEventTracking = WebEventTracking::createFromRepository(
-            $this->repository->getWebEventTracking(
-                $this->magentoStore->getCurrentScope()->getScopeId()
-            )
-        );
-
-        if ($webEventTracking->isActive()) {
-            return ['order' => $this->session->getOrderFromBuffer()];
-        }
-
-        return null;
+        $scope = $this->magentoStore->getCurrentScope();
+        return ['order' => $this->orderService->getOrderFromBuffer($scope)];
     }
 }
