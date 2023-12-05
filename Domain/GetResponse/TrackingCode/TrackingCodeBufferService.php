@@ -8,7 +8,7 @@ use GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\Model\Car
 use GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\Model\Order;
 use Magento\Customer\Model\Session;
 
-class TrackingCodeSession
+class TrackingCodeBufferService
 {
     /** @var Session */
     private $session;

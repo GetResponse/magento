@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Application\GetResponse\TrackingCode;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\Model\CartFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\TrackingCodeSession;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\TrackingCodeBufferService;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
@@ -14,13 +14,13 @@ use Magento\Quote\Model\Quote;
 class CartService
 {
     private $cartFactory;
-    private $session;
+    private $service;
     private $repository;
 
-    public function __construct(CartFactory $cartFactory, TrackingCodeSession $session, Repository $repository)
+    public function __construct(CartFactory $cartFactory, TrackingCodeBufferService $service, Repository $repository)
     {
         $this->cartFactory = $cartFactory;
-        $this->session = $session;
+        $this->service = $service;
         $this->repository = $repository;
     }
 
@@ -35,7 +35,7 @@ class CartService
         }
 
         $cart = $this->cartFactory->create($quote);
-        $this->session->addCartToBuffer($cart);
+        $this->service->addCartToBuffer($cart);
     }
 
 }

@@ -1,6 +1,6 @@
 # Changelog
 
-## [20.6.3] - 2023-11-30
+## [20.7.0] - 2023-11-30
 ### Feat
 - added cart update and order create events to Tracking Code
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Application\GetResponse\TrackingCode;
 
 use GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\Model\OrderFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\TrackingCodeSession;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\TrackingCodeBufferService;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
@@ -14,13 +14,13 @@ use Magento\Sales\Model\Order;
 class OrderService
 {
     private $orderFactory;
-    private $session;
+    private $service;
     private $repository;
 
-    public function __construct(OrderFactory $orderFactory, TrackingCodeSession $session, Repository $repository)
+    public function __construct(OrderFactory $orderFactory, TrackingCodeBufferService $service, Repository $repository)
     {
         $this->orderFactory = $orderFactory;
-        $this->session = $session;
+        $this->service = $service;
         $this->repository = $repository;
     }
 
@@ -35,7 +35,7 @@ class OrderService
         }
 
         $order = $this->orderFactory->create($magentoOrder);
-        $this->session->addOrderToBuffer($order);
+        $this->service->addOrderToBuffer($order);
     }
 
     public function getOrderFromBuffer(Scope $scope): array
@@ -48,6 +48,6 @@ class OrderService
             return [];
         }
 
-        return $this->session->getOrderFromBuffer();
+        return $this->service->getOrderFromBuffer();
     }
 }
