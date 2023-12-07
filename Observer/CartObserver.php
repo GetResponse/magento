@@ -57,10 +57,6 @@ class CartObserver implements ObserverInterface
     public function execute(EventObserver $observer): CartObserver
     {
         try {
-            if (false === $this->session->isLoggedIn()) {
-                return $this;
-            }
-
             if (null === $observer->getCart() || null === $observer->getCart()->getQuote()) {
                 $this->logger->addNotice('Cart or Quote in observer is empty', [
                     'observerName' => $observer->getName(),
