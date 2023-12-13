@@ -69,10 +69,13 @@ class CartObserver implements ObserverInterface
             $scope = new Scope($quote->getStoreId());
 
             $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-
+            
             if ($pluginMode->isNewVersion()) {
-                $this->apiService->createCart($quote, $scope);
                 $this->trackingCodeCartService->addToBuffer($quote, $scope);
+
+                if ($this->session->isLoggedIn()) {
+                    $this->apiService->createCart($quote, $scope);
+                }
             } else {
                 $this->handleOldVersion($quote, $scope);
             }
