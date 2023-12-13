@@ -85,7 +85,6 @@ class CartObserverTest extends BaseTestCase
 
         $observerMock->method('getCart')->willReturn($cartMock);
 
-        $this->sessionMock->expects(self::once())->method('isLoggedIn')->willReturn(true);
         $this->repositoryMock->expects(self::once())->method('getPluginMode')->willReturn(PluginMode::MODE_NEW);
 
         $this->apiServiceMock
@@ -118,7 +117,6 @@ class CartObserverTest extends BaseTestCase
         $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getCart']);
         $observerMock->method('getCart')->willReturn($cartMock);
 
-        $this->sessionMock->expects(self::once())->method('isLoggedIn')->willReturn(true);
         $this->repositoryMock->expects(self::once())->method('getPluginMode')->willReturn(PluginMode::MODE_OLD);
 
         $this->apiServiceMock
