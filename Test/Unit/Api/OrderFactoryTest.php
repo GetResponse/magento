@@ -59,7 +59,9 @@ class OrderFactoryTest extends BaseTestCase
         $customerTags = ['magento', 'api'];
         $customerCustomFields = ['source' => 'api'];
 
-        $line = new Line(40003, 9.99, 12.22, 40, 'variant_40003');
+        $variantId = 494939;
+
+        $line = new Line($variantId, 9.99, 12.22, 40, 'variant_40003');
 
         $address = ApiFaker::createAddress();
 
@@ -96,14 +98,17 @@ class OrderFactoryTest extends BaseTestCase
         $magentoOrderMock->method('getCreatedAt')->willReturn($createdAt);
         $magentoOrderMock->method('getUpdatedAt')->willReturn($updatedAt);
 
+        $productMock = $this->getMockWithoutConstructing(Product::class, ['getId']);
+        $productMock->method('getId')->willReturn($variantId);
+
         $itemMock = $this->getMockWithoutConstructing(
             Item::class,
-            ['getProductId', 'getPrice', 'getPriceInclTax', 'getQtyOrdered', 'getSku'],
+            ['getProduct', 'getPrice', 'getPriceInclTax', 'getQtyOrdered', 'getSku'],
             ['getChildren']
         );
 
         $itemMock->method('getChildren')->willReturn([]);
-        $itemMock->method('getProductId')->willReturn($line->getVariantId());
+        $itemMock->method('getProduct')->willReturn($productMock);
         $itemMock->method('getPrice')->willReturn($line->getPrice());
         $itemMock->method('getPriceInclTax')->willReturn($line->getPriceTax());
         $itemMock->method('getQtyOrdered')->willReturn($line->getQuantity());
