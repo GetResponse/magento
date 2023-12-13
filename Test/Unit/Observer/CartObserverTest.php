@@ -16,15 +16,12 @@ use GetResponse\GetResponseIntegration\Logger\Logger;
 use GetResponse\GetResponseIntegration\Observer\CartObserver;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Checkout\Model\Cart;
-use Magento\Customer\Model\Session;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Quote\Model\Quote;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class CartObserverTest extends BaseTestCase
 {
-    /** @var Session&MockObject */
-    private $sessionMock;
     /** @var ApiService&MockObject */
     private $apiServiceMock;
     /** @var Repository&MockObject */
@@ -36,7 +33,7 @@ class CartObserverTest extends BaseTestCase
 
     protected function setUp(): void
     {
-        $this->sessionMock = $this->getMockWithoutConstructing(Session::class);
+        $sessionMock = $this->getMockWithoutConstructing(Session::class);
         /** @var CartService|MockObject $cartServiceMock */
         $cartServiceMock = $this->getMockWithoutConstructing(CartService::class);
         /** @var Logger|MockObject $loggerMock */
@@ -57,7 +54,7 @@ class CartObserverTest extends BaseTestCase
             $this->repositoryMock,
             $this->apiServiceMock,
             $this->trackingCodeCartServiceMock,
-            $this->sessionMock,
+            $sessionMock,
             $this->trackingCodeCartServiceMock
         );
     }
@@ -147,7 +144,6 @@ class CartObserverTest extends BaseTestCase
         $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getCart']);
         $observerMock->method('getCart')->willReturn($cartMock);
 
-        $this->sessionMock->expects(self::once())->method('isLoggedIn')->willReturn(false);
         $this->repositoryMock->expects(self::never())->method('getPluginMode')->willReturn(PluginMode::MODE_NEW);
 
         $this->apiServiceMock
