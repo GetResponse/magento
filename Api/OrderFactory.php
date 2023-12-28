@@ -63,7 +63,6 @@ class OrderFactory
             if (count($childrenItems) > 0) {
                 $childItem = reset($childrenItems);
                 $variantId = $childItem->getProductId();
-                /** @var Item $child */
             } else {
                 $variantId = $item->getProduct()->getId();
             }

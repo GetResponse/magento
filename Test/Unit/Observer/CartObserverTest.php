@@ -140,11 +140,11 @@ class CartObserverTest extends BaseTestCase
 
         /** @var Quote|MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(Quote::class);
-        $quoteMock->method('getStoreId')->willReturn($storeId);
+        $quoteMock->method('getstoreid')->willReturn($storeId);
         /** @var Cart|MockObject $cartMock */
         $cartMock = $this->getMockWithoutConstructing(Cart::class);
         $cartMock->method('getQuote')->willReturn($quoteMock);
-        /** @var EventObserver|MockObject $observerMock */
+        /** @var eventobserver|mockobject $observermock */
         $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getCart']);
         $observerMock->method('getCart')->willReturn($cartMock);
 
