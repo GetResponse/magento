@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Test\Unit\Observer;
 
 use GetResponse\GetResponseIntegration\Api\ApiService;
+use GetResponse\GetResponseIntegration\Application\GetResponse\TrackingCode\CartService as TrackingCodeCartService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Cart\CartService;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\ContactReadModel;
 use GetResponse\GetResponseIntegration\Domain\GetResponse\Ecommerce\ReadModel\EcommerceReadModel;
@@ -22,12 +23,14 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 class CartObserverTest extends BaseTestCase
 {
-    /** @var Session|MockObject */
+    /** @var Session&MockObject */
     private $sessionMock;
-    /** @var ApiService|MockObject */
+    /** @var ApiService&MockObject */
     private $apiServiceMock;
-    /** @var Repository|MockObject */
+    /** @var Repository&MockObject */
     private $repositoryMock;
+    /** @var TrackingCodeCartService&MockObject */
+    private $trackingCodeCartServiceMock;
     /** @var CartObserver */
     private $sut;
 
@@ -44,15 +47,17 @@ class CartObserverTest extends BaseTestCase
         $contactReadModelMock = $this->getMockWithoutConstructing(ContactReadModel::class);
         $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
         $this->apiServiceMock = $this->getMockWithoutConstructing(ApiService::class);
+        $this->trackingCodeCartServiceMock = $this->getMockWithoutConstructing(TrackingCodeCartService::class);
 
         $this->sut = new CartObserver(
-            $this->sessionMock,
             $cartServiceMock,
             $loggerMock,
             $ecommerceReadModelMock,
             $contactReadModelMock,
             $this->repositoryMock,
-            $this->apiServiceMock
+            $this->apiServiceMock,
+            $this->trackingCodeCartServiceMock,
+            $this->sessionMock
         );
     }
 
@@ -62,6 +67,7 @@ class CartObserverTest extends BaseTestCase
     public function shouldCreateCart(): void
     {
         $storeId = 3;
+        $scope = new Scope($storeId);
 
         /** @var Quote|MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(Quote::class);
@@ -84,7 +90,12 @@ class CartObserverTest extends BaseTestCase
         $this->apiServiceMock
             ->expects(self::once())
             ->method('createCart')
-            ->with($quoteMock, new Scope($storeId));
+            ->with($quoteMock, $scope);
+
+        $this->trackingCodeCartServiceMock
+            ->expects(self::once())
+            ->method('addToBuffer')
+            ->with($quoteMock, $scope);
 
         $this->sut->execute($observerMock);
     }
@@ -106,12 +117,16 @@ class CartObserverTest extends BaseTestCase
         $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getCart']);
         $observerMock->method('getCart')->willReturn($cartMock);
 
-        $this->sessionMock->expects(self::once())->method('isLoggedIn')->willReturn(true);
+        $this->sessionMock->expects(self::never())->method('isLoggedIn')->willReturn(true);
         $this->repositoryMock->expects(self::once())->method('getPluginMode')->willReturn(PluginMode::MODE_OLD);
 
         $this->apiServiceMock
             ->expects(self::never())
             ->method('createCart');
+
+        $this->trackingCodeCartServiceMock
+            ->expects(self::never())
+            ->method('addToBuffer');
 
         $this->sut->execute($observerMock);
     }
@@ -125,20 +140,24 @@ class CartObserverTest extends BaseTestCase
 
         /** @var Quote|MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(Quote::class);
-        $quoteMock->method('getStoreId')->willReturn($storeId);
+        $quoteMock->method('getstoreid')->willReturn($storeId);
         /** @var Cart|MockObject $cartMock */
         $cartMock = $this->getMockWithoutConstructing(Cart::class);
         $cartMock->method('getQuote')->willReturn($quoteMock);
-        /** @var EventObserver|MockObject $observerMock */
+        /** @var eventobserver|mockobject $observermock */
         $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getCart']);
         $observerMock->method('getCart')->willReturn($cartMock);
 
+        $this->repositoryMock->expects(self::once())->method('getPluginMode')->willReturn(PluginMode::MODE_NEW);
         $this->sessionMock->expects(self::once())->method('isLoggedIn')->willReturn(false);
-        $this->repositoryMock->expects(self::never())->method('getPluginMode')->willReturn(PluginMode::MODE_NEW);
 
         $this->apiServiceMock
             ->expects(self::never())
             ->method('createCart');
+
+        $this->trackingCodeCartServiceMock
+            ->expects(self::once())
+            ->method('addToBuffer');
 
         $this->sut->execute($observerMock);
     }

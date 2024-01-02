@@ -25,4 +25,19 @@
     <action name="wishlist/index/remove">
         <section name="getresponse-recommendation"/>
     </action>
+    <action name="checkout/cart/add">
+        <section name="getresponse-tracking-code"/>
+    </action>
+    <action name="checkout/cart/updatePost">
+        <section name="getresponse-tracking-code"/>
+    </action>
+    <action name="checkout/sidebar/updateItemQty">
+        <section name="getresponse-tracking-code"/>
+    </action>
+    <action name="checkout/sidebar/removeItem">
+        <section name="getresponse-tracking-code"/>
+    </action>
+    <action name="checkout/cart/delete">
+        <section name="getresponse-tracking-code"/>
+    </action>
 </config>

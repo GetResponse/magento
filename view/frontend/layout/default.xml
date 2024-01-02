@@ -22,6 +22,7 @@
 
         <referenceContainer name="footer-container">
             <block name="getresponse.webform.footer" class="GetResponse\GetResponseIntegration\Block\Webform" template="footer.phtml" />
+            <block name="getresponse.webform.order.placed" class="GetResponse\GetResponseIntegration\Block\Checkout\OrderPlaced" template="GetResponse_GetResponseIntegration::checkout/order_placed.phtml" cacheable="false" />
         </referenceContainer>
 
         <referenceBlock name="head.additional">
@@ -33,7 +34,7 @@
         </referenceContainer>
 
         <referenceContainer name="head.additional">
-            <block name="getresponse.recommendation" class="Magento\Framework\View\Element\Template" template="GetResponse_GetResponseIntegration::getresponse_recommendation.phtml"/>
+            <block name="getresponse.recommendation" class="Magento\Framework\View\Element\Template" template="GetResponse_GetResponseIntegration::getresponse_recommendation.phtml" />
         </referenceContainer>
 
     </body>

@@ -1,12 +1,34 @@
 <div class="getresponse-tracking-code-section" data-bind="scope: 'getresponse_tracking_code_section'">
-    <div id="customer-email-address" data-bind="attr: { 'customer-email': getResponseTrackingCode().customerEmail}"></div>
+    <div id="customer-email-address" data-bind="attr: { 'customer-email': getResponseTrackingCode().customerEmail }"></div>
+    <div id="tracking-code-cart" data-bind="attr: { 'cart': getResponseTrackingCode().cart }"></div>
 </div>
 
 <script>
     require([
         'jquery',
-        'mage/cookies',
-    ], function ($) {
+        'Magento_Customer/js/customer-data',
+        'mage/cookies'
+    ], function ($, customerData) {
+
+        var cart = document.querySelector('#tracking-code-cart');
+
+        var cartObserver = new MutationObserver(function(mutations) {
+            var trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
+
+            mutations.forEach(function(mutation) {
+                if (mutation.type === "attributes" && mutation.attributeName === 'cart') {
+                    var cart = JSON.parse(document.getElementById('tracking-code-cart').getAttribute('cart'));
+
+                    if (cart !== null && Object.keys(cart).length > 0 && trackingCodeEnabled) {
+                        GrTracking('importScript', 'ec');
+                        GrTracking('cartUpdate', cart);
+                        customerData.reload(['getresponse-tracking-code']);
+                    }
+                }
+            });
+        });
+
+        cartObserver.observe(cart, { attributes: true});
 
         $('body').on('DOMSubtreeModified', '#customer-email-address', function () {
 
@@ -19,16 +41,23 @@
             }
         });
 
-        $(document).ready(function() {
+        $(window).load(function() {
 
-            if (typeof GrViewCategoryItem !== 'undefined') {
+            var trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
+
+            if (typeof GrViewCategoryItem !== 'undefined' && trackingCodeEnabled) {
                 GrTracking('importScript', 'ec');
                 GrTracking('viewCategory', GrViewCategoryItem);
             }
 
-            if (typeof GrViewProductItem !== 'undefined') {
+            if (typeof GrViewProductItem !== 'undefined' && trackingCodeEnabled) {
                 GrTracking('importScript', 'ec');
                 GrTracking('viewItem', GrViewProductItem);
+            }
+
+            if (typeof GrOrderPlaced !== 'undefined' && trackingCodeEnabled) {
+                GrTracking('importScript', 'ec');
+                GrTracking('orderPlaced', GrOrderPlaced);
             }
         });
     });

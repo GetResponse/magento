@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.7.0] - 2023-11-30
+### Feat
+- added cart update and order create events to Tracking Code
+
 ## [20.6.2] - 2023-11-15
 ### Feat
 - set plugin in new mode by default

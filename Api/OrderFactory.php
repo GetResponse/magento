@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-use Magento\Quote\Model\Quote\Item;
+use Magento\Sales\Model\Order\Item;
 use Magento\Sales\Model\Order as MagentoOrder;
 
 class OrderFactory
@@ -55,29 +55,25 @@ class OrderFactory
     {
         $lines = [];
 
+        /** @var Item $item */
         foreach ($order->getAllVisibleItems() as $item) {
-            $children = $item->getChildren();
 
-            if (!empty($children)) {
-                /** @var Item $child */
-                foreach ($children as $child) {
-                    $lines[] = new Line(
-                        (int)$child->getProductId(),
-                        (float)$child->getPrice(),
-                        (float)$child->getPriceInclTax(),
-                        (int)$child->getQtyOrdered(),
-                        (string)$child->getSku()
-                    );
-                }
+            $childrenItems = (array) $item->getChildrenItems();
+
+            if (count($childrenItems) > 0) {
+                $childItem = reset($childrenItems);
+                $variantId = $childItem->getProductId();
             } else {
-                $lines[] = new Line(
-                    (int)$item->getProductId(),
-                    (float)$item->getPrice(),
-                    (float)$item->getPriceInclTax(),
-                    (int)$item->getQtyOrdered(),
-                    (string)$item->getSku()
-                );
+                $variantId = $item->getProduct()->getId();
             }
+
+            $lines[] = new Line(
+                (int)$variantId,
+                (float)$item->getPrice(),
+                (float)$item->getPriceInclTax(),
+                (int)$item->getQtyOrdered(),
+                (string)$item->getSku()
+            );
         }
 
         return $lines;

@@ -38,8 +38,18 @@ class CartFactory
         $lines = [];
 
         foreach ($quote->getAllVisibleItems() as $item) {
+
+            $quantityOptions = $item->getQtyOptions();
+
+            if (count($quantityOptions) > 0) {
+                $quantityOption = reset($quantityOptions);
+                $variantId = $quantityOption->getProduct()->getId();
+            } else {
+                $variantId = $item->getProduct()->getId();
+            }
+
             $lines[] = new Line(
-                (int)$item->getProduct()->getId(),
+                (int) $variantId,
                 (float)$item->getConvertedPrice(),
                 (float)$item->getPriceInclTax(),
                 (int)$item->getTotalQty(),
