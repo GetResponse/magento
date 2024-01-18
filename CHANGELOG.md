@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.7.1] - 2024-01-18
+### Fix
+- fixed product variant status update 
+
 ## [20.7.0] - 2023-11-30
 ### Feat
 - added cart update and order create events to Tracking Code

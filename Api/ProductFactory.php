@@ -94,7 +94,7 @@ class ProductFactory
                     (string)$childProduct->getData('description'),
                     (string)$childProduct->getData('short_description'),
                     $images,
-                    $this->getProductStatus($childProduct),
+                    $this->getProductVariantStatus($childProduct),
                     $this->getSalesPrice($childProduct)
                 );
             }
@@ -198,6 +198,11 @@ class ProductFactory
         $isVisible = (int) $product->getVisibility() !== self::PRODUCT_INVISIBLE;
 
         return $isStatusActive && $isVisible ? Product::STATUS_PUBLISH : Product::STATUS_DRAFT;
+    }
+
+    private function getProductVariantStatus(MagentoProduct $product): string
+    {
+        return (int) $product->getStatus() === self::PRODUCT_STATUS_ACTIVE ? Product::STATUS_PUBLISH : Product::STATUS_DRAFT;
     }
 
     private function getSalesPrice(MagentoProduct $product): ?ProductSalePrice
