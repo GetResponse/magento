@@ -22,7 +22,10 @@
 
         <referenceContainer name="footer-container">
             <block name="getresponse.webform.footer" class="GetResponse\GetResponseIntegration\Block\Webform" template="footer.phtml" />
-            <block name="getresponse.webform.order.placed" class="GetResponse\GetResponseIntegration\Block\Checkout\OrderPlaced" template="GetResponse_GetResponseIntegration::checkout/order_placed.phtml" cacheable="false" />
+        </referenceContainer>
+
+        <referenceContainer name="order.success.additional.info">
+            <block name="getresponse.order.placed" class="GetResponse\GetResponseIntegration\Block\Checkout\OrderPlaced" template="GetResponse_GetResponseIntegration::checkout/order_placed.phtml" cacheable="false" />
         </referenceContainer>
 
         <referenceBlock name="head.additional">
