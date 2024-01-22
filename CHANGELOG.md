@@ -1,6 +1,6 @@
 # Changelog
 
-## [20.7.1] - 2024-01-18
+## [20.7.2] - 2024-01-18
 ### Fix
 - fixed product variant status update 
 
