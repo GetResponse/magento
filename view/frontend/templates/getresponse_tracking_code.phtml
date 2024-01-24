@@ -41,10 +41,10 @@
             }
         });
 
-        $(function() {
-
+        $(window).on('load', function() {
+            
             var trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
-
+            
             if (typeof GrViewCategoryItem !== 'undefined' && trackingCodeEnabled) {
                 GrTracking('importScript', 'ec');
                 GrTracking('viewCategory', GrViewCategoryItem);
