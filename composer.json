@@ -1,7 +1,7 @@
 {
     "name": "getresponse/magento2",
     "description": "GetResponse Integration for Magento2",
-    "version": "20.7.1",
+    "version": "20.7.2",
     "license": "OSL-3.0",
     "minimum-stability": "stable",
     "type": "magento2-module",
@@ -50,7 +50,8 @@
     },
     "config": {
         "allow-plugins": {
-            "magento/composer-dependency-version-audit-plugin": true
+            "magento/composer-dependency-version-audit-plugin": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     }
 }

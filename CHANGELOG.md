@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.7.2] - 2024-01-18
+### Fix
+- fixed product variant status update 
+
 ## [20.7.1] - 2024-01-19
 ### Fix
 - changes for Magento validator - fixed template cache

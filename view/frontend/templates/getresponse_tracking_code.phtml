@@ -16,6 +16,7 @@
             var trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
 
             mutations.forEach(function(mutation) {
+
                 if (mutation.type === "attributes" && mutation.attributeName === 'cart') {
                     var cart = JSON.parse(document.getElementById('tracking-code-cart').getAttribute('cart'));
 
@@ -38,24 +39,29 @@
 
             if (customerEmail !== null && trackingCodeEnabled && gaIsValuable !== '1') {
                 gaSetUserId(customerEmail);
+                GrTracking('setUserId', customerEmail);
             }
         });
 
-        $(window).load(function() {
+        $(window).on('load', function() {
 
             var trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
 
-            if (typeof GrViewCategoryItem !== 'undefined' && trackingCodeEnabled) {
+            if (false === trackingCodeEnabled) {
+                return;
+            }
+
+            if (typeof GrViewCategoryItem !== 'undefined') {
                 GrTracking('importScript', 'ec');
                 GrTracking('viewCategory', GrViewCategoryItem);
             }
 
-            if (typeof GrViewProductItem !== 'undefined' && trackingCodeEnabled) {
+            if (typeof GrViewProductItem !== 'undefined') {
                 GrTracking('importScript', 'ec');
                 GrTracking('viewItem', GrViewProductItem);
             }
 
-            if (typeof GrOrderPlaced !== 'undefined' && trackingCodeEnabled) {
+            if (typeof GrOrderPlaced !== 'undefined') {
                 GrTracking('importScript', 'ec');
                 GrTracking('orderPlaced', GrOrderPlaced);
             }
