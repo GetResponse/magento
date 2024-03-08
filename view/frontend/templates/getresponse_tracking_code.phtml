@@ -5,24 +5,24 @@
 
 <script>
     require([
-        'jquery',
         'Magento_Customer/js/customer-data',
-        'mage/cookies'
-    ], function ($, customerData) {
+        'mage/cookies',
+        'domReady!'
+    ], function (customerData) {
 
-        var cart = document.querySelector('#tracking-code-cart');
+        let cart = document.querySelector('#tracking-code-cart');
 
-        var cartObserver = new MutationObserver(function(mutations) {
-            var trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
+        let cartObserver = new MutationObserver(function(mutations) {
+            let trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
 
             mutations.forEach(function(mutation) {
 
                 if (mutation.type === "attributes" && mutation.attributeName === 'cart') {
-                    var cart = JSON.parse(document.getElementById('tracking-code-cart').getAttribute('cart'));
+                    let cartData = JSON.parse(document.getElementById('tracking-code-cart').getAttribute('cart'));
 
-                    if (cart !== null && Object.keys(cart).length > 0 && trackingCodeEnabled) {
+                    if (cartData !== null && Object.keys(cartData).length > 0 && trackingCodeEnabled) {
                         GrTracking('importScript', 'ec');
-                        GrTracking('cartUpdate', cart);
+                        GrTracking('cartUpdate', cartData);
                         customerData.reload(['getresponse-tracking-code']);
                     }
                 }
@@ -31,11 +31,12 @@
 
         cartObserver.observe(cart, { attributes: true});
 
-        $('body').on('DOMSubtreeModified', '#customer-email-address', function () {
+        let customerEmailNode = document.getElementById('customer-email-address');
 
-            var customerEmail = document.getElementById('customer-email-address').getAttribute('customer-email');
-            var gaIsValuable = $.cookie('gaIsValuable');
-            var trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
+        let customerEmailObserver = new MutationObserver(function(mutations) {
+            let customerEmail = customerEmailNode.getAttribute('customer-email');
+            let gaIsValuable = Cookies.get('gaIsValuable');
+            let trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
 
             if (customerEmail !== null && trackingCodeEnabled && gaIsValuable !== '1') {
                 gaSetUserId(customerEmail);
@@ -43,11 +44,12 @@
             }
         });
 
-        $(window).on('load', function() {
+        customerEmailObserver.observe(customerEmailNode, { attributes: true });
 
-            var trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
+        window.addEventListener('load', function() {
+            let trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
 
-            if (false === trackingCodeEnabled) {
+            if (!trackingCodeEnabled) {
                 return;
             }
 

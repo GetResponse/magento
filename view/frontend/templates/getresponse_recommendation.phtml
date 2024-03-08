@@ -7,13 +7,14 @@
 </div>
 
 <script>
-    require(['jquery', 'Magento_Customer/js/customer-data'], function ($,customerData) {
+    require(['Magento_Customer/js/customer-data'], function (customerData) {
 
-        $('body').on('DOMSubtreeModified', '#getresponse-recommendation', function () {
+        const recommendationNode = document.getElementById('getresponse-recommendation');
 
-            const getResponseShopId = $('#getresponse-recommendation')?.attr('getresponse-shop-id');
-            const productIdAddedToWishList = $('#getresponse-recommendation')?.attr('product-id-added-to-wishlist');
-            const productIdRemovedFromWishList = $('#getresponse-recommendation')?.attr('product-id-removed-from-wishlist');
+        recommendationNode.addEventListener('DOMSubtreeModified', function () {
+            const getResponseShopId = recommendationNode.getAttribute('getresponse-shop-id');
+            const productIdAddedToWishList = recommendationNode.getAttribute('product-id-added-to-wishlist');
+            const productIdRemovedFromWishList = recommendationNode.getAttribute('product-id-removed-from-wishlist');
 
             if (getResponseShopId === null) {
                 return false;
