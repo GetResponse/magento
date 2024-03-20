@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.7.3] - 2024-03-20
+### Fix
+- fixed JavaScript issues in Tracking Code
+
 ## [20.7.2] - 2024-01-18
 ### Fix
 - fixed product variant status update 
