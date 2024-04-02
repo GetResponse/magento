@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../../../../../lib/internal/Magento/Framework/Module/etc/module.xsd">
-    <module name="GetResponse_GetResponseIntegration" setup_version="20.7.3">
+    <module name="GetResponse_GetResponseIntegration" setup_version="20.7.4">
         <sequence>
             <module name="Magento_Quote" />
         </sequence>

@@ -28,8 +28,8 @@ class CustomerFactory
 
     public function create(CustomerInterface $customer): Customer
     {
-        $customerId = $customer->getId();
-        $isSubscribed = $this->isCustomerSubscribed((int)$customerId);
+        $customerId = (int)$customer->getId();
+        $isSubscribed = $this->isCustomerSubscribed($customerId);
 
         $billingAddress = null;
         $shippingAddress = null;
@@ -56,10 +56,10 @@ class CustomerFactory
         ];
 
         return new Customer(
-            (int)$customer->getId(),
+            $customerId,
             $customer->getEmail(),
-            $customer->getFirstname() !== null ? $customer->getFirstname() : '',
-            $customer->getLastname() !== null ? $customer->getLastname() : '',
+            $customer->getFirstname(),
+            $customer->getLastname(),
             $isSubscribed,
             $billingAddress,
             [],
@@ -73,7 +73,7 @@ class CustomerFactory
 
     public function createFromOrder(MagentoOrder $order): Customer
     {
-        $customerId = null === $order->getCustomerId() ? null : (int)$order->getCustomerId();
+        $customerId = (int)$order->getCustomerId();
         $isSubscribed = $this->isCustomerSubscribed($customerId);
 
         $billingAddress = null;
@@ -104,8 +104,8 @@ class CustomerFactory
         return new Customer(
             $customerId,
             $order->getCustomerEmail(),
-            $order->getCustomerFirstname() ?? '',
-            $order->getCustomerLastname() ?? '',
+            (string) $order->getCustomerFirstname(),
+            (string) $order->getCustomerLastname(),
             $isSubscribed,
             $billingAddress,
             [],

@@ -30,9 +30,9 @@ class Address implements JsonSerializable
         ?string $address2,
         string $city,
         string $zip,
-        ?string $province,
-        ?string $provinceCode,
-        ?string $phone,
+        string $province,
+        string $provinceCode,
+        string $phone,
         ?string $company
     ) {
         $this->name = $name;
