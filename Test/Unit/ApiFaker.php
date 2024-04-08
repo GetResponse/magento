@@ -23,9 +23,9 @@ class ApiFaker
             'GUTHRIE',
             '73044',
             'Oklahoma',
-            null,
+            '',
             '544404400',
-            null
+            ''
         );
     }
 
