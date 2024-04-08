@@ -17,16 +17,16 @@ class AddressFactory
 
         return new Address(
             sprintf('%s %s', $address->getFirstname(), $address->getLastname()),
-            $address->getCountryId(),
-            $address->getFirstname(),
-            $address->getLastname(),
+            (string)$address->getCountryId(),
+            (string)$address->getFirstname(),
+            (string)$address->getLastname(),
             implode(' ', $address1),
             implode(' ', $address2),
-            $address->getCity(),
-            $address->getPostcode(),
-            $address->getRegion() ? $address->getRegion()->getRegion() : null,
-            $address->getRegion() ? $address->getRegion()->getRegionCode() : null,
-            $address->getTelephone(),
+            (string)$address->getCity(),
+            (string)$address->getPostcode(),
+            $address->getRegion() ? $address->getRegion()->getRegion() : '',
+            $address->getRegion() ? $address->getRegion()->getRegionCode() : '',
+            (string)$address->getTelephone(),
             $address->getCompany()
         );
     }
@@ -39,16 +39,16 @@ class AddressFactory
 
         return new Address(
             sprintf('%s %s', $address->getFirstname(), $address->getLastname()),
-            $address->getCountryId(),
-            $address->getFirstname(),
-            $address->getLastname(),
+            (string)$address->getCountryId(),
+            (string)$address->getFirstname(),
+            (string)$address->getLastname(),
             implode(' ', $address1),
             implode(' ', $address2),
-            $address->getCity(),
-            $address->getPostcode(),
-            $address->getRegion(),
-            $address->getRegionCode(),
-            $address->getTelephone(),
+            (string)$address->getCity(),
+            (string)$address->getPostcode(),
+            (string)$address->getRegion(),
+            (string)$address->getRegionCode(),
+            (string)$address->getTelephone(),
             $address->getCompany()
         );
     }

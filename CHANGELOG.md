@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.7.4] - 2024-04-02
+### Fix
+- fixed passing null to string paramter
+
 ## [20.7.3] - 2024-03-20
 ### Fix
 - fixed JavaScript issues in Tracking Code
