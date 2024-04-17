@@ -27,13 +27,13 @@ class Address implements JsonSerializable
         string $firstName,
         string $lastName,
         string $address1,
-        ?string $address2,
+        string $address2,
         string $city,
         string $zip,
         string $province,
         string $provinceCode,
         string $phone,
-        ?string $company
+        string $company
     ) {
         $this->name = $name;
         $this->countryCode = $countryCode;

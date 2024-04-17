@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.7.5] - 2024-04-17
+### Fix
+- fixed address parameters type casting
+
 ## [20.7.4] - 2024-04-02
 ### Fix
 - fixed passing null to string paramter
