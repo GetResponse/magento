@@ -24,10 +24,10 @@ class AddressFactory
             implode(' ', $address2),
             (string)$address->getCity(),
             (string)$address->getPostcode(),
-            $address->getRegion() ? $address->getRegion()->getRegion() : '',
-            $address->getRegion() ? $address->getRegion()->getRegionCode() : '',
+            $address->getRegion() ? (string)$address->getRegion()->getRegion() : '',
+            $address->getRegion() ? (string)$address->getRegion()->getRegionCode() : '',
             (string)$address->getTelephone(),
-            $address->getCompany()
+            (string)$address->getCompany()
         );
     }
 
@@ -49,7 +49,7 @@ class AddressFactory
             (string)$address->getRegion(),
             (string)$address->getRegionCode(),
             (string)$address->getTelephone(),
-            $address->getCompany()
+            (string)$address->getCompany()
         );
     }
 }
