@@ -19,7 +19,7 @@ class ApiFaker
             'Brian',
             'Sings',
             '4508  Memory Lane',
-            null,
+            '',
             'GUTHRIE',
             '73044',
             'Oklahoma',
