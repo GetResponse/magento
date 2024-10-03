@@ -6,10 +6,12 @@ namespace GetResponse\GetResponseIntegration\Test\Unit\CustomerData\Recommendati
 
 use GetResponse\GetResponseIntegration\CustomerData\Recommendation\ProductView;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
+use GetResponse\GetResponseIntegration\Helper\CspNonceProviderFactory;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Model\Product;
+use Magento\Csp\Helper\CspNonceProvider;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\DataObject;
 use Magento\Store\Api\Data\StoreInterface;
@@ -32,6 +34,8 @@ class ProductViewTest extends BaseTestCase
     private $productMock;
     /** @var CategoryRepositoryInterface|MockObject */
     private $categoryRepositoryMock;
+    /** @var CspNonceProviderFactory|MockObject */
+    private $cspNonceProviderFactoryMock;
 
     /** @var ProductView */
     private $sut;
@@ -44,12 +48,14 @@ class ProductViewTest extends BaseTestCase
         $this->subjectMock = $this->getMockWithoutConstructing(Subject::class, ['getNameInLayout', 'getProduct']);
         $this->productMock = $this->getMockWithoutConstructing(Product::class, ['getPrice', 'getSpecialPrice', 'getName', 'getUrlModel', 'getCategoryIds', 'getMediaGalleryImages', 'getStoreId', 'getSku', 'getId', 'isSalable'], ['getDescription']);
         $this->categoryRepositoryMock = $this->getMockWithoutConstructing(CategoryRepositoryInterface::class);
+        $this->cspNonceProviderFactoryMock = $this->getMockWithoutConstructing(CspNonceProviderFactory::class);
 
         $this->sut = new ProductView(
             $this->storeManagerMock,
             $this->repositoryMock,
             $this->requestMock,
-            $this->categoryRepositoryMock
+            $this->categoryRepositoryMock,
+            $this->cspNonceProviderFactoryMock
         );
     }
 

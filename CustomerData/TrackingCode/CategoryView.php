@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\CustomerData\TrackingCode;
 
+use GetResponse\GetResponseIntegration\Helper\JavaScriptTag;
 use Magento\Catalog\Block\Category\View as Subject;
 
 class CategoryView extends TrackingCodeView
@@ -24,8 +25,7 @@ class CategoryView extends TrackingCodeView
             'name' => $category->getName()
         ];
 
-        $html .= '<script type="text/javascript">const GrViewCategoryItem = ' . json_encode($payload) . '</script>';
-
+        $html .= JavaScriptTag::generateForConst('GrViewCategoryItem', json_encode($payload), $this->cspNonceProvider->generateNonce());
         return $html;
     }
 

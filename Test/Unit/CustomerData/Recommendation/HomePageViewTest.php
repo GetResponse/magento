@@ -6,8 +6,10 @@ namespace GetResponse\GetResponseIntegration\Test\Unit\CustomerData\Recommendati
 
 use GetResponse\GetResponseIntegration\CustomerData\Recommendation\HomePageView;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
+use GetResponse\GetResponseIntegration\Helper\CspNonceProviderFactory;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use Magento\Csp\Helper\CspNonceProvider;
 use Magento\Framework\App\Request\Http;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -24,6 +26,8 @@ class HomePageViewTest extends BaseTestCase
     private $requestMock;
     /** @var Subject|MockObject */
     private $subjectMock;
+    /** @var CspNonceProviderFactory|MockObject */
+    private $cspNonceProviderFactoryMock;
 
     /** @var HomePageView */
     private $sut;
@@ -34,11 +38,13 @@ class HomePageViewTest extends BaseTestCase
         $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
         $this->requestMock = $this->getMockWithoutConstructing(Http::class);
         $this->subjectMock = $this->getMockWithoutConstructing(Subject::class);
+        $this->cspNonceProviderFactoryMock = $this->getMockWithoutConstructing(CspNonceProviderFactory::class);
 
         $this->sut = new HomePageView(
             $this->storeManagerMock,
             $this->repositoryMock,
-            $this->requestMock
+            $this->requestMock,
+            $this->cspNonceProviderFactoryMock
         );
     }
 
