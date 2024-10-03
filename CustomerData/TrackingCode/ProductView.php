@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\CustomerData\TrackingCode;
 
+use GetResponse\GetResponseIntegration\Helper\CspNonceProviderFactory;
+use GetResponse\GetResponseIntegration\Helper\JavaScriptTag;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Block\Product\View as Subject;
 use Magento\Catalog\Model\Product;
@@ -14,12 +16,11 @@ use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 class ProductView extends TrackingCodeView
 {
     const DISPLAY_BLOCK = 'product.info';
-
     private $categoryRepository;
 
-    public function __construct(Repository $repository, CategoryRepositoryInterface $categoryRepository)
+    public function __construct(Repository $repository, CategoryRepositoryInterface $categoryRepository, CspNonceProviderFactory $cspNonceProviderFactory)
     {
-        parent::__construct($repository);
+        parent::__construct($repository, $cspNonceProviderFactory);
         $this->categoryRepository = $categoryRepository;
     }
 
@@ -38,8 +39,7 @@ class ProductView extends TrackingCodeView
         } else {
             $payload = $this->getProductPayload($product);
         }
-
-        $html .= '<script type="text/javascript">const GrViewProductItem = ' . json_encode($payload) . '</script>';
+        $html .= JavaScriptTag::generateForConst('GrViewProductItem', json_encode($payload), $this->cspNonceProvider->generateNonce());
 
         return $html;
     }

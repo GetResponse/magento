@@ -6,11 +6,15 @@ namespace GetResponse\GetResponseIntegration\CustomerData\Recommendation;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\CspNonceProviderFactory;
+use GetResponse\GetResponseIntegration\Helper\JavaScriptTag;
+use GetResponse\GetResponseIntegration\Helper\JsScriptTagGenerator;
 use Magento\Catalog\Block\Product\View as Subject;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\App\Request\Http;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
+use Magento\Csp\Helper\CspNonceProvider;
 
 class ProductView extends RecommendationView
 {
@@ -24,13 +28,15 @@ class ProductView extends RecommendationView
         StoreManagerInterface $storeManager,
         Repository $repository,
         Http $request,
-        CategoryRepositoryInterface $categoryRepository
+        CategoryRepositoryInterface $categoryRepository,
+        CspNonceProviderFactory $cspNonceProviderFactory
     )
     {
-        parent::__construct($storeManager, $repository, $request);
+        parent::__construct($storeManager, $repository, $request, $cspNonceProviderFactory);
 
         $this->categoryRepository = $categoryRepository;
     }
+
 
     public function afterToHtml(Subject $subject, string $html): string
     {
@@ -49,7 +55,7 @@ class ProductView extends RecommendationView
             'pageData' => $rawProduct
         ];
 
-        $html .= '<script type="text/javascript">const recommendationPayload = ' . json_encode($payload) . '</script>';
+        $html .= JavaScriptTag::generateForConst('recommendationPayload', json_encode($payload), $this->cspNonceProvider->generateNonce());
 
         return $html;
     }

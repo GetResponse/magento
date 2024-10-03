@@ -6,6 +6,7 @@ namespace GetResponse\GetResponseIntegration\Test\Unit\CustomerData\Recommendati
 
 use GetResponse\GetResponseIntegration\CustomerData\Recommendation\BlogPageView;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
+use GetResponse\GetResponseIntegration\Helper\CspNonceProviderFactory;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use Magento\Framework\App\Request\Http;
@@ -24,6 +25,8 @@ class BlogPageViewTest extends BaseTestCase
     private $requestMock;
     /** @var Subject|MockObject */
     private $subjectMock;
+    /** @var CspNonceProviderFactory|MockObject */
+    private $cspNonceProviderFactoryMock;
 
     /** @var BlogPageView */
     private $sut;
@@ -34,11 +37,13 @@ class BlogPageViewTest extends BaseTestCase
         $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
         $this->requestMock = $this->getMockWithoutConstructing(Http::class);
         $this->subjectMock = $this->getMockWithoutConstructing(Subject::class, ['getNameInLayout'], ['___callParent']);
+        $this->cspNonceProviderFactoryMock = $this->getMockWithoutConstructing(CspNonceProviderFactory::class);
 
         $this->sut = new BlogPageView(
             $this->storeManagerMock,
             $this->repositoryMock,
-            $this->requestMock
+            $this->requestMock,
+            $this->cspNonceProviderFactoryMock
         );
     }
 

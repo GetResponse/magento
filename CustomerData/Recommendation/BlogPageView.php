@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\CustomerData\Recommendation;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Helper\JavaScriptTag;
+use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Cms\Block\Page as Subject;
+use Magento\Csp\Helper\CspNonceProvider;
+use Magento\Framework\App\Request\Http;
+use Magento\Store\Model\StoreManagerInterface;
 
 class BlogPageView extends RecommendationView
 {
@@ -23,7 +29,7 @@ class BlogPageView extends RecommendationView
             'pageData' => []
         ];
 
-        $html .= '<script type="text/javascript">const recommendationPayload = ' . json_encode($payload) . '</script>';
+        $html .= JavaScriptTag::generateForConst('recommendationPayload', json_encode($payload), $this->cspNonceProvider->generateNonce());
 
         return $html;
     }

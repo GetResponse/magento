@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\CustomerData\Recommendation;
 
+use GetResponse\GetResponseIntegration\Helper\JavaScriptTag;
+use GetResponse\GetResponseIntegration\Helper\NonceGenerator;
 use Magento\Checkout\Block\Cart as Subject;
 
 class CartView extends RecommendationView
@@ -23,8 +25,7 @@ class CartView extends RecommendationView
             'pageData' => []
         ];
 
-        $html .= '<script type="text/javascript">const recommendationPayload = ' . json_encode($payload) . '</script>';
-
+        $html .= JavaScriptTag::generateForConst('recommendationPayload', json_encode($payload), $this->cspNonceProvider->generateNonce());
         return $html;
     }
 

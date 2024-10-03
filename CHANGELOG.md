@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.8.0] - 2024-09-17
+### Feat
+- added nonce support in javascript snippets for Magento >= 2.4.7
+
 ## [20.7.5] - 2024-04-17
 ### Fix
 - fixed address parameters type casting
