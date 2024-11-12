@@ -10,8 +10,10 @@
     require(['Magento_Customer/js/customer-data'], function (customerData) {
 
         const recommendationNode = document.getElementById('getresponse-recommendation');
+        const recommendation = document.querySelector('#getresponse-recommendation');
 
-        recommendationNode.addEventListener('DOMSubtreeModified', function () {
+        const recommendationObserver = new MutationObserver(function(mutations) {
+
             const getResponseShopId = recommendationNode.getAttribute('getresponse-shop-id');
             const productIdAddedToWishList = recommendationNode.getAttribute('product-id-added-to-wishlist');
             const productIdRemovedFromWishList = recommendationNode.getAttribute('product-id-removed-from-wishlist');
@@ -20,7 +22,7 @@
                 return false;
             }
 
-            if (productIdAddedToWishList && !productIdRemovedFromWishList) {
+            if (productIdAddedToWishList !== null && productIdRemovedFromWishList === null) {
                 const likeItemObject = {
                     shop: {id: getResponseShopId},
                     product: {id: productIdAddedToWishList}
@@ -30,7 +32,7 @@
                 customerData.reload(['getresponse-recommendation']);
             }
 
-            if (productIdRemovedFromWishList && !productIdAddedToWishList) {
+            if (productIdRemovedFromWishList !== null && productIdAddedToWishList === null) {
                 const unlikeItemObject = {
                     shop: {id: getResponseShopId},
                     product: {id: productIdRemovedFromWishList}
@@ -39,7 +41,10 @@
                 GrTracking('unlikeItem', unlikeItemObject);
                 customerData.reload(['getresponse-recommendation']);
             }
+
         });
+
+        recommendationObserver.observe(recommendation, { attributes: true });
     });
 </script>
 
