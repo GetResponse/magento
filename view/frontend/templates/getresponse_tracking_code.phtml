@@ -6,10 +6,10 @@
 <script>
     require([
         'Magento_Customer/js/customer-data',
+        'jquery',
         'mage/cookies',
         'domReady!'
-    ], function (customerData) {
-
+    ], function (customerData, $) {
         let cart = document.querySelector('#tracking-code-cart');
 
         let cartObserver = new MutationObserver(function(mutations) {
@@ -35,7 +35,7 @@
 
         let customerEmailObserver = new MutationObserver(function(mutations) {
             let customerEmail = customerEmailNode.getAttribute('customer-email');
-            let gaIsValuable = Cookies.get('gaIsValuable');
+            let gaIsValuable = $.cookie('gaIsValuable');
             let trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
 
             if (customerEmail !== null && trackingCodeEnabled && gaIsValuable !== '1') {
