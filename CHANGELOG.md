@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.8.1] - 2024-11-15
+### Feat
+- Fixed deprecated JavaScript function usage
+
 ## [20.8.0] - 2024-09-17
 ### Feat
 - added nonce support in javascript snippets for Magento >= 2.4.7
