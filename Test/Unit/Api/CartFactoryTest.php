@@ -11,7 +11,7 @@ use GetResponse\GetResponseIntegration\Test\Unit\ApiFaker;
 use Magento\Catalog\Model\Product;
 use Magento\Customer\Model\Data\Customer as MagentoCustomer;
 use Magento\Quote\Model\Quote;
-use Magento\Checkout\Helper\Cart as CartHelper;
+use GetResponse\GetResponseIntegration\Helper\Cart as CartHelper;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class CartFactoryTest extends BaseTestCase
