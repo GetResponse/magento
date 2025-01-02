@@ -11,6 +11,7 @@ use GetResponse\GetResponseIntegration\Api\HttpClient;
 use GetResponse\GetResponseIntegration\Api\OrderFactory;
 use GetResponse\GetResponseIntegration\Api\ProductFactory;
 use GetResponse\GetResponseIntegration\Api\SubscriberFactory;
+use GetResponse\GetResponseIntegration\Builder\ProductFactoryBuilder;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
@@ -35,8 +36,10 @@ class ApiServiceTest extends BaseTestCase
     private $cartFactoryMock;
     /** @var MockObject|OrderFactory */
     private $orderFactoryMock;
-    /** @var MockObject|ProductFactory */
+    /** @var MockObject|Product */
     private $productFactoryMock;
+    /** @var MockObject|ProductFactoryBuilder */
+    private $productFactoryBuilderMock;
     /** @var MockObject|CustomerFactory */
     private $customerFactoryMock;
     /** @var MockObject|SubscriberFactory */
@@ -51,15 +54,18 @@ class ApiServiceTest extends BaseTestCase
         $this->cartFactoryMock = $this->getMockWithoutConstructing(CartFactory::class);
         $this->orderFactoryMock = $this->getMockWithoutConstructing(OrderFactory::class);
         $this->productFactoryMock = $this->getMockWithoutConstructing(ProductFactory::class);
+        $this->productFactoryBuilderMock = $this->getMockWithoutConstructing(ProductFactoryBuilder::class, ['fromMagentoProduct']);
         $this->customerFactoryMock = $this->getMockWithoutConstructing(CustomerFactory::class);
         $this->subscriberFactoryMock = $this->getMockWithoutConstructing(SubscriberFactory::class);
+
+        $this->productFactoryBuilderMock->method('fromMagentoProduct')->willReturn($this->productFactoryMock);
 
         $this->sut = new ApiService(
             $this->repositoryMock,
             $this->httpClientMock,
             $this->cartFactoryMock,
             $this->orderFactoryMock,
-            $this->productFactoryMock,
+            $this->productFactoryBuilderMock,
             $this->customerFactoryMock,
             $this->subscriberFactoryMock
         );
