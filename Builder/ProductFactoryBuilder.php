@@ -14,7 +14,7 @@ class ProductFactoryBuilder
 
     public function __construct(
         ProductFactory $productFactory,
-        DeletedProductFactory $deletedProductFactory,
+        DeletedProductFactory $deletedProductFactory
     )
     {
         $this->productFactory = $productFactory;
