@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
+use GetResponse\GetResponseIntegration\Builder\ProductFactoryBuilder;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
@@ -20,7 +21,7 @@ class ApiService
     private $httpClient;
     private $cartFactory;
     private $orderFactory;
-    private $productFactory;
+    private $productFactoryBuilder;
     private $customerFactory;
     private $subscriberFactory;
 
@@ -29,15 +30,15 @@ class ApiService
         HttpClient $httpClient,
         CartFactory $cartFactory,
         OrderFactory $orderFactory,
-        ProductFactory $productFactory,
+        ProductFactoryBuilder $productFactoryBuilder,
         CustomerFactory $customerFactory,
-        SubscriberFactory $subscriberFactory
+        SubscriberFactory $subscriberFactory,
     ) {
         $this->repository = $repository;
         $this->httpClient = $httpClient;
         $this->cartFactory = $cartFactory;
         $this->orderFactory = $orderFactory;
-        $this->productFactory = $productFactory;
+        $this->productFactoryBuilder = $productFactoryBuilder;
         $this->customerFactory = $customerFactory;
         $this->subscriberFactory = $subscriberFactory;
     }
@@ -169,7 +170,9 @@ class ApiService
             return;
         }
 
-        $productsToUpsert = $this->productFactory->create($product, $scope);
+        $productFactory = $this->productFactoryBuilder->fromMagentoProduct($product);
+
+        $productsToUpsert = $productFactory->create($product, $scope);
         foreach ($productsToUpsert as $productToUpsert) {
             $callbackUrl = $liveSynchronization->getCallbackUrl();
             $this->httpClient->post($callbackUrl, $productToUpsert);

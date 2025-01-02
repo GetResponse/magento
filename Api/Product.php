@@ -10,6 +10,7 @@ class Product implements JsonSerializable
 {
     public const STATUS_PUBLISH = 'publish';
     public const STATUS_DRAFT = 'draft';
+    public const STATUS_DELETED = 'deleted';
 
     private $id;
     private $name;

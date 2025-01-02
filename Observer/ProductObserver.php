@@ -53,9 +53,10 @@ class ProductObserver implements ObserverInterface
             /** @var Product $product */
             $product = $observer->getProduct();
 
-            foreach ($product->getStoreIds() as $storeId) {
-                $updatedProduct = $this->productRepository->getById($product->getId(), false, $storeId);
-                $this->apiService->upsertProductCatalog($updatedProduct, new Scope($storeId));
+            if ($product->isDeleted()) {
+                $this->processDeletedProduct($product);
+            } else {
+                $this->processNewOrUpdatedProduct($product);
             }
 
         } catch (Exception $e) {
@@ -63,5 +64,20 @@ class ProductObserver implements ObserverInterface
         }
 
         return $this;
+    }
+
+    private function processNewOrUpdatedProduct(Product $product): void
+    {
+        foreach ($product->getStoreIds() as $storeId) {
+            $updatedProduct = $this->productRepository->getById($product->getId(), false, $storeId);
+            $this->apiService->upsertProductCatalog($updatedProduct, new Scope($storeId));
+        }
+    }
+
+    private function processDeletedProduct(Product $product): void
+    {
+        foreach ($product->getWebsiteStoreIds() as $storeId) {
+            $this->apiService->upsertProductCatalog($product, new Scope((int)$storeId));
+        }
     }
 }
