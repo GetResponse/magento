@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-use Magento\Checkout\Helper\Cart as CartHelper;
+use GetResponse\GetResponseIntegration\Helper\Cart as CartHelper;
 use Magento\Quote\Model\Quote;
 
 class CartFactory
