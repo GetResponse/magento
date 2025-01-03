@@ -5,10 +5,10 @@ namespace GetResponse\GetResponseIntegration\Helper;
 class Cart extends \Magento\Checkout\Helper\Cart
 {
     public function __construct(
-        \Magento\Framework\App\Helper\Context                                          $context,
-        \Magento\Checkout\Model\Cart                                                   $checkoutCart,
-        \Magento\Checkout\Model\Session                                                $checkoutSession,
-        \GetResponse\GetResponseIntegration\Application\GetResponse\Cart\CartIdEncoder $cartIdEncoder
+        \Magento\Framework\App\Helper\Context                                            $context,
+        \Magento\Checkout\Model\Cart                                                     $checkoutCart,
+        \Magento\Checkout\Model\Session                                                  $checkoutSession,
+        \GetResponse\GetResponseIntegration\Application\GetResponse\Cart\CartIdEncryptor $cartIdEncryptor
     )
     {
         parent::__construct($context, $checkoutCart, $checkoutSession);
@@ -18,7 +18,7 @@ class Cart extends \Magento\Checkout\Helper\Cart
     {
         $cartId = $this->getQuote()->getId();
         return $this->_getUrl('abandonCart', [
-            'cartId' => $this->cartIdEncoder->encode($cartId),
+            'cartId' => $this->cartIdEncryptor->encrypt($cartId),
         ]);
     }
 }

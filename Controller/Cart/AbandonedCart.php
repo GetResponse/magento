@@ -33,18 +33,18 @@ class AbandonedCart extends \Magento\Framework\App\Action\Action
     protected $quoteFactory;
 
     /**
-     * @var \GetResponse\GetResponseIntegration\Application\GetResponse\Cart\CartIdDecoder
+     * @var \GetResponse\GetResponseIntegration\Application\GetResponse\Cart\CartIdDecryptor
      */
-    protected $cartIdDecoder;
+    protected $cartIdDecryptor;
 
     public function __construct(
-        \Magento\Framework\App\Action\Context                                          $context,
-        \Magento\Checkout\Helper\Cart                                                  $cartHelper,
-        \Magento\Framework\Message\ManagerInterface                                    $messageManager,
-        \Magento\Framework\UrlInterface                                                $url,
-        \Magento\Checkout\Model\Session                                                $checkoutSession,
-        \Magento\Quote\Model\QuoteFactory                                              $quoteFactory,
-        \GetResponse\GetResponseIntegration\Application\GetResponse\Cart\CartIdDecoder $cartIdDecoder
+        \Magento\Framework\App\Action\Context                                            $context,
+        \Magento\Checkout\Helper\Cart                                                    $cartHelper,
+        \Magento\Framework\Message\ManagerInterface                                      $messageManager,
+        \Magento\Framework\UrlInterface                                                  $url,
+        \Magento\Checkout\Model\Session                                                  $checkoutSession,
+        \Magento\Quote\Model\QuoteFactory                                                $quoteFactory,
+        \GetResponse\GetResponseIntegration\Application\GetResponse\Cart\CartIdDecryptor $cartIdDecryptor
     )
     {
         parent::__construct($context);
@@ -53,7 +53,7 @@ class AbandonedCart extends \Magento\Framework\App\Action\Action
         $this->url = $url;
         $this->checkoutSession = $checkoutSession;
         $this->quoteFactory = $quoteFactory;
-        $this->cartIdDecoder = $cartIdDecoder;
+        $this->cartIdDecryptor = $cartIdDecryptor;
     }
 
 
@@ -71,7 +71,7 @@ class AbandonedCart extends \Magento\Framework\App\Action\Action
 
     private function executeWithCartId(string $cartId)
     {
-        $cartId = $this->cartIdDecoder->decode($cartId);
+        $cartId = $this->cartIdDecryptor->decrypt($cartId);
         $quote = $this->quoteFactory->create()->loadByIdWithoutStore($cartId);
 
         if (empty($quote->getItems())) {
