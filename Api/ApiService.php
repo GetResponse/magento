@@ -32,7 +32,7 @@ class ApiService
         OrderFactory $orderFactory,
         ProductFactoryBuilder $productFactoryBuilder,
         CustomerFactory $customerFactory,
-        SubscriberFactory $subscriberFactory,
+        SubscriberFactory $subscriberFactory
     ) {
         $this->repository = $repository;
         $this->httpClient = $httpClient;
