@@ -44,7 +44,7 @@ class DeletedProductFactory extends ProductFactory
                     "",
                     [],
                     Product::STATUS_DELETED,
-                    0.00
+                    null
                 );
             }
         } else {
@@ -64,7 +64,7 @@ class DeletedProductFactory extends ProductFactory
                 "",
                 [],
                 Product::STATUS_DELETED,
-                new ProductSalePrice(0, null, null)
+                null
             );
         }
 
@@ -88,7 +88,7 @@ class DeletedProductFactory extends ProductFactory
             '',
             $categories,
             $variants,
-            'deleted',
+            Product::STATUS_DELETED,
             $product->getCreatedAt(),
             $product->getUpdatedAt()
         );
