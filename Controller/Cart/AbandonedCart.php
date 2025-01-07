@@ -2,49 +2,57 @@
 
 namespace GetResponse\GetResponseIntegration\Controller\Cart;
 
+use GetResponse\GetResponseIntegration\Application\GetResponse\Cart\CartIdEncryptor;
+use Magento\Checkout\Helper\Cart;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Url;
+use Magento\Framework\UrlInterface;
+use Magento\Quote\Model\QuoteFactory;
 
-class AbandonedCart extends \Magento\Framework\App\Action\Action
-    implements \Magento\Framework\App\Action\HttpGetActionInterface
+class AbandonedCart extends Action implements HttpGetActionInterface
 {
     /**
-     * @var \Magento\Checkout\Helper\Cart
+     * @var Cart
      */
     protected $cartHelper;
 
     /**
-     * @var \Magento\Framework\Message\ManagerInterface
+     * @var ManagerInterface
      */
     protected $messageManager;
 
     /**
-     * @var \Magento\Framework\UrlInterface
+     * @var UrlInterface
      */
     protected $url;
 
     /**
-     * @var \Magento\Checkout\Model\Session
+     * @var Session
      */
     protected $checkoutSession;
 
     /**
-     * @var \Magento\Quote\Model\QuoteFactory
+     * @var QuoteFactory
      */
     protected $quoteFactory;
 
     /**
-     * @var \GetResponse\GetResponseIntegration\Application\GetResponse\Cart\CartIdDecryptor
+     * @var CartIdEncryptor
      */
-    protected $cartIdDecryptor;
+    protected $cartIdEncryptor;
 
     public function __construct(
-        \Magento\Framework\App\Action\Context                                            $context,
-        \Magento\Checkout\Helper\Cart                                                    $cartHelper,
-        \Magento\Framework\Message\ManagerInterface                                      $messageManager,
-        \Magento\Framework\UrlInterface                                                  $url,
-        \Magento\Checkout\Model\Session                                                  $checkoutSession,
-        \Magento\Quote\Model\QuoteFactory                                                $quoteFactory,
-        \GetResponse\GetResponseIntegration\Application\GetResponse\Cart\CartIdDecryptor $cartIdDecryptor
+        Context          $context,
+        Cart             $cartHelper,
+        ManagerInterface $messageManager,
+        UrlInterface     $url,
+        Session          $checkoutSession,
+        QuoteFactory     $quoteFactory,
+        CartIdEncryptor  $cartIdEncryptor
     )
     {
         parent::__construct($context);
@@ -53,7 +61,7 @@ class AbandonedCart extends \Magento\Framework\App\Action\Action
         $this->url = $url;
         $this->checkoutSession = $checkoutSession;
         $this->quoteFactory = $quoteFactory;
-        $this->cartIdDecryptor = $cartIdDecryptor;
+        $this->cartIdEncryptor = $cartIdEncryptor;
     }
 
 
@@ -71,7 +79,7 @@ class AbandonedCart extends \Magento\Framework\App\Action\Action
 
     private function executeWithCartId(string $cartId)
     {
-        $cartId = $this->cartIdDecryptor->decrypt($cartId);
+        $cartId = $this->cartIdEncryptor->decrypt($cartId);
         $quote = $this->quoteFactory->create()->loadByIdWithoutStore($cartId);
 
         if (empty($quote->getItems())) {

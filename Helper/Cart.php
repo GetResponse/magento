@@ -2,16 +2,28 @@
 
 namespace GetResponse\GetResponseIntegration\Helper;
 
-class Cart extends \Magento\Checkout\Helper\Cart
+use GetResponse\GetResponseIntegration\Application\GetResponse\Cart\CartIdEncryptor;
+use Magento\Checkout\Helper\Cart as CartHelper;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Helper\Context;
+use Magento\Checkout\Model\Cart as CartModel;
+
+class Cart extends CartHelper
 {
+    /**
+     * @var CartIdEncryptor $cartIdEncryptor
+     */
+    private $cartIdEncryptor;
+
     public function __construct(
-        \Magento\Framework\App\Helper\Context                                            $context,
-        \Magento\Checkout\Model\Cart                                                     $checkoutCart,
-        \Magento\Checkout\Model\Session                                                  $checkoutSession,
-        \GetResponse\GetResponseIntegration\Application\GetResponse\Cart\CartIdEncryptor $cartIdEncryptor
+        Context         $context,
+        CartModel       $checkoutCart,
+        Session         $checkoutSession,
+        CartIdEncryptor $cartIdEncryptor
     )
     {
         parent::__construct($context, $checkoutCart, $checkoutSession);
+        $this->cartIdEncryptor = $cartIdEncryptor;
     }
 
     public function getCartUrl()

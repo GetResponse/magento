@@ -20,4 +20,9 @@ class CartIdEncryptor
     {
         return $this->encryptor->encrypt($cartId);
     }
+
+    public function decrypt(string $cartId): int
+    {
+        return $this->encryptor->decrypt($cartId);
+    }
 }

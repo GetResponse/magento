@@ -2,15 +2,22 @@
 
 namespace GetResponse\GetResponseIntegration\Router;
 
-class Router implements \Magento\Framework\App\RouterInterface
+use Magento\Framework\App\Action\Forward;
+use Magento\Framework\App\ActionFactory;
+use Magento\Framework\App\ActionInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\App\RouterInterface;
+
+class Router implements RouterInterface
 {
     /**
-     * @var \Magento\Framework\App\ActionFactory
+     * @var ActionFactory $actionFactory
      */
     private $actionFactory;
 
     /**
-     * @var \Magento\Framework\App\ResponseInterface
+     * @var ResponseInterface $response
      */
     private $response;
 
@@ -21,8 +28,8 @@ class Router implements \Magento\Framework\App\RouterInterface
      * @param ResponseInterface $response
      */
     public function __construct(
-        \Magento\Framework\App\ActionFactory     $actionFactory,
-        \Magento\Framework\App\ResponseInterface $response
+        ActionFactory     $actionFactory,
+        ResponseInterface $response
     )
     {
         $this->actionFactory = $actionFactory;
@@ -30,10 +37,10 @@ class Router implements \Magento\Framework\App\RouterInterface
     }
 
     /**
-     * @param \Magento\Framework\App\RequestInterface $request
-     * @return \Magento\Framework\App\ActionInterface|null
+     * @param RequestInterface $request
+     * @return ActionInterface|null
      */
-    public function match(\Magento\Framework\App\RequestInterface $request): ?\Magento\Framework\App\ActionInterface
+    public function match(RequestInterface $request): ?ActionInterface
     {
         $identifier = trim($request->getPathInfo(), '/');
 
@@ -44,7 +51,7 @@ class Router implements \Magento\Framework\App\RouterInterface
             $request->setActionName('abandonedcart');
 
             return $this->actionFactory->create(
-                \Magento\Framework\App\Action\Forward::class,
+                Forward::class,
                 ['request' => $request]
             );
         }
