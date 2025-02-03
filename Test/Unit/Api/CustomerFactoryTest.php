@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Test\Unit\Api;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\Subscriber\CollectionFactory;
 use GetResponse\GetResponseIntegration\Api\AddressFactory;
 use GetResponse\GetResponseIntegration\Api\Customer;
 use GetResponse\GetResponseIntegration\Api\CustomerFactory;
@@ -12,6 +13,8 @@ use GetResponse\GetResponseIntegration\Test\Unit\ApiFaker;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Framework\App\ObjectManager;
+use Magento\Newsletter\Model\ResourceModel\Subscriber\Collection;
 use Magento\Newsletter\Model\Subscriber;
 use PHPUnit\Framework\MockObject\MockObject;
 use Magento\Sales\Model\Order as MagentoOrder;
@@ -26,6 +29,8 @@ class CustomerFactoryTest extends BaseTestCase
     private $addressFactoryMock;
     /** @var CustomerFactory */
     private $sut;
+    /** @var CollectionFactory|MockObject */
+    private $subscriberCollectionFactory;
 
     protected function setUp(): void
     {
@@ -33,10 +38,23 @@ class CustomerFactoryTest extends BaseTestCase
         $this->subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
         $this->addressFactoryMock = $this->getMockWithoutConstructing(AddressFactory::class);
 
+        $this->subscriberCollectionFactory = $this->getMockWithoutConstructing(CollectionFactory::class, ['create']);
+        $collectionMock = $this->createPartialMock(Collection::class, ['addFieldToFilter', 'getFirstItem']);
+        $collectionMock
+            ->method('addFieldToFilter')
+            ->willReturnSelf();
+        $collectionMock
+            ->method('getFirstItem')
+            ->willReturn($this->subscriberMock);
+        $this->subscriberCollectionFactory
+            ->method('create')
+            ->willReturn($collectionMock);
+
         $this->sut = new CustomerFactory(
             $this->customerRepositoryMock,
             $this->subscriberMock,
-            $this->addressFactoryMock
+            $this->addressFactoryMock,
+            $this->subscriberCollectionFactory
         );
     }
 

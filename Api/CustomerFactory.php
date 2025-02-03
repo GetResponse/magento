@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
+use Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
@@ -15,21 +16,24 @@ class CustomerFactory
     private $customerRepository;
     private $subscriber;
     private $addressFactory;
+    private $subscriberCollectionFactory;
+
 
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
         Subscriber $subscriber,
-        AddressFactory $addressFactory
+        AddressFactory $addressFactory,
+        CollectionFactory $subscriberCollectionFactory
     ) {
         $this->customerRepository = $customerRepository;
         $this->subscriber = $subscriber;
         $this->addressFactory = $addressFactory;
+        $this->subscriberCollectionFactory = $subscriberCollectionFactory;
     }
 
     public function create(CustomerInterface $customer): Customer
     {
-        $customerId = (int)$customer->getId();
-        $isSubscribed = $this->isCustomerSubscribed($customerId);
+        $isSubscribed = $this->isCustomerSubscribed($customer);
 
         $billingAddress = null;
         $shippingAddress = null;
@@ -56,7 +60,7 @@ class CustomerFactory
         ];
 
         return new Customer(
-            $customerId,
+            (int)$customer->getId(),
             $customer->getEmail(),
             $customer->getFirstname(),
             $customer->getLastname(),
@@ -74,13 +78,15 @@ class CustomerFactory
     public function createFromOrder(MagentoOrder $order): Customer
     {
         $customerId = (int)$order->getCustomerId();
-        $isSubscribed = $this->isCustomerSubscribed($customerId);
+        $isSubscribed = false;
 
         $billingAddress = null;
         $shippingAddress = null;
 
         if (null !== $customerId) {
             $customer = $this->customerRepository->getById($customerId);
+            $isSubscribed = $this->isCustomerSubscribed($customer);
+
             foreach ($customer->getAddresses() as $customerAddress) {
                 if ($customerAddress->isDefaultBilling()) {
                     $billingAddress = $this->addressFactory->createFromCustomer($customerAddress);
@@ -120,8 +126,8 @@ class CustomerFactory
     public function createFromCustomerAddress(AddressInterface $address): Customer
     {
         $customerId = (int)$address->getCustomerId();
-        $isSubscribed = $this->isCustomerSubscribed($customerId);
         $customer = $this->customerRepository->getById($customerId);
+        $isSubscribed = $this->isCustomerSubscribed($customer);
 
         $billingAddress = null;
         $shippingAddress = null;
@@ -216,14 +222,14 @@ class CustomerFactory
         );
     }
 
-    private function isCustomerSubscribed(?int $customerId): bool
+    private function isCustomerSubscribed(CustomerInterface $customer): bool
     {
-        if (null === $customerId) {
-            return false;
-        }
+        /** @var Subscriber $subscriber */
+        $subscriber = $this->subscriberCollectionFactory->create()
+            ->addFieldToFilter('customer_id', $customer->getId())
+            ->addStoreFilter([$customer->getStoreId()])
+            ->getFirstItem();
 
-        $subscriber = $this->subscriber->loadByCustomerId($customerId);
-
-        return $subscriber->isSubscribed();
+        return $subscriber && $subscriber->isSubscribed();
     }
 }
