@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.8.2] - 2025-01-29
+### Fix
+- Fixed subscriber identification from customer
+
 ## [20.8.1] - 2024-11-15
 ### Feat
 - Fixed deprecated JavaScript function usage
