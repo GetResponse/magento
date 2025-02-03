@@ -56,7 +56,7 @@ class CustomerFactory
         ];
 
         return new Customer(
-            $customer->getId(),
+            (int) $customer->getId(),
             $customer->getEmail(),
             $customer->getFirstname(),
             $customer->getLastname(),
@@ -107,7 +107,7 @@ class CustomerFactory
         ];
 
         return new Customer(
-            $customer->getId(),
+            (int) $customer->getId(),
             $customer->getEmail(),
             $customer->getFirstname(),
             $customer->getLastname(),
@@ -155,7 +155,7 @@ class CustomerFactory
         ];
 
         return new Customer(
-            $customer->getId(),
+            (int) $customer->getId(),
             $customer->getEmail(),
             $customer->getFirstname(),
             $customer->getLastname(),
@@ -246,7 +246,7 @@ class CustomerFactory
         ];
 
         return new Customer(
-            $customer->getId(),
+            (int) $customer->getId(),
             $order->getCustomerEmail(),
             (string) $order->getCustomerFirstname(),
             (string) $order->getCustomerLastname(),
