@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Test\Unit\Api;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\Subscriber\CollectionFactory;
+use Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory;
 use GetResponse\GetResponseIntegration\Api\AddressFactory;
 use GetResponse\GetResponseIntegration\Api\Customer;
 use GetResponse\GetResponseIntegration\Api\CustomerFactory;
@@ -13,7 +13,6 @@ use GetResponse\GetResponseIntegration\Test\Unit\ApiFaker;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
-use Magento\Framework\App\ObjectManager;
 use Magento\Newsletter\Model\ResourceModel\Subscriber\Collection;
 use Magento\Newsletter\Model\Subscriber;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -52,7 +51,6 @@ class CustomerFactoryTest extends BaseTestCase
 
         $this->sut = new CustomerFactory(
             $this->customerRepositoryMock,
-            $this->subscriberMock,
             $this->addressFactoryMock,
             $this->subscriberCollectionFactory
         );
@@ -190,6 +188,7 @@ class CustomerFactoryTest extends BaseTestCase
         $orderMock->method('getCustomerTaxvat')->willReturn($taxVat);
         $orderMock->method('getCustomerGender')->willReturn($gender);
         $orderMock->method('getCustomerMiddlename')->willReturn($middleName);
+        $orderMock->method('getCustomerIsGuest')->willReturn(false);
 
         $this->subscriberMock->method('isSubscribed')->willReturn(true);
         $this->subscriberMock->method('loadByCustomerId')->willReturn($this->subscriberMock);
@@ -202,6 +201,7 @@ class CustomerFactoryTest extends BaseTestCase
         /** @var CustomerInterface|MockObject $customerMock */
         $customerMock = $this->getMockWithoutConstructing(CustomerInterface::class);
         $customerMock->method('getAddresses')->willReturn([$addressMock]);
+        $customerMock->method('getId')->willReturn($customerId);
 
         $this->customerRepositoryMock->method('getById')->willReturn($customerMock);
 
@@ -302,6 +302,7 @@ class CustomerFactoryTest extends BaseTestCase
         $customerMock->method('getTaxvat')->willReturn($taxVat);
         $customerMock->method('getGender')->willReturn($gender);
         $customerMock->method('getMiddlename')->willReturn($middleName);
+        $customerMock->method('getId')->willReturn($customerId);
 
         $this->customerRepositoryMock->method('getById')->willReturn($customerMock);
 
@@ -412,6 +413,7 @@ class CustomerFactoryTest extends BaseTestCase
         $customerMock->method('getTaxvat')->willReturn($taxVat);
         $customerMock->method('getGender')->willReturn($gender);
         $customerMock->method('getMiddlename')->willReturn($middleName);
+        $customerMock->method('getId')->willReturn($customerId);
 
         $this->customerRepositoryMock->method('getById')->willReturn($customerMock);
 
