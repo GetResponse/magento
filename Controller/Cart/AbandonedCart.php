@@ -9,7 +9,6 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Message\ManagerInterface;
-use Magento\Framework\Url;
 use Magento\Framework\UrlInterface;
 use Magento\Quote\Model\QuoteFactory;
 
@@ -82,7 +81,7 @@ class AbandonedCart extends Action implements HttpGetActionInterface
         $cartId = $this->cartIdEncryptor->decrypt($cartId);
         $quote = $this->quoteFactory->create()->loadByIdWithoutStore($cartId);
 
-        if (empty($quote->getItems())) {
+        if (empty($quote->getAllVisibleItems())) {
             $this->messageManager->addErrorMessage(__("Cannot recover an empty or inactive cart"));
             return $this->_redirect($this->cartHelper->getCartUrl());
         }

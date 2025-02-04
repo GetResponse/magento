@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\Visitor;
 use JsonSerializable;
 
 class Cart implements JsonSerializable
@@ -11,6 +12,8 @@ class Cart implements JsonSerializable
     private $id;
     private $customer;
     /** @var Line[] */
+
+    private $visitor;
     private $lines;
     private $totalPrice;
     private $totalTaxPrice;
@@ -21,7 +24,8 @@ class Cart implements JsonSerializable
 
     public function __construct(
         int $id,
-        Customer $customer,
+        ?Customer $customer,
+        ?Visitor $visitor,
         array $lines,
         float $totalPrice,
         float $totalTaxPrice,
@@ -32,6 +36,7 @@ class Cart implements JsonSerializable
     ) {
         $this->id = $id;
         $this->customer = $customer;
+        $this->visitor = $visitor;
         $this->lines = $lines;
         $this->totalPrice = $totalPrice;
         $this->totalTaxPrice = $totalTaxPrice;
@@ -46,7 +51,7 @@ class Cart implements JsonSerializable
         return $this->id;
     }
 
-    public function getCustomer(): Customer
+    public function getCustomer(): ?Customer
     {
         return $this->customer;
     }
@@ -96,8 +101,9 @@ class Cart implements JsonSerializable
         return [
             'callback_type' => CallbackType::CHECKOUT_UPDATE,
             'id' => $this->id,
-            'contact_email' => $this->customer->getEmail(),
-            'customer' => $this->customer->jsonSerialize(),
+            'contact_email' => $this->customer !== null ? $this->customer->getEmail() : null,
+            'customer' => $this->customer !== null ? $this->customer->jsonSerialize() : [],
+            'visitor_uuid' => $this->visitor !== null ? $this->visitor->getVisitorUuid() : null,
             'lines' => $lines,
             'total_price' => $this->totalPrice,
             'total_price_tax' => $this->totalTaxPrice,
@@ -106,5 +112,10 @@ class Cart implements JsonSerializable
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
         ];
+    }
+
+    public function isValuable(): bool
+    {
+        return $this->id !== 0 && ($this->customer !== null || $this->visitor !== null);
     }
 }

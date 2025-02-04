@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\Visitor;
 use GetResponse\GetResponseIntegration\Helper\Cart as CartHelper;
 use Magento\Quote\Model\Quote;
 
@@ -18,11 +19,12 @@ class CartFactory
         $this->customerFactory = $customerFactory;
     }
 
-    public function create(Quote $quote): Cart
+    public function create(Quote $quote, ?Visitor $visitor): Cart
     {
         return new Cart(
             (int)$quote->getId(),
-            $this->customerFactory->create($quote->getCustomer()),
+            $quote->getCustomerIsGuest() ? null : $this->customerFactory->createFromQuote($quote),
+            $visitor,
             $this->createLinesFromQuote($quote),
             (float)$quote->getSubtotal(),
             (float)$quote->getGrandTotal(),

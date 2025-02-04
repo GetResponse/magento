@@ -9,6 +9,7 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Newsletter\Model\Subscriber;
+use Magento\Quote\Model\Quote as MagentoQuote;
 use Magento\Sales\Model\Order as MagentoOrder;
 use RuntimeException;
 
@@ -73,7 +74,48 @@ class CustomerFactory
 
     public function createFromOrder(MagentoOrder $order): Customer
     {
-        return $order->getCustomerIsGuest() ? $this->createForGuest($order) : $this->createForLoggedIn($order);
+        return $order->getCustomerIsGuest() ? $this->createForGuestOrder($order) : $this->createForLoggedInOrder($order);
+    }
+
+    public function createFromQuote(MagentoQuote $quote): Customer
+    {
+        $billingAddress = $shippingAddress = null;
+
+        $customer = $quote->getCustomer();
+
+        foreach ($customer->getAddresses() as $customerAddress) {
+            if ($customerAddress->isDefaultBilling()) {
+                $billingAddress = $this->addressFactory->createFromCustomer($customerAddress);
+            }
+            if ($customerAddress->isDefaultShipping()) {
+                $shippingAddress = $this->addressFactory->createFromCustomer($customerAddress);
+            }
+        }
+
+        $customFields = [
+            'group_id' => $customer->getCustomerGroupId(),
+            'store_id' => $customer->getStoreId(),
+            'prefix' => $customer->getCustomerPrefix(),
+            'dob' => $customer->getCustomerDob(),
+            'tax_vat' => $customer->getCustomerTaxvat(),
+            'gender' => $customer->getCustomerGender(),
+            'middlename' => $customer->getCustomerMiddlename(),
+        ];
+
+        return new Customer(
+            (int) $customer->getId(),
+            $customer->getEmail(),
+            (string) $customer->getFirstname(),
+            (string) $customer->getLastname(),
+            $this->isCustomerSubscribed($customer),
+            $billingAddress,
+            [],
+            array_merge(
+                $customFields,
+                null !== $billingAddress ? $billingAddress->toCustomFieldsArray('billing') : [],
+                null !== $shippingAddress ? $shippingAddress->toCustomFieldsArray('shipping') : []
+            )
+        );
     }
 
     public function createFromCustomerAddress(AddressInterface $address): Customer
@@ -181,7 +223,7 @@ class CustomerFactory
         return $subscriber && $subscriber->isSubscribed();
     }
 
-    private function createForGuest(MagentoOrder $order): Customer
+    private function createForGuestOrder(MagentoOrder $order): Customer
     {
         $billingAddress = $shippingAddress = null;
 
@@ -220,7 +262,7 @@ class CustomerFactory
         );
     }
 
-    private function createForLoggedIn(MagentoOrder $order): Customer
+    private function createForLoggedInOrder(MagentoOrder $order): Customer
     {
         $billingAddress = $shippingAddress = null;
 
