@@ -39,13 +39,11 @@ class CartFactoryTest extends BaseTestCase
         $expectedCart = ApiFaker::createCart();
         $productId = 595949;
 
-        $customerMock = $this->getMockBuilder(MagentoCustomer::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $customerMock = $this->getMockWithoutConstructing(MagentoCustomer::class);
 
         $quoteMock = $this->getMockWithoutConstructing(
             Quote::class,
-            ['getId', 'getCustomer', 'getAllVisibleItems', 'getCreatedAt', 'getUpdatedAt'],
+            ['getId', 'getCustomerIsGuest', 'getCustomer', 'getAllVisibleItems', 'getCreatedAt', 'getUpdatedAt'],
             ['getSubtotal', 'getGrandTotal', 'getQuoteCurrencyCode']
         );
 
@@ -66,9 +64,8 @@ class CartFactoryTest extends BaseTestCase
         $itemMock->method('getTotalQty')->willReturn(1);
         $itemMock->method('getSku')->willReturn('product-2929');
 
-
-
         $quoteMock->method('getId')->willReturn($expectedCart->getId());
+        $quoteMock->method('getCustomerIsGuest')->willReturn('0');
         $quoteMock->method('getCustomer')->willReturn($customerMock);
         $quoteMock->method('getAllVisibleItems')->willReturn([]);
         $quoteMock->method('getSubtotal')->willReturn($expectedCart->getTotalPrice());
@@ -79,7 +76,7 @@ class CartFactoryTest extends BaseTestCase
 
         $this->cartHelperMock->method('getCartUrl')->willReturn($expectedCart->getUrl());
 
-        $this->customerFactoryMock->method('create')->willReturn($customer);
+        $this->customerFactoryMock->method('createFromQuote')->willReturn($customer);
 
         $cart = $this->sut->create($quoteMock);
 

@@ -14,13 +14,17 @@ use GetResponse\GetResponseIntegration\Api\SubscriberFactory;
 use GetResponse\GetResponseIntegration\Builder\ProductFactoryBuilder;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebTrackingRepository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
+use GetResponse\GetResponseIntegration\Test\Unit\ApiFaker;
 use Magento\Catalog\Model\Product;
 use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Newsletter\Model\Subscriber;
 use Magento\Quote\Model\Quote;
+use Magento\Sales\Model\Order;
 use PHPUnit\Framework\MockObject\MockObject;
 use GetResponse\GetResponseIntegration\Api\Product as GrProduct;
 
@@ -44,6 +48,9 @@ class ApiServiceTest extends BaseTestCase
     private $customerFactoryMock;
     /** @var MockObject|SubscriberFactory */
     private $subscriberFactoryMock;
+    /** @var MockObject|WebTrackingRepository */
+    private $webTrackingRepositoryMock;
+
     /** @var ApiService */
     private $sut;
 
@@ -57,8 +64,10 @@ class ApiServiceTest extends BaseTestCase
         $this->productFactoryBuilderMock = $this->getMockWithoutConstructing(ProductFactoryBuilder::class, ['fromMagentoProduct']);
         $this->customerFactoryMock = $this->getMockWithoutConstructing(CustomerFactory::class);
         $this->subscriberFactoryMock = $this->getMockWithoutConstructing(SubscriberFactory::class);
+        $this->webTrackingRepositoryMock = $this->getMockWithoutConstructing(WebTrackingRepository::class);
 
         $this->productFactoryBuilderMock->method('fromMagentoProduct')->willReturn($this->productFactoryMock);
+
 
         $this->sut = new ApiService(
             $this->repositoryMock,
@@ -67,7 +76,8 @@ class ApiServiceTest extends BaseTestCase
             $this->orderFactoryMock,
             $this->productFactoryBuilderMock,
             $this->customerFactoryMock,
-            $this->subscriberFactoryMock
+            $this->subscriberFactoryMock,
+            $this->webTrackingRepositoryMock
         );
     }
 
@@ -205,7 +215,7 @@ class ApiServiceTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldCreateCart(): void
+    public function shouldCreateCartWithCustomer(): void
     {
         /** @var Quote|MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(Quote::class);
@@ -213,12 +223,72 @@ class ApiServiceTest extends BaseTestCase
         $scope = new Scope(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_ECOMMERCE);
+        $webEventTracking = new WebEventTracking(true, true, '', null);
 
         $this->repositoryMock
             ->expects(self::once())
             ->method('getLiveSynchronization')
             ->with($scope->getScopeId())
             ->willReturn($liveSynchronization->toArray());
+
+        $this->repositoryMock
+            ->expects(self::once())
+            ->method('getWebEventTracking')
+            ->with($scope->getScopeId())
+            ->willReturn($webEventTracking->toArray());
+
+        $this->webTrackingRepositoryMock
+            ->expects(self::once())
+            ->method('findVisitor')
+            ->willReturn(null);
+
+        $this->cartFactoryMock
+            ->expects(self::once())
+            ->method('create')
+            ->with($quoteMock)
+            ->willReturn(ApiFaker::createCart());
+
+        $this->httpClientMock
+            ->expects(self::once())
+            ->method('post');
+
+        $this->sut->createCart($quoteMock, $scope);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldCreateCartWithVisitorUuid(): void
+    {
+        /** @var Quote|MockObject $quoteMock */
+        $quoteMock = $this->getMockWithoutConstructing(Quote::class);
+        $scope = new Scope(1);
+
+        $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_ECOMMERCE);
+        $webEventTracking = new WebEventTracking(true, true, '', null);
+
+        $this->repositoryMock
+            ->expects(self::once())
+            ->method('getLiveSynchronization')
+            ->with($scope->getScopeId())
+            ->willReturn($liveSynchronization->toArray());
+
+        $this->repositoryMock
+            ->expects(self::once())
+            ->method('getWebEventTracking')
+            ->with($scope->getScopeId())
+            ->willReturn($webEventTracking->toArray());
+
+        $this->webTrackingRepositoryMock
+            ->expects(self::once())
+            ->method('findVisitor')
+            ->willReturn(ApiFaker::createVisitor());
+
+        $this->cartFactoryMock
+            ->expects(self::once())
+            ->method('create')
+            ->with($quoteMock)
+            ->willReturn(ApiFaker::createCartWithVisitor());
 
         $this->httpClientMock
             ->expects(self::once())
@@ -257,9 +327,8 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldCreateOrder(): void
     {
-        /** @var Quote|MockObject $quoteMock */
-        $quoteMock = $this->getMockWithoutConstructing(Quote::class);
-
+        /** @var Order|MockObject $orderMock */
+        $orderMock = $this->getMockWithoutConstructing(Order::class);
         $scope = new Scope(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_ECOMMERCE);
@@ -274,7 +343,7 @@ class ApiServiceTest extends BaseTestCase
             ->expects(self::once())
             ->method('post');
 
-        $this->sut->createCart($quoteMock, $scope);
+        $this->sut->createOrder($orderMock, $scope);
     }
 
     /**
@@ -282,8 +351,8 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldNotCreateOrder(): void
     {
-        /** @var Quote|MockObject $quoteMock */
-        $quoteMock = $this->getMockWithoutConstructing(Quote::class);
+        /** @var Order|MockObject $orderMock */
+        $orderMock = $this->getMockWithoutConstructing(Quote::class);
 
         $scope = new Scope(1);
 
@@ -299,7 +368,7 @@ class ApiServiceTest extends BaseTestCase
             ->expects(self::never())
             ->method('post');
 
-        $this->sut->createCart($quoteMock, $scope);
+        $this->sut->createCart($orderMock, $scope);
     }
 
     /**

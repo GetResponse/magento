@@ -19,11 +19,11 @@ class CartFactory
         $this->customerFactory = $customerFactory;
     }
 
-    public function create(Quote $quote, ?Visitor $visitor): Cart
+    public function create(Quote $quote, ?Visitor $visitor = null): Cart
     {
         return new Cart(
             (int)$quote->getId(),
-            $quote->getCustomerIsGuest() ? null : $this->customerFactory->createFromQuote($quote),
+            (bool) $quote->getCustomerIsGuest() ? null : $this->customerFactory->createFromQuote($quote),
             $visitor,
             $this->createLinesFromQuote($quote),
             (float)$quote->getSubtotal(),
