@@ -246,7 +246,7 @@ class ApiServiceTest extends BaseTestCase
             ->expects(self::once())
             ->method('create')
             ->with($quoteMock)
-            ->willReturn(ApiFaker::createCart());
+            ->willReturn(ApiFaker::createCartWithCustomer());
 
         $this->httpClientMock
             ->expects(self::once())

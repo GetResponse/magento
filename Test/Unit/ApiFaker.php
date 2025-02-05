@@ -44,11 +44,27 @@ class ApiFaker
         );
     }
 
-    public static function createCart(): Cart
+    public static function createCartWithCustomer(): Cart
     {
         return new Cart(
             320,
             self::createCustomer(),
+            null,
+            [],
+            104.29,
+            129.99,
+            'EUR',
+            'http://magento.com/cart/3d938d9ff',
+            '2020-03-22 06:04:22',
+            '2020-03-22 06:04:22'
+        );
+    }
+
+    public static function createCartWithoutCustomer(): Cart
+    {
+        return new Cart(
+            320,
+            null,
             null,
             [],
             104.29,
