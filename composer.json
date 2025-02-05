@@ -15,7 +15,7 @@
         "getresponse/share-code-plugin": "^7.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.5",
+        "phpunit/phpunit": "^8.5",
         "magento/module-store": "*",
         "magento/magento-coding-standard": "*",
         "squizlabs/php_codesniffer": "*",
