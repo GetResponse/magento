@@ -15,7 +15,7 @@ use GrShareCode\Cart\Command\AddCartCommand;
 use GrShareCode\Product\Product;
 use GrShareCode\Product\ProductsCollection;
 use GrShareCode\Product\Variant\Variant;
-use Magento\Checkout\Helper\Cart as CartHelper;
+use Magento\Checkout\Helper\Cart as MagentoCart;
 use Magento\Quote\Model\Quote;
 
 class CartService
@@ -28,7 +28,7 @@ class CartService
     public function __construct(
         CartServiceFactory $cartServiceFactory,
         ProductFactory $productFactory,
-        CartHelper $cartHelper,
+        MagentoCart $cartHelper,
         QuoteReadModel $quoteReadModel
     ) {
         $this->cartServiceFactory = $cartServiceFactory;

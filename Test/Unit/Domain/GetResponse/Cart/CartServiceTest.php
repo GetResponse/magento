@@ -13,7 +13,7 @@ use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GrShareCode\Cart\CartService as GrCartService;
 use GrShareCode\Product\Product;
-use Magento\Checkout\Helper\Cart as CartHelper;
+use Magento\Checkout\Helper\Cart as MagentoCart;
 use Magento\Quote\Model\Quote;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -23,8 +23,8 @@ class CartServiceTest extends BaseTestCase
     private $productFactory;
     /** @var GrCartService|MockObject */
     private $grCartService;
-    /** @var CartHelper|MockObject */
-    private $cartHelper;
+    /** @var cartMock|MockObject */
+    private $cartMock;
     /** @var CartService */
     private $sut;
     /** @var QuoteReadModel|MockObject */
@@ -35,7 +35,7 @@ class CartServiceTest extends BaseTestCase
     protected function setUp(): void
     {
         $this->grCartService = $this->getMockWithoutConstructing(GrCartService::class);
-        $this->cartHelper = $this->getMockWithoutConstructing(CartHelper::class);
+        $this->cartMock = $this->getMockWithoutConstructing(MagentoCart::class);
         /** @var CartServiceFactory $cartServiceFactory */
         $cartServiceFactory = $this->getMockWithoutConstructing(CartServiceFactory::class);
         $cartServiceFactory
@@ -49,7 +49,7 @@ class CartServiceTest extends BaseTestCase
         $this->sut = new CartService(
             $cartServiceFactory,
             $this->productFactory,
-            $this->cartHelper,
+            $this->cartMock,
             $this->quoteReadModel
         );
     }
@@ -97,7 +97,7 @@ class CartServiceTest extends BaseTestCase
             ->with(new QuoteById($quoteId))
             ->willReturn($quote);
 
-        $this->cartHelper
+        $this->cartMock
             ->expects(self::once())
             ->method('getCartUrl')
             ->willReturn('https://my_magento_shop.com/checkout/cart/');

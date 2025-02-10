@@ -29,4 +29,15 @@
     <type name="Magento\Checkout\Block\Cart">
         <plugin name="getresponse-recommendation-cart-view" type="GetResponse\GetResponseIntegration\CustomerData\Recommendation\CartView"/>
     </type>
+    <type name="Magento\Framework\App\RouterList">
+        <arguments>
+            <argument name="routerList" xsi:type="array">
+                <item name="getresponse" xsi:type="array">
+                    <item name="class" xsi:type="string">GetResponse\GetResponseIntegration\Router\Router</item>
+                    <item name="disable" xsi:type="boolean">false</item>
+                    <item name="sortOrder" xsi:type="string">40</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
 </config>
