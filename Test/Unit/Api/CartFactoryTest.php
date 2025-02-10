@@ -74,11 +74,11 @@ class CartFactoryTest extends BaseTestCase
         $quoteMock->method('getCreatedAt')->willReturn($expectedCart->getCreatedAt());
         $quoteMock->method('getUpdatedAt')->willReturn($expectedCart->getUpdatedAt());
 
-        $this->cartHelperMock->method('getCartUrl')->willReturn($expectedCart->getUrl());
+        $this->cartMock->method('getCartUrl')->willReturn($expectedCart->getUrl());
 
         $this->customerFactoryMock
             ->expects(self::once())
-            ->method('createFromQuote')->willReturn($customer);
+            ->method('create')->willReturn($customer);
 
         $cart = $this->sut->create($quoteMock);
 
@@ -128,11 +128,11 @@ class CartFactoryTest extends BaseTestCase
         $quoteMock->method('getCreatedAt')->willReturn($expectedCart->getCreatedAt());
         $quoteMock->method('getUpdatedAt')->willReturn($expectedCart->getUpdatedAt());
 
-        $this->cartHelperMock->method('getCartUrl')->willReturn($expectedCart->getUrl());
+        $this->cartMock->method('getCartUrl')->willReturn($expectedCart->getUrl());
 
         $this->customerFactoryMock
             ->expects(self::never())
-            ->method('createFromQuote');
+            ->method('create');
 
         $cart = $this->sut->create($quoteMock);
 
@@ -182,7 +182,7 @@ class CartFactoryTest extends BaseTestCase
         $quoteMock->method('getCreatedAt')->willReturn($expectedCart->getCreatedAt());
         $quoteMock->method('getUpdatedAt')->willReturn($expectedCart->getUpdatedAt());
 
-        $this->cartHelperMock->method('getCartUrl')->willReturn($expectedCart->getUrl());
+        $this->cartMock->method('getCartUrl')->willReturn($expectedCart->getUrl());
 
         $this->customerFactoryMock
             ->expects(self::never())

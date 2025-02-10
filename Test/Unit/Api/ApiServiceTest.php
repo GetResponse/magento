@@ -61,12 +61,9 @@ class ApiServiceTest extends BaseTestCase
         $this->cartFactoryMock = $this->getMockWithoutConstructing(CartFactory::class);
         $this->orderFactoryMock = $this->getMockWithoutConstructing(OrderFactory::class);
         $this->productFactoryMock = $this->getMockWithoutConstructing(ProductFactory::class);
-        $this->productFactoryBuilderMock = $this->getMockWithoutConstructing(ProductFactoryBuilder::class, ['fromMagentoProduct']);
         $this->customerFactoryMock = $this->getMockWithoutConstructing(CustomerFactory::class);
         $this->subscriberFactoryMock = $this->getMockWithoutConstructing(SubscriberFactory::class);
         $this->webTrackingRepositoryMock = $this->getMockWithoutConstructing(WebTrackingRepository::class);
-
-        $this->productFactoryBuilderMock->method('fromMagentoProduct')->willReturn($this->productFactoryMock);
 
 
         $this->sut = new ApiService(
@@ -74,7 +71,7 @@ class ApiServiceTest extends BaseTestCase
             $this->httpClientMock,
             $this->cartFactoryMock,
             $this->orderFactoryMock,
-            $this->productFactoryBuilderMock,
+            $this->productFactoryMock,
             $this->customerFactoryMock,
             $this->subscriberFactoryMock,
             $this->webTrackingRepositoryMock
