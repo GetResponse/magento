@@ -18,7 +18,7 @@ class DeletedProduct implements JsonSerializable
     /**
      * @inheritDoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'callback_type' => CallbackType::PRODUCT_DELETE,
