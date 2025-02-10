@@ -5,19 +5,18 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\Model;
 
 use Magento\Catalog\Model\CategoryRepository;
-use Magento\Checkout\Helper\Cart as MagentoCart;
-use GetResponse\GetResponseIntegration\Helper\Cart as Cart;
+use GetResponse\GetResponseIntegration\Helper\Cart as MagentoCart;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Item;
 
 class CartFactory
 {
-    private $cart;
+    private $cartHelper;
     private $categoryRepository;
 
-    public function __construct(Cart $cart, CategoryRepository $categoryRepository)
+    public function __construct(MagentoCart $cart, CategoryRepository $categoryRepository)
     {
-        $this->cart = $cart;
+        $this->cartHelper = $cart;
         $this->categoryRepository = $categoryRepository;
     }
 
