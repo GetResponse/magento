@@ -4,32 +4,32 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\Visitor;
 use GetResponse\GetResponseIntegration\Helper\Cart as CartHelper;
+use Magento\Checkout\Helper\Cart as MagentoCart;
 use Magento\Quote\Model\Quote;
+use GetResponse\GetResponseIntegration\Api\Line;
 
 class CartFactory
 {
-    private $cartHelper;
+    private $cart;
     private $customerFactory;
 
-    public function __construct(CartHelper $cartHelper, CustomerFactory $customerFactory)
+    public function __construct(CartHelper $cart, CustomerFactory $customerFactory)
     {
-        $this->cartHelper = $cartHelper;
+        $this->cart = $cart;
         $this->customerFactory = $customerFactory;
     }
 
-    public function create(Quote $quote, ?Visitor $visitor = null): Cart
+    public function create(Quote $quote): Cart
     {
         return new Cart(
             (int)$quote->getId(),
-            (bool) $quote->getCustomerIsGuest() ? null : $this->customerFactory->createFromQuote($quote),
-            $visitor,
+            $this->customerFactory->create($quote->getCustomer()),
             $this->createLinesFromQuote($quote),
             (float)$quote->getSubtotal(),
             (float)$quote->getGrandTotal(),
             $quote->getQuoteCurrencyCode(),
-            $this->cartHelper->getCartUrl(),
+            $this->cart->getCartUrl(),
             $quote->getCreatedAt(),
             $quote->getUpdatedAt()
         );
@@ -51,11 +51,11 @@ class CartFactory
             }
 
             $lines[] = new Line(
-                (int) $variantId,
+                (int)$variantId,
                 (float)$item->getConvertedPrice(),
                 (float)$item->getPriceInclTax(),
                 (int)$item->getTotalQty(),
-                (string) $item->getSku()
+                (string)$item->getSku()
             );
         }
 

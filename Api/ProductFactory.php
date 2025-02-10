@@ -10,23 +10,22 @@ use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\Product as MagentoProduct;
 use Magento\Framework\Exception\NoSuchEntityException;
-use GetResponse\GetResponseIntegration\Api\ProductFactoryInterface;
+use JsonSerializable;
 
-class ProductFactory implements ProductFactoryInterface
+class ProductFactory
 {
-    protected const PRODUCT_STATUS_ACTIVE = 1;
-    protected const PRODUCT_INVISIBLE = 1;
+    private const PRODUCT_STATUS_ACTIVE = 1;
+    private const PRODUCT_INVISIBLE = 1;
 
-    protected $categoryRepository;
-    protected $productReadModel;
+    private $categoryRepository;
+    private $productReadModel;
     protected $productType;
 
     public function __construct(
         CategoryRepository $categoryRepository,
-        ProductReadModel   $productReadModel,
-        ProductType        $productType
-    )
-    {
+        ProductReadModel $productReadModel,
+        ProductType $productType
+    ) {
         $this->categoryRepository = $categoryRepository;
         $this->productReadModel = $productReadModel;
         $this->productType = $productType;
@@ -50,7 +49,7 @@ class ProductFactory implements ProductFactoryInterface
     /**
      * @return MagentoProduct[]
      */
-    protected function getParentProducts(MagentoProduct $product): array
+    private function getParentProducts(MagentoProduct $product): array
     {
         $products = [$product];
 
@@ -149,12 +148,11 @@ class ProductFactory implements ProductFactoryInterface
         );
     }
 
-    protected function getProductConfigurableUrl(
+    private function getProductConfigurableUrl(
         MagentoProduct $parentProduct,
         MagentoProduct $simpleProduct,
-        int            $storeId
-    ): string
-    {
+        int $storeId
+    ): string {
         $configType = $parentProduct->getTypeInstance();
         $attributes = $configType->getConfigurableAttributesAsArray($parentProduct);
         $options = [];
@@ -170,7 +168,7 @@ class ProductFactory implements ProductFactoryInterface
         return $mainUrl . ($options ? '#' . $options : '');
     }
 
-    protected function getImages(MagentoProduct $product): array
+    private function getImages(MagentoProduct $product): array
     {
         $images = [];
         foreach ($product->getMediaGalleryImages() as $image) {
@@ -183,7 +181,7 @@ class ProductFactory implements ProductFactoryInterface
         return $images;
     }
 
-    protected function getProductQuantity(int $productId): int
+    private function getProductQuantity(int $productId): int
     {
         $product = $this->productReadModel->getProduct(new GetProduct($productId));
         $extensionAttributes = $product->getExtensionAttributes();
@@ -192,33 +190,23 @@ class ProductFactory implements ProductFactoryInterface
             return 0;
         }
 
-        return (int)$extensionAttributes->getStockItem()->getQty();
+        return (int) $extensionAttributes->getStockItem()->getQty();
     }
 
-    protected function getProductStatus(MagentoProduct $product): string
+    private function getProductStatus(MagentoProduct $product): string
     {
-        $qasData = $product->getQuantityAndStockStatus();
-        if (!empty($qasData) && ($qasData['is_in_stock'] === false || $qasData['qty'] === 0)) {
-            return Product::STATUS_DRAFT;
-        }
-
-        $isStatusActive = (int)$product->getStatus() === self::PRODUCT_STATUS_ACTIVE;
-        $isVisible = (int)$product->getVisibility() !== self::PRODUCT_INVISIBLE;
+        $isStatusActive = (int) $product->getStatus() === self::PRODUCT_STATUS_ACTIVE;
+        $isVisible = (int) $product->getVisibility() !== self::PRODUCT_INVISIBLE;
 
         return $isStatusActive && $isVisible ? Product::STATUS_PUBLISH : Product::STATUS_DRAFT;
     }
 
-    protected function getProductVariantStatus(MagentoProduct $product): string
+    private function getProductVariantStatus(MagentoProduct $product): string
     {
-        $qasData = $product->getQuantityAndStockStatus();
-        if (!empty($qasData) && ($qasData['is_in_stock'] === false || $qasData['qty'] === 0)) {
-            return Product::STATUS_DRAFT;
-        }
-
-        return (int)$product->getStatus() === self::PRODUCT_STATUS_ACTIVE ? Product::STATUS_PUBLISH : Product::STATUS_DRAFT;
+        return (int) $product->getStatus() === self::PRODUCT_STATUS_ACTIVE ? Product::STATUS_PUBLISH : Product::STATUS_DRAFT;
     }
 
-    protected function getSalesPrice(MagentoProduct $product): ?ProductSalePrice
+    private function getSalesPrice(MagentoProduct $product): ?ProductSalePrice
     {
         $price = $product->getSpecialPrice();
         $fromDate = $product->getSpecialFromDate();

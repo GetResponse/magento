@@ -11,13 +11,13 @@ use GetResponse\GetResponseIntegration\Test\Unit\ApiFaker;
 use Magento\Catalog\Model\Product;
 use Magento\Customer\Model\Data\Customer as MagentoCustomer;
 use Magento\Quote\Model\Quote;
-use GetResponse\GetResponseIntegration\Helper\Cart as CartHelper;
+use GetResponse\GetResponseIntegration\Helper\Cart as Cart;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class CartFactoryTest extends BaseTestCase
 {
-    /** @var CartHelper|MockObject */
-    private $cartHelperMock;
+    /** @var Cart|MockObject */
+    private $cartMock;
     /** @var CustomerFactory|MockObject */
     private $customerFactoryMock;
     /** @var CartFactory */
@@ -25,9 +25,9 @@ class CartFactoryTest extends BaseTestCase
 
     protected function setUp(): void
     {
-        $this->cartHelperMock = $this->getMockWithoutConstructing(CartHelper::class);
+        $this->cartMock = $this->getMockWithoutConstructing(Cart::class);
         $this->customerFactoryMock = $this->getMockWithoutConstructing(CustomerFactory::class);
-        $this->sut = new CartFactory($this->cartHelperMock, $this->customerFactoryMock);
+        $this->sut = new CartFactory($this->cartMock, $this->customerFactoryMock);
     }
 
     /**

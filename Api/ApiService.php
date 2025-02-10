@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-use GetResponse\GetResponseIntegration\Builder\ProductFactoryBuilder;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
@@ -23,7 +22,7 @@ class ApiService
     private $httpClient;
     private $cartFactory;
     private $orderFactory;
-    private $productFactoryBuilder;
+    private $productFactory;
     private $customerFactory;
     private $subscriberFactory;
     private $webTrackingRepository;
@@ -33,7 +32,7 @@ class ApiService
         HttpClient $httpClient,
         CartFactory $cartFactory,
         OrderFactory $orderFactory,
-        ProductFactoryBuilder $productFactoryBuilder,
+        ProductFactory $productFactory,
         CustomerFactory $customerFactory,
         SubscriberFactory $subscriberFactory,
         WebTrackingRepository $webTrackingRepository
@@ -42,7 +41,7 @@ class ApiService
         $this->httpClient = $httpClient;
         $this->cartFactory = $cartFactory;
         $this->orderFactory = $orderFactory;
-        $this->productFactoryBuilder = $productFactoryBuilder;
+        $this->productFactory = $productFactory;
         $this->customerFactory = $customerFactory;
         $this->subscriberFactory = $subscriberFactory;
         $this->webTrackingRepository = $webTrackingRepository;
@@ -187,13 +186,25 @@ class ApiService
             return;
         }
 
-        $productFactory = $this->productFactoryBuilder->fromMagentoProduct($product);
-
-        $productsToUpsert = $productFactory->create($product, $scope);
+        $productsToUpsert = $this->productFactory->create($product, $scope);
         foreach ($productsToUpsert as $productToUpsert) {
             $callbackUrl = $liveSynchronization->getCallbackUrl();
             $this->httpClient->post($callbackUrl, $productToUpsert);
         }
+    }
+
+    public function deleteProduct(MagentoProduct $product, Scope $scope): void
+    {
+        $liveSynchronization = LiveSynchronization::createFromRepository(
+            $this->repository->getLiveSynchronization($scope->getScopeId())
+        );
+
+        if (!$liveSynchronization->shouldImportProduct()) {
+            return;
+        }
+
+        $callbackUrl = $liveSynchronization->getCallbackUrl();
+        $this->httpClient->post($callbackUrl, new DeletedProduct((int)$product->getId()));
     }
 
     public function upsertSubscriber(Subscriber $subscriber, Scope $scope): void

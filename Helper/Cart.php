@@ -3,12 +3,13 @@
 namespace GetResponse\GetResponseIntegration\Helper;
 
 use GetResponse\GetResponseIntegration\Application\GetResponse\Cart\CartIdEncryptor;
-use Magento\Checkout\Helper\Cart as CartHelper;
+use Magento\Checkout\Helper\Cart as MagentoCart;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Helper\Context;
 use Magento\Checkout\Model\Cart as CartModel;
+use GetResponse\GetResponseIntegration\Router\Router;
 
-class Cart extends CartHelper
+class Cart extends MagentoCart
 {
     /**
      * @var CartIdEncryptor $cartIdEncryptor
@@ -28,8 +29,8 @@ class Cart extends CartHelper
 
     public function getCartUrl()
     {
-        $cartId = $this->getQuote()->getId();
-        return $this->_getUrl('abandonCart', [
+        $cartId = (string)$this->getQuote()->getId();
+        return $this->_getUrl(Router::ABANDON_CART_ROUTE, [
             'cartId' => $this->cartIdEncryptor->encrypt($cartId),
         ]);
     }

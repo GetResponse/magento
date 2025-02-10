@@ -9,6 +9,7 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\Url;
 use Magento\Framework\UrlInterface;
 use Magento\Quote\Model\QuoteFactory;
 
@@ -17,7 +18,7 @@ class AbandonedCart extends Action implements HttpGetActionInterface
     /**
      * @var Cart
      */
-    protected $cartHelper;
+    protected $cart;
 
     /**
      * @var ManagerInterface
@@ -45,17 +46,17 @@ class AbandonedCart extends Action implements HttpGetActionInterface
     protected $cartIdEncryptor;
 
     public function __construct(
-        Context          $context,
-        Cart             $cartHelper,
+        Context $context,
+        Cart $cart,
         ManagerInterface $messageManager,
-        UrlInterface     $url,
-        Session          $checkoutSession,
-        QuoteFactory     $quoteFactory,
-        CartIdEncryptor  $cartIdEncryptor
+        UrlInterface $url,
+        Session $checkoutSession,
+        QuoteFactory $quoteFactory,
+        CartIdEncryptor $cartIdEncryptor
     )
     {
         parent::__construct($context);
-        $this->cartHelper = $cartHelper;
+        $this->cart = $cart;
         $this->messageManager = $messageManager;
         $this->url = $url;
         $this->checkoutSession = $checkoutSession;
@@ -83,7 +84,7 @@ class AbandonedCart extends Action implements HttpGetActionInterface
 
         if (empty($quote->getAllVisibleItems())) {
             $this->messageManager->addErrorMessage(__("Cannot recover an empty or inactive cart"));
-            return $this->_redirect($this->cartHelper->getCartUrl());
+            return $this->_redirect($this->cart->getCartUrl());
         }
 
         $quote->setReservedOrderId(null);
@@ -94,6 +95,6 @@ class AbandonedCart extends Action implements HttpGetActionInterface
         $this->checkoutSession->clearStorage();
         $this->checkoutSession->replaceQuote($quote);
 
-        return $this->_redirect($this->cartHelper->getCartUrl());
+        return $this->_redirect($this->cart->getCartUrl());
     }
 }

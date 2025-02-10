@@ -11,6 +11,7 @@ use Magento\Framework\App\RouterInterface;
 
 class Router implements RouterInterface
 {
+    const ABANDON_CART_ROUTE = 'abandonCart';
     /**
      * @var ActionFactory $actionFactory
      */
@@ -45,7 +46,7 @@ class Router implements RouterInterface
         $identifier = trim($request->getPathInfo(), '/');
 
         // Abandoned cart
-        if (strpos($identifier, 'abandonCart') !== false) {
+        if (strpos($identifier, self::ABANDON_CART_ROUTE) !== false) {
             $request->setModuleName('getresponse');
             $request->setControllerName('cart');
             $request->setActionName('abandonedcart');
