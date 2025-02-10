@@ -14,6 +14,7 @@ class CallbackType
     public const ORDER_UPDATE = 'orders/update';
     public const PRODUCT_CREATE = 'products/create';
     public const PRODUCT_UPDATE = 'products/update';
+    public const PRODUCT_DELETE = 'products/delete';
     public const SUBSCRIBERS_CREATE = 'subscribers/create';
     public const SUBSCRIBERS_UPDATE = 'subscribers/update';
 }
