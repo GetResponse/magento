@@ -10,6 +10,7 @@ use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\Product as MagentoProduct;
 use Magento\Framework\Exception\NoSuchEntityException;
+use JsonSerializable;
 
 class ProductFactory
 {
@@ -18,7 +19,7 @@ class ProductFactory
 
     private $categoryRepository;
     private $productReadModel;
-    private $productType;
+    protected $productType;
 
     public function __construct(
         CategoryRepository $categoryRepository,
@@ -66,7 +67,7 @@ class ProductFactory
      * @return Product
      * @throws NoSuchEntityException
      */
-    private function createFromMagentoProduct(MagentoProduct $product, Scope $scope): Product
+    protected function createFromMagentoProduct(MagentoProduct $product, Scope $scope): Product
     {
         $variants = [];
 

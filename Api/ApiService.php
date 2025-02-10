@@ -32,7 +32,8 @@ class ApiService
         ProductFactory $productFactory,
         CustomerFactory $customerFactory,
         SubscriberFactory $subscriberFactory
-    ) {
+    )
+    {
         $this->repository = $repository;
         $this->httpClient = $httpClient;
         $this->cartFactory = $cartFactory;
@@ -174,6 +175,20 @@ class ApiService
             $callbackUrl = $liveSynchronization->getCallbackUrl();
             $this->httpClient->post($callbackUrl, $productToUpsert);
         }
+    }
+
+    public function deleteProduct(MagentoProduct $product, Scope $scope): void
+    {
+        $liveSynchronization = LiveSynchronization::createFromRepository(
+            $this->repository->getLiveSynchronization($scope->getScopeId())
+        );
+
+        if (!$liveSynchronization->shouldImportProduct()) {
+            return;
+        }
+
+        $callbackUrl = $liveSynchronization->getCallbackUrl();
+        $this->httpClient->post($callbackUrl, new DeletedProduct((int)$product->getId()));
     }
 
     public function upsertSubscriber(Subscriber $subscriber, Scope $scope): void
