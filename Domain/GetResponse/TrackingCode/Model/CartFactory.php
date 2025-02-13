@@ -11,12 +11,12 @@ use Magento\Quote\Model\Quote\Item;
 
 class CartFactory
 {
-    private $cartHelper;
+    private $cart;
     private $categoryRepository;
 
     public function __construct(MagentoCart $cart, CategoryRepository $categoryRepository)
     {
-        $this->cartHelper = $cart;
+        $this->cart = $cart;
         $this->categoryRepository = $categoryRepository;
     }
 
