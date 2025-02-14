@@ -14,7 +14,7 @@ use Magento\Framework\Event\ObserverInterface;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Exception;
 
-class ProductDeletionObserver implements ObserverInterface
+class ProductDeletedObserver implements ObserverInterface
 {
     private $logger;
     private $apiService;

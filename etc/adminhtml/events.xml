@@ -14,7 +14,7 @@
         <observer name="catalog_product_edit" instance="GetResponse\GetResponseIntegration\Observer\ProductObserver" />
     </event>
     <event name="catalog_product_delete_after_done">
-        <observer name="catalog_product_delete" instance="GetResponse\GetResponseIntegration\Observer\ProductDeletionObserver" />
+        <observer name="catalog_product_delete" instance="GetResponse\GetResponseIntegration\Observer\ProductDeletedObserver" />
     </event>
     <!-- NORMAL CHECKOUT SUCCESS -->
     <event name="sales_order_save_after">

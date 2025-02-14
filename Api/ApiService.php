@@ -123,7 +123,6 @@ class ApiService
             $this->repository->getWebEventTracking($scope->getScopeId())
         );
 
-
         if ($webConnect->isActive()) {
             $visitor = $this->webTrackingRepository->findVisitor();
         }

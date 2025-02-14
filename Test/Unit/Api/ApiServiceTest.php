@@ -42,8 +42,6 @@ class ApiServiceTest extends BaseTestCase
     private $orderFactoryMock;
     /** @var MockObject|Product */
     private $productFactoryMock;
-    /** @var MockObject|ProductFactoryBuilder */
-    private $productFactoryBuilderMock;
     /** @var MockObject|CustomerFactory */
     private $customerFactoryMock;
     /** @var MockObject|SubscriberFactory */
@@ -348,8 +346,8 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldNotCreateOrder(): void
     {
-        /** @var Order|MockObject $orderMock */
-        $orderMock = $this->getMockWithoutConstructing(Quote::class);
+        /** @var Quote|MockObject $quoteMock */
+        $quoteMock = $this->getMockWithoutConstructing(Quote::class);
 
         $scope = new Scope(1);
 
@@ -365,7 +363,7 @@ class ApiServiceTest extends BaseTestCase
             ->expects(self::never())
             ->method('post');
 
-        $this->sut->createCart($orderMock, $scope);
+        $this->sut->createCart($quoteMock, $scope);
     }
 
     /**
