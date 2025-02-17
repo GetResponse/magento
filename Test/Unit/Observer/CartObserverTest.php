@@ -84,7 +84,6 @@ class CartObserverTest extends BaseTestCase
 
         $observerMock->method('getCart')->willReturn($cartMock);
 
-        $this->sessionMock->expects(self::once())->method('isLoggedIn')->willReturn(true);
         $this->repositoryMock->expects(self::once())->method('getPluginMode')->willReturn(PluginMode::MODE_NEW);
 
         $this->apiServiceMock
@@ -130,37 +129,4 @@ class CartObserverTest extends BaseTestCase
 
         $this->sut->execute($observerMock);
     }
-
-    /**
-     * @test
-     */
-    public function shouldNotCreateCartWhenNotLoggedIn(): void
-    {
-        $storeId = 3;
-
-        /** @var Quote|MockObject $quoteMock */
-        $quoteMock = $this->getMockWithoutConstructing(Quote::class);
-        $quoteMock->method('getstoreid')->willReturn($storeId);
-        /** @var Cart|MockObject $cartMock */
-        $cartMock = $this->getMockWithoutConstructing(Cart::class);
-        $cartMock->method('getQuote')->willReturn($quoteMock);
-        /** @var eventobserver|mockobject $observermock */
-        $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getCart']);
-        $observerMock->method('getCart')->willReturn($cartMock);
-
-        $this->repositoryMock->expects(self::once())->method('getPluginMode')->willReturn(PluginMode::MODE_NEW);
-        $this->sessionMock->expects(self::once())->method('isLoggedIn')->willReturn(false);
-
-        $this->apiServiceMock
-            ->expects(self::never())
-            ->method('createCart');
-
-        $this->trackingCodeCartServiceMock
-            ->expects(self::once())
-            ->method('addToBuffer');
-
-        $this->sut->execute($observerMock);
-    }
-
-
 }

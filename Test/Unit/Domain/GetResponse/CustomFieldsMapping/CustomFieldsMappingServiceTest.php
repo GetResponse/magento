@@ -30,8 +30,8 @@ class CustomFieldsMappingServiceTest extends BaseTestCase
     protected function setUp(): void
     {
         $this->repository = $this->getMockWithoutConstructing(Repository::class);
-        $this->customerAttributeCollectionFactory = $this->getMockWithoutConstructing(CollectionFactory::class, [], ['create']);
-        $this->addressAttributeCollectionFactory = $this->getMockWithoutConstructing(AddressCollectionFactory::class, [], ['create']);
+        $this->customerAttributeCollectionFactory = $this->getMockWithoutConstructing(CollectionFactory::class, ['create']);
+        $this->addressAttributeCollectionFactory = $this->getMockWithoutConstructing(AddressCollectionFactory::class, ['create']);
         $this->scope = $this->getMockWithoutConstructing(Scope::class);
 
         $this->sut = new CustomFieldsMappingService(

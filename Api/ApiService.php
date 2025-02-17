@@ -6,6 +6,8 @@ namespace GetResponse\GetResponseIntegration\Api;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
+use GetResponse\GetResponseIntegration\Domain\Magento\WebTrackingRepository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Magento\Catalog\Model\Product as MagentoProduct;
 use Magento\Customer\Api\Data\AddressInterface;
@@ -23,6 +25,7 @@ class ApiService
     private $productFactory;
     private $customerFactory;
     private $subscriberFactory;
+    private $webTrackingRepository;
 
     public function __construct(
         Repository $repository,
@@ -31,9 +34,9 @@ class ApiService
         OrderFactory $orderFactory,
         ProductFactory $productFactory,
         CustomerFactory $customerFactory,
-        SubscriberFactory $subscriberFactory
-    )
-    {
+        SubscriberFactory $subscriberFactory,
+        WebTrackingRepository $webTrackingRepository
+    ) {
         $this->repository = $repository;
         $this->httpClient = $httpClient;
         $this->cartFactory = $cartFactory;
@@ -41,6 +44,7 @@ class ApiService
         $this->productFactory = $productFactory;
         $this->customerFactory = $customerFactory;
         $this->subscriberFactory = $subscriberFactory;
+        $this->webTrackingRepository = $webTrackingRepository;
     }
 
     /**
@@ -105,6 +109,8 @@ class ApiService
      */
     public function createCart(Quote $quote, Scope $scope): void
     {
+        $visitor = null;
+
         $liveSynchronization = LiveSynchronization::createFromRepository(
             $this->repository->getLiveSynchronization($scope->getScopeId())
         );
@@ -113,10 +119,19 @@ class ApiService
             return;
         }
 
-        $this->httpClient->post(
-            $liveSynchronization->getCallbackUrl(),
-            $this->cartFactory->create($quote)
+        $webConnect = WebEventTracking::createFromRepository(
+            $this->repository->getWebEventTracking($scope->getScopeId())
         );
+
+        if ($webConnect->isActive()) {
+            $visitor = $this->webTrackingRepository->findVisitor();
+        }
+
+        $cart = $this->cartFactory->create($quote, $visitor);
+
+        if ($cart->isValuable()) {
+            $this->httpClient->post($liveSynchronization->getCallbackUrl(), $cart);
+        }
     }
 
     /**

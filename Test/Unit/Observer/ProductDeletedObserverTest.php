@@ -9,25 +9,25 @@ use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
-use GetResponse\GetResponseIntegration\Observer\ProductDeletionObserver;
+use GetResponse\GetResponseIntegration\Observer\ProductDeletedObserver;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\Event\Observer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
-class ProductDeletionObserverTest extends TestCase
+class ProductDeletedObserverTest extends TestCase
 {
-    /** @var Logger|MockObject */
+    /** @var Logger&MockObject */
     private $loggerMock;
 
-    /** @var ApiService|MockObject */
+    /** @var ApiService&MockObject */
     private $apiServiceMock;
 
-    /** @var Repository|MockObject */
+    /** @var Repository&MockObject */
     private $repositoryMock;
 
-    /** @var ProductDeletionObserver */
+    /** @var ProductDeletedObserver */
     private $observer;
 
     protected function setUp(): void
@@ -36,14 +36,14 @@ class ProductDeletionObserverTest extends TestCase
         $this->apiServiceMock = $this->createMock(ApiService::class);
         $this->repositoryMock = $this->createMock(Repository::class);
 
-        $this->observer = new ProductDeletionObserver(
+        $this->observer = new ProductDeletedObserver(
             $this->loggerMock,
             $this->apiServiceMock,
             $this->repositoryMock
         );
     }
 
-    public function testExecuteWhenPluginModeIsNotNewVersion()
+    public function testExecuteWhenPluginModeIsNotNewVersion(): void
     {
         $observerMock = $this->createMock(Observer::class);
 
@@ -58,7 +58,7 @@ class ProductDeletionObserverTest extends TestCase
         $this->assertSame($this->observer, $result);
     }
 
-    public function testExecuteWithMultipleStores()
+    public function testExecuteWithMultipleStores(): void
     {
         $productMock = $this->createMock(Product::class);
         $observerMock = $this->createMock(Observer::class);
@@ -90,7 +90,7 @@ class ProductDeletionObserverTest extends TestCase
         $this->assertSame($this->observer, $result);
     }
 
-    public function testExecuteWithExceptionHandling()
+    public function testExecuteWithExceptionHandling(): void
     {
         $productMock = $this->createMock(Product::class);
         $observerMock = $this->createMock(Observer::class);

@@ -8,12 +8,13 @@ use GetResponse\GetResponseIntegration\Api\ApiService;
 use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Logger\Logger;
+use Magento\Catalog\Model\Product;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Exception;
 
-class ProductDeletionObserver implements ObserverInterface
+class ProductDeletedObserver implements ObserverInterface
 {
     private $logger;
     private $apiService;
