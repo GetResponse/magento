@@ -21,10 +21,6 @@ class WebTrackingRepository
     {
         $uuid = $this->cookieManager->getCookie(self::VISITOR_UUID_COOKIE_NAME);
 
-        if (null === $uuid) {
-            return null;
-        }
-
-        return new Visitor($uuid);
+        return $uuid ? new Visitor($uuid) : null;
     }
 }
