@@ -7,45 +7,53 @@
 </div>
 
 <script>
-    require(['Magento_Customer/js/customer-data'], function (customerData) {
+(function () {
+    function waitUntilAvailable(variableName, callback, checkInterval = 50, timeout = 5000) {
+        const start = Date.now();
 
+        (function check() {
+            if (typeof window[variableName] !== 'undefined') {
+                callback(window[variableName]);
+            } else if (Date.now() - start < timeout) {
+                setTimeout(check, checkInterval);
+            } else {
+                console.error(variableName + ' did not become available in time.');
+            }
+        })();
+    }
+
+    function init(customerData) {
         const recommendationNode = document.getElementById('getresponse-recommendation');
-        const recommendation = document.querySelector('#getresponse-recommendation');
+        if (!recommendationNode) return;
 
-        const recommendationObserver = new MutationObserver(function(mutations) {
+        const sendTrackingEvent = (action, productId) => {
+            GrTracking('importScript', 'ec');
+            GrTracking(action, {
+                shop: { id: recommendationNode.getAttribute('getresponse-shop-id') },
+                product: { id: productId }
+            });
+            customerData.reload(['getresponse-recommendation']);
+        };
 
-            const getResponseShopId = recommendationNode.getAttribute('getresponse-shop-id');
-            const productIdAddedToWishList = recommendationNode.getAttribute('product-id-added-to-wishlist');
-            const productIdRemovedFromWishList = recommendationNode.getAttribute('product-id-removed-from-wishlist');
+        new MutationObserver(() => {
+            const shopId = recommendationNode.getAttribute('getresponse-shop-id');
+            if (!shopId) return;
 
-            if (getResponseShopId === null) {
-                return false;
+            const productAdded = recommendationNode.getAttribute('product-id-added-to-wishlist');
+            const productRemoved = recommendationNode.getAttribute('product-id-removed-from-wishlist');
+
+            if (productAdded && !productRemoved) {
+                sendTrackingEvent('likeItem', productAdded);
+            } else if (productRemoved && !productAdded) {
+                sendTrackingEvent('unlikeItem', productRemoved);
             }
+        }).observe(recommendationNode, { attributes: true });
+    }
 
-            if (productIdAddedToWishList !== null && productIdRemovedFromWishList === null) {
-                const likeItemObject = {
-                    shop: {id: getResponseShopId},
-                    product: {id: productIdAddedToWishList}
-                };
-                GrTracking('importScript', 'ec');
-                GrTracking('likeItem', likeItemObject);
-                customerData.reload(['getresponse-recommendation']);
-            }
-
-            if (productIdRemovedFromWishList !== null && productIdAddedToWishList === null) {
-                const unlikeItemObject = {
-                    shop: {id: getResponseShopId},
-                    product: {id: productIdRemovedFromWishList}
-                };
-                GrTracking('importScript', 'ec');
-                GrTracking('unlikeItem', unlikeItemObject);
-                customerData.reload(['getresponse-recommendation']);
-            }
-
-        });
-
-        recommendationObserver.observe(recommendation, { attributes: true });
+    document.addEventListener('DOMContentLoaded', function () {
+        waitUntilAvailable('customerData', init);
     });
+})();
 </script>
 
 <script type="text/x-magento-init">

@@ -2,73 +2,89 @@
     <div id="customer-email-address" data-bind="attr: { 'customer-email': getResponseTrackingCode().customerEmail }"></div>
     <div id="tracking-code-cart" data-bind="attr: { 'cart': getResponseTrackingCode().cart }"></div>
 </div>
-
 <script>
-    require([
-        'Magento_Customer/js/customer-data',
-        'jquery',
-        'mage/cookies',
-        'domReady!'
-    ], function (customerData, $) {
-        let cart = document.querySelector('#tracking-code-cart');
+(function () {
+    function waitUntilAvailable(variableName, callback, checkInterval = 50, timeout = 5000) {
+        const start = Date.now();
+        (function check() {
+            if (typeof window[variableName] !== 'undefined') {
+                callback(window[variableName]);
+            } else if (Date.now() - start < timeout) {
+                setTimeout(check, checkInterval);
+            } else {
+                console.error(variableName + ' did not become available in time.');
+            }
+        })();
+    }
 
-        let cartObserver = new MutationObserver(function(mutations) {
-            let trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        return parts.length === 2 ? parts.pop().split(';').shift() : null;
+    }
 
-            mutations.forEach(function(mutation) {
+    function init(customerData) {
+        const isTrackingEnabled = () =>
+            typeof window.gaSetUserId === 'function';
 
-                if (mutation.type === "attributes" && mutation.attributeName === 'cart') {
-                    let cartData = JSON.parse(document.getElementById('tracking-code-cart').getAttribute('cart'));
+        const cartNode = document.getElementById('tracking-code-cart');
+        if (cartNode) {
+            new MutationObserver(mutations => {
+                if (!isTrackingEnabled()) return;
 
-                    if (cartData !== null && Object.keys(cartData).length > 0 && trackingCodeEnabled) {
-                        GrTracking('importScript', 'ec');
-                        GrTracking('cartUpdate', cartData);
-                        customerData.reload(['getresponse-tracking-code']);
+                for (const mutation of mutations) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'cart') {
+                        const cartAttr = cartNode.getAttribute('cart');
+                        if (!cartAttr) return;
+
+                        const cartData = JSON.parse(cartAttr);
+                        if (cartData && Object.keys(cartData).length > 0) {
+                            GrTracking('importScript', 'ec');
+                            GrTracking('cartUpdate', cartData);
+                            customerData.reload(['getresponse-tracking-code']);
+                        }
                     }
                 }
-            });
-        });
+            }).observe(cartNode, { attributes: true });
+        }
 
-        cartObserver.observe(cart, { attributes: true});
+        const emailNode = document.getElementById('customer-email-address');
+        if (emailNode) {
+            new MutationObserver(() => {
+                const email = emailNode.getAttribute('customer-email');
+                const gaIsValuable = getCookie('gaIsValuable');
 
-        let customerEmailNode = document.getElementById('customer-email-address');
+                if (email && isTrackingEnabled() && gaIsValuable !== '1') {
+                    gaSetUserId(email);
+                    GrTracking('setUserId', email);
+                }
+            }).observe(emailNode, { attributes: true });
+        }
 
-        let customerEmailObserver = new MutationObserver(function(mutations) {
-            let customerEmail = customerEmailNode.getAttribute('customer-email');
-            let gaIsValuable = $.cookie('gaIsValuable');
-            let trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
+        window.addEventListener('load', () => {
+            if (!isTrackingEnabled()) return;
 
-            if (customerEmail !== null && trackingCodeEnabled && gaIsValuable !== '1') {
-                gaSetUserId(customerEmail);
-                GrTracking('setUserId', customerEmail);
-            }
-        });
-
-        customerEmailObserver.observe(customerEmailNode, { attributes: true });
-
-        window.addEventListener('load', function() {
-            let trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
-
-            if (!trackingCodeEnabled) {
-                return;
-            }
-
-            if (typeof GrViewCategoryItem !== 'undefined') {
+            if (typeof window.GrViewCategoryItem !== 'undefined') {
                 GrTracking('importScript', 'ec');
                 GrTracking('viewCategory', GrViewCategoryItem);
             }
 
-            if (typeof GrViewProductItem !== 'undefined') {
+            if (typeof window.GrViewProductItem !== 'undefined') {
                 GrTracking('importScript', 'ec');
                 GrTracking('viewItem', GrViewProductItem);
             }
 
-            if (typeof GrOrderPlaced !== 'undefined') {
+            if (typeof window.GrOrderPlaced !== 'undefined') {
                 GrTracking('importScript', 'ec');
                 GrTracking('orderPlaced', GrOrderPlaced);
             }
         });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        waitUntilAvailable('customerData', init);
     });
+})();
 </script>
 
 <script type="text/x-magento-init">
