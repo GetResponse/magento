@@ -2,101 +2,112 @@
     <div id="customer-email-address" data-bind="attr: { 'customer-email': getResponseTrackingCode().customerEmail }"></div>
     <div id="tracking-code-cart" data-bind="attr: { 'cart': getResponseTrackingCode().cart }"></div>
 </div>
+<div class="getresponse-tracking-code-section" data-bind="scope: 'getresponse_tracking_code_section'"></div>
+
 <script>
-(function () {
-    function waitUntilAvailable(variableName, callback, checkInterval = 50, timeout = 5000) {
-        const start = Date.now();
-        (function check() {
-            if (typeof window[variableName] !== 'undefined') {
-                callback(window[variableName]);
-            } else if (Date.now() - start < timeout) {
-                setTimeout(check, checkInterval);
-            } else {
-                console.error(variableName + ' did not become available in time.');
-            }
-        })();
-    }
+function calculateChecksum(cart) {
+    const strData = JSON.stringify(cart);
+    return strData.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+}
 
-    function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        return parts.length === 2 ? parts.pop().split(';').shift() : null;
-    }
+function mapCart(cart) {
+    if (!cart) return null;
 
-    function init(customerData) {
-        const isTrackingEnabled = () =>
-            typeof window.gaSetUserId === 'function';
+    const cartUrl = window.checkoutConfig?.cartUrl;
+    const currency = window.checkoutConfig?.totalsData?.base_currency_code;
 
-        const cartNode = document.getElementById('tracking-code-cart');
-        if (cartNode) {
-            new MutationObserver(mutations => {
-                if (!isTrackingEnabled()) return;
-
-                for (const mutation of mutations) {
-                    if (mutation.type === 'attributes' && mutation.attributeName === 'cart') {
-                        const cartAttr = cartNode.getAttribute('cart');
-                        if (!cartAttr) return;
-
-                        const cartData = JSON.parse(cartAttr);
-                        if (cartData && Object.keys(cartData).length > 0) {
-                            GrTracking('importScript', 'ec');
-                            GrTracking('cartUpdate', cartData);
-                            customerData.reload(['getresponse-tracking-code']);
-                        }
-                    }
-                }
-            }).observe(cartNode, { attributes: true });
-        }
-
-        const emailNode = document.getElementById('customer-email-address');
-        if (emailNode) {
-            new MutationObserver(() => {
-                const email = emailNode.getAttribute('customer-email');
-                const gaIsValuable = getCookie('gaIsValuable');
-
-                if (email && isTrackingEnabled() && gaIsValuable !== '1') {
-                    gaSetUserId(email);
-                    GrTracking('setUserId', email);
-                }
-            }).observe(emailNode, { attributes: true });
-        }
-
-        window.addEventListener('load', () => {
-            if (!isTrackingEnabled()) return;
-
-            if (typeof window.GrViewCategoryItem !== 'undefined') {
-                GrTracking('importScript', 'ec');
-                GrTracking('viewCategory', GrViewCategoryItem);
-            }
-
-            if (typeof window.GrViewProductItem !== 'undefined') {
-                GrTracking('importScript', 'ec');
-                GrTracking('viewItem', GrViewProductItem);
-            }
-
-            if (typeof window.GrOrderPlaced !== 'undefined') {
-                GrTracking('importScript', 'ec');
-                GrTracking('orderPlaced', GrOrderPlaced);
-            }
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        waitUntilAvailable('customerData', init);
+    const price = parseFloat(cart.subtotalAmount);
+    const products = (cart.items || []).map(item => {
+        return {
+        product: {
+            id: item.product_id,
+            name: item.product_name || item.name || '',
+            price: item.product_price_value ? String(parseFloat(item.product_price_value)) : '0.00',
+            sku: item.product_sku || '',
+            vendor: item.vendor || '',
+            currency
+        },
+        // categories: (item.categories || []).map(cat => ({
+        //     id: cat.id || '',
+        //     name: cat.name || ''
+        // })),
+        quantity: item.qty ? parseInt(item.qty, 10) : 1
+        };
     });
-})();
-</script>
 
-<script type="text/x-magento-init">
-    {
-        "*": {
-            "Magento_Ui/js/core/app": {
-                "components": {
-                    "getresponse_tracking_code_section": {
-                        "component": "GetResponse_GetResponseIntegration/js/getresponse_tracking_code_section"
-                    }
-                }
-            }
+    return {
+        price,
+        cartId: cart.cartId,
+        currency,
+        cartUrl,
+        products
+    };
+}
+
+let lastCustomerEmail = null
+
+function onPrivateContentLoaded(sectionData) {
+    console.log(sectionData)
+    lastCustomerEmail = sectionData?.['getresponse-tracking-code']?.customerEmail ?? null;
+    if (!sectionData?.cart) return;
+    const cart = sectionData.cart;
+    const currentChecksum = calculateChecksum(cart);
+    const lastChecksum = parseInt(localStorage.getItem('grPayloadChecksum') || '');
+
+    if (currentChecksum === lastChecksum) return;
+    GrTracking('importScript', 'ec');
+    console.log(mapCart(cart))
+    GrTracking('cartUpdate', mapCart(cart));
+    localStorage.setItem('grPayloadChecksum', currentChecksum.toString())
+}
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('private-content-loaded', (e) => onPrivateContentLoaded(e.detail?.data));
+}
+
+const getCookie = name => {
+    const match = document.cookie.match(new RegExp(`(?:^|; )${name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1')}=([^;]*)`));
+    return match ? decodeURIComponent(match[1]) : null;
+};
+
+const isTrackingReady = () => typeof gaSetUserId === 'function';
+
+window.addEventListener('load', async () => {
+    const initTracking = () => {
+        if (!isTrackingReady()) {
+            setTimeout(initTracking, 500);
+            return;
         }
-    }
+        dispatchEvent(new Event('reload-customer-section-data'));
+
+        const gaIsValuable = getCookie('gaIsValuable');
+        console.log('[GetResponse] tracking ready. lastCustomerEmail:', lastCustomerEmail, 'gaIsValuable:', gaIsValuable);
+
+        if (lastCustomerEmail && gaIsValuable !== '1') {
+            gaSetUserId(lastCustomerEmail);
+            GrTracking('setUserId', lastCustomerEmail);
+            console.log('[GetResponse] setUserId sent:', lastCustomerEmail);
+        }
+
+        if (typeof GrViewCategoryItem !== 'undefined') {
+            GrTracking('importScript', 'ec');
+            GrTracking('viewCategory', GrViewCategoryItem);
+            console.log('[GetResponse] viewCategory sent', GrViewCategoryItem);
+        }
+
+        if (typeof GrViewProductItem !== 'undefined') {
+            GrTracking('importScript', 'ec');
+            GrTracking('viewItem', GrViewProductItem);
+            console.log('[GetResponse] viewItem sent', GrViewProductItem);
+        }
+
+        if (typeof GrOrderPlaced !== 'undefined') {
+            GrTracking('importScript', 'ec');
+            GrTracking('orderPlaced', GrOrderPlaced);
+            console.log('[GetResponse] orderPlaced sent', GrOrderPlaced);
+        }
+    };
+
+    initTracking();
+});
 </script>
