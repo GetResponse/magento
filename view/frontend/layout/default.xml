@@ -40,5 +40,12 @@
             <block name="getresponse.recommendation" class="Magento\Framework\View\Element\Template" template="GetResponse_GetResponseIntegration::getresponse_recommendation.phtml" />
         </referenceContainer>
 
+        <referenceContainer name="head.additional">
+            <block name="getresponse.tracking.code.hyva" class="Magento\Framework\View\Element\Template" template="GetResponse_GetResponseIntegration::getresponse_tracking_code_hyva.phtml"/>
+        </referenceContainer>
+
+        <referenceContainer name="head.additional">
+            <block name="getresponse.recommendation.hyva" class="Magento\Framework\View\Element\Template" template="GetResponse_GetResponseIntegration::getresponse_recommendation_hyva.phtml" />
+        </referenceContainer>
     </body>
 </page>
