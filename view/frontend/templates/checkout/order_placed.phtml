@@ -1,9 +1,9 @@
 <?php
 
 
-use GetResponse\GetResponseIntegration\Block\Checkout\OrderPlacedView;
+use GetResponse\GetResponseIntegration\Block\Checkout\OrderPlaced;
 
-/** @var OrderPlacedView $block */
+/** @var OrderPlaced $block */
 $order = $block->getBufferedOrder()['order'];
 
 if (!empty($order)) {
