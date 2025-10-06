@@ -17,6 +17,7 @@
     "require-dev": {
         "phpunit/phpunit": "^8.5",
         "magento/module-store": "*",
+        "magento/module-newsletter": "*",
         "magento/magento-coding-standard": "*",
         "squizlabs/php_codesniffer": "*",
         "friendsofphp/php-cs-fixer": "*"
@@ -39,7 +40,8 @@
             "Test/MissingReferences/Magento/Sales/Api/Data/OrderItemExtensionInterface.php",
             "Test/MissingReferences/Magento/Customer/Model/ResourceModel/Address/Attribute/CollectionFactory.php",
             "Test/MissingReferences/Magento/Customer/Model/ResourceModel/Attribute/CollectionFactory.php",
-            "Test/MissingReferences/Magento/ConfigurableProduct/Model/Product/Type/Configurable.php"
+            "Test/MissingReferences/Magento/ConfigurableProduct/Model/Product/Type/Configurable.php",
+            "Test/MissingReferences/Newsletter/Model/ResourceModel/Subscriber/CollectionFactory.php"
         ]
     },
     "scripts": {
