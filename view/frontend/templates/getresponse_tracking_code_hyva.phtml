@@ -3,7 +3,7 @@
     const isWebConnectEnabled = () => typeof GrTracking === 'function';
 
     function fireCustomerSectionDataRelatedWebConnectEvents(customerSectionData) {
-        if (!isWebConnectEnabled) return;
+        if (!isWebConnectEnabled()) return;
 
         const customerEmail = customerSectionData?.['getresponse-tracking-code']?.customerEmail ?? null;
         const gaIsValuable = typeof hyva?.getCookie === 'function' ? hyva.getCookie('gaIsValuable') : undefined;
@@ -42,7 +42,7 @@
     }
 
     function fireWebConnectEvents() {
-        if (!isWebConnectEnabled) return;
+        if (!isWebConnectEnabled()) return;
 
         if (typeof GrViewCategoryItem !== 'undefined') {
             GrTracking('importScript', 'ec');

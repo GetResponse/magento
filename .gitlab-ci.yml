@@ -11,7 +11,10 @@ stages:
 composer_install:php72:
   image: magento/magento-cloud-docker-php:7.2-cli-1.3.5
   stage: install_dependencies
+  tags:
+    - hq1-small-amd64
   script:
+    - composer self-update --2
     - composer config -a -g http-basic.repo.magento.com $COMPOSER_REPO_MAGENTO_USERNAME $COMPOSER_REPO_MAGENTO_PASSWORD
     - composer install --prefer-dist --verbose
   artifacts:
@@ -26,9 +29,9 @@ test:phpunit:php72:
   image: magento/magento-cloud-docker-php:7.2-cli-1.3.5
   stage: test
   tags:
-    - kubernetes-ci
+    - hq1-small-amd64
   script:
-    - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit.xml --colors=never
+    - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit8.xml --colors=never
   rules:
     - !reference [ .exclude-branch-develop, rules ]
   dependencies:
@@ -37,6 +40,8 @@ test:phpunit:php72:
 composer_install:php81:
   image: magento/magento-cloud-docker-php:8.1-cli-1.3.3
   stage: install_dependencies
+  tags:
+    - hq1-small-amd64
   script:
     - composer config -a -g http-basic.repo.magento.com $COMPOSER_REPO_MAGENTO_USERNAME $COMPOSER_REPO_MAGENTO_PASSWORD
     - composer install --prefer-dist --verbose --ignore-platform-reqs
@@ -52,9 +57,9 @@ test:phpunit:php81:
   image: magento/magento-cloud-docker-php:8.1-cli-1.3.3
   stage: test
   tags:
-    - kubernetes-ci
+    - hq1-small-amd64
   script:
-    - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit.xml --colors=never
+    - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit9.xml --colors=never
   rules:
     - !reference [ .exclude-branch-develop, rules ]
   dependencies:
