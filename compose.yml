@@ -1,0 +1,17 @@
+services:
+  php72:
+    platform: linux/amd64
+    image: magento/magento-cloud-docker-php:7.2-cli-1.3.5
+    environment:
+      COMPOSER_HOME: /root/.composer
+    volumes:
+      - .:/app
+      - ~/.composer:/root/.composer
+  php81:
+    platform: linux/amd64
+    image: magento/magento-cloud-docker-php:8.1-cli-1.3.3
+    environment:
+      COMPOSER_HOME: /root/.composer
+    volumes:
+      - .:/app
+      - ~/.composer:/root/.composer

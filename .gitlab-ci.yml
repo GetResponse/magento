@@ -14,6 +14,7 @@ composer_install:php72:
   tags:
     - hq1-small-amd64
   script:
+    - composer self-update --2
     - composer config -a -g http-basic.repo.magento.com $COMPOSER_REPO_MAGENTO_USERNAME $COMPOSER_REPO_MAGENTO_PASSWORD
     - composer install --prefer-dist --verbose
   artifacts:
@@ -30,7 +31,7 @@ test:phpunit:php72:
   tags:
     - hq1-small-amd64
   script:
-    - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit.xml --colors=never
+    - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit8.xml --colors=never
   rules:
     - !reference [ .exclude-branch-develop, rules ]
   dependencies:
@@ -58,7 +59,7 @@ test:phpunit:php81:
   tags:
     - hq1-small-amd64
   script:
-    - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit.xml --colors=never
+    - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit9.xml --colors=never
   rules:
     - !reference [ .exclude-branch-develop, rules ]
   dependencies:

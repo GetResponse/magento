@@ -15,12 +15,12 @@
         "getresponse/share-code-plugin": "^7.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.5",
         "magento/module-store": "*",
         "magento/module-newsletter": "*",
         "magento/magento-coding-standard": "*",
         "squizlabs/php_codesniffer": "*",
-        "friendsofphp/php-cs-fixer": "*"
+        "friendsofphp/php-cs-fixer": "*",
+        "phpunit/phpunit": "^8.5"
     },
     "autoload": {
         "files": [
