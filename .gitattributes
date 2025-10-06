@@ -1,0 +1,5 @@
+/compose.yml        export-ignore
+/Makefile           export-ignore
+/.gitlab-ci.yml     export-ignore
+/Test               export-ignore
+/vendor-bin         export-ignore

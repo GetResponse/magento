@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.9.0] - 2025-10-04
+### Feat
+- Added support for Hyva
+
 ## [20.8.2] - 2025-01-29
 ### Fix
 - Fixed subscriber identification from customer

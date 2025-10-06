@@ -1,0 +1,67 @@
+<script>
+
+    const isWebConnectEnabled = () => typeof GrTracking === 'function';
+
+    function fireCustomerSectionDataRelatedWebConnectEvents(customerSectionData) {
+        if (!isWebConnectEnabled()) return;
+
+        const customerEmail = customerSectionData?.['getresponse-tracking-code']?.customerEmail ?? null;
+        const gaIsValuable = typeof hyva?.getCookie === 'function' ? hyva.getCookie('gaIsValuable') : undefined;
+        if (customerEmail && gaIsValuable !== '1') {
+            GrTracking('setUserId', customerEmail);
+        }
+
+        const cartData = JSON.parse(customerSectionData?.['getresponse-tracking-code']?.cart || {});
+        if (cartData && Object.keys(cartData).length > 0) {
+            GrTracking('importScript', 'ec');
+            GrTracking('cartUpdate', cartData);
+            dispatchEvent(new Event('reload-customer-section-data'));
+        }
+
+        const grShopId = customerSectionData?.['getresponse-recommendation']?.getResponseShopId ?? null;
+        const productIdAddedToWishList = customerSectionData?.['getresponse-recommendation']?.productIdAddedToWishList ?? null;
+        const productIdRemovedFromWishList = customerSectionData?.['getresponse-recommendation']?.productIdRemovedFromWishList ?? null;
+
+        if (productIdAddedToWishList !== null && productIdRemovedFromWishList === null) {
+            const likeItemObject = {shop: {id: grShopId}, product: {id: productIdAddedToWishList}};
+            GrTracking('importScript', 'ec');
+            GrTracking('likeItem', likeItemObject);
+            dispatchEvent(new Event('reload-customer-section-data'));
+        }
+
+        if (productIdRemovedFromWishList !== null && productIdAddedToWishList === null) {
+            const unlikeItemObject = {shop: {id: grShopId}, product: {id: productIdRemovedFromWishList}};
+            GrTracking('importScript', 'ec');
+            GrTracking('unlikeItem', unlikeItemObject);
+            dispatchEvent(new Event('reload-customer-section-data'));
+        }
+    }
+
+    if (typeof window !== 'undefined') {
+        window.addEventListener('private-content-loaded', (event) => fireCustomerSectionDataRelatedWebConnectEvents(event.detail?.data));
+    }
+
+    function fireWebConnectEvents() {
+        if (!isWebConnectEnabled()) return;
+
+        if (typeof GrViewCategoryItem !== 'undefined') {
+            GrTracking('importScript', 'ec');
+            GrTracking('viewCategory', GrViewCategoryItem);
+        }
+
+        if (typeof GrViewProductItem !== 'undefined') {
+            GrTracking('importScript', 'ec');
+            GrTracking('viewItem', GrViewProductItem);
+        }
+
+        if (typeof GrOrderPlaced !== 'undefined') {
+            GrTracking('importScript', 'ec');
+            GrTracking('orderPlaced', GrOrderPlaced);
+        }
+    }
+
+    window.addEventListener('load', async () => fireWebConnectEvents());
+</script>
+
+
+

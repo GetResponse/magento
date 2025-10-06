@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="head.additional">
+            <block name="getresponse.tracking.code"
+                   class="Magento\Framework\View\Element\Template"
+                   template="GetResponse_GetResponseIntegration::getresponse_tracking_code_hyva.phtml"
+            />
+        </referenceContainer>
+
+        <referenceContainer name="head.additional">
+            <block name="getresponse.recommendation" />
+        </referenceContainer>
+    </body>
+</page>

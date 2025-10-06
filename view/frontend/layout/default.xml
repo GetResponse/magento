@@ -5,39 +5,66 @@
     </head>
     <body>
         <referenceContainer name="page.bottom">
-            <block name="getresponse.webform.page.bottom" class="GetResponse\GetResponseIntegration\Block\Webform" template="page.bottom.phtml" />
+            <block name="getresponse.webform.page.bottom"
+                   class="GetResponse\GetResponseIntegration\Block\Webform"
+                   template="page.bottom.phtml"
+            />
         </referenceContainer>
 
         <referenceContainer name="div.sidebar.additional">
-            <block name="getresponse.webform.sidebar.additional" class="GetResponse\GetResponseIntegration\Block\Webform" template="div.sidebar.additional.phtml" />
+            <block name="getresponse.webform.sidebar.additional"
+                   class="GetResponse\GetResponseIntegration\Block\Webform"
+                   template="div.sidebar.additional.phtml"
+            />
         </referenceContainer>
 
         <referenceContainer name="sidebar.main">
-            <block name="getresponse.webform.sidebar.main" class="GetResponse\GetResponseIntegration\Block\Webform" template="sidebar.main.phtml" />
+            <block name="getresponse.webform.sidebar.main"
+                   class="GetResponse\GetResponseIntegration\Block\Webform"
+                   template="sidebar.main.phtml"
+            />
         </referenceContainer>
 
         <referenceContainer name="content">
-            <block name="getresponse.webform.content" class="GetResponse\GetResponseIntegration\Block\Webform" template="content.phtml" />
+            <block name="getresponse.webform.content"
+                   class="GetResponse\GetResponseIntegration\Block\Webform"
+                   template="content.phtml"
+            />
         </referenceContainer>
 
         <referenceContainer name="footer-container">
-            <block name="getresponse.webform.footer" class="GetResponse\GetResponseIntegration\Block\Webform" template="footer.phtml" />
+            <block name="getresponse.webform.footer"
+                   class="GetResponse\GetResponseIntegration\Block\Webform"
+                   template="footer.phtml"
+            />
         </referenceContainer>
 
         <referenceContainer name="order.success.additional.info">
-            <block name="getresponse.order.placed" class="GetResponse\GetResponseIntegration\Block\Checkout\OrderPlaced" template="GetResponse_GetResponseIntegration::checkout/order_placed.phtml" cacheable="false" />
+            <block name="getresponse.order.placed"
+                   class="GetResponse\GetResponseIntegration\Block\Checkout\OrderPlaced"
+                   template="GetResponse_GetResponseIntegration::checkout/order_placed.phtml" cacheable="false"
+            />
         </referenceContainer>
 
         <referenceBlock name="head.additional">
-            <block name="getresponse.tracking.code.snippet" class="GetResponse\GetResponseIntegration\Block\Header" template="header.phtml"/>
+            <block name="getresponse.tracking.code.snippet"
+                   class="GetResponse\GetResponseIntegration\Block\Header"
+                   template="header.phtml"
+            />
         </referenceBlock>
 
         <referenceContainer name="head.additional">
-            <block name="getresponse.tracking.code" class="Magento\Framework\View\Element\Template" template="GetResponse_GetResponseIntegration::getresponse_tracking_code.phtml"/>
+            <block name="getresponse.tracking.code"
+                   class="Magento\Framework\View\Element\Template"
+                   template="GetResponse_GetResponseIntegration::getresponse_tracking_code.phtml"
+            />
         </referenceContainer>
 
         <referenceContainer name="head.additional">
-            <block name="getresponse.recommendation" class="Magento\Framework\View\Element\Template" template="GetResponse_GetResponseIntegration::getresponse_recommendation.phtml" />
+            <block name="getresponse.recommendation"
+                    class="Magento\Framework\View\Element\Template"
+                    template="GetResponse_GetResponseIntegration::getresponse_recommendation.phtml"
+            />
         </referenceContainer>
 
     </body>
