@@ -34,17 +34,14 @@ class HttpClient
      */
     public function post(string $url, JsonSerializable $object): string
     {
-        return $this->sendRequest($url, 'POST', $object);
+        return $this->sendRequest($url, self::POST, $object);
     }
 
     /**
      * @throws HttpClientException
      */
-    private function sendRequest(
-        string $url,
-        string $method = self::GET,
-        JsonSerializable $object = null
-    ): string {
+    private function sendRequest(string $url, string $method, JsonSerializable $object): string
+    {
         $this->curl->addHeader('Content-Type', 'application/json');
         $this->curl->addHeader('X-Shop-Domain', $this->storeManager->getStore()->getBaseUrl());
         $this->curl->addHeader('X-Hmac-Sha256', $this->createHmac($object));
