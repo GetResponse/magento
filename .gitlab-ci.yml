@@ -16,7 +16,7 @@ composer_install:php72:
   script:
     - composer self-update --2
     - composer config -a -g http-basic.repo.magento.com $COMPOSER_REPO_MAGENTO_USERNAME $COMPOSER_REPO_MAGENTO_PASSWORD
-    - composer install --prefer-dist --verbose --ignore-platform-reqs
+    - composer install --prefer-dist --verbose
   artifacts:
     paths:
       - vendor/
