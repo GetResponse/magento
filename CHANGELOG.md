@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.9.1] - 2025-11-18
+### Fix
+- Fixed output escaping in template files
+
 ## [20.9.0] - 2025-10-04
 ### Feat
 - Added support for Hyva
