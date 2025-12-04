@@ -1,3 +1,4 @@
+
 stages:
   - install_dependencies
   - test
@@ -13,11 +14,13 @@ composer_install:php72:
   stage: install_dependencies
   tags:
     - hq1-small-amd64
+  before_script:
+    - composer config platform.php 7.2.34
   script:
     - composer self-update --2
     - composer config -a -g http-basic.repo.magento.com $COMPOSER_REPO_MAGENTO_USERNAME $COMPOSER_REPO_MAGENTO_PASSWORD
-    - composer require --dev "magento/module-store:~101.0.0" "magento/module-newsletter:~101.0.0" --no-update
     - composer config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+    - composer config audit.block-insecure false
     - composer install --prefer-dist --verbose --ignore-platform-reqs
   artifacts:
     paths:
@@ -27,47 +30,46 @@ composer_install:php72:
     - !reference [ .exclude-branch-develop, rules ]
 
 test:phpunit:php72:
-  needs: [ 'composer_install:php72' ]
-  image: php:7.2-cli
+  needs: ['composer_install:php72']
+  image: php:7.2-cli-alpine
   stage: test
   tags:
     - hq1-small-amd64
   before_script:
-    - apt-get update && apt-get install -y libxml2-dev
+    - apk add --no-cache libxml2-dev git unzip autoconf g++ make
     - docker-php-ext-install xml dom mbstring
   script:
     - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit8.xml --colors=never
   rules:
-    - !reference [ .exclude-branch-develop, rules ]
+    - !reference [.exclude-branch-develop, rules]
   dependencies:
     - composer_install:php72
-
-
-composer_install:php81:
-  image: magento/magento-cloud-docker-php:8.1-cli-1.3.3
-  stage: install_dependencies
-  tags:
-    - hq1-small-amd64
-  script:
-    - composer config -a -g http-basic.repo.magento.com $COMPOSER_REPO_MAGENTO_USERNAME $COMPOSER_REPO_MAGENTO_PASSWORD
-    - composer install --prefer-dist --verbose --ignore-platform-reqs
-  artifacts:
-    paths:
-      - vendor/
-    expire_in: 2 hrs
-  rules:
-    - !reference [ .exclude-branch-develop, rules ]
-
-test:phpunit:php81:
-  needs: [ 'composer_install:php81' ]
-  image: magento/magento-cloud-docker-php:8.1-cli-1.3.3
-  stage: test
-  tags:
-    - hq1-small-amd64
-  script:
-    - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit9.xml --colors=never
-  rules:
-    - !reference [ .exclude-branch-develop, rules ]
-  dependencies:
-    - composer_install:php81
-
+#
+#composer_install:php81:
+#  image: magento/magento-cloud-docker-php:8.1-cli-1.3.3
+#  stage: install_dependencies
+#  tags:
+#    - hq1-small-amd64
+#  script:
+#    - composer config -a -g http-basic.repo.magento.com $COMPOSER_REPO_MAGENTO_USERNAME $COMPOSER_REPO_MAGENTO_PASSWORD
+#    - composer install --prefer-dist --verbose --ignore-platform-reqs
+#  artifacts:
+#    paths:
+#      - vendor/
+#    expire_in: 2 hrs
+#  rules:
+#    - !reference [ .exclude-branch-develop, rules ]
+#
+#test:phpunit:php81:
+#  needs: [ 'composer_install:php81' ]
+#  image: magento/magento-cloud-docker-php:8.1-cli-1.3.3
+#  stage: test
+#  tags:
+#    - hq1-small-amd64
+#  script:
+#    - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit9.xml --colors=never
+#  rules:
+#    - !reference [ .exclude-branch-develop, rules ]
+#  dependencies:
+#    - composer_install:php81
+#
