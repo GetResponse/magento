@@ -30,7 +30,7 @@ class HttpClient
         StoreManagerInterface $storeManager,
         ModuleListInterface $moduleList,
         ProductMetadataInterface $productMetadata,
-        PlatformVersionProvider $platformVersionProvider,
+        PlatformVersionProvider $platformVersionProvider
     )
     {
         $this->curl = $curl;
