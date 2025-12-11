@@ -21,6 +21,7 @@
         "magento/magento-coding-standard": "*",
         "squizlabs/php_codesniffer": "*",
         "friendsofphp/php-cs-fixer": "*",
+        "dealerdirect/phpcodesniffer-composer-installer": "*",
         "phpunit/phpunit": "^8.5"
     },
     "autoload": {
