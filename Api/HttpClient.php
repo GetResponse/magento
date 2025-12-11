@@ -9,6 +9,8 @@ use JsonSerializable;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\Module\ModuleListInterface;
+use Magento\Framework\App\ProductMetadataInterface;
 
 class HttpClient
 {
@@ -18,15 +20,25 @@ class HttpClient
     private $curl;
     private $jsonHelper;
     private $storeManager;
+    private $moduleList;
+    private $productMetadata;
+    private $platformVersionProvider;
 
     public function __construct(
         Curl $curl,
         SerializerInterface $jsonHelper,
-        StoreManagerInterface $storeManager
-    ) {
+        StoreManagerInterface $storeManager,
+        ModuleListInterface $moduleList,
+        ProductMetadataInterface $productMetadata,
+        PlatformVersionProvider $platformVersionProvider
+    )
+    {
         $this->curl = $curl;
         $this->jsonHelper = $jsonHelper;
         $this->storeManager = $storeManager;
+        $this->moduleList = $moduleList;
+        $this->productMetadata = $productMetadata;
+        $this->platformVersionProvider = $platformVersionProvider;
     }
 
     /**
@@ -42,10 +54,7 @@ class HttpClient
      */
     private function sendRequest(string $url, string $method, JsonSerializable $object): string
     {
-        $this->curl->addHeader('Content-Type', 'application/json');
-        $this->curl->addHeader('X-Shop-Domain', $this->storeManager->getStore()->getBaseUrl());
-        $this->curl->addHeader('X-Hmac-Sha256', $this->createHmac($object));
-        $this->curl->addHeader('X-Timestamp', date('Y-m-d H:i:s.') . gettimeofday()['usec']);
+        $this->curl->setHeaders($this->buildHeaders($object)->toArray());
 
         $method === self::POST ? $this->curl->post($url, $this->jsonHelper->serialize($object)) : $this->curl->get($url);
 
@@ -65,6 +74,18 @@ class HttpClient
                 Config::API_APP_SECRET,
                 true
             )
+        );
+    }
+
+    private function buildHeaders(JsonSerializable $object): RequestHeaders
+    {
+        return new RequestHeaders(
+            $this->storeManager->getStore()->getBaseUrl(),
+            $this->createHmac($object),
+            date('Y-m-d H:i:s.') . gettimeofday()['usec'],
+            $this->platformVersionProvider->getMagentoVersion(),
+            $this->platformVersionProvider->getPhpVersion(),
+            $this->platformVersionProvider->getPluginVersion()
         );
     }
 }

@@ -1,7 +1,7 @@
 {
     "name": "getresponse/magento2",
     "description": "GetResponse Integration for Magento2",
-    "version": "20.9.0",
+    "version": "20.9.1",
     "license": "OSL-3.0",
     "minimum-stability": "stable",
     "type": "magento2-module",
@@ -12,14 +12,13 @@
         }
     },
     "require": {
-        "getresponse/share-code-plugin": "^7.0"
+        "php": ">=7.2",
+        "getresponse/share-code-plugin": "*"
     },
     "require-dev": {
+        "php": ">=7.2",
+        "magento/framework": "*",
         "magento/module-store": "*",
-        "magento/module-newsletter": "*",
-        "magento/magento-coding-standard": "*",
-        "squizlabs/php_codesniffer": "*",
-        "friendsofphp/php-cs-fixer": "*",
         "phpunit/phpunit": "^8.5"
     },
     "autoload": {
