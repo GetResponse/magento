@@ -21,9 +21,8 @@ php72-deps:  ## Install PHP 7.2 dependencies (cached)
 	@if [ ! -f ".php72-deps-installed.cache" ]; then \
 		$(DOCKER_RUN_PHP72) '\
 			rm -f composer.lock && \
-			composer self-update --2 && \
-			composer remove --dev phpunit/phpunit --no-update || true && \
 			composer config --no-interaction audit.block-insecure false && \
+			composer remove --dev phpunit/phpunit --no-update || true && \
 			composer require --dev "phpunit/phpunit:^8.5" --no-update && \
 			composer install --no-interaction --prefer-dist \
 		' && touch .php72-deps-installed.cache; \

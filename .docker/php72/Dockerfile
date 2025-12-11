@@ -1,5 +1,9 @@
 FROM magento/magento-cloud-docker-php:7.2-cli-1.3.5
 
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+RUN rm -f /usr/local/bin/composer && \
+    ln -s /usr/bin/composer /usr/local/bin/composer
+
 RUN set -eux; \
     printf 'deb [check-valid-until=no] http://archive.debian.org/debian buster main\n' > /etc/apt/sources.list; \
     printf 'deb [check-valid-until=no] http://archive.debian.org/debian-security buster/updates main\n' >> /etc/apt/sources.list; \
