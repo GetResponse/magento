@@ -14,7 +14,7 @@ services:
       - ~/.composer:/root/.composer
       - vendor-php72:/app/vendor
     command: sleep infinity
-  
+
   php83:
     container_name: magento-plugin-php83
     platform: linux/amd64
