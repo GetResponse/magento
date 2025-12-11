@@ -1,7 +1,7 @@
 {
     "name": "getresponse/magento2",
     "description": "GetResponse Integration for Magento2",
-    "version": "20.9.1",
+    "version": "20.9.2",
     "license": "OSL-3.0",
     "minimum-stability": "stable",
     "type": "magento2-module",
@@ -44,6 +44,14 @@
         ]
     },
     "scripts": {
+        "test:php72": [
+            "php -v",
+            "vendor/bin/phpunit -c Test/phpunit8.xml --testsuite unit"
+        ],
+        "test:php83": [
+            "php -v",
+            "vendor/bin/phpunit -c Test/phpunit9.xml --testsuite unit"
+        ],
         "set-code-config": "@php vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/",
         "run-code-sniffer": "@php vendor/bin/phpcs --standard=Magento2 --ignore=vendor ./",
         "run-code-sniffer-magento-fixer": "@php vendor/bin/phpcbf --standard=Magento2 --ignore=vendor ./",
