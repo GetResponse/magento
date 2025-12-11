@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
+use Exception;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\App\ProductMetadataInterface;
 
 class PlatformVersionProvider
 {
-    private ModuleListInterface $moduleList;
-    private ProductMetadataInterface $productMetadata;
+    /** @var ModuleListInterface */
+    private $moduleList;
+    /** @var ProductMetadataInterface */
+    private $productMetadata;
 
     public function __construct(
         ModuleListInterface $moduleList,
@@ -24,7 +27,7 @@ class PlatformVersionProvider
     {
         try {
             return (string)$this->productMetadata->getVersion();
-        } catch (\Exception) {
+        } catch (Exception $ex) {
             return '';
         }
     }
@@ -39,7 +42,7 @@ class PlatformVersionProvider
         try {
             $moduleInfo = $this->moduleList->getOne('GetResponse_GetResponseIntegration');
             return (string)($moduleInfo['setup_version'] ?? '');
-        } catch (\Exception) {
+        } catch (Exception $ex) {
             return '';
         }
     }
