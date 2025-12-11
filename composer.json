@@ -22,6 +22,7 @@
         "squizlabs/php_codesniffer": "*",
         "friendsofphp/php-cs-fixer": "*",
         "dealerdirect/phpcodesniffer-composer-installer": "*",
+        "phpstan/phpstan": "*",
         "phpunit/phpunit": "^8.5"
     },
     "autoload": {
@@ -59,7 +60,9 @@
         "phpcs:report": "phpcs --standard=Magento2 --report=summary --ignore=vendor ./",
         "phpcbf": "phpcbf --standard=Magento2 --ignore=vendor ./",
         "cs-check": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --dry-run --verbose --diff",
-        "cs-fix": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose"
+        "cs-fix": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose",
+        "phpstan": "vendor/bin/phpstan analyse --memory-limit=2G",
+        "phpstan:baseline": "vendor/bin/phpstan analyse --memory-limit=2G --generate-baseline"
     },
     "config": {
         "allow-plugins": {

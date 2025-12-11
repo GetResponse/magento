@@ -1,0 +1,28 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 1
+    phpVersion: 70200
+    paths:
+        - Api
+        - Application
+        - Block
+        - Controller
+        - CustomerData
+        - Domain
+        - Extensions
+        - Helper
+        - Logger
+        - Model
+        - Observer
+        - Presenter
+        - Router
+        - Setup
+        - Test
+
+    excludePaths:
+        - vendor/*
+
+    bootstrapFiles:
+        - vendor/autoload.php
