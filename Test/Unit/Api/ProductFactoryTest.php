@@ -86,7 +86,7 @@ class ProductFactoryTest extends BaseTestCase
 
         $mediaMock = $this->getMockWithoutConstructing(MagentoProduct\Image::class);
         $mediaMock->method('getData')
-            ->willReturnOnConsecutiveCalls($image->getSrc(), $image->getPosition());
+            ->willReturnOnConsecutiveCalls($image->getPosition(), $image->getSrc());
 
         $stockItemMock = $this->getMockWithoutConstructing(Stock::class, [], ['getQty']);
         $stockItemMock->method('getQty')->willReturn($variantQty);
@@ -209,7 +209,7 @@ class ProductFactoryTest extends BaseTestCase
 
         $mediaMock = $this->getMockWithoutConstructing(MagentoProduct\Image::class);
         $mediaMock->method('getData')
-            ->willReturnOnConsecutiveCalls($image->getSrc(), $image->getPosition());
+            ->willReturnOnConsecutiveCalls($image->getPosition(), $image->getSrc());
 
         $stockItemMock = $this->getMockWithoutConstructing(Stock::class, [], ['getQty']);
         $stockItemMock->method('getQty')->willReturn($variantQty);

@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.9.2] - 2025-12-11
+### Fix
+- Added limitation for description and images
+
 ## [20.9.1] - 2025-11-18
 ### Fix
 - Fixed output escaping in template files
