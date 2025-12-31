@@ -3,7 +3,7 @@
 ## [20.9.2] - 2025-12-31
 ### Fix
 - Fixed WebConnect's viewItem event
-- 
+
 ## [20.9.1] - 2025-11-18
 ### Fix
 - Fixed output escaping in template files
