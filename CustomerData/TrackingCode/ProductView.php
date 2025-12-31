@@ -32,13 +32,7 @@ class ProductView extends TrackingCodeView
             return $html;
         }
 
-        if ($product->getTypeId() === TypeConfigurable::TYPE_CODE) {
-            $usedProducts = $product->getTypeInstance()->getUsedProducts($product);
-
-            $payload = count($usedProducts) > 0 ? $this->getProductPayload($usedProducts[0]) : [];
-        } else {
-            $payload = $this->getProductPayload($product);
-        }
+        $payload = $this->getProductPayload($product);
         $html .= JavaScriptTag::generateForConst('GrViewProductItem', json_encode($payload), $this->cspNonceProvider->generateNonce());
 
         return $html;
