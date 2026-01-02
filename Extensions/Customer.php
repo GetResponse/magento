@@ -9,24 +9,29 @@ use Magento\Customer\Api\Data\CustomerExtensionInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Newsletter\Model\ResourceModel\Subscriber;
 use Magento\Newsletter\Model\Subscriber as SubscriberModel;
+use Magento\Store\Model\StoreManagerInterface;
 
 class Customer
 {
     private $extensionFactory;
     private $subscriberResource;
+    private $storeManager;
 
     public function __construct(
         CustomerExtensionFactory $extensionFactory,
+        StoreManagerInterface $storeManager,
         Subscriber $subscriberResource
     ) {
         $this->extensionFactory = $extensionFactory;
         $this->subscriberResource = $subscriberResource;
+        $this->storeManager = $storeManager;
     }
 
     public function afterGetExtensionAttributes(
         CustomerInterface $customer,
         ?CustomerExtensionInterface $extension = null
     ): ?CustomerExtensionInterface {
+
         if (null === $extension) {
             $extension = $this->extensionFactory->create();
         }
@@ -35,7 +40,10 @@ class Customer
             return $extension;
         }
 
-        $subscriber = $this->subscriberResource->loadByEmail($customer->getEmail());
+        $subscriber = $this->subscriberResource->loadBySubscriberEmail(
+            $customer->getEmail(),
+            (int)$this->storeManager->getStore($customer->getStoreId())->getWebsiteId()
+        );
 
         $subscriberStatus = !empty($subscriber['subscriber_status']) ? (int)$subscriber['subscriber_status'] : 0;
         $isSubscribed = $subscriberStatus === SubscriberModel::STATUS_SUBSCRIBED;
