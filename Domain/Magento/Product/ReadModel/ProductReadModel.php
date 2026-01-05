@@ -20,17 +20,7 @@ class ProductReadModel
 
     public function getProduct(GetProduct $query): Product
     {
-        $productObject = $this->objectManager->create(Product::class);
-
-        return $productObject->load($query->getId());
-    }
-
-    public function getProductParent(GetProduct $query)
-    {
-        $productObject = $this->objectManager->create(Configurable::class);
-        $parentProductsIds = $productObject->getParentIdsByChild($query->getId());
-
-        return $this->getProduct(new GetProduct($parentProductsIds[0]));
+        return $this->objectManager->create(Product::class)->load($query->getId());
     }
 
     /**

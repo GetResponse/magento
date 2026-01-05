@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\Event\Observer;
@@ -18,27 +16,19 @@ class ProductDeletedObserver implements ObserverInterface
 {
     private $logger;
     private $apiService;
-    private $repository;
 
     public function __construct(
         Logger $logger,
-        ApiService $apiService,
-        Repository $repository
+        ApiService $apiService
     )
     {
         $this->logger = $logger;
         $this->apiService = $apiService;
-        $this->repository = $repository;
     }
 
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): self
     {
         try {
-            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-            if (!$pluginMode->isNewVersion()) {
-                return $this;
-            }
-
             /** @var Product $product */
             $product = $observer->getProduct();
 

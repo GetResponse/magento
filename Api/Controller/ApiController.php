@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Api\Controller;
 
 use Exception;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
@@ -44,19 +43,6 @@ abstract class ApiController
         }
 
         $this->scope = new Scope($scope);
-    }
-
-    /**
-     * @throws WebapiException
-     * @return void
-     */
-    public function verifyPluginMode(): void
-    {
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-
-        if (!$pluginMode->isNewVersion()) {
-            throw new WebapiException(new Phrase('Incorrect plugin mode'));
-        }
     }
 
     /**

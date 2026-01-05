@@ -9,12 +9,10 @@ use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 class General
 {
     private $pluginVersion;
-    private $pluginMode;
 
-    public function __construct(string $pluginVersion, PluginMode $pluginMode)
+    public function __construct(string $pluginVersion)
     {
         $this->pluginVersion = $pluginVersion;
-        $this->pluginMode = $pluginMode;
     }
 
     /**
@@ -30,6 +28,6 @@ class General
      */
     public function getMode(): string
     {
-        return $this->pluginMode->getMode();
+        return 'new';
     }
 }

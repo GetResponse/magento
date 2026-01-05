@@ -68,35 +68,6 @@ class UpgradeData implements UpgradeDataInterface
         $setup->endSetup();
     }
 
-    private function ver2011updateConnectionSettings(ModuleDataSetupInterface $setup)
-    {
-        $sql = "SELECT api_key, api_url, api_domain FROM " . $setup->getTable('getresponse_settings');
-        $data = $setup->getConnection()->fetchAll($sql);
-
-        if (0 === count($data)) {
-            return;
-        }
-
-        foreach ($data as $row) {
-            $payload = [
-                'apiKey' => $row['api_key'],
-                'url' => $row['api_url'],
-                'domain' => $row['api_domain']
-            ];
-
-            try {
-                $settings = ConnectionSettingsFactory::createFromArray($payload);
-                $this->configWriter->save(
-                    Config::CONFIG_DATA_CONNECTION_SETTINGS,
-                    json_encode($settings->toArray()),
-                    ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-                    Store::DEFAULT_STORE_ID
-                );
-            } catch (ConnectionSettingsException $e) {
-            }
-        }
-    }
-
     private function ver2011migrateAccountSettings(ModuleDataSetupInterface $setup)
     {
         $sql = "SELECT * FROM " . $setup->getTable('getresponse_account');
@@ -118,7 +89,7 @@ class UpgradeData implements UpgradeDataInterface
             ];
 
             $this->configWriter->save(
-                Config::CONFIG_DATA_ACCOUNT,
+                'getresponse/account',
                 json_encode($data),
                 ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
                 Store::DEFAULT_STORE_ID
@@ -148,7 +119,7 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         $this->configWriter->save(
-            Config::CONFIG_DATA_REGISTRATION_CUSTOMS,
+            'getresponse/registration/customs',
             json_encode($customFields),
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
@@ -187,36 +158,6 @@ class UpgradeData implements UpgradeDataInterface
     /**
      * @param ModuleDataSetupInterface $setup
      */
-    private function ver2011updateRegistrationSettings(ModuleDataSetupInterface $setup)
-    {
-        $sql = "SELECT * FROM " . $setup->getTable('getresponse_settings');
-        $data = $setup->getConnection()->fetchAll($sql);
-
-        if (0 === count($data)) {
-            return;
-        }
-
-        foreach ($data as $row) {
-            $registrationSettings = new SubscribeViaRegistration(
-                $row['active_subscription'],
-                $row['update'],
-                $row['campaign_id'],
-                $row['cycle_day'],
-                $row['autoresponderId']
-            );
-
-            $this->configWriter->save(
-                Config::CONFIG_DATA_REGISTRATION_SETTINGS,
-                json_encode($registrationSettings->toArray()),
-                ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-                Store::DEFAULT_STORE_ID
-            );
-        }
-    }
-
-    /**
-     * @param ModuleDataSetupInterface $setup
-     */
     private function ver2011migrateWebEventTrackingSettings(ModuleDataSetupInterface $setup)
     {
         $sql = "SELECT * FROM " . $setup->getTable('getresponse_settings');
@@ -246,7 +187,7 @@ class UpgradeData implements UpgradeDataInterface
     private function ver2034migrateCustomFieldsMapping()
     {
         $this->configWriter->save(
-            Config::CONFIG_DATA_REGISTRATION_CUSTOMS,
+            'getresponse/registration/customs',
             json_encode(CustomFieldsMappingCollection::createDefaults()->toArray()),
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
@@ -280,6 +221,6 @@ class UpgradeData implements UpgradeDataInterface
 
     private function ver2062setNewPluginMode(): void
     {
-        $this->configWriter->save(Config::CONFIG_DATA_PLUGIN_MODE, PluginMode::MODE_NEW);
+        $this->configWriter->save('getresponse/plugin-mode', PluginMode::MODE_NEW);
     }
 }

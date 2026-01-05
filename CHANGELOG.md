@@ -1,5 +1,9 @@
 # Changelog
 
+## [21.0.0] - 2025-12-31
+### Feat
+- Removed old plugin version
+
 ## [20.9.2] - 2025-12-31
 ### Fix
 - Fixed WebConnect's viewItem event

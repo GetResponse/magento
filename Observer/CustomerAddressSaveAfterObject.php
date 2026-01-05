@@ -6,8 +6,6 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use Magento\Customer\Api\Data\AddressInterface;
@@ -17,27 +15,19 @@ use Magento\Framework\Event\ObserverInterface;
 class CustomerAddressSaveAfterObject implements ObserverInterface
 {
     private $logger;
-    private $repository;
     private $apiService;
 
     public function __construct(
         Logger $logger,
-        Repository $repository,
         ApiService $apiService
     ) {
         $this->logger = $logger;
-        $this->repository = $repository;
         $this->apiService = $apiService;
     }
 
     public function execute(Observer $observer): CustomerAddressSaveAfterObject
     {
         try {
-            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-            if (!$pluginMode->isNewVersion()) {
-                return $this;
-            }
-
             if (null === $observer->getCustomerAddress()) {
                 $this->logger->addNotice('CustomerAddress in observer is empty', [
                     'observerName' => $observer->getName(),

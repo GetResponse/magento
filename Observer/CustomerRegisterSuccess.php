@@ -6,7 +6,6 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
@@ -38,10 +37,6 @@ class CustomerRegisterSuccess implements ObserverInterface
     public function execute(Observer $observer): CustomerRegisterSuccess
     {
         try {
-            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-            if (!$pluginMode->isNewVersion()) {
-                return $this;
-            }
             if (null === $observer->getCustomer()) {
                 $this->logger->addNotice('Customer in observer is empty', [
                     'observerName' => $observer->getName(),

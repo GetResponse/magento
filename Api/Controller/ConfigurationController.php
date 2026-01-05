@@ -9,7 +9,6 @@ use GetResponse\GetResponseIntegration\Domain\Magento\FacebookAdsPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookBusinessExtension;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Recommendation;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\RequestValidationException;
@@ -58,16 +57,14 @@ class ConfigurationController extends ApiController implements ConfigurationCont
         $versionInfo = $this->moduleList->getOne(self::MODULE_NAME);
         $pluginVersion = $versionInfo['setup_version'] ?? '';
 
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
         $stores = [];
 
         foreach ($this->magentoStore->getMagentoStores() as $storeId => $storeName) {
-            $scope = new Scope($storeId);
-            $stores[] = $pluginMode->isNewVersion() ? $this->createStore($scope) : $this->createEmptyStoreConfiguration($scope);
+            $stores[] = $this->createStore(new Scope($storeId));
         }
 
         return new ConfigurationPresenter(
-            new General($pluginVersion, $pluginMode),
+            new General($pluginVersion),
             $stores
         );
     }
@@ -77,12 +74,6 @@ class ConfigurationController extends ApiController implements ConfigurationCont
      */
     public function delete(): void
     {
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-
-        if (false === $pluginMode->isNewVersion()) {
-            return;
-        }
-
         foreach ($this->magentoStore->getMagentoStores() as $storeId => $storeName) {
             $this->repository->clearConfiguration($storeId);
         }
@@ -98,7 +89,6 @@ class ConfigurationController extends ApiController implements ConfigurationCont
     public function update(string $scope): void
     {
         try {
-            $this->verifyPluginMode();
             $this->verifyScope($scope);
 
             $requestBody = $this->request->getBodyParams();

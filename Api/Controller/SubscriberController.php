@@ -31,7 +31,6 @@ class SubscriberController extends ApiController implements SubscriberController
     ) {
         parent::__construct($repository, $magentoStore);
         $this->subscriberCollectionFactory = $subscriberCollectionFactory;
-        $this->verifyPluginMode();
     }
 
     /**

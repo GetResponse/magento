@@ -4,13 +4,20 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Transition;
 
-use GetResponse\GetResponseIntegration\Controller\Adminhtml\AbstractController;
 use GetResponse\GetResponseIntegration\Helper\PageTitle;
+use Magento\Backend\App\Action;
+use Magento\Framework\View\Result\Page;
+use Magento\Framework\View\Result\PageFactory;
 
-class Index extends AbstractController
+class Index extends Action
 {
-    public function execute()
+    public function execute(): Page
     {
-        return $this->render(PageTitle::TRANSITION);
+        $pageFactory = $this->_objectManager->get(PageFactory::class);
+
+        $resultPage = $pageFactory->create();
+        $resultPage->getConfig()->getTitle()->prepend(PageTitle::TRANSITION);
+
+        return $resultPage;
     }
 }

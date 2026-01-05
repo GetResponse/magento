@@ -27,13 +27,9 @@ abstract class TrackingCodeView
 
     protected function isAllowed(Subject $subject, int $scopeId): bool
     {
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
         $webEventTracking = WebEventTracking::createFromRepository($this->repository->getWebEventTracking($scopeId));
 
-        return
-            $pluginMode->isNewVersion()
-            && $webEventTracking->isFeatureTrackingEnabled()
-            && $subject->getNameInLayout() === $this->getBlockName();
+        return $webEventTracking->isFeatureTrackingEnabled() && $subject->getNameInLayout() === $this->getBlockName();
     }
 
     protected function getGetresponseShopId(int $scopeId): ?string

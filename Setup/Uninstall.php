@@ -45,31 +45,31 @@ class Uninstall implements UninstallInterface
         $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_product_map'));
 
         $this->configWriter->delete(
-            Config::CONFIG_DATA_SHOP_STATUS,
+            'getresponse/shop/status',
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
 
         $this->configWriter->delete(
-            Config::CONFIG_DATA_SHOP_ID,
+            'getresponse/shop/id',
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
 
         $this->configWriter->delete(
-            Config::CONFIG_DATA_ECOMMERCE_LIST_ID,
+            'getresponse/ecommerce/list/id',
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
 
         $this->configWriter->delete(
-            Config::CONFIG_DATA_ACCOUNT,
+            'getresponse/account',
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
 
         $this->configWriter->delete(
-            Config::CONFIG_DATA_CONNECTION_SETTINGS,
+            'getresponse/connection-settings',
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
@@ -81,13 +81,13 @@ class Uninstall implements UninstallInterface
         );
 
         $this->configWriter->delete(
-            Config::CONFIG_DATA_REGISTRATION_SETTINGS,
+            'getresponse/registration/settings',
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
 
         $this->configWriter->delete(
-            Config::CONFIG_DATA_REGISTRATION_CUSTOMS,
+            'getresponse/registration/customs',
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );
@@ -99,7 +99,7 @@ class Uninstall implements UninstallInterface
         );
 
         $this->configWriter->delete(
-            Config::INVALID_REQUEST_DATE_TIME,
+            'getresponse/invalid_request_date_time',
             ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             Store::DEFAULT_STORE_ID
         );

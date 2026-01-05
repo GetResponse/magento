@@ -39,12 +39,10 @@ abstract class RecommendationView
             return false;
         }
 
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
         $recommendation = Recommendation::createFromRepository($this->repository->getRecommendationSnippet($scopeId));
 
         return
-            $pluginMode->isNewVersion()
-            && $subject->getNameInLayout() === $this->getBlockName()
+            $subject->getNameInLayout() === $this->getBlockName()
             && $recommendation->isActive()
             && $this->request->getFullActionName() === $this->getFullActionName();
     }
