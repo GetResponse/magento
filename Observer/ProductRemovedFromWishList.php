@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Recommendation\RecommendationSession;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\TrackingCodeBufferService;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -14,16 +14,16 @@ use Magento\Wishlist\Model\Item;
 
 class ProductRemovedFromWishList implements ObserverInterface
 {
-    private $session;
+    private $trackingCodeBufferService;
     private $logger;
     private $objectManager;
 
     public function __construct(
-        RecommendationSession $session,
+        TrackingCodeBufferService $trackingCodeBufferService,
         Logger $logger,
         ObjectManagerInterface $objectManager
     ) {
-        $this->session = $session;
+        $this->trackingCodeBufferService = $trackingCodeBufferService;
         $this->logger = $logger;
         $this->objectManager = $objectManager;
     }
@@ -31,13 +31,13 @@ class ProductRemovedFromWishList implements ObserverInterface
     public function execute(Observer $observer): self
     {
         try {
-            if (false === $this->session->isUserLoggedIn()) {
+            if (false === $this->trackingCodeBufferService->isUserLoggedIn()) {
                 return $this;
             }
 
             $wishListId = $observer->getData()['request']->getParam('item');
             $item = $this->objectManager->create(Item::class)->load($wishListId);
-            $this->session->setProductIdRemovedFromWishList($item->getProductId());
+            $this->trackingCodeBufferService->setProductIdRemovedFromWishList($item->getProductId());
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }

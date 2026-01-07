@@ -9,7 +9,6 @@ use GetResponse\GetResponseIntegration\Domain\Magento\FacebookAdsPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookBusinessExtension;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
-use GetResponse\GetResponseIntegration\Domain\Magento\Recommendation;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\RequestValidationException;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
@@ -99,7 +98,6 @@ class ConfigurationController extends ApiController implements ConfigurationCont
             $webForm = WebForm::createFromRequest($requestBody);
             $webEventTracking = WebEventTracking::createFromRequest($requestBody);
             $liveSynchronization = LiveSynchronization::createFromRequest($requestBody);
-            $recommendation = Recommendation::createFromRequest($requestBody);
 
             $this->repository->saveFacebookPixelSnippet($facebookPixel, $scope);
             $this->repository->saveFacebookAdsPixelSnippet($facebookAdsPixel, $scope);
@@ -107,7 +105,6 @@ class ConfigurationController extends ApiController implements ConfigurationCont
             $this->repository->saveWebformSettings($webForm, $scope);
             $this->repository->saveWebEventTracking($webEventTracking, $scope);
             $this->repository->saveLiveSynchronization($liveSynchronization, $scope);
-            $this->repository->saveRecommendationSnippet($recommendation, $scope);
 
             $this->clearCache();
             $this->cacheManager->clean(['config']);
@@ -137,24 +134,7 @@ class ConfigurationController extends ApiController implements ConfigurationCont
             ),
             LiveSynchronization::createFromRepository(
                 $this->repository->getLiveSynchronization($scope->getScopeId())
-            ),
-            Recommendation::createFromRepository(
-                $this->repository->getRecommendationSnippet($scope->getScopeId())
             )
-        );
-    }
-
-    private function createEmptyStoreConfiguration(Scope $scope): Store
-    {
-        return new Store(
-            $scope,
-            new FacebookPixel(false, ''),
-            new FacebookAdsPixel(false, ''),
-            new FacebookBusinessExtension(false, ''),
-            new WebForm(false, '', '', ''),
-            new WebEventTracking(false, false, '', null),
-            new LiveSynchronization(false, '', ''),
-            new Recommendation(false, '')
         );
     }
 

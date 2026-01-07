@@ -20,10 +20,10 @@
         <section name="getresponse-tracking-code"/>
     </action>
     <action name="wishlist/index/add">
-        <section name="getresponse-recommendation"/>
+        <section name="getresponse-wishlist"/>
     </action>
     <action name="wishlist/index/remove">
-        <section name="getresponse-recommendation"/>
+        <section name="getresponse-wishlist"/>
     </action>
     <action name="checkout/cart/add">
         <section name="getresponse-tracking-code"/>
