@@ -52,22 +52,18 @@ class ConfigurationController extends ApiController implements ConfigurationCont
      */
     public function list(): ConfigurationPresenter
     {
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
         $stores = [];
 
         foreach ($this->magentoStore->getMagentoStores() as $storeId => $storeName) {
             $scope = new Scope($storeId);
-            $stores[] = $pluginMode->isNewVersion()
-                ? $this->createStore($scope)
-                : $this->createEmptyStoreConfiguration($scope);
+            $stores[] = $this->createStore($scope);
         }
 
         return new ConfigurationPresenter(
             new General(
                 $this->platformVersionProvider->getPluginVersion(),
                 $this->platformVersionProvider->getMagentoVersion(),
-                $this->platformVersionProvider->getPhpVersion(),
-                $pluginMode
+                $this->platformVersionProvider->getPhpVersion()
             ),
             $stores
         );

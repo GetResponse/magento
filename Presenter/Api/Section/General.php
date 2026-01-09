@@ -15,7 +15,7 @@ class General
     public function __construct(
         string $pluginVersion,
         string $magentoVersion,
-        string $phpVersion,
+        string $phpVersion
     ) {
         $this->pluginVersion = $pluginVersion;
         $this->magentoVersion = $magentoVersion;
