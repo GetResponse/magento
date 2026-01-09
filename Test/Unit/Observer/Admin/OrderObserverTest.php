@@ -5,12 +5,6 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Test\Unit\Observer\Admin;
 
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ReadModel\ContactReadModel;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Ecommerce\ReadModel\EcommerceReadModel;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\Command\EditOrderCommandFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Order\OrderService;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GetResponse\GetResponseIntegration\Observer\Admin\OrderObserver;
@@ -24,35 +18,16 @@ class OrderObserverTest extends BaseTestCase
 {
     /** @var ApiService|MockObject */
     private $apiServiceMock;
-    /** @var Repository|MockObject */
-    private $repositoryMock;
     /** @var OrderObserver */
     private $sut;
 
     protected function setUp(): void
     {
-        /** @var OrderService|MockObject $orderServiceMock */
-        $orderServiceMock = $this->getMockWithoutConstructing(OrderService::class);
         /** @var Logger|MockObject $loggerMock */
         $loggerMock = $this->getMockWithoutConstructing(Logger::class);
-        /** @var EditOrderCommandFactory|MockObject $editOrderCommandFactoryMock */
-        $editOrderCommandFactoryMock = $this->getMockWithoutConstructing(EditOrderCommandFactory::class);
-        /** @var EcommerceReadModel|MockObject $ecommerceReadModelMock */
-        $ecommerceReadModelMock = $this->getMockWithoutConstructing(EcommerceReadModel::class);
-        /** @var ContactReadModel|MockObject $contactReadModelMock */
-        $contactReadModelMock = $this->getMockWithoutConstructing(ContactReadModel::class);
-        $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
         $this->apiServiceMock = $this->getMockWithoutConstructing(ApiService::class);
 
-        $this->sut = new OrderObserver(
-            $orderServiceMock,
-            $loggerMock,
-            $editOrderCommandFactoryMock,
-            $ecommerceReadModelMock,
-            $contactReadModelMock,
-            $this->repositoryMock,
-            $this->apiServiceMock
-        );
+        $this->sut = new OrderObserver($loggerMock, $this->apiServiceMock);
     }
 
     /**
@@ -72,44 +47,10 @@ class OrderObserverTest extends BaseTestCase
         $observerMock = $this->getMockWithoutConstructing(EventObserver::class);
         $observerMock->method('getEvent')->willReturn($eventMock);
 
-        $this->repositoryMock
-            ->expects(self::once())
-            ->method('getPluginMode')
-            ->willReturn(PluginMode::MODE_NEW);
-
         $this->apiServiceMock
             ->expects(self::once())
             ->method('updateOrder')
             ->with($orderMock, new Scope($storeId));
-
-        $this->sut->execute($observerMock);
-    }
-
-    /**
-     * @test
-     */
-    public function shouldNotUpdateOrderWhenOldPluginVersion(): void
-    {
-        $storeId = 3;
-
-        /** @var Order|MockObject $orderMock */
-        $orderMock = $this->getMockWithoutConstructing(Order::class);
-        $orderMock->method('getStoreId')->willReturn($storeId);
-        /** @var Event|MockObject $eventMock */
-        $eventMock = $this->getMockWithoutConstructing(Event::class, [], ['getOrder']);
-        $eventMock->method('getOrder')->willReturn($orderMock);
-        /** @var EventObserver|MockObject $observerMock */
-        $observerMock = $this->getMockWithoutConstructing(EventObserver::class);
-        $observerMock->method('getEvent')->willReturn($eventMock);
-
-        $this->repositoryMock
-            ->expects(self::once())
-            ->method('getPluginMode')
-            ->willReturn(PluginMode::MODE_OLD);
-
-        $this->apiServiceMock
-            ->expects(self::never())
-            ->method('updateOrder');
 
         $this->sut->execute($observerMock);
     }

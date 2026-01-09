@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Test\Unit\Observer;
 
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GetResponse\GetResponseIntegration\Observer\CustomerRegisterSuccess;
@@ -64,11 +63,6 @@ class CustomerRegisterSuccessTest extends BaseTestCase
 
         $this->repositoryMock
             ->expects(self::once())
-            ->method('getPluginMode')
-            ->willReturn(PluginMode::MODE_NEW);
-
-        $this->repositoryMock
-            ->expects(self::once())
             ->method('getLiveSynchronization')
             ->with($storeId)
             ->willReturn(['isEnabled' => true, 'callbackUrl' => '', 'type' => LiveSynchronization::TYPE_ECOMMERCE]);
@@ -89,25 +83,6 @@ class CustomerRegisterSuccessTest extends BaseTestCase
     /**
      * @test
      */
-    public function shouldNotSubscribeCustomerWhenOldPluginVersion(): void
-    {
-        /** @var Observer|MockObject $observerMock */
-        $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getCustomer']);
-
-        $this->requestMock
-            ->expects(self::never())
-            ->method('getParam');
-
-        $this->magentoSubscriberMock
-            ->expects(self::never())
-            ->method('subscribeCustomerById');
-
-        $this->sut->execute($observerMock);
-    }
-
-    /**
-     * @test
-     */
     public function shouldNotSubscribeCustomerWhenLiveSynchronizationIsDisabled(): void
     {
         $storeId = 3;
@@ -120,11 +95,6 @@ class CustomerRegisterSuccessTest extends BaseTestCase
         /** @var Observer|MockObject $observerMock */
         $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getCustomer']);
         $observerMock->method('getCustomer')->willReturn($customerMock);
-
-        $this->repositoryMock
-            ->expects(self::once())
-            ->method('getPluginMode')
-            ->willReturn(PluginMode::MODE_NEW);
 
         $this->repositoryMock
             ->expects(self::once())
@@ -160,11 +130,6 @@ class CustomerRegisterSuccessTest extends BaseTestCase
         /** @var Observer|MockObject $observerMock */
         $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getCustomer']);
         $observerMock->method('getCustomer')->willReturn($customerMock);
-
-        $this->repositoryMock
-            ->expects(self::once())
-            ->method('getPluginMode')
-            ->willReturn(PluginMode::MODE_NEW);
 
         $this->repositoryMock
             ->expects(self::once())

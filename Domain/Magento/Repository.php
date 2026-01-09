@@ -31,7 +31,7 @@ class Repository
         $this->serializer = $serializer;
     }
 
-    public function saveWebEventTracking(WebEventTracking $webEventTracking, $scopeId)
+    public function saveWebEventTracking(WebEventTracking $webEventTracking, $scopeId): void
     {
         $this->configWriter->save(
             Config::CONFIG_DATA_WEB_EVENT_TRACKING,

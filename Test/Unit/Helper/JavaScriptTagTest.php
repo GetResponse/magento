@@ -9,7 +9,7 @@ use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 
 class JavaScriptTagTest extends BaseTestCase
 {
-    public function testWillGenerateJavascriptSnippetWithNonce()
+    public function testWillGenerateJavascriptSnippetWithNonce(): void
     {
         $const = 'webEventPayload';
         $payload = json_encode(['key' => 'value', 'pageData' => []]);
@@ -22,7 +22,7 @@ class JavaScriptTagTest extends BaseTestCase
         self::assertEquals($expectedResult, $result);
     }
 
-    public function testWillGenerateJavascriptSnippetWithoutNonce()
+    public function testWillGenerateJavascriptSnippetWithoutNonce(): void
     {
         $const = 'webEventPayload';
         $payload = json_encode(['key' => 'value', 'pageData' => []]);
@@ -35,7 +35,7 @@ class JavaScriptTagTest extends BaseTestCase
         self::assertEquals($expectedResult, $result);
     }
 
-    public function testWillGenerateJavascriptSnippetWithEmptyNonce()
+    public function testWillGenerateJavascriptSnippetWithEmptyNonce(): void
     {
         $const = 'webEventPayload';
         $payload = json_encode(['key' => 'value', 'pageData' => []]);

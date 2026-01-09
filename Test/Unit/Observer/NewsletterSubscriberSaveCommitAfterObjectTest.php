@@ -5,11 +5,6 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Test\Unit\Observer;
 
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\ContactService;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactCustomFieldsCollectionFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GetResponse\GetResponseIntegration\Observer\NewsletterSubscriberSaveCommitAfterObject;
@@ -20,8 +15,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 class NewsletterSubscriberSaveCommitAfterObjectTest extends BaseTestCase
 {
-    /** @var Repository|MockObject */
-    private $repositoryMock;
     /** @var ApiService|MockObject */
     private $apiServiceMock;
     /** @var NewsletterSubscriberSaveCommitAfterObject */
@@ -29,25 +22,11 @@ class NewsletterSubscriberSaveCommitAfterObjectTest extends BaseTestCase
 
     protected function setUp(): void
     {
-        /** @var ContactService|MockObject $contactServiceMock */
-        $contactServiceMock = $this->getMockWithoutConstructing(ContactService::class);
-        /** @var SubscribeViaRegistrationService|MockObject $subscribeViaRegistrationServiceMock */
-        $subscribeViaRegistrationServiceMock = $this->getMockWithoutConstructing(SubscribeViaRegistrationService::class);
-        /** @var ContactCustomFieldsCollectionFactory|MockObject $contactCustomFieldsCollectionFactoryMock */
-        $contactCustomFieldsCollectionFactoryMock = $this->getMockWithoutConstructing(ContactCustomFieldsCollectionFactory::class);
         /** @var Logger|MockObject $loggerMock */
         $loggerMock = $this->getMockWithoutConstructing(Logger::class);
-        $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
         $this->apiServiceMock = $this->getMockWithoutConstructing(ApiService::class);
 
-        $this->sut = new NewsletterSubscriberSaveCommitAfterObject(
-            $contactServiceMock,
-            $subscribeViaRegistrationServiceMock,
-            $contactCustomFieldsCollectionFactoryMock,
-            $loggerMock,
-            $this->repositoryMock,
-            $this->apiServiceMock
-        );
+        $this->sut = new NewsletterSubscriberSaveCommitAfterObject($loggerMock, $this->apiServiceMock);
     }
 
     /**
@@ -67,11 +46,6 @@ class NewsletterSubscriberSaveCommitAfterObjectTest extends BaseTestCase
         $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getSubscriber']);
         $observerMock->method('getSubscriber')->willReturn($subscriberMock);
 
-        $this->repositoryMock
-            ->expects(self::once())
-            ->method('getPluginMode')
-            ->willReturn(PluginMode::MODE_NEW);
-
         $this->apiServiceMock
             ->expects(self::once())
             ->method('upsertCustomerSubscription')
@@ -87,11 +61,6 @@ class NewsletterSubscriberSaveCommitAfterObjectTest extends BaseTestCase
     {
         /** @var Observer|MockObject $observerMock */
         $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getSubscriber']);
-
-        $this->repositoryMock
-            ->expects(self::once())
-            ->method('getPluginMode')
-            ->willReturn(PluginMode::MODE_OLD);
 
         $this->apiServiceMock
             ->expects(self::never())
@@ -115,11 +84,6 @@ class NewsletterSubscriberSaveCommitAfterObjectTest extends BaseTestCase
         /** @var Observer|MockObject $observerMock */
         $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getSubscriber']);
         $observerMock->method('getSubscriber')->willReturn($subscriberMock);
-
-        $this->repositoryMock
-            ->expects(self::once())
-            ->method('getPluginMode')
-            ->willReturn(PluginMode::MODE_NEW);
 
         $this->apiServiceMock
             ->expects(self::never())

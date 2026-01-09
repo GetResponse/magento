@@ -9,7 +9,6 @@ use GetResponse\GetResponseIntegration\Helper\JavaScriptTag;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Block\Product\View as Subject;
 use Magento\Catalog\Model\Product;
-use Magento\ConfigurableProduct\Model\Product\Type\Configurable as TypeConfigurable;
 use Exception;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 

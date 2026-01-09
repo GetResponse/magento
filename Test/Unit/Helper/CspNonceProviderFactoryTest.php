@@ -4,9 +4,7 @@ namespace GetResponse\GetResponseIntegration\Test\Unit\Helper;
 
 use GetResponse\GetResponseIntegration\Helper\CspNonceProviderFactory;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
-use Magento\Csp\Helper\CspNonceProvider;
 use Magento\Framework\App\ProductMetadataInterface;
-use PHPUnit\Framework\TestCase;
 
 class CspNonceProviderFactoryTest extends BaseTestCase
 {

@@ -34,7 +34,7 @@ class CustomerRegisterSuccess implements ObserverInterface
         $this->logger = $logger;
     }
 
-    public function execute(Observer $observer): CustomerRegisterSuccess
+    public function execute(Observer $observer): self
     {
         try {
             if (null === $observer->getCustomer()) {

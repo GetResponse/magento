@@ -5,10 +5,6 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Test\Unit\Observer;
 
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\Application\ContactService;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Contact\ContactCustomFieldsCollectionFactory;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\SubscribeViaRegistration\SubscribeViaRegistrationService;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
@@ -20,8 +16,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 class CustomerSaveAfterDataObjectTest extends BaseTestCase
 {
-    /** @var Repository|MockObject */
-    private $repositoryMock;
     /** @var ApiService|MockObject */
     private $apiServiceMock;
     /** @var CustomerSaveAfterDataObject */
@@ -29,25 +23,11 @@ class CustomerSaveAfterDataObjectTest extends BaseTestCase
 
     protected function setUp(): void
     {
-        /** @var ContactService|MockObject $contactServiceMock */
-        $contactServiceMock = $this->getMockWithoutConstructing(ContactService::class);
-        /** @var SubscribeViaRegistrationService|MockObject $subscribeViaRegistrationServiceMock */
-        $subscribeViaRegistrationServiceMock = $this->getMockWithoutConstructing(SubscribeViaRegistrationService::class);
-        /** @var ContactCustomFieldsCollectionFactory|MockObject $contactCustomFieldsCollectionFactoryMock */
-        $contactCustomFieldsCollectionFactoryMock = $this->getMockWithoutConstructing(ContactCustomFieldsCollectionFactory::class);
-        $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
         $this->apiServiceMock = $this->getMockWithoutConstructing(ApiService::class);
         /** @var Logger|MockObject $loggerMock */
         $loggerMock = $this->getMockWithoutConstructing(Logger::class);
 
-        $this->sut = new CustomerSaveAfterDataObject(
-            $contactServiceMock,
-            $subscribeViaRegistrationServiceMock,
-            $contactCustomFieldsCollectionFactoryMock,
-            $this->repositoryMock,
-            $this->apiServiceMock,
-            $loggerMock
-        );
+        $this->sut = new CustomerSaveAfterDataObject($this->apiServiceMock, $loggerMock);
     }
 
     /**
@@ -65,11 +45,6 @@ class CustomerSaveAfterDataObjectTest extends BaseTestCase
         /** @var Observer|MockObject $observerMock */
         $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getCustomerDataObject']);
         $observerMock->method('getCustomerDataObject')->willReturn($customerMock);
-
-        $this->repositoryMock
-            ->expects(self::once())
-            ->method('getPluginMode')
-            ->willReturn(PluginMode::MODE_NEW);
 
         $this->apiServiceMock
             ->expects(self::once())
