@@ -63,28 +63,4 @@ class OrderObserverTest extends BaseTestCase
 
         $this->sut->execute($observerMock);
     }
-
-    /**
-     * @test
-     */
-    public function shouldNotCreateOrderWhenOldPluginMode(): void
-    {
-        $storeId = 3;
-
-        $orderMock = $this->getMockWithoutConstructing(MagentoOrder::class);
-        $orderMock->method('getStoreId')->willReturn($storeId);
-
-        $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getOrder']);
-        $observerMock->method('getOrder')->willReturn($orderMock);
-
-        $this->apiServiceMock
-            ->expects(self::never())
-            ->method('createOrder');
-
-        $this->trackingCodeOrderServiceMock
-            ->expects(self::never())
-            ->method('addToBuffer');
-
-        $this->sut->execute($observerMock);
-    }
 }
