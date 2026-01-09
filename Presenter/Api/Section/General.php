@@ -9,10 +9,17 @@ use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 class General
 {
     private $pluginVersion;
+    private $magentoVersion;
+    private $phpVersion;
 
-    public function __construct(string $pluginVersion)
-    {
+    public function __construct(
+        string $pluginVersion,
+        string $magentoVersion,
+        string $phpVersion,
+    ) {
         $this->pluginVersion = $pluginVersion;
+        $this->magentoVersion = $magentoVersion;
+        $this->phpVersion = $phpVersion;
     }
 
     /**
@@ -30,4 +37,15 @@ class General
     {
         return 'new';
     }
+
+    public function getPhpVersion(): string
+    {
+        return $this->phpVersion;
+    }
+
+    public function getMagentoVersion(): string
+    {
+        return $this->magentoVersion;
+    }
+
 }

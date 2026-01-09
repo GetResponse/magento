@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api\Controller;
 
+use GetResponse\GetResponseIntegration\Api\PlatformVersionProvider;
 use GetResponse\GetResponseIntegration\Controller\Api\ConfigurationControllerInterface;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookAdsPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookBusinessExtension;
@@ -19,7 +20,6 @@ use GetResponse\GetResponseIntegration\Presenter\Api\ConfigurationPresenter;
 use GetResponse\GetResponseIntegration\Presenter\Api\Section\General;
 use GetResponse\GetResponseIntegration\Presenter\Api\Section\Store;
 use Magento\Framework\App\Cache\Manager;
-use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\Phrase;
 use Magento\Framework\Webapi\Exception as WebapiException;
 use Magento\Framework\Webapi\Rest\Request;
@@ -29,41 +29,46 @@ use Magento\Framework\Webapi\Rest\Request;
  */
 class ConfigurationController extends ApiController implements ConfigurationControllerInterface
 {
-    private const MODULE_NAME = 'GetResponse_GetResponseIntegration';
-
-    private $moduleList;
     private $request;
     private $cacheManager;
+    /** @var PlatformVersionProvider */
+    private $platformVersionProvider;
 
     public function __construct(
         Repository $repository,
         MagentoStore $magentoStore,
-        ModuleListInterface $moduleList,
         Request $request,
-        Manager $cacheManager
+        Manager $cacheManager,
+        PlatformVersionProvider $platformVersionProvider
     ) {
         parent::__construct($repository, $magentoStore);
-        $this->moduleList = $moduleList;
         $this->request = $request;
         $this->cacheManager = $cacheManager;
+        $this->platformVersionProvider = $platformVersionProvider;
     }
 
     /**
-     * @return \GetResponse\GetResponseIntegration\Presenter\Api\ConfigurationPresenter
+     * @return ConfigurationPresenter
      */
     public function list(): ConfigurationPresenter
     {
-        $versionInfo = $this->moduleList->getOne(self::MODULE_NAME);
-        $pluginVersion = $versionInfo['setup_version'] ?? '';
-
+        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
         $stores = [];
 
         foreach ($this->magentoStore->getMagentoStores() as $storeId => $storeName) {
-            $stores[] = $this->createStore(new Scope($storeId));
+            $scope = new Scope($storeId);
+            $stores[] = $pluginMode->isNewVersion()
+                ? $this->createStore($scope)
+                : $this->createEmptyStoreConfiguration($scope);
         }
 
         return new ConfigurationPresenter(
-            new General($pluginVersion),
+            new General(
+                $this->platformVersionProvider->getPluginVersion(),
+                $this->platformVersionProvider->getMagentoVersion(),
+                $this->platformVersionProvider->getPhpVersion(),
+                $pluginMode
+            ),
             $stores
         );
     }

@@ -4,6 +4,10 @@
 ### Feat
 - Removed old plugin version
 
+## [20.9.3] - 2025-12-11
+### Fix
+- Added limitation for description and images
+
 ## [20.9.2] - 2025-12-31
 ### Fix
 - Fixed WebConnect's viewItem event
