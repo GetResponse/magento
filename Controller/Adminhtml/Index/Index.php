@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Transition;
+namespace GetResponse\GetResponseIntegration\Controller\Adminhtml\Index;
 
-use GetResponse\GetResponseIntegration\Helper\PageTitle;
 use Magento\Backend\App\Action;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
@@ -16,7 +15,7 @@ class Index extends Action
         $pageFactory = $this->_objectManager->get(PageFactory::class);
 
         $resultPage = $pageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend(PageTitle::TRANSITION);
+        $resultPage->getConfig()->getTitle()->prepend('GetResponse plugin has moved');
 
         return $resultPage;
     }
