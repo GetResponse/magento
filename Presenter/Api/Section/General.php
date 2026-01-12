@@ -38,11 +38,17 @@ class General
         return 'new';
     }
 
+    /**
+     * @return string
+     */
     public function getPhpVersion(): string
     {
         return $this->phpVersion;
     }
 
+    /**
+     * @return string
+     */
     public function getMagentoVersion(): string
     {
         return $this->magentoVersion;
