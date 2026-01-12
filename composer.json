@@ -15,6 +15,14 @@
         "php": ">=7.2"
     },
     "require-dev": {
+        "magento/framework": "*",
+        "magento/module-store": "*",
+        "magento/magento-coding-standard": "*",
+        "squizlabs/php_codesniffer": "*",
+        "friendsofphp/php-cs-fixer": "*",
+        "dealerdirect/phpcodesniffer-composer-installer": "*",
+        "phpstan/phpstan": "*",
+        "phpunit/phpunit": "^8.5"
     },
     "autoload": {
         "files": [
