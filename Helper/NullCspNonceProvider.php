@@ -2,8 +2,6 @@
 
 namespace GetResponse\GetResponseIntegration\Helper;
 
-use Magento\Csp\Helper\CspNonceProvider;
-
 class NullCspNonceProvider
 {
 

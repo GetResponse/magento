@@ -10,11 +10,4 @@ use Magento\Framework\View\Element\Template;
 
 class Transition extends Template
 {
-    public function __construct(
-        Context $context,
-        MagentoStore $magentoStore
-    ) {
-        parent::__construct($context);
-        $this->magentoStore = $magentoStore;
-    }
 }

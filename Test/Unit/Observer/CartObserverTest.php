@@ -6,13 +6,11 @@ namespace GetResponse\GetResponseIntegration\Test\Unit\Observer;
 
 use GetResponse\GetResponseIntegration\Api\ApiService;
 use GetResponse\GetResponseIntegration\Application\GetResponse\TrackingCode\CartService as TrackingCodeCartService;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GetResponse\GetResponseIntegration\Observer\CartObserver;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Checkout\Model\Cart;
-use Magento\Customer\Model\Session;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Quote\Model\Quote;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -28,10 +26,8 @@ class CartObserverTest extends BaseTestCase
 
     protected function setUp(): void
     {
-        $this->sessionMock = $this->getMockWithoutConstructing(Session::class);
         /** @var Logger|MockObject $loggerMock */
         $loggerMock = $this->getMockWithoutConstructing(Logger::class);
-        $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
         $this->apiServiceMock = $this->getMockWithoutConstructing(ApiService::class);
         $this->trackingCodeCartServiceMock = $this->getMockWithoutConstructing(TrackingCodeCartService::class);
 

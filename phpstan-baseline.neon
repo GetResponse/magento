@@ -1,19 +1,9 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Method GetResponse\\\\GetResponseIntegration\\\\Controller\\\\Adminhtml\\\\AbstractController\\:\\:execute\\(\\) should return Magento\\\\Framework\\\\App\\\\ResponseInterface\\|Magento\\\\Framework\\\\Controller\\\\ResultInterface but return statement is missing\\.$#"
-			count: 1
-			path: Controller/Adminhtml/AbstractController.php
-
-		-
 			message: "#^Parameter \\$quoteFactory of method GetResponse\\\\GetResponseIntegration\\\\Controller\\\\Cart\\\\AbandonedCart\\:\\:__construct\\(\\) has invalid type Magento\\\\Quote\\\\Model\\\\QuoteFactory\\.$#"
 			count: 1
 			path: Controller/Cart/AbandonedCart.php
-
-		-
-			message: "#^Access to constant TYPE_CODE on an unknown class Magento\\\\GroupedProduct\\\\Model\\\\Product\\\\Type\\\\Grouped\\.$#"
-			count: 2
-			path: Domain/GetResponse/Product/ProductFactory.php
 
 		-
 			message: "#^Method GetResponse\\\\GetResponseIntegration\\\\Extensions\\\\Customer\\:\\:afterGetExtensionAttributes\\(\\) has invalid return type Magento\\\\Customer\\\\Api\\\\Data\\\\CustomerExtensionInterface\\.$#"
@@ -29,26 +19,6 @@ parameters:
 			message: "#^Parameter \\$extensionFactory of method GetResponse\\\\GetResponseIntegration\\\\Extensions\\\\Customer\\:\\:__construct\\(\\) has invalid type Magento\\\\Customer\\\\Api\\\\Data\\\\CustomerExtensionFactory\\.$#"
 			count: 1
 			path: Extensions/Customer.php
-
-		-
-			message: "#^Class Magento\\\\Csp\\\\Helper\\\\CspNonceProvider not found\\.$#"
-			count: 1
-			path: Helper/CspNonceProviderFactory.php
-
-		-
-			message: "#^Method GetResponse\\\\GetResponseIntegration\\\\Helper\\\\CspNonceProviderFactory\\:\\:create\\(\\) has invalid return type Magento\\\\Csp\\\\Helper\\\\CspNonceProvider\\.$#"
-			count: 1
-			path: Helper/CspNonceProviderFactory.php
-
-		-
-			message: "#^Method GetResponse\\\\GetResponseIntegration\\\\Logger\\\\Logger\\:\\:addError\\(\\) should return bool but return statement is missing\\.$#"
-			count: 1
-			path: Logger/Logger.php
-
-		-
-			message: "#^Method GetResponse\\\\GetResponseIntegration\\\\Logger\\\\Logger\\:\\:addNotice\\(\\) should return bool but return statement is missing\\.$#"
-			count: 1
-			path: Logger/Logger.php
 
 		-
 			message: "#^Instantiated class GetResponse\\\\GetResponseIntegration\\\\Setup\\\\CustomField not found\\.$#"
