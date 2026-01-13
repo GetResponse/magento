@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Api;
 
 use Exception;
-use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\Module\ModuleListInterface;
 
 class PlatformVersionProvider
 {
@@ -17,7 +17,7 @@ class PlatformVersionProvider
 
     public function __construct(
         ModuleListInterface $moduleList,
-        ProductMetadataInterface $productMetadata,
+        ProductMetadataInterface $productMetadata
     ) {
         $this->moduleList = $moduleList;
         $this->productMetadata = $productMetadata;

@@ -33,6 +33,9 @@ php72-deps:  ## Install PHP 7.2 dependencies (cached)
 php72-test: php72-deps  ## Run PHP 7.2 unit tests
 	$(DOCKER_RUN_PHP72) 'composer test:php72'
 
+php72-cs-fixer: php72-deps  ## Run PHP 7.2 CSFixer
+	$(DOCKER_RUN_PHP72) 'composer cs-fix'
+
 ##@ PHP 8.3 Tests
 php83-deps:  ## Install PHP 8.3 dependencies (cached)
 	@if [ ! -f ".php83-deps-installed.cache" ]; then \

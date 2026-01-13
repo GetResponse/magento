@@ -6,12 +6,12 @@ namespace GetResponse\GetResponseIntegration\Api;
 
 class RequestHeaders
 {
-    private string $shopDomain;
-    private string $hmac;
-    private string $timestamp;
-    private string $platformVersion;
-    private string $phpVersion;
-    private string $pluginVersion;
+    private $shopDomain;
+    private $hmac;
+    private $timestamp;
+    private $platformVersion;
+    private $phpVersion;
+    private $pluginVersion;
 
     public function __construct(
         string $shopDomain,
@@ -19,7 +19,7 @@ class RequestHeaders
         string $timestamp,
         string $platformVersion,
         string $phpVersion,
-        string $pluginVersion,
+        string $pluginVersion
     ) {
         $this->shopDomain = $shopDomain;
         $this->hmac = $hmac;
