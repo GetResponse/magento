@@ -22,7 +22,7 @@
         "friendsofphp/php-cs-fixer": "*",
         "dealerdirect/phpcodesniffer-composer-installer": "*",
         "phpstan/phpstan": "*",
-        "phpunit/phpunit": "^8.5"
+        "phpunit/phpunit": "^9.6"
     },
     "autoload": {
         "files": [
@@ -55,8 +55,8 @@
             "php -v",
             "vendor/bin/phpunit -c Test/phpunit9.xml --testsuite unit"
         ],
-        "phpcs": "phpcs --standard=Magento2 --ignore=vendor ./",
-        "phpcs:report": "phpcs --standard=Magento2 --report=summary --ignore=vendor ./",
+        "phpcs": "phpcs --extensions=php --standard=Magento2 --ignore=vendor ./",
+        "phpcs:report": "phpcs --extensions=php --standard=Magento2 --report=summary --ignore=vendor ./",
         "phpcbf": "phpcbf --standard=Magento2 --ignore=vendor ./",
         "cs-check": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --dry-run --verbose --diff",
         "cs-fix": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose",
@@ -67,6 +67,12 @@
         "allow-plugins": {
             "magento/composer-dependency-version-audit-plugin": true,
             "dealerdirect/phpcodesniffer-composer-installer": true
+        },
+        "audit": {
+            "ignore": {
+                "PKSA-wws7-mr54-jsny": "Ignored legacy Symfony dependency required by Magento 2.3"
+            },
+            "block-insecure": false
         }
     }
 }

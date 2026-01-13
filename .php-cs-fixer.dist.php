@@ -8,10 +8,7 @@ use PhpCsFixer\Finder;
 $finder = Finder::create()
     ->in(__DIR__)
     ->exclude([
-        'vendor',
-        'var',
-        'generated',
-        'pub/static',
+        'vendor'
     ]);
 
 return (new Config())
