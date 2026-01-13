@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Test\Unit\Observer;
 
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GetResponse\GetResponseIntegration\Observer\ProductObserver;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Catalog\Model\Product as MagentoProduct;
 use Magento\Framework\Event\Observer as EventObserver;
 use PHPUnit\Framework\MockObject\MockObject;
-use Magento\Catalog\Model\Product as MagentoProduct;
 
 class ProductObserverTest extends BaseTestCase
 {

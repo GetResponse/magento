@@ -30,12 +30,11 @@ class CartService
             $this->repository->getWebEventTracking($scope->getScopeId())
         );
 
-        if(!$webConnect->isActive()) {
+        if (!$webConnect->isActive()) {
             return;
         }
 
         $cart = $this->cartFactory->create($quote);
         $this->service->addCartToBuffer($cart);
     }
-
 }

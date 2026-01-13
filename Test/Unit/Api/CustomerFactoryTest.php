@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Test\Unit\Api;
 
-use Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory;
 use GetResponse\GetResponseIntegration\Api\AddressFactory;
 use GetResponse\GetResponseIntegration\Api\Customer;
 use GetResponse\GetResponseIntegration\Api\CustomerFactory;
@@ -14,9 +13,10 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Newsletter\Model\ResourceModel\Subscriber\Collection;
+use Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory;
 use Magento\Newsletter\Model\Subscriber;
-use PHPUnit\Framework\MockObject\MockObject;
 use Magento\Sales\Model\Order as MagentoOrder;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class CustomerFactoryTest extends BaseTestCase
 {

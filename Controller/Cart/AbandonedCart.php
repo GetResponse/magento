@@ -52,8 +52,7 @@ class AbandonedCart extends Action implements HttpGetActionInterface
         Session $checkoutSession,
         QuoteFactory $quoteFactory,
         CartIdEncryptor $cartIdEncryptor
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->cart = $cart;
         $this->messageManager = $messageManager;
@@ -62,7 +61,6 @@ class AbandonedCart extends Action implements HttpGetActionInterface
         $this->quoteFactory = $quoteFactory;
         $this->cartIdEncryptor = $cartIdEncryptor;
     }
-
 
     public function execute()
     {
@@ -74,7 +72,6 @@ class AbandonedCart extends Action implements HttpGetActionInterface
 
         return $this->_redirect($this->url->getUrl('noroute'));
     }
-
 
     private function executeWithCartId(string $cartId)
     {

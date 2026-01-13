@@ -2,9 +2,6 @@
 
 namespace GetResponse\GetResponseIntegration\Helper;
 
-use Magento\Csp\Helper\CspNonceProvider;
-use Magento\Framework\App\ObjectManager;
-
 class JavaScriptTag
 {
     public static function generateForConst(string $const, string $payload, ?string $nonceValue): string

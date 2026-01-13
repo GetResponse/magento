@@ -18,8 +18,7 @@ class ProductAddedToWishList implements ObserverInterface
     public function __construct(
         TrackingCodeBufferService $trackingCodeBufferService,
         Logger $logger
-    )
-    {
+    ) {
         $this->trackingCodeBufferService = $trackingCodeBufferService;
         $this->logger = $logger;
     }

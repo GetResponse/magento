@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Presenter\Api\Section;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
-
 class General
 {
     private $pluginVersion;
@@ -53,5 +51,4 @@ class General
     {
         return $this->magentoVersion;
     }
-
 }

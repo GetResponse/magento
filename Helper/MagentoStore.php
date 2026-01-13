@@ -46,11 +46,8 @@ class MagentoStore extends AbstractHelper
         return false;
     }
 
-
     public function getCurrentScope(): Scope
     {
         return new Scope($this->storeManager->getStore()->getId());
     }
-
-
 }

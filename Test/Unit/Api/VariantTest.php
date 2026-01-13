@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Test\Unit\Api;
 
 use GetResponse\GetResponseIntegration\Api\Image;
-use GetResponse\GetResponseIntegration\Api\ProductSalePrice;
 use GetResponse\GetResponseIntegration\Api\Product;
+use GetResponse\GetResponseIntegration\Api\ProductSalePrice;
 use GetResponse\GetResponseIntegration\Api\Variant;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 

@@ -26,11 +26,13 @@ class Product
         $this->categories = $categories;
     }
 
-    public function getCategories(): array {
+    public function getCategories(): array
+    {
         return $this->categories;
     }
 
-    public function getQuantity(): int {
+    public function getQuantity(): int
+    {
         return $this->quantity;
     }
 

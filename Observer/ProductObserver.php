@@ -47,7 +47,6 @@ class ProductObserver implements ObserverInterface
                 $updatedProduct = $this->productRepository->getById($product->getId(), false, $storeId);
                 $this->apiService->upsertProductCatalog($updatedProduct, new Scope($storeId));
             }
-
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }

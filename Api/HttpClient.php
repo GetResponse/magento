@@ -25,8 +25,7 @@ class HttpClient
         SerializerInterface $jsonHelper,
         StoreManagerInterface $storeManager,
         PlatformVersionProvider $platformVersionProvider
-    )
-    {
+    ) {
         $this->curl = $curl;
         $this->jsonHelper = $jsonHelper;
         $this->storeManager = $storeManager;

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-use Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory;
 use Magento\Newsletter\Model\Subscriber;
 use Magento\Quote\Model\Quote as MagentoQuote;
 use Magento\Sales\Model\Order as MagentoOrder;
@@ -18,7 +18,6 @@ class CustomerFactory
     private $customerRepository;
     private $addressFactory;
     private $subscriberCollectionFactory;
-
 
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -234,7 +233,6 @@ class CustomerFactory
         if ($order->getShippingAddress() !== null) {
             $shippingAddress = $this->addressFactory->createFromOrder($order->getShippingAddress());
         }
-
 
         $customFields = [
             'group_id' => $order->getCustomerGroupId(),

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\Model;
 
 use Magento\Catalog\Model\CategoryRepository;
-use Magento\Sales\Model\Order\Item;
 use Magento\Sales\Model\Order as MagentoOrder;
+use Magento\Sales\Model\Order\Item;
 
 class OrderFactory
 {

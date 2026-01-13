@@ -9,9 +9,9 @@ use GetResponse\GetResponseIntegration\Api\CartFactory;
 use GetResponse\GetResponseIntegration\Api\CustomerFactory;
 use GetResponse\GetResponseIntegration\Api\HttpClient;
 use GetResponse\GetResponseIntegration\Api\OrderFactory;
+use GetResponse\GetResponseIntegration\Api\Product as GrProduct;
 use GetResponse\GetResponseIntegration\Api\ProductFactory;
 use GetResponse\GetResponseIntegration\Api\SubscriberFactory;
-use GetResponse\GetResponseIntegration\Builder\ProductFactoryBuilder;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
@@ -26,7 +26,6 @@ use Magento\Newsletter\Model\Subscriber;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Model\Order;
 use PHPUnit\Framework\MockObject\MockObject;
-use GetResponse\GetResponseIntegration\Api\Product as GrProduct;
 
 class ApiServiceTest extends BaseTestCase
 {
@@ -62,7 +61,6 @@ class ApiServiceTest extends BaseTestCase
         $this->customerFactoryMock = $this->getMockWithoutConstructing(CustomerFactory::class);
         $this->subscriberFactoryMock = $this->getMockWithoutConstructing(SubscriberFactory::class);
         $this->webTrackingRepositoryMock = $this->getMockWithoutConstructing(WebTrackingRepository::class);
-
 
         $this->sut = new ApiService(
             $this->repositoryMock,

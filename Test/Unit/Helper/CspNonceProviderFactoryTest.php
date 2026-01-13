@@ -18,4 +18,3 @@ class CspNonceProviderFactoryTest extends BaseTestCase
         $this->assertNull($cspNonceProviderFactory->create());
     }
 }
-

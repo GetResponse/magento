@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Test\Unit\Observer;
 
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GetResponse\GetResponseIntegration\Observer\CustomerAddressSaveAfterObject;

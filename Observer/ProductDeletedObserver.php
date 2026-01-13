@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Observer;
 
+use Exception;
 use GetResponse\GetResponseIntegration\Api\ApiService;
+use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
-use Exception;
 
 class ProductDeletedObserver implements ObserverInterface
 {
@@ -20,8 +20,7 @@ class ProductDeletedObserver implements ObserverInterface
     public function __construct(
         Logger $logger,
         ApiService $apiService
-    )
-    {
+    ) {
         $this->logger = $logger;
         $this->apiService = $apiService;
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Tests\Unit\Observer;
 
+use Exception;
 use GetResponse\GetResponseIntegration\Api\ApiService;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
@@ -12,7 +13,6 @@ use Magento\Catalog\Model\Product;
 use Magento\Framework\Event\Observer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Exception;
 
 class ProductDeletedObserverTest extends TestCase
 {

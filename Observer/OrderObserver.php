@@ -45,7 +45,6 @@ class OrderObserver implements ObserverInterface
 
             $this->apiService->createOrder($order, $scope);
             $this->orderService->addToBuffer($order, $scope);
-
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }

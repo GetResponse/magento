@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\CustomerData\TrackingCode;
 
+use Exception;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\CspNonceProviderFactory;
 use GetResponse\GetResponseIntegration\Helper\JavaScriptTag;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Block\Product\View as Subject;
 use Magento\Catalog\Model\Product;
-use Exception;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
 class ProductView extends TrackingCodeView
 {

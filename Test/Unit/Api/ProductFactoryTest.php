@@ -17,11 +17,11 @@ use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Catalog\Model\Category as MagentoCategory;
 use Magento\Catalog\Model\CategoryRepository;
+use Magento\Catalog\Model\Product as MagentoProduct;
 use Magento\Catalog\Model\Product\Url;
 use Magento\CatalogInventory\Model\Stock;
 use Magento\Framework\Api\ExtensionAttributesInterface;
 use PHPUnit\Framework\MockObject\MockObject;
-use Magento\Catalog\Model\Product as MagentoProduct;
 
 class ProductFactoryTest extends BaseTestCase
 {

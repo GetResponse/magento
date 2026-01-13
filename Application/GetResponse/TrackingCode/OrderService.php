@@ -30,7 +30,7 @@ class OrderService
             $this->repository->getWebEventTracking($scope->getScopeId())
         );
 
-        if(!$webConnect->isActive()) {
+        if (!$webConnect->isActive()) {
             return;
         }
 
@@ -44,7 +44,7 @@ class OrderService
             $this->repository->getWebEventTracking($scope->getScopeId())
         );
 
-        if(!$webConnect->isActive()) {
+        if (!$webConnect->isActive()) {
             return [];
         }
 

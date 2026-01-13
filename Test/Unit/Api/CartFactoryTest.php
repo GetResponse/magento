@@ -6,12 +6,12 @@ namespace GetResponse\GetResponseIntegration\Test\Unit\Api;
 
 use GetResponse\GetResponseIntegration\Api\CartFactory;
 use GetResponse\GetResponseIntegration\Api\CustomerFactory;
+use GetResponse\GetResponseIntegration\Helper\Cart as Cart;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GetResponse\GetResponseIntegration\Test\Unit\ApiFaker;
 use Magento\Catalog\Model\Product;
 use Magento\Customer\Model\Data\Customer as MagentoCustomer;
 use Magento\Quote\Model\Quote;
-use GetResponse\GetResponseIntegration\Helper\Cart as Cart;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class CartFactoryTest extends BaseTestCase

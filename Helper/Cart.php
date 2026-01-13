@@ -3,11 +3,11 @@
 namespace GetResponse\GetResponseIntegration\Helper;
 
 use GetResponse\GetResponseIntegration\Application\GetResponse\Cart\CartIdEncryptor;
+use GetResponse\GetResponseIntegration\Router\Router;
 use Magento\Checkout\Helper\Cart as MagentoCart;
+use Magento\Checkout\Model\Cart as CartModel;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Helper\Context;
-use Magento\Checkout\Model\Cart as CartModel;
-use GetResponse\GetResponseIntegration\Router\Router;
 
 class Cart extends MagentoCart
 {
@@ -21,8 +21,7 @@ class Cart extends MagentoCart
         CartModel       $checkoutCart,
         Session         $checkoutSession,
         CartIdEncryptor $cartIdEncryptor
-    )
-    {
+    ) {
         parent::__construct($context, $checkoutCart, $checkoutSession);
         $this->cartIdEncryptor = $cartIdEncryptor;
     }

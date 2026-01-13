@@ -10,9 +10,9 @@ use GetResponse\GetResponseIntegration\Logger\Logger;
 use GetResponse\GetResponseIntegration\Observer\Admin\OrderObserver;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Framework\Event;
+use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Sales\Model\Order;
 use PHPUnit\Framework\MockObject\MockObject;
-use Magento\Framework\Event\Observer as EventObserver;
 
 class OrderObserverTest extends BaseTestCase
 {

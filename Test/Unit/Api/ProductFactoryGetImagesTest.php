@@ -139,7 +139,7 @@ class ProductFactoryGetImagesTest extends BaseTestCase
     private function createImageMock(string $url, int $position): MockObject
     {
         $image = $this->createMock(DataObject::class);
-        
+
         $image->expects($this->exactly(2))
             ->method('getData')
             ->willReturnMap([
