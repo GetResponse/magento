@@ -37,12 +37,23 @@ class Uninstall implements UninstallInterface
      */
     public function uninstall(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_account'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_automation'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_customs'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_settings'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_webform'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_product_map'));
+        $connection = $setup->getConnection();
+
+        $tablesToRemove = [
+            'getresponse_account',
+            'getresponse_automation',
+            'getresponse_customs',
+            'getresponse_settings',
+            'getresponse_webform'
+        ];
+
+        foreach ($tablesToRemove as $tableToRemove) {
+            $tableName = $setup->getTable($tableToRemove);
+
+            if ($connection->isTableExists($tableName)) {
+                $connection->dropTable($tableName);
+            }
+        }
 
         $this->configWriter->delete(
             'getresponse/shop/status',

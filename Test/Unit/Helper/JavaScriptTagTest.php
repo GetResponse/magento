@@ -15,7 +15,12 @@ class JavaScriptTagTest extends BaseTestCase
         $payload = json_encode(['key' => 'value', 'pageData' => []]);
         $nonceValue = '1234567890';
 
-        $expectedResult = '<script type="text/javascript" nonce="' . $nonceValue . '">const ' . $const . ' = ' . $payload . '</script>';
+        $expectedResult = sprintf(
+            '<script type="text/javascript" nonce="%s">const %s = %s</script>',
+            $nonceValue,
+            $const,
+            $payload
+        );
 
         $result = JavaScriptTag::generateForConst($const, $payload, $nonceValue);
 

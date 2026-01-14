@@ -21,9 +21,24 @@ parameters:
 			path: Extensions/Customer.php
 
 		-
-			message: "#^Instantiated class GetResponse\\\\GetResponseIntegration\\\\Setup\\\\CustomField not found\\.$#"
+			message: "#^Class Magento\\\\Csp\\\\Helper\\\\CspNonceProvider not found\\.$#"
 			count: 1
-			path: Setup/UpgradeData.php
+			path: Helper/CspNonceProviderFactory.php
+
+		-
+			message: "#^Method GetResponse\\\\GetResponseIntegration\\\\Helper\\\\CspNonceProviderFactory\\:\\:create\\(\\) has invalid return type Magento\\\\Csp\\\\Helper\\\\CspNonceProvider\\.$#"
+			count: 1
+			path: Helper/CspNonceProviderFactory.php
+
+		-
+			message: "#^Method GetResponse\\\\GetResponseIntegration\\\\Logger\\\\Logger\\:\\:addError\\(\\) should return bool but return statement is missing\\.$#"
+			count: 1
+			path: Logger/Logger.php
+
+		-
+			message: "#^Method GetResponse\\\\GetResponseIntegration\\\\Logger\\\\Logger\\:\\:addNotice\\(\\) should return bool but return statement is missing\\.$#"
+			count: 1
+			path: Logger/Logger.php
 
 		-
 			message: "#^Class Magento\\\\Customer\\\\Model\\\\ResourceModel\\\\Address\\\\Attribute\\\\Collection constructor invoked with 0 parameters, 6\\-8 required\\.$#"
@@ -40,7 +55,3 @@ parameters:
 			count: 1
 			path: Test/MissingReferences/Newsletter/Model/ResourceModel/Subscriber/CollectionFactory.php
 
-		-
-			message: "#^Class GetResponse\\\\GetResponseIntegration\\\\Api\\\\Product constructor invoked with 9 parameters, 10 required\\.$#"
-			count: 1
-			path: Test/Unit/ApiFaker.php
