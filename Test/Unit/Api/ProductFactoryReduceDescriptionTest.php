@@ -83,7 +83,8 @@ class ProductFactoryReduceDescriptionTest extends BaseTestCase
                 'expected' => ''
             ],
             'complex html with entities and truncation' => [
-                'input' => 'A<script>alert(1)</script>B<style>.x{}</style> C &amp; D <b>Bold</b>   E&nbsp;&nbsp;F  ',
+                // phpcs:ignore
+                'input' => '  A <script>alert(1)</script> B <style>.x{}</style> C &amp; D <b>Bold</b>   E&nbsp;&nbsp;F  ',
                 'maxLength' => 10,
                 'expected' => 'A B C &...'
             ],
