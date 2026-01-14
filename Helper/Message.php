@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Helper;
 
+// phpcs:ignoreFile
 class Message
 {
     const INCORRECT_API_RESPONSE_MESSAGE = 'Looks like we didn\'t expect this technical problem. If it persists, please contact the GetResponse dev team';

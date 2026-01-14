@@ -89,6 +89,7 @@ class ConfigurationController extends ApiController implements ConfigurationCont
     public function update(string $scope): void
     {
         try {
+            $scope = (int) $scope;
             $this->verifyScope($scope);
 
             $requestBody = $this->request->getBodyParams();

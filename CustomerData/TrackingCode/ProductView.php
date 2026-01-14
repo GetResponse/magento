@@ -14,11 +14,14 @@ use Magento\Catalog\Model\Product;
 
 class ProductView extends TrackingCodeView
 {
-    const DISPLAY_BLOCK = 'product.info';
+    public const DISPLAY_BLOCK = 'product.info';
     private $categoryRepository;
 
-    public function __construct(Repository $repository, CategoryRepositoryInterface $categoryRepository, CspNonceProviderFactory $cspNonceProviderFactory)
-    {
+    public function __construct(
+        Repository $repository,
+        CategoryRepositoryInterface $categoryRepository,
+        CspNonceProviderFactory $cspNonceProviderFactory
+    ) {
         parent::__construct($repository, $cspNonceProviderFactory);
         $this->categoryRepository = $categoryRepository;
     }
@@ -32,7 +35,11 @@ class ProductView extends TrackingCodeView
         }
 
         $payload = $this->getProductPayload($product);
-        $html .= JavaScriptTag::generateForConst('GrViewProductItem', json_encode($payload), $this->cspNonceProvider->generateNonce());
+        $html .= JavaScriptTag::generateForConst(
+            'GrViewProductItem',
+            json_encode($payload),
+            $this->cspNonceProvider->generateNonce()
+        );
 
         return $html;
     }

@@ -73,7 +73,9 @@ class CustomerFactory
 
     public function createFromOrder(MagentoOrder $order): Customer
     {
-        return $order->getCustomerIsGuest() ? $this->createForGuestOrder($order) : $this->createForLoggedInOrder($order);
+        return $order->getCustomerIsGuest()
+            ? $this->createForGuestOrder($order)
+            : $this->createForLoggedInOrder($order);
     }
 
     public function createFromQuote(MagentoQuote $quote): Customer

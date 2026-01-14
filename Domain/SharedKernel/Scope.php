@@ -8,12 +8,12 @@ class Scope
 {
     private $scopeId;
 
-    public function __construct($scopeId)
+    public function __construct(int $scopeId)
     {
         $this->scopeId = $scopeId;
     }
 
-    public function getScopeId()
+    public function getScopeId(): int
     {
         return $this->scopeId;
     }

@@ -38,6 +38,7 @@ class UpgradeData implements UpgradeDataInterface
         $setup->endSetup();
     }
 
+    // phpcs:ignore
     private function cleanupDatabase(ModuleDataSetupInterface $setup): void
     {
     }

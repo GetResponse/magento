@@ -47,7 +47,9 @@ class HttpClient
     {
         $this->curl->setHeaders($this->buildHeaders($object)->toArray());
 
-        $method === self::POST ? $this->curl->post($url, $this->jsonHelper->serialize($object)) : $this->curl->get($url);
+        $method === self::POST
+            ? $this->curl->post($url, $this->jsonHelper->serialize($object))
+            : $this->curl->get($url);
 
         if (299 < $this->curl->getStatus()) {
             throw HttpClientException::createForInvalidCurlResponse($this->curl->getBody(), $this->curl->getStatus());

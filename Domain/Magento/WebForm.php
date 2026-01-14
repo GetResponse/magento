@@ -55,7 +55,8 @@ class WebForm
         ];
     }
 
-    public static function createFromRepository(array $data): WebForm
+    // phpcs:ignore
+    public static function createFromRepository(array $data): self
     {
         if (empty($data)) {
             return new WebForm(false, '', '', '');
@@ -68,7 +69,8 @@ class WebForm
         );
     }
 
-    public static function createFromRequest(array $data): WebForm
+    // phpcs:ignore
+    public static function createFromRequest(array $data): self
     {
         if (!isset($data['web_form'])) {
             throw new RuntimeException('incorrect WebForm params');
@@ -79,16 +81,6 @@ class WebForm
             $data['web_form']['url'],
             $data['web_form']['form_id'],
             $data['web_form']['block']
-        );
-    }
-
-    public static function createFromArray(array $data): WebForm
-    {
-        return new WebForm(
-            (bool) $data['isEnabled'],
-            $data['url'],
-            $data['webFormId'],
-            $data['place']
         );
     }
 }

@@ -10,6 +10,7 @@ use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Framework\Phrase;
 use Magento\Framework\Webapi\Exception as WebapiException;
+use RuntimeException;
 
 abstract class ApiController
 {
@@ -28,17 +29,17 @@ abstract class ApiController
 
     /**
      * This method initializes properties used in controllers.
-     * @param string $scope
+     * @param int $scope
      * @return void
      * @throws WebapiException
      */
-    public function verifyScope(string $scope): void
+    public function verifyScope(int $scope): void
     {
         if (empty($scope)) {
             throw new WebapiException(new Phrase('Missing scope.'));
         }
 
-        if (!$this->magentoStore->storeExists((int)$scope)) {
+        if (!$this->magentoStore->storeExists($scope)) {
             throw new WebapiException(new Phrase('Incorrect scope.'));
         }
 
@@ -51,6 +52,6 @@ abstract class ApiController
      */
     public function execute(): void
     {
-        throw new Exception('Method not implemented.');
+        throw new RuntimeException('Method not implemented.');
     }
 }

@@ -91,7 +91,11 @@ class ProductFactoryTest extends BaseTestCase
         $stockItemMock = $this->getMockWithoutConstructing(Stock::class, [], ['getQty']);
         $stockItemMock->method('getQty')->willReturn($variantQty);
 
-        $extensionAttributesMock = $this->getMockWithoutConstructing(ExtensionAttributesInterface::class, [], ['getStockItem']);
+        $extensionAttributesMock = $this->getMockWithoutConstructing(
+            ExtensionAttributesInterface::class,
+            [],
+            ['getStockItem']
+        );
         $extensionAttributesMock->method('getStockItem')->willReturn($stockItemMock);
 
         /** @var MagentoProduct|MockObject $magentoProductMock */
@@ -214,7 +218,11 @@ class ProductFactoryTest extends BaseTestCase
         $stockItemMock = $this->getMockWithoutConstructing(Stock::class, [], ['getQty']);
         $stockItemMock->method('getQty')->willReturn($variantQty);
 
-        $extensionAttributesMock = $this->getMockWithoutConstructing(ExtensionAttributesInterface::class, [], ['getStockItem']);
+        $extensionAttributesMock = $this->getMockWithoutConstructing(
+            ExtensionAttributesInterface::class,
+            [],
+            ['getStockItem']
+        );
         $extensionAttributesMock->method('getStockItem')->willReturn($stockItemMock);
 
         /** @var MagentoProduct|MockObject $magentoProductMock */

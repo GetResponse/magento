@@ -67,8 +67,10 @@ class Repository
         $this->cacheManager->clean(['config']);
     }
 
-    public function saveFacebookBusinessExtensionSnippet(FacebookBusinessExtension $facebookBusinessExtension, $scopeId): void
-    {
+    public function saveFacebookBusinessExtensionSnippet(
+        FacebookBusinessExtension $facebookBusinessExtension,
+        $scopeId
+    ): void {
         $this->configWriter->save(
             Config::CONFIG_DATA_FACEBOOK_BUSINESS_EXTENSION_SNIPPET,
             $this->serializer->serialize($facebookBusinessExtension->toArray()),

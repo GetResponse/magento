@@ -36,7 +36,18 @@ class CartTest extends BaseTestCase
         $lineMock = $this->getMockWithoutConstructing(Line::class);
         $lines = [$lineMock];
 
-        $cart = new Cart($id, $customerMock, null, $lines, $totalPrice, $totalPriceTax, $currency, $url, $createdAt, $updatedAt);
+        $cart = new Cart(
+            $id,
+            $customerMock,
+            null,
+            $lines,
+            $totalPrice,
+            $totalPriceTax,
+            $currency,
+            $url,
+            $createdAt,
+            $updatedAt
+        );
 
         $expectedData = [
             'callback_type' => $callback_type,

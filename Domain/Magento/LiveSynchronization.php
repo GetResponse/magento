@@ -76,6 +76,7 @@ class LiveSynchronization
      * @return static
      * @param array $data
      */
+    // phpcs:ignore
     public static function createFromRequest(array $data): self
     {
         if (!isset(
@@ -101,6 +102,7 @@ class LiveSynchronization
         );
     }
 
+    // phpcs:ignore
     public static function createFromRepository($data): self
     {
         $isEnabled = !empty($data) ? (bool)$data['isEnabled'] : false;

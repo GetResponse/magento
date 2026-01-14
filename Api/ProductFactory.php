@@ -92,8 +92,14 @@ class ProductFactory
                     $this->getProductConfigurableUrl($product, $childProduct, (int)$scope->getScopeId()),
                     0,
                     null,
-                    $this->reduceDescription((string)$childProduct->getData('description'), self::MAX_DESC_LENGTH),
-                    $this->reduceDescription((string)$childProduct->getData('short_description'), self::MAX_DESC_LENGTH),
+                    $this->reduceDescription(
+                        (string)$childProduct->getData('description'),
+                        self::MAX_DESC_LENGTH
+                    ),
+                    $this->reduceDescription(
+                        (string)$childProduct->getData('short_description'),
+                        self::MAX_DESC_LENGTH
+                    ),
                     $images,
                     $this->getProductVariantStatus($childProduct),
                     $this->getSalesPrice($childProduct)
@@ -203,7 +209,9 @@ class ProductFactory
 
     private function getProductVariantStatus(MagentoProduct $product): string
     {
-        return (int) $product->getStatus() === self::PRODUCT_STATUS_ACTIVE ? Product::STATUS_PUBLISH : Product::STATUS_DRAFT;
+        return (int) $product->getStatus() === self::PRODUCT_STATUS_ACTIVE
+            ? Product::STATUS_PUBLISH
+            : Product::STATUS_DRAFT;
     }
 
     private function getSalesPrice(MagentoProduct $product): ?ProductSalePrice
@@ -219,7 +227,9 @@ class ProductFactory
     {
         $cleanDescription = (string) preg_replace('#<style(.*?)>(.*?)</style>#is', '', $description);
         $cleanDescription = (string) preg_replace('#<script(.*?)>(.*?)</script>#is', '', $cleanDescription);
+        // phpcs:ignore
         $cleanDescription = html_entity_decode($cleanDescription, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        // phpcs:ignore
         $cleanDescription = html_entity_decode($cleanDescription, ENT_COMPAT);
         $cleanDescription = strip_tags($cleanDescription);
         $cleanDescription = trim($cleanDescription);
