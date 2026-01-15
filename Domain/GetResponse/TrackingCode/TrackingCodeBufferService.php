@@ -10,7 +10,6 @@ use Magento\Customer\Model\Session;
 
 class TrackingCodeBufferService
 {
-    /** @var Session */
     private $session;
 
     public function __construct(Session $session)

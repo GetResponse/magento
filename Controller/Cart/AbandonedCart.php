@@ -8,6 +8,7 @@ use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Quote\Model\QuoteFactory;
@@ -36,7 +37,7 @@ class AbandonedCart extends Action implements HttpGetActionInterface
 
     /**
      * @var QuoteFactory
-     */
+     * @phpstan-ignore-next-line */
     protected $quoteFactory;
 
     /**
@@ -73,9 +74,10 @@ class AbandonedCart extends Action implements HttpGetActionInterface
         return $this->_redirect($this->url->getUrl('noroute'));
     }
 
-    private function executeWithCartId(string $cartId)
+    private function executeWithCartId(string $cartId): ResponseInterface
     {
         $cartId = $this->cartIdEncryptor->decrypt($cartId);
+        /** @phpstan-ignore-next-line */
         $quote = $this->quoteFactory->create()->loadByIdWithoutStore($cartId);
 
         if (empty($quote->getAllVisibleItems())) {

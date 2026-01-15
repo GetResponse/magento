@@ -11,6 +11,7 @@ use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Sales\Model\Order;
 
 class OrderObserver implements ObserverInterface
 {
@@ -31,9 +32,10 @@ class OrderObserver implements ObserverInterface
     public function execute(EventObserver $observer): OrderObserver
     {
         try {
+            /** @var Order $order && @phpstan-ignore-next-line */
             $order = $observer->getOrder();
 
-            if (empty($order)) {
+            if (null === $order) {
                 $this->logger->addNotice('Order in observer is empty', [
                     'observerName' => $observer->getName(),
                     'eventName' => $observer->getEventName(),

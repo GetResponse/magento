@@ -32,15 +32,30 @@ class CartObserver implements ObserverInterface
     public function execute(EventObserver $observer): self
     {
         try {
-            if (null === $observer->getCart() || null === $observer->getCart()->getQuote()) {
+            /** @phpstan-ignore-next-line */
+            $cart = $observer->getCart();
+
+            if (null === $cart) {
                 $this->logger->addNotice('Cart or Quote in observer is empty', [
                     'observerName' => $observer->getName(),
                     'eventName' => $observer->getEventName(),
                 ]);
+
                 return $this;
             }
+
             /** @var Quote $quote */
-            $quote = $observer->getCart()->getQuote();
+            $quote = $cart->getQuote();
+
+            if (null === $quote) {
+                $this->logger->addNotice('Cart or Quote in observer is empty', [
+                    'observerName' => $observer->getName(),
+                    'eventName' => $observer->getEventName(),
+                ]);
+
+                return $this;
+            }
+
             $scope = new Scope($quote->getStoreId());
 
             $this->trackingCodeCartService->addToBuffer($quote, $scope);

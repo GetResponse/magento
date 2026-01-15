@@ -82,6 +82,7 @@ class CustomerFactory
     {
         $billingAddress = $shippingAddress = null;
 
+        /** @var CustomerInterface $customer */
         $customer = $quote->getCustomer();
 
         foreach ($customer->getAddresses() as $customerAddress) {
@@ -94,12 +95,18 @@ class CustomerFactory
         }
 
         $customFields = [
+            /** @phpstan-ignore-next-line */
             'group_id' => $customer->getCustomerGroupId(),
             'store_id' => $customer->getStoreId(),
+            /** @phpstan-ignore-next-line */
             'prefix' => $customer->getCustomerPrefix(),
+            /** @phpstan-ignore-next-line */
             'dob' => $customer->getCustomerDob(),
+            /** @phpstan-ignore-next-line */
             'tax_vat' => $customer->getCustomerTaxvat(),
+            /** @phpstan-ignore-next-line */
             'gender' => $customer->getCustomerGender(),
+            /** @phpstan-ignore-next-line */
             'middlename' => $customer->getCustomerMiddlename(),
         ];
 

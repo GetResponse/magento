@@ -37,14 +37,17 @@ class CustomerRegisterSuccess implements ObserverInterface
     public function execute(Observer $observer): self
     {
         try {
-            if (null === $observer->getCustomer()) {
+            /** @phpstan-ignore-next-line */
+            $customer = $observer->getCustomer();
+
+            if (null === $customer) {
                 $this->logger->addNotice('Customer in observer is empty', [
                     'observerName' => $observer->getName(),
                     'eventName' => $observer->getEventName(),
                 ]);
                 return $this;
             }
-            $scope = new Scope($observer->getCustomer()->getStoreId());
+            $scope = new Scope($customer->getStoreId());
             $liveSynchronization = LiveSynchronization::createFromRepository(
                 $this->repository->getLiveSynchronization($scope->getScopeId())
             );
@@ -55,8 +58,7 @@ class CustomerRegisterSuccess implements ObserverInterface
 
             $subscriptionOption = $this->request->getParam('is_subscribed');
             if ((int)$subscriptionOption === Subscriber::STATUS_SUBSCRIBED) {
-                $customerId = (int)$observer->getCustomer()->getId();
-                $this->magentoSubscriber->subscribeCustomerById($customerId);
+                $this->magentoSubscriber->subscribeCustomerById($customer->getId());
             }
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);

@@ -122,7 +122,7 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldUpsertCustomer(): void
     {
-        /** @var CustomerInterface|MockObject $addressMock */
+        /** @var CustomerInterface|MockObject $customerMock */
         $customerMock = $this->getMockWithoutConstructing(CustomerInterface::class);
         $scope = new Scope(1);
 
@@ -144,7 +144,7 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldNotUpsertCustomer(): void
     {
-        /** @var CustomerInterface|MockObject $addressMock */
+        /** @var CustomerInterface|MockObject $customerMock */
         $customerMock = $this->getMockWithoutConstructing(CustomerInterface::class);
         $scope = new Scope(1);
 
@@ -166,7 +166,7 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldUpsertCustomerSubscription(): void
     {
-        /** @var Subscriber|MockObject $addressMock */
+        /** @var Subscriber|MockObject $subscriberMock */
         $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
         $scope = new Scope(1);
 
@@ -188,7 +188,7 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldNotUpsertCustomerSubscription(): void
     {
-        /** @var Subscriber|MockObject $addressMock */
+        /** @var Subscriber|MockObject $subscriberMock */
         $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
         $scope = new Scope(1);
 
@@ -369,7 +369,7 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldUpsertProductCatalog(): void
     {
-        /** @var Product|MockObject $quoteMock */
+        /** @var Product|MockObject $productMock */
         $productMock = $this->getMockWithoutConstructing(Product::class);
         $productsToUpsert = [$this->getMockWithoutConstructing(GrProduct::class)];
         $scope = new Scope(1);
@@ -396,7 +396,7 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldNotUpsertProductCatalog(): void
     {
-        /** @var Product|MockObject $quoteMock */
+        /** @var Product|MockObject $productMock */
         $productMock = $this->getMockWithoutConstructing(Product::class);
 
         $scope = new Scope(1);

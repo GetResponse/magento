@@ -28,7 +28,10 @@ class CustomerAddressSaveAfterObject implements ObserverInterface
     public function execute(Observer $observer): CustomerAddressSaveAfterObject
     {
         try {
-            if (null === $observer->getCustomerAddress()) {
+            /** @phpstan-ignore-next-line */
+            $customerAddress = $observer->getCustomerAddress();
+
+            if (null === $customerAddress) {
                 $this->logger->addNotice('CustomerAddress in observer is empty', [
                     'observerName' => $observer->getName(),
                     'eventName' => $observer->getEventName(),
@@ -36,7 +39,6 @@ class CustomerAddressSaveAfterObject implements ObserverInterface
                 return $this;
             }
 
-            $customerAddress = $observer->getCustomerAddress();
             $scope = new Scope($customerAddress->getStoreId());
             /** @var AddressInterface $address */
             $address = $customerAddress->getDataModel();

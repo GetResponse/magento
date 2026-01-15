@@ -9,6 +9,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Helper\CspNonceProviderFactory;
 use GetResponse\GetResponseIntegration\Helper\NullCspNonceProvider;
 use Magento\Framework\DataObject\IdentityInterface as Subject;
+use Magento\Framework\View\Element\AbstractBlock;
 
 abstract class TrackingCodeView
 {
@@ -27,6 +28,7 @@ abstract class TrackingCodeView
     {
         $webEventTracking = WebEventTracking::createFromRepository($this->repository->getWebEventTracking($scopeId));
 
+        /** @var AbstractBlock $subject */
         return $webEventTracking->isFeatureTrackingEnabled() && $subject->getNameInLayout() === $this->getBlockName();
     }
 

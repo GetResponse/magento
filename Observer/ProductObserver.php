@@ -32,7 +32,10 @@ class ProductObserver implements ObserverInterface
     public function execute(EventObserver $observer): self
     {
         try {
-            if (null === $observer->getProduct()) {
+            /** @var Product $product && @phpstan-ignore-next-line */
+            $product = $observer->getProduct();
+
+            if (null === $product) {
                 $this->logger->addNotice('Product in observer is empty', [
                     'observerName' => $observer->getName(),
                     'eventName' => $observer->getEventName(),
@@ -40,10 +43,8 @@ class ProductObserver implements ObserverInterface
                 return $this;
             }
 
-            /** @var Product $product */
-            $product = $observer->getProduct();
-
             foreach ($product->getStoreIds() as $storeId) {
+                /** @var Product $updatedProduct */
                 $updatedProduct = $this->productRepository->getById($product->getId(), false, $storeId);
                 $this->apiService->upsertProductCatalog($updatedProduct, new Scope($storeId));
             }

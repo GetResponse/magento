@@ -8,7 +8,6 @@ use GetResponse\GetResponseIntegration\Controller\Api\SubscriberControllerInterf
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Framework\Webapi\Exception as WebapiException;
-use Magento\Newsletter\Model\ResourceModel\Subscriber\Collection;
 use Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory;
 use Magento\Newsletter\Model\Subscriber as SubscriberModel;
 
@@ -33,16 +32,10 @@ class SubscriberController extends ApiController implements SubscriberController
         $this->subscriberCollectionFactory = $subscriberCollectionFactory;
     }
 
-    /**
-     * @param int $pageSize
-     * @param int $currentPage
-     * @return mixed
-     */
     public function list(int $pageSize, int $currentPage): array
     {
         $collection = [];
 
-        /** @var Collection $subscribers */
         $subscribers = $this->subscriberCollectionFactory->create();
         $count = $subscribers->count();
 

@@ -11,8 +11,6 @@ class Cart implements JsonSerializable
 {
     private $id;
     private $customer;
-    /** @var Line[] */
-
     private $visitor;
     private $lines;
     private $totalPrice;

@@ -8,6 +8,7 @@ use Exception;
 use GetResponse\GetResponseIntegration\Api\ApiService;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
@@ -27,7 +28,10 @@ class CustomerSaveAfterDataObject implements ObserverInterface
     public function execute(Observer $observer): self
     {
         try {
-            if (null === $observer->getCustomerDataObject()) {
+            /** @var CustomerInterface $customer && @phpstan-ignore-next-line */
+            $customer = $observer->getCustomerDataObject();
+
+            if (null === $customer) {
                 $this->logger->addNotice('CustomerDataObject in observer is empty', [
                     'observerName' => $observer->getName(),
                     'eventName' => $observer->getEventName(),
@@ -35,7 +39,6 @@ class CustomerSaveAfterDataObject implements ObserverInterface
                 return $this;
             }
 
-            $customer = $observer->getCustomerDataObject();
             $scope = new Scope($customer->getStoreId());
 
             $this->apiService->upsertCustomer($customer, $scope);

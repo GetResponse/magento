@@ -72,6 +72,7 @@ class ProductFactory
         $variants = [];
 
         if ($this->productType->isProductConfigurable($product->getTypeId())) {
+            /** @phpstan-ignore-next-line */
             $usedProducts = $product->getTypeInstance()->getUsedProducts($product);
             /** @var MagentoProduct $childProduct */
             foreach ($usedProducts as $childProduct) {
@@ -160,6 +161,7 @@ class ProductFactory
         int $storeId
     ): string {
         $configType = $parentProduct->getTypeInstance();
+        /** @phpstan-ignore-next-line */
         $attributes = $configType->getConfigurableAttributesAsArray($parentProduct);
         $options = [];
         foreach ($attributes as $attribute) {
@@ -201,8 +203,8 @@ class ProductFactory
 
     private function getProductStatus(MagentoProduct $product): string
     {
-        $isStatusActive = (int) $product->getStatus() === self::PRODUCT_STATUS_ACTIVE;
-        $isVisible = (int) $product->getVisibility() !== self::PRODUCT_INVISIBLE;
+        $isStatusActive = $product->getStatus() === self::PRODUCT_STATUS_ACTIVE;
+        $isVisible = $product->getVisibility() !== self::PRODUCT_INVISIBLE;
 
         return $isStatusActive && $isVisible ? Product::STATUS_PUBLISH : Product::STATUS_DRAFT;
     }

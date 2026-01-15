@@ -390,7 +390,7 @@ class CustomerFactoryTest extends BaseTestCase
         $subscriberMock->method('isSubscribed')->willReturn(true);
         $subscriberMock->method('getCustomerId')->willReturn($customerId);
 
-        /** @var AddressInterface|MockObject $orderMock */
+        /** @var AddressInterface|MockObject $addressMock */
         $addressMock = $this->getMockWithoutConstructing(AddressInterface::class);
         $addressMock->method('getCustomerId')->willReturn($customerId);
 

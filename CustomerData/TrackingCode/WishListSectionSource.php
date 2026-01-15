@@ -13,9 +13,7 @@ use Magento\Customer\CustomerData\SectionSourceInterface;
 class WishListSectionSource implements SectionSourceInterface
 {
     private $session;
-    /** @var TrackingCodeBufferService */
     private $repository;
-    /** @var MagentoStore */
     private $magentoStore;
 
     public function __construct(TrackingCodeBufferService $session, Repository $repository, MagentoStore $magentoStore)

@@ -10,6 +10,7 @@ use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Newsletter\Model\Subscriber;
 
 class NewsletterSubscriberSaveCommitAfterObject implements ObserverInterface
 {
@@ -27,7 +28,10 @@ class NewsletterSubscriberSaveCommitAfterObject implements ObserverInterface
     public function execute(Observer $observer): NewsletterSubscriberSaveCommitAfterObject
     {
         try {
-            if (null === $observer->getSubscriber()) {
+            /** @var Subscriber $subscriber && @phpstan-ignore-next-line */
+            $subscriber = $observer->getSubscriber();
+
+            if (null === $subscriber) {
                 $this->logger->addNotice('Subscriber in observer is empty', [
                     'observerName' => $observer->getName(),
                     'eventName' => $observer->getEventName(),
@@ -35,7 +39,6 @@ class NewsletterSubscriberSaveCommitAfterObject implements ObserverInterface
                 return $this;
             }
 
-            $subscriber = $observer->getSubscriber();
             $scope = new Scope($subscriber->getStoreId());
             $customerId = $subscriber->getCustomerId();
 

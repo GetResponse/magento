@@ -27,7 +27,7 @@ class OrderObserver implements ObserverInterface
 
     public function execute(EventObserver $observer): OrderObserver
     {
-        /** @var Order $order */
+        /** @var Order $order && @phpstan-ignore-next-line */
         $order = $observer->getEvent()->getOrder();
 
         if ($order === null) {
