@@ -21,7 +21,7 @@ class CartIdEncryptor
         return $this->encryptor->encrypt($cartId);
     }
 
-    public function decrypt(string $cartId): int
+    public function decrypt(string $cartId): string
     {
         return $this->encryptor->decrypt($cartId);
     }

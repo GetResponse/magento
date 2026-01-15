@@ -33,8 +33,8 @@ php72-deps:  ## Install PHP 7.2 dependencies (cached)
 php72-test: php72-deps  ## Run PHP 7.2 unit tests
 	$(DOCKER_RUN_PHP72) 'composer test:php72'
 
-php72-cs-fixer: php72-deps  ## Run PHP 7.2 CSFixer
-	$(DOCKER_RUN_PHP72) 'composer cs-fix'
+phpstan: php72-deps  ## Run PHP 7.2 CSFixer
+	$(DOCKER_RUN_PHP72) 'composer phpstan'
 
 php72-cs-fixer: php72-deps  ## Run PHP 7.2 CSFixer
 	$(DOCKER_RUN_PHP72) 'composer cs-fix'

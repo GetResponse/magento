@@ -26,7 +26,7 @@ class Cart extends MagentoCart
         $this->cartIdEncryptor = $cartIdEncryptor;
     }
 
-    public function getCartUrl()
+    public function getCartUrl(): string
     {
         $cartId = (string)$this->getQuote()->getId();
         return $this->_getUrl(Router::ABANDON_CART_ROUTE, [
