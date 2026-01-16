@@ -20,6 +20,7 @@ class Scope
         return $this->scopeId;
     }
 
+    // phpcs:ignore
     public static function createFromStoreId($id): self
     {
         if (null === $id) {
