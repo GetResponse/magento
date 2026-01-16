@@ -73,8 +73,6 @@ class LiveSynchronization
 
     /**
      * @throws RequestValidationException
-     * @return static
-     * @param array $data
      */
     // phpcs:ignore
     public static function createFromRequest(array $data): self

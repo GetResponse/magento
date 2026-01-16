@@ -28,7 +28,7 @@ class NewsletterSubscriberSaveCommitAfterObject implements ObserverInterface
     public function execute(Observer $observer): NewsletterSubscriberSaveCommitAfterObject
     {
         try {
-            /** @var Subscriber $subscriber && @phpstan-ignore-next-line */
+            /** @var Subscriber $subscriber */
             $subscriber = $observer->getSubscriber();
 
             if (null === $subscriber) {

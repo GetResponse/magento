@@ -31,7 +31,7 @@ class ApiServiceTest extends BaseTestCase
 {
     private const CALLBACK_URL = 'http://app.getresponse.com/callback/#d93jd9dj39';
 
-    /** @var MockObject|Repository */
+    /** @var Repository&MockObject */
     private $repositoryMock;
     /** @var MockObject|HttpClient */
     private $httpClientMock;
@@ -53,14 +53,14 @@ class ApiServiceTest extends BaseTestCase
 
     protected function setUp(): void
     {
-        $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
-        $this->httpClientMock = $this->getMockWithoutConstructing(HttpClient::class);
-        $this->cartFactoryMock = $this->getMockWithoutConstructing(CartFactory::class);
-        $this->orderFactoryMock = $this->getMockWithoutConstructing(OrderFactory::class);
-        $this->productFactoryMock = $this->getMockWithoutConstructing(ProductFactory::class);
-        $this->customerFactoryMock = $this->getMockWithoutConstructing(CustomerFactory::class);
-        $this->subscriberFactoryMock = $this->getMockWithoutConstructing(SubscriberFactory::class);
-        $this->webTrackingRepositoryMock = $this->getMockWithoutConstructing(WebTrackingRepository::class);
+        $this->repositoryMock = $this->createMock(Repository::class);
+        $this->httpClientMock = $this->createMock(HttpClient::class);
+        $this->cartFactoryMock = $this->createMock(CartFactory::class);
+        $this->orderFactoryMock = $this->createMock(OrderFactory::class);
+        $this->productFactoryMock = $this->createMock(ProductFactory::class);
+        $this->customerFactoryMock = $this->createMock(CustomerFactory::class);
+        $this->subscriberFactoryMock = $this->createMock(SubscriberFactory::class);
+        $this->webTrackingRepositoryMock = $this->createMock(WebTrackingRepository::class);
 
         $this->sut = new ApiService(
             $this->repositoryMock,

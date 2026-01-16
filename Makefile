@@ -36,7 +36,10 @@ php72-test: php72-deps  ## Run PHP 7.2 unit tests
 phpstan: php72-deps  ## Run PHP 7.2 CSFixer
 	$(DOCKER_RUN_PHP72) 'composer phpstan'
 
-php72-cs-fixer: php72-deps  ## Run PHP 7.2 CSFixer
+phpcs: php72-deps  ## Run PHP 7.2 CSFixer
+	$(DOCKER_RUN_PHP72) 'composer phpcs'
+
+cs-fixer: php72-deps  ## Run PHP 7.2 CSFixer
 	$(DOCKER_RUN_PHP72) 'composer cs-fix'
 
 ##@ PHP 8.3 Tests

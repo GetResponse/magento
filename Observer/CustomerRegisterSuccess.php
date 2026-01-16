@@ -37,7 +37,6 @@ class CustomerRegisterSuccess implements ObserverInterface
     public function execute(Observer $observer): self
     {
         try {
-            /** @phpstan-ignore-next-line */
             $customer = $observer->getCustomer();
 
             if (null === $customer) {

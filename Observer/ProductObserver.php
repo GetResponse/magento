@@ -32,7 +32,7 @@ class ProductObserver implements ObserverInterface
     public function execute(EventObserver $observer): self
     {
         try {
-            /** @var Product $product && @phpstan-ignore-next-line */
+            /** @var Product $product */
             $product = $observer->getProduct();
 
             if (null === $product) {

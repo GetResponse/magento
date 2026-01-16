@@ -7,7 +7,6 @@ namespace GetResponse\GetResponseIntegration\Api\Controller;
 use GetResponse\GetResponseIntegration\Controller\Api\SubscriberControllerInterface;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
-use Magento\Framework\Webapi\Exception as WebapiException;
 use Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory;
 use Magento\Newsletter\Model\Subscriber as SubscriberModel;
 
@@ -18,11 +17,6 @@ class SubscriberController extends ApiController implements SubscriberController
 {
     private $subscriberCollectionFactory;
 
-    /**
-     * @param Repository $repository
-     * @param MagentoStore $magentoStore
-     * @throws WebapiException
-     */
     public function __construct(
         Repository $repository,
         MagentoStore $magentoStore,

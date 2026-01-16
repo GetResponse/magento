@@ -30,7 +30,6 @@ class ProductAddedToWishList implements ObserverInterface
                 return $this;
             }
 
-            /** @phpstan-ignore-next-line */
             $product = $observer->getEvent()->getProduct();
             $this->trackingCodeBufferService->setProductIdAddedToWishList($product->getId());
         } catch (Exception $e) {

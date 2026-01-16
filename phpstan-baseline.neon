@@ -1,7 +1,62 @@
 parameters:
 	ignoreErrors:
 		-
+			message: "#^Call to an undefined method Magento\\\\Customer\\\\Api\\\\Data\\\\CustomerInterface\\:\\:getCustomerDob\\(\\)\\.$#"
+			count: 1
+			path: Api/CustomerFactory.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Customer\\\\Api\\\\Data\\\\CustomerInterface\\:\\:getCustomerGender\\(\\)\\.$#"
+			count: 1
+			path: Api/CustomerFactory.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Customer\\\\Api\\\\Data\\\\CustomerInterface\\:\\:getCustomerGroupId\\(\\)\\.$#"
+			count: 1
+			path: Api/CustomerFactory.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Customer\\\\Api\\\\Data\\\\CustomerInterface\\:\\:getCustomerMiddlename\\(\\)\\.$#"
+			count: 1
+			path: Api/CustomerFactory.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Customer\\\\Api\\\\Data\\\\CustomerInterface\\:\\:getCustomerPrefix\\(\\)\\.$#"
+			count: 1
+			path: Api/CustomerFactory.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Customer\\\\Api\\\\Data\\\\CustomerInterface\\:\\:getCustomerTaxvat\\(\\)\\.$#"
+			count: 1
+			path: Api/CustomerFactory.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Catalog\\\\Model\\\\Product\\\\Type\\\\AbstractType\\:\\:getConfigurableAttributesAsArray\\(\\)\\.$#"
+			count: 1
+			path: Api/ProductFactory.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Catalog\\\\Model\\\\Product\\\\Type\\\\AbstractType\\:\\:getUsedProducts\\(\\)\\.$#"
+			count: 1
+			path: Api/ProductFactory.php
+
+		-
+			message: "#^Method GetResponse\\\\GetResponseIntegration\\\\Api\\\\ProductFactory\\:\\:getSalesPrice\\(\\) never returns null so it can be removed from the return type\\.$#"
+			count: 1
+			path: Api/ProductFactory.php
+
+		-
+			message: "#^Call to method create\\(\\) on an unknown class Magento\\\\Quote\\\\Model\\\\QuoteFactory\\.$#"
+			count: 1
+			path: Controller/Cart/AbandonedCart.php
+
+		-
 			message: "#^Parameter \\$quoteFactory of method GetResponse\\\\GetResponseIntegration\\\\Controller\\\\Cart\\\\AbandonedCart\\:\\:__construct\\(\\) has invalid type Magento\\\\Quote\\\\Model\\\\QuoteFactory\\.$#"
+			count: 1
+			path: Controller/Cart/AbandonedCart.php
+
+		-
+			message: "#^Property GetResponse\\\\GetResponseIntegration\\\\Controller\\\\Cart\\\\AbandonedCart\\:\\:\\$quoteFactory has unknown class Magento\\\\Quote\\\\Model\\\\QuoteFactory as its type\\.$#"
 			count: 1
 			path: Controller/Cart/AbandonedCart.php
 
@@ -39,6 +94,86 @@ parameters:
 			message: "#^Method GetResponse\\\\GetResponseIntegration\\\\Logger\\\\Logger\\:\\:addNotice\\(\\) should return bool but return statement is missing\\.$#"
 			count: 1
 			path: Logger/Logger.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\Event\\:\\:getOrder\\(\\)\\.$#"
+			count: 1
+			path: Observer/Admin/OrderObserver.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\Event\\\\Observer\\:\\:getCart\\(\\)\\.$#"
+			count: 1
+			path: Observer/CartObserver.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\Event\\\\Observer\\:\\:getCustomerAddress\\(\\)\\.$#"
+			count: 1
+			path: Observer/CustomerAddressSaveAfterObject.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\Event\\\\Observer\\:\\:getCustomer\\(\\)\\.$#"
+			count: 1
+			path: Observer/CustomerRegisterSuccess.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\Event\\\\Observer\\:\\:getCustomerDataObject\\(\\)\\.$#"
+			count: 1
+			path: Observer/CustomerSaveAfterDataObject.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\Event\\\\Observer\\:\\:getSubscriber\\(\\)\\.$#"
+			count: 1
+			path: Observer/NewsletterSubscriberSaveCommitAfterObject.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\Event\\\\Observer\\:\\:getOrder\\(\\)\\.$#"
+			count: 1
+			path: Observer/OrderObserver.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\Event\\:\\:getProduct\\(\\)\\.$#"
+			count: 1
+			path: Observer/ProductAddedToWishList.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\Event\\\\Observer\\:\\:getProduct\\(\\)\\.$#"
+			count: 1
+			path: Observer/ProductDeletedObserver.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\Event\\\\Observer\\:\\:getProduct\\(\\)\\.$#"
+			count: 1
+			path: Observer/ProductObserver.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\App\\\\RequestInterface\\:\\:getPathInfo\\(\\)\\.$#"
+			count: 1
+			path: Router/Router.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\App\\\\RequestInterface\\:\\:setControllerName\\(\\)\\.$#"
+			count: 1
+			path: Router/Router.php
+
+		-
+			message: "#^Method Magento\\\\Framework\\\\App\\\\ActionFactory\\:\\:create\\(\\) invoked with 2 parameters, 1 required\\.$#"
+			count: 1
+			path: Router/Router.php
+
+		-
+			message: "#^Property GetResponse\\\\GetResponseIntegration\\\\Setup\\\\UpgradeData\\:\\:\\$cacheManager is never read, only written\\.$#"
+			count: 1
+			path: Setup/UpgradeData.php
+
+		-
+			message: "#^Property GetResponse\\\\GetResponseIntegration\\\\Setup\\\\UpgradeData\\:\\:\\$configWriter is never read, only written\\.$#"
+			count: 1
+			path: Setup/UpgradeData.php
+
+		-
+			message: "#^Property GetResponse\\\\GetResponseIntegration\\\\Setup\\\\UpgradeData\\:\\:\\$storeManager is never read, only written\\.$#"
+			count: 1
+			path: Setup/UpgradeData.php
 
 		-
 			message: "#^Class Magento\\\\Customer\\\\Model\\\\ResourceModel\\\\Address\\\\Attribute\\\\Collection constructor invoked with 0 parameters, 6\\-8 required\\.$#"

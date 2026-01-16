@@ -32,7 +32,6 @@ class CartObserver implements ObserverInterface
     public function execute(EventObserver $observer): self
     {
         try {
-            /** @phpstan-ignore-next-line */
             $cart = $observer->getCart();
 
             if (null === $cart) {

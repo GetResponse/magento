@@ -25,8 +25,8 @@ class CartFactoryTest extends BaseTestCase
 
     protected function setUp(): void
     {
-        $this->cartMock = $this->getMockWithoutConstructing(Cart::class);
-        $this->customerFactoryMock = $this->getMockWithoutConstructing(CustomerFactory::class);
+        $this->cartMock = $this->createMock(Cart::class);
+        $this->customerFactoryMock = $this->createMock(CustomerFactory::class);
         $this->sut = new CartFactory($this->cartMock, $this->customerFactoryMock);
     }
 
@@ -41,6 +41,7 @@ class CartFactoryTest extends BaseTestCase
 
         $customerMock = $this->getMockWithoutConstructing(MagentoCustomer::class);
 
+        /** @var Quote&MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(
             Quote::class,
             ['getId', 'getCustomerIsGuest', 'getCustomer', 'getAllVisibleItems', 'getCreatedAt', 'getUpdatedAt'],
@@ -95,6 +96,7 @@ class CartFactoryTest extends BaseTestCase
 
         $customerMock = $this->getMockWithoutConstructing(MagentoCustomer::class);
 
+        /** @var Quote&MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(
             Quote::class,
             ['getId', 'getCustomerIsGuest', 'getCustomer', 'getAllVisibleItems', 'getCreatedAt', 'getUpdatedAt'],
@@ -149,6 +151,7 @@ class CartFactoryTest extends BaseTestCase
 
         $customerMock = $this->getMockWithoutConstructing(MagentoCustomer::class);
 
+        /** @var Quote&MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(
             Quote::class,
             ['getId', 'getCustomerIsGuest', 'getCustomer', 'getAllVisibleItems', 'getCreatedAt', 'getUpdatedAt'],

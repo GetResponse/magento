@@ -28,7 +28,7 @@ class CustomerSaveAfterDataObject implements ObserverInterface
     public function execute(Observer $observer): self
     {
         try {
-            /** @var CustomerInterface $customer && @phpstan-ignore-next-line */
+            /** @var CustomerInterface $customer */
             $customer = $observer->getCustomerDataObject();
 
             if (null === $customer) {

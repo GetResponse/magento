@@ -37,7 +37,7 @@ class AbandonedCart extends Action implements HttpGetActionInterface
 
     /**
      * @var QuoteFactory
-     * @phpstan-ignore-next-line */
+     */
     protected $quoteFactory;
 
     /**
@@ -77,7 +77,6 @@ class AbandonedCart extends Action implements HttpGetActionInterface
     private function executeWithCartId(string $cartId): ResponseInterface
     {
         $cartId = $this->cartIdEncryptor->decrypt($cartId);
-        /** @phpstan-ignore-next-line */
         $quote = $this->quoteFactory->create()->loadByIdWithoutStore($cartId);
 
         if (empty($quote->getAllVisibleItems())) {

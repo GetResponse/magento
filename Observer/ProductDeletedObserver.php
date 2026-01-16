@@ -8,7 +8,6 @@ use Exception;
 use GetResponse\GetResponseIntegration\Api\ApiService;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
-use Magento\Catalog\Model\Product;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
@@ -28,7 +27,6 @@ class ProductDeletedObserver implements ObserverInterface
     public function execute(Observer $observer): self
     {
         try {
-            /** @var Product $product && @phpstan-ignore-next-line */
             $product = $observer->getProduct();
 
             $storeIds = $product->getWebsiteStoreIds();

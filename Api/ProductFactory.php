@@ -72,7 +72,6 @@ class ProductFactory
         $variants = [];
 
         if ($this->productType->isProductConfigurable($product->getTypeId())) {
-            /** @phpstan-ignore-next-line */
             $usedProducts = $product->getTypeInstance()->getUsedProducts($product);
             /** @var MagentoProduct $childProduct */
             foreach ($usedProducts as $childProduct) {
@@ -161,7 +160,6 @@ class ProductFactory
         int $storeId
     ): string {
         $configType = $parentProduct->getTypeInstance();
-        /** @phpstan-ignore-next-line */
         $attributes = $configType->getConfigurableAttributesAsArray($parentProduct);
         $options = [];
         foreach ($attributes as $attribute) {

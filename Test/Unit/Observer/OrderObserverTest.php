@@ -16,9 +16,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 class OrderObserverTest extends BaseTestCase
 {
-    /** @var ApiService&MockObject */
+    /** @var ApiService|MockObject */
     private $apiServiceMock;
-    /** @var TrackingCodeOrderService&MockObject */
+    /** @var TrackingCodeOrderService|MockObject */
     private $trackingCodeOrderServiceMock;
     /** @var OrderObserver */
     private $sut;

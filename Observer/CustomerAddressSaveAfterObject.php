@@ -17,10 +17,8 @@ class CustomerAddressSaveAfterObject implements ObserverInterface
     private $logger;
     private $apiService;
 
-    public function __construct(
-        Logger $logger,
-        ApiService $apiService
-    ) {
+    public function __construct(Logger $logger, ApiService $apiService)
+    {
         $this->logger = $logger;
         $this->apiService = $apiService;
     }
@@ -28,7 +26,6 @@ class CustomerAddressSaveAfterObject implements ObserverInterface
     public function execute(Observer $observer): CustomerAddressSaveAfterObject
     {
         try {
-            /** @phpstan-ignore-next-line */
             $customerAddress = $observer->getCustomerAddress();
 
             if (null === $customerAddress) {
