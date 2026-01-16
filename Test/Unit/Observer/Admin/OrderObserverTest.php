@@ -50,7 +50,7 @@ class OrderObserverTest extends BaseTestCase
         $this->apiServiceMock
             ->expects(self::once())
             ->method('updateOrder')
-            ->with($orderMock, new Scope($storeId));
+            ->with($orderMock, Scope::createFromStoreId($storeId));
 
         $this->sut->execute($observerMock);
     }

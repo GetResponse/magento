@@ -40,7 +40,7 @@ class OrderObserver implements ObserverInterface
         }
 
         try {
-            $this->apiService->updateOrder($order, new Scope($order->getStoreId()));
+            $this->apiService->updateOrder($order, Scope::createFromStoreId($order->getStoreId()));
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }

@@ -46,7 +46,7 @@ class CustomerRegisterSuccess implements ObserverInterface
                 ]);
                 return $this;
             }
-            $scope = new Scope($customer->getStoreId());
+            $scope = Scope::createFromStoreId($customer->getStoreId());
             $liveSynchronization = LiveSynchronization::createFromRepository(
                 $this->repository->getLiveSynchronization($scope->getScopeId())
             );

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Domain\SharedKernel;
 
+use RuntimeException;
+
 class Scope
 {
     private $scopeId;
 
-    public function __construct(int $scopeId)
+    private function __construct(int $scopeId)
     {
         $this->scopeId = $scopeId;
     }
@@ -16,5 +18,14 @@ class Scope
     public function getScopeId(): int
     {
         return $this->scopeId;
+    }
+
+    public static function createFromStoreId($id): self
+    {
+        if (null === $id) {
+            throw new RuntimeException('Cannot create Scope from StoreId');
+        }
+
+        return new self((int)$id);
     }
 }

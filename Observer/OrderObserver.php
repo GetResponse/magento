@@ -43,7 +43,7 @@ class OrderObserver implements ObserverInterface
                 return $this;
             }
 
-            $scope = new Scope($order->getStoreId());
+            $scope = Scope::createFromStoreId($order->getStoreId());
 
             $this->apiService->createOrder($order, $scope);
             $this->orderService->addToBuffer($order, $scope);

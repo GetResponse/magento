@@ -43,7 +43,7 @@ class OrderObserverTest extends BaseTestCase
     public function shouldCreateOrder(): void
     {
         $storeId = 3;
-        $scope = new Scope($storeId);
+        $scope = Scope::createFromStoreId($storeId);
 
         $orderMock = $this->getMockWithoutConstructing(MagentoOrder::class);
         $orderMock->method('getStoreId')->willReturn($storeId);

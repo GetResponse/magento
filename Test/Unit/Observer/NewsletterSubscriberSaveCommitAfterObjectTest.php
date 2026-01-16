@@ -49,7 +49,7 @@ class NewsletterSubscriberSaveCommitAfterObjectTest extends BaseTestCase
         $this->apiServiceMock
             ->expects(self::once())
             ->method('upsertCustomerSubscription')
-            ->with($subscriberMock, new Scope($storeId));
+            ->with($subscriberMock, Scope::createFromStoreId($storeId));
 
         $this->sut->execute($observerMock);
     }

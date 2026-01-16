@@ -52,9 +52,9 @@ class ProductDeletedObserverTest extends TestCase
         $this->apiServiceMock->expects($this->exactly(3))
             ->method('deleteProduct')
             ->withConsecutive(
-                [$productMock, new Scope(1)],
-                [$productMock, new Scope(2)],
-                [$productMock, new Scope(3)]
+                [$productMock, Scope::createFromStoreId(1)],
+                [$productMock, Scope::createFromStoreId(2)],
+                [$productMock, Scope::createFromStoreId(3)]
             );
 
         $result = $this->observer->execute($observerMock);

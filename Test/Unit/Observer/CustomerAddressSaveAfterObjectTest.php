@@ -53,7 +53,7 @@ class CustomerAddressSaveAfterObjectTest extends BaseTestCase
         $this->apiServiceMock
             ->expects(self::once())
             ->method('upsertCustomerAddress')
-            ->with($addressModelMock, new Scope($storeId));
+            ->with($addressModelMock, Scope::createFromStoreId($storeId));
 
         $this->sut->execute($observerMock);
     }

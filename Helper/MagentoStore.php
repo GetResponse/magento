@@ -48,6 +48,6 @@ class MagentoStore extends AbstractHelper
 
     public function getCurrentScope(): Scope
     {
-        return new Scope($this->storeManager->getStore()->getId());
+        return Scope::createFromStoreId($this->storeManager->getStore()->getId());
     }
 }

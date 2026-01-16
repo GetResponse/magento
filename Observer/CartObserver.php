@@ -55,7 +55,7 @@ class CartObserver implements ObserverInterface
                 return $this;
             }
 
-            $scope = new Scope($quote->getStoreId());
+            $scope = Scope::createFromStoreId($quote->getStoreId());
 
             $this->trackingCodeCartService->addToBuffer($quote, $scope);
             $this->apiService->createCart($quote, $scope);

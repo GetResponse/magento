@@ -55,7 +55,7 @@ class ConfigurationController extends ApiController implements ConfigurationCont
         $stores = [];
 
         foreach ($this->magentoStore->getMagentoStores() as $storeId => $storeName) {
-            $scope = new Scope($storeId);
+            $scope = Scope::createFromStoreId($storeId);
             $stores[] = $this->createStore($scope);
         }
 

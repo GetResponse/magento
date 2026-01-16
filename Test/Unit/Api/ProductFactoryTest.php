@@ -53,7 +53,7 @@ class ProductFactoryTest extends BaseTestCase
      */
     public function shouldCreateActiveProduct(): void
     {
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $productId = 2002;
         $name = 'TestProduct';
@@ -180,7 +180,7 @@ class ProductFactoryTest extends BaseTestCase
      */
     public function shouldCreateInactiveProduct(): void
     {
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $productId = 2002;
         $name = 'TestProduct';

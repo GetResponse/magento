@@ -62,7 +62,7 @@ class ProductObserverTest extends BaseTestCase
         $this->apiServiceMock
             ->expects(self::once())
             ->method('upsertProductCatalog')
-            ->with($productMock, new Scope($storeId));
+            ->with($productMock, Scope::createFromStoreId($storeId));
 
         $this->sut->execute($observerMock);
     }

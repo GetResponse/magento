@@ -48,7 +48,7 @@ class CustomerSaveAfterDataObjectTest extends BaseTestCase
         $this->apiServiceMock
             ->expects(self::once())
             ->method('upsertCustomer')
-            ->with($customerMock, new Scope($storeId));
+            ->with($customerMock, Scope::createFromStoreId($storeId));
 
         $this->sut->execute($observerMock);
     }

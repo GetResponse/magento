@@ -36,10 +36,11 @@ class CustomerSaveAfterDataObject implements ObserverInterface
                     'observerName' => $observer->getName(),
                     'eventName' => $observer->getEventName(),
                 ]);
+
                 return $this;
             }
 
-            $scope = new Scope($customer->getStoreId());
+            $scope = Scope::createFromStoreId($customer->getStoreId());
 
             $this->apiService->upsertCustomer($customer, $scope);
         } catch (Exception $e) {

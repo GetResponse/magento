@@ -39,7 +39,7 @@ class NewsletterSubscriberSaveCommitAfterObject implements ObserverInterface
                 return $this;
             }
 
-            $scope = new Scope($subscriber->getStoreId());
+            $scope = Scope::createFromStoreId($subscriber->getStoreId());
             $customerId = $subscriber->getCustomerId();
 
             if (!empty($customerId)) {

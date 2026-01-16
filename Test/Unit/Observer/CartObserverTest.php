@@ -44,7 +44,7 @@ class CartObserverTest extends BaseTestCase
     public function shouldCreateCart(): void
     {
         $storeId = 3;
-        $scope = new Scope($storeId);
+        $scope = Scope::createFromStoreId($storeId);
 
         /** @var Quote|MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(Quote::class);

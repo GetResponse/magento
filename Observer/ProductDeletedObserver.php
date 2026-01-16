@@ -31,7 +31,7 @@ class ProductDeletedObserver implements ObserverInterface
 
             $storeIds = $product->getWebsiteStoreIds();
             foreach ($storeIds as $storeId) {
-                $this->apiService->deleteProduct($product, new Scope((int)$storeId));
+                $this->apiService->deleteProduct($product, Scope::createFromStoreId($storeId));
             }
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);

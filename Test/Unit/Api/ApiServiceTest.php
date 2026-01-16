@@ -81,7 +81,7 @@ class ApiServiceTest extends BaseTestCase
     {
         /** @var AddressInterface|MockObject $addressMock */
         $addressMock = $this->getMockWithoutConstructing(AddressInterface::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_CONTACT);
 
@@ -102,7 +102,7 @@ class ApiServiceTest extends BaseTestCase
     {
         /** @var AddressInterface|MockObject $addressMock */
         $addressMock = $this->getMockWithoutConstructing(AddressInterface::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
 
@@ -124,7 +124,7 @@ class ApiServiceTest extends BaseTestCase
     {
         /** @var CustomerInterface|MockObject $customerMock */
         $customerMock = $this->getMockWithoutConstructing(CustomerInterface::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_CONTACT);
 
@@ -146,7 +146,7 @@ class ApiServiceTest extends BaseTestCase
     {
         /** @var CustomerInterface|MockObject $customerMock */
         $customerMock = $this->getMockWithoutConstructing(CustomerInterface::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
 
@@ -168,7 +168,7 @@ class ApiServiceTest extends BaseTestCase
     {
         /** @var Subscriber|MockObject $subscriberMock */
         $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_CONTACT);
 
@@ -190,7 +190,7 @@ class ApiServiceTest extends BaseTestCase
     {
         /** @var Subscriber|MockObject $subscriberMock */
         $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
 
@@ -213,7 +213,7 @@ class ApiServiceTest extends BaseTestCase
         /** @var Quote|MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(Quote::class);
 
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_ECOMMERCE);
         $webEventTracking = new WebEventTracking(true, true, '', null);
@@ -255,7 +255,7 @@ class ApiServiceTest extends BaseTestCase
     {
         /** @var Quote|MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(Quote::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_ECOMMERCE);
         $webEventTracking = new WebEventTracking(true, true, '', null);
@@ -298,7 +298,7 @@ class ApiServiceTest extends BaseTestCase
         /** @var Quote|MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(Quote::class);
 
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
 
@@ -322,7 +322,7 @@ class ApiServiceTest extends BaseTestCase
     {
         /** @var Order|MockObject $orderMock */
         $orderMock = $this->getMockWithoutConstructing(Order::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_ECOMMERCE);
 
@@ -347,7 +347,7 @@ class ApiServiceTest extends BaseTestCase
         /** @var Quote|MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(Quote::class);
 
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
 
@@ -372,7 +372,7 @@ class ApiServiceTest extends BaseTestCase
         /** @var Product|MockObject $productMock */
         $productMock = $this->getMockWithoutConstructing(Product::class);
         $productsToUpsert = [$this->getMockWithoutConstructing(GrProduct::class)];
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_ECOMMERCE);
 
@@ -399,7 +399,7 @@ class ApiServiceTest extends BaseTestCase
         /** @var Product|MockObject $productMock */
         $productMock = $this->getMockWithoutConstructing(Product::class);
 
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_CONTACT);
 
@@ -426,7 +426,7 @@ class ApiServiceTest extends BaseTestCase
         /** @var Subscriber|MockObject $subscriberMock */
         $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
 
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_CONTACT);
 
@@ -451,7 +451,7 @@ class ApiServiceTest extends BaseTestCase
         /** @var Subscriber|MockObject $subscriberMock */
         $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
 
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
 

@@ -29,8 +29,6 @@ abstract class ApiController
 
     /**
      * This method initializes properties used in controllers.
-     * @param int $scope
-     * @return void
      * @throws WebapiException
      */
     public function verifyScope(int $scope): void
@@ -39,11 +37,11 @@ abstract class ApiController
             throw new WebapiException(new Phrase('Missing scope.'));
         }
 
-        if (!$this->magentoStore->storeExists($scope)) {
+        if (!$this->magentoStore->storeExists((int)$scope)) {
             throw new WebapiException(new Phrase('Incorrect scope.'));
         }
 
-        $this->scope = new Scope($scope);
+        $this->scope = Scope::createFromStoreId($scope);
     }
 
     /**

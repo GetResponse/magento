@@ -46,7 +46,7 @@ class ProductObserver implements ObserverInterface
             foreach ($product->getStoreIds() as $storeId) {
                 /** @var Product $updatedProduct */
                 $updatedProduct = $this->productRepository->getById($product->getId(), false, $storeId);
-                $this->apiService->upsertProductCatalog($updatedProduct, new Scope($storeId));
+                $this->apiService->upsertProductCatalog($updatedProduct, Scope::createFromStoreId($storeId));
             }
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);

@@ -36,7 +36,7 @@ class CustomerAddressSaveAfterObject implements ObserverInterface
                 return $this;
             }
 
-            $scope = new Scope($customerAddress->getStoreId());
+            $scope = Scope::createFromStoreId($customerAddress->getStoreId());
             /** @var AddressInterface $address */
             $address = $customerAddress->getDataModel();
 
