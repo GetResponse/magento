@@ -35,7 +35,7 @@ class Uninstall implements UninstallInterface
      * @param ModuleContextInterface $context
      * @return void
      */
-    public function uninstall(SchemaSetupInterface $setup, ModuleContextInterface $context)
+    public function uninstall(SchemaSetupInterface $setup, ModuleContextInterface $context): void
     {
         $connection = $setup->getConnection();
 
@@ -44,7 +44,10 @@ class Uninstall implements UninstallInterface
             'getresponse_automation',
             'getresponse_customs',
             'getresponse_settings',
-            'getresponse_webform'
+            'getresponse_webform',
+            'getresponse_cart_map',
+            'getresponse_order_map',
+            'getresponse_product_map'
         ];
 
         foreach ($tablesToRemove as $tableToRemove) {
@@ -55,65 +58,31 @@ class Uninstall implements UninstallInterface
             }
         }
 
-        $this->configWriter->delete(
+        $coreConfigDataToRemove = [
             'getresponse/shop/status',
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->configWriter->delete(
             'getresponse/shop/id',
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->configWriter->delete(
             'getresponse/ecommerce/list/id',
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->configWriter->delete(
             'getresponse/account',
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->configWriter->delete(
             'getresponse/connection-settings',
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->configWriter->delete(
-            Config::CONFIG_DATA_WEB_EVENT_TRACKING,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->configWriter->delete(
             'getresponse/registration/settings',
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->configWriter->delete(
             'getresponse/registration/customs',
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->configWriter->delete(
-            Config::CONFIG_DATA_WEBFORMS_SETTINGS,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->configWriter->delete(
             'getresponse/invalid_request_date_time',
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
+            Config::CONFIG_DATA_WEB_EVENT_TRACKING,
+            Config::CONFIG_DATA_WEBFORMS_SETTINGS,
+            Config::CONFIG_LIVE_SYNCHRONIZATION,
+            Config::CONFIG_DATA_FACEBOOK_PIXEL_SNIPPET,
+            Config::CONFIG_DATA_FACEBOOK_ADS_PIXEL_SNIPPET,
+            Config::CONFIG_DATA_FACEBOOK_BUSINESS_EXTENSION_SNIPPET
+        ];
+
+        foreach ($coreConfigDataToRemove as $configDataToRemove) {
+
+            $this->configWriter->delete(
+                $configDataToRemove,
+                ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+                Store::DEFAULT_STORE_ID
+            );
+        }
 
         $this->cacheManager->clean([
             FrameworkCacheType::TYPE_IDENTIFIER,

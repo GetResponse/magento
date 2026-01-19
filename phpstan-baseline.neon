@@ -161,21 +161,6 @@ parameters:
 			path: Router/Router.php
 
 		-
-			message: "#^Property GetResponse\\\\GetResponseIntegration\\\\Setup\\\\UpgradeData\\:\\:\\$cacheManager is never read, only written\\.$#"
-			count: 1
-			path: Setup/UpgradeData.php
-
-		-
-			message: "#^Property GetResponse\\\\GetResponseIntegration\\\\Setup\\\\UpgradeData\\:\\:\\$configWriter is never read, only written\\.$#"
-			count: 1
-			path: Setup/UpgradeData.php
-
-		-
-			message: "#^Property GetResponse\\\\GetResponseIntegration\\\\Setup\\\\UpgradeData\\:\\:\\$storeManager is never read, only written\\.$#"
-			count: 1
-			path: Setup/UpgradeData.php
-
-		-
 			message: "#^Class Magento\\\\Customer\\\\Model\\\\ResourceModel\\\\Address\\\\Attribute\\\\Collection constructor invoked with 0 parameters, 6\\-8 required\\.$#"
 			count: 1
 			path: Test/MissingReferences/Magento/Customer/Model/ResourceModel/Address/Attribute/CollectionFactory.php

@@ -31,7 +31,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
             'getresponse_automation',
             'getresponse_customs',
             'getresponse_settings',
-            'getresponse_webform'
+            'getresponse_webform',
+            'getresponse_cart_map',
+            'getresponse_order_map',
+            'getresponse_product_map'
         ];
 
         foreach ($tablesToRemove as $tableToRemove) {
