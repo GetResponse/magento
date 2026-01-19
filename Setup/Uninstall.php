@@ -76,7 +76,6 @@ class Uninstall implements UninstallInterface
         ];
 
         foreach ($coreConfigDataToRemove as $configDataToRemove) {
-
             $this->configWriter->delete(
                 $configDataToRemove,
                 ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
