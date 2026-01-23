@@ -201,8 +201,8 @@ class ProductFactory
 
     private function getProductStatus(MagentoProduct $product): string
     {
-        $isStatusActive = $product->getStatus() === self::PRODUCT_STATUS_ACTIVE;
-        $isVisible = $product->getVisibility() !== self::PRODUCT_INVISIBLE;
+        $isStatusActive = (int) $product->getStatus() === self::PRODUCT_STATUS_ACTIVE;
+        $isVisible = (int) $product->getVisibility() !== self::PRODUCT_INVISIBLE;
 
         return $isStatusActive && $isVisible ? Product::STATUS_PUBLISH : Product::STATUS_DRAFT;
     }
