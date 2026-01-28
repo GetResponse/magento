@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\Model;
 
-use Magento\Catalog\Model\CategoryRepository;
 use GetResponse\GetResponseIntegration\Helper\Cart as MagentoCart;
+use Magento\Catalog\Model\CategoryRepository;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Item;
 

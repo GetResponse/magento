@@ -6,8 +6,6 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use Magento\Customer\Api\Data\AddressInterface;
@@ -17,28 +15,20 @@ use Magento\Framework\Event\ObserverInterface;
 class CustomerAddressSaveAfterObject implements ObserverInterface
 {
     private $logger;
-    private $repository;
     private $apiService;
 
-    public function __construct(
-        Logger $logger,
-        Repository $repository,
-        ApiService $apiService
-    ) {
+    public function __construct(Logger $logger, ApiService $apiService)
+    {
         $this->logger = $logger;
-        $this->repository = $repository;
         $this->apiService = $apiService;
     }
 
     public function execute(Observer $observer): CustomerAddressSaveAfterObject
     {
         try {
-            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-            if (!$pluginMode->isNewVersion()) {
-                return $this;
-            }
+            $customerAddress = $observer->getCustomerAddress();
 
-            if (null === $observer->getCustomerAddress()) {
+            if (null === $customerAddress) {
                 $this->logger->addNotice('CustomerAddress in observer is empty', [
                     'observerName' => $observer->getName(),
                     'eventName' => $observer->getEventName(),
@@ -46,8 +36,7 @@ class CustomerAddressSaveAfterObject implements ObserverInterface
                 return $this;
             }
 
-            $customerAddress = $observer->getCustomerAddress();
-            $scope = new Scope($customerAddress->getStoreId());
+            $scope = Scope::createFromStoreId($customerAddress->getStoreId());
             /** @var AddressInterface $address */
             $address = $customerAddress->getDataModel();
 

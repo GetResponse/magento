@@ -35,74 +35,53 @@ class Uninstall implements UninstallInterface
      * @param ModuleContextInterface $context
      * @return void
      */
-    public function uninstall(SchemaSetupInterface $setup, ModuleContextInterface $context)
+    public function uninstall(SchemaSetupInterface $setup, ModuleContextInterface $context): void
     {
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_account'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_automation'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_customs'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_settings'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_webform'));
-        $setup->getConnection()->query("DROP TABLE IF EXISTS " . $setup->getTable('getresponse_product_map'));
+        $connection = $setup->getConnection();
 
-        $this->configWriter->delete(
-            Config::CONFIG_DATA_SHOP_STATUS,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
+        $tablesToRemove = [
+            'getresponse_account',
+            'getresponse_automation',
+            'getresponse_customs',
+            'getresponse_settings',
+            'getresponse_webform',
+            'getresponse_cart_map',
+            'getresponse_order_map',
+            'getresponse_product_map'
+        ];
 
-        $this->configWriter->delete(
-            Config::CONFIG_DATA_SHOP_ID,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
+        foreach ($tablesToRemove as $tableToRemove) {
+            $tableName = $setup->getTable($tableToRemove);
 
-        $this->configWriter->delete(
-            Config::CONFIG_DATA_ECOMMERCE_LIST_ID,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
+            if ($connection->isTableExists($tableName)) {
+                $connection->dropTable($tableName);
+            }
+        }
 
-        $this->configWriter->delete(
-            Config::CONFIG_DATA_ACCOUNT,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->configWriter->delete(
-            Config::CONFIG_DATA_CONNECTION_SETTINGS,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->configWriter->delete(
+        $coreConfigDataToRemove = [
+            'getresponse/shop/status',
+            'getresponse/shop/id',
+            'getresponse/ecommerce/list/id',
+            'getresponse/account',
+            'getresponse/connection-settings',
+            'getresponse/registration/settings',
+            'getresponse/registration/customs',
+            'getresponse/invalid_request_date_time',
             Config::CONFIG_DATA_WEB_EVENT_TRACKING,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->configWriter->delete(
-            Config::CONFIG_DATA_REGISTRATION_SETTINGS,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->configWriter->delete(
-            Config::CONFIG_DATA_REGISTRATION_CUSTOMS,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
-
-        $this->configWriter->delete(
             Config::CONFIG_DATA_WEBFORMS_SETTINGS,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
+            Config::CONFIG_LIVE_SYNCHRONIZATION,
+            Config::CONFIG_DATA_FACEBOOK_PIXEL_SNIPPET,
+            Config::CONFIG_DATA_FACEBOOK_ADS_PIXEL_SNIPPET,
+            Config::CONFIG_DATA_FACEBOOK_BUSINESS_EXTENSION_SNIPPET
+        ];
 
-        $this->configWriter->delete(
-            Config::INVALID_REQUEST_DATE_TIME,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            Store::DEFAULT_STORE_ID
-        );
+        foreach ($coreConfigDataToRemove as $configDataToRemove) {
+            $this->configWriter->delete(
+                $configDataToRemove,
+                ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+                Store::DEFAULT_STORE_ID
+            );
+        }
 
         $this->cacheManager->clean([
             FrameworkCacheType::TYPE_IDENTIFIER,

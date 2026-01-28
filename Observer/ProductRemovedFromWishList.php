@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Recommendation\RecommendationSession;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\TrackingCodeBufferService;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -16,38 +14,30 @@ use Magento\Wishlist\Model\Item;
 
 class ProductRemovedFromWishList implements ObserverInterface
 {
-    private $session;
+    private $trackingCodeBufferService;
     private $logger;
-    private $repository;
     private $objectManager;
 
     public function __construct(
-        RecommendationSession $session,
+        TrackingCodeBufferService $trackingCodeBufferService,
         Logger $logger,
-        Repository $repository,
         ObjectManagerInterface $objectManager
     ) {
-        $this->session = $session;
+        $this->trackingCodeBufferService = $trackingCodeBufferService;
         $this->logger = $logger;
-        $this->repository = $repository;
         $this->objectManager = $objectManager;
     }
 
     public function execute(Observer $observer): self
     {
         try {
-            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-            if (!$pluginMode->isNewVersion()) {
-                return $this;
-            }
-
-            if (false === $this->session->isUserLoggedIn()) {
+            if (false === $this->trackingCodeBufferService->isUserLoggedIn()) {
                 return $this;
             }
 
             $wishListId = $observer->getData()['request']->getParam('item');
             $item = $this->objectManager->create(Item::class)->load($wishListId);
-            $this->session->setProductIdRemovedFromWishList($item->getProductId());
+            $this->trackingCodeBufferService->setProductIdRemovedFromWishList($item->getProductId());
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);
         }

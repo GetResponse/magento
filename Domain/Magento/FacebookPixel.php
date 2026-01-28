@@ -35,7 +35,12 @@ class FacebookPixel implements SnippetInterface
         ];
     }
 
-    public static function createFromRepository(array $data): FacebookPixel
+    /**
+     * @param array $data
+     * @return self
+     */
+    //phpcs:ignore
+    public static function createFromRepository(array $data): self
     {
         if (empty($data)) {
             return new FacebookPixel(
@@ -52,7 +57,8 @@ class FacebookPixel implements SnippetInterface
      * @return FacebookPixel
      * @param array $data
      */
-    public static function createFromRequest(array $data): FacebookPixel
+    //phpcs:ignore
+    public static function createFromRequest(array $data): self
     {
         if (!isset($data['facebook_pixel'])) {
             throw RequestValidationException::create('Incorrect FacebookPixel params');

@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\CustomerData\TrackingCode;
 
-use GetResponse\GetResponseIntegration\Domain\GetResponse\Recommendation\RecommendationSession;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
+use GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\TrackingCodeBufferService;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
@@ -14,12 +13,10 @@ use Magento\Customer\CustomerData\SectionSourceInterface;
 class WishListSectionSource implements SectionSourceInterface
 {
     private $session;
-    /** @var Repository */
     private $repository;
-    /** @var MagentoStore */
     private $magentoStore;
 
-    public function __construct(RecommendationSession $session, Repository $repository, MagentoStore $magentoStore)
+    public function __construct(TrackingCodeBufferService $session, Repository $repository, MagentoStore $magentoStore)
     {
         $this->session = $session;
         $this->repository = $repository;
@@ -37,13 +34,9 @@ class WishListSectionSource implements SectionSourceInterface
 
     private function getGetresponseShopId(): ?string
     {
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-        if (!$pluginMode->isNewVersion()) {
-            return null;
-        }
-
         $scopeId = $this->magentoStore->getCurrentScope()->getScopeId();
         $webEventTracking = WebEventTracking::createFromRepository($this->repository->getWebEventTracking($scopeId));
+
         if (!$webEventTracking->isFeatureTrackingEnabled()) {
             return null;
         }

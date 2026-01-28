@@ -1,12 +1,6 @@
 <?xml version="1.0"?>
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
 
-    <route url="/V1/getresponse/switch" method="POST">
-        <service class="GetResponse\GetResponseIntegration\Controller\Api\ModuleControllerInterface" method="switch"/>
-        <resources>
-            <resource ref="Magento_Backend::admin"/>
-        </resources>
-    </route>
     <route url="/V1/getresponse/subscribers" method="GET">
         <service class="GetResponse\GetResponseIntegration\Controller\Api\SubscriberControllerInterface" method="list"/>
         <resources>

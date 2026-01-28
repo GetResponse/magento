@@ -55,7 +55,8 @@ class WebEventTracking implements SnippetInterface
         ];
     }
 
-    public static function createFromRepository(array $data): WebEventTracking
+    // phpcs:ignore
+    public static function createFromRepository(array $data): self
     {
         if (empty($data)) {
             return new WebEventTracking(
@@ -74,7 +75,8 @@ class WebEventTracking implements SnippetInterface
         );
     }
 
-    public static function createFromRequest(array $data): WebEventTracking
+    // phpcs:ignore
+    public static function createFromRequest(array $data): self
     {
         if (!isset($data['web_event_tracking'])) {
             throw new RuntimeException('incorrect TrackingCode params');
@@ -85,16 +87,6 @@ class WebEventTracking implements SnippetInterface
             true,
             $data['web_event_tracking']['snippet'],
             $data['web_event_tracking']['getresponseShopId']
-        );
-    }
-
-    public static function createFromArray(array $data): WebEventTracking
-    {
-        return new WebEventTracking(
-            (bool)$data['isEnabled'],
-            (bool) $data['isFeatureTrackingEnabled'],
-            $data['codeSnippet'],
-            $data['getresponseShopId']
         );
     }
 }

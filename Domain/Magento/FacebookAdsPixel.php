@@ -33,6 +33,7 @@ class FacebookAdsPixel implements SnippetInterface
         ];
     }
 
+    // phpcs:ignore
     public static function createFromRepository(array $data): self
     {
         if (empty($data)) {
@@ -45,7 +46,8 @@ class FacebookAdsPixel implements SnippetInterface
     /**
      * @throws RequestValidationException
      */
-    public static function createFromRequest(array $data): FacebookAdsPixel
+    // phpcs:ignore
+    public static function createFromRequest(array $data): self
     {
         if (!isset($data['facebook_ads_pixel'])) {
             throw RequestValidationException::create('Incorrect FacebookAdsPixel params');

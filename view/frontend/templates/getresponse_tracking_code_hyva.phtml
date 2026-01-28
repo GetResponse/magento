@@ -18,9 +18,9 @@
             dispatchEvent(new Event('reload-customer-section-data'));
         }
 
-        const grShopId = customerSectionData?.['getresponse-recommendation']?.getResponseShopId ?? null;
-        const productIdAddedToWishList = customerSectionData?.['getresponse-recommendation']?.productIdAddedToWishList ?? null;
-        const productIdRemovedFromWishList = customerSectionData?.['getresponse-recommendation']?.productIdRemovedFromWishList ?? null;
+        const grShopId = customerSectionData?.['getresponse-wishlist']?.getResponseShopId ?? null;
+        const productIdAddedToWishList = customerSectionData?.['getresponse-wishlist']?.productIdAddedToWishList ?? null;
+        const productIdRemovedFromWishList = customerSectionData?.['getresponse-wishlist']?.productIdRemovedFromWishList ?? null;
 
         if (productIdAddedToWishList !== null && productIdRemovedFromWishList === null) {
             const likeItemObject = {shop: {id: grShopId}, product: {id: productIdAddedToWishList}};

@@ -5,9 +5,4 @@
             <module name="GetResponse_GetResponseIntegration" />
         </route>
     </router>
-    <router id="getresponse">
-        <route id="getresponse" frontName="getresponse">
-            <module name="GetResponse_GetResponseIntegration" />
-        </route>
-    </router>
 </config>

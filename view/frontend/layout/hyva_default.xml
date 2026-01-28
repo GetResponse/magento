@@ -10,7 +10,7 @@
         </referenceContainer>
 
         <referenceContainer name="head.additional">
-            <block name="getresponse.recommendation" />
+            <block name="getresponse.wishlist" />
         </referenceContainer>
     </body>
 </page>

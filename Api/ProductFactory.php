@@ -10,12 +10,12 @@ use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\Product as MagentoProduct;
 use Magento\Framework\Exception\NoSuchEntityException;
-use JsonSerializable;
 
 class ProductFactory
 {
     private const PRODUCT_STATUS_ACTIVE = 1;
     private const PRODUCT_INVISIBLE = 1;
+    private const MAX_DESC_LENGTH = 1000;
 
     private $categoryRepository;
     private $productReadModel;
@@ -92,8 +92,14 @@ class ProductFactory
                     $this->getProductConfigurableUrl($product, $childProduct, (int)$scope->getScopeId()),
                     0,
                     null,
-                    (string)$childProduct->getData('description'),
-                    (string)$childProduct->getData('short_description'),
+                    $this->reduceDescription(
+                        (string)$childProduct->getData('description'),
+                        self::MAX_DESC_LENGTH
+                    ),
+                    $this->reduceDescription(
+                        (string)$childProduct->getData('short_description'),
+                        self::MAX_DESC_LENGTH
+                    ),
                     $images,
                     $this->getProductVariantStatus($childProduct),
                     $this->getSalesPrice($childProduct)
@@ -114,8 +120,8 @@ class ProductFactory
                 $product->setStoreId($scope->getScopeId())->getUrlModel()->getUrlInStore($product),
                 0,
                 null,
-                (string)$product->getData('description'),
-                (string)$product->getData('short_description'),
+                $this->reduceDescription((string)$product->getData('description'), self::MAX_DESC_LENGTH),
+                $this->reduceDescription((string)$product->getData('short_description'), self::MAX_DESC_LENGTH),
                 $images,
                 $this->getProductStatus($product),
                 $this->getSalesPrice($product)
@@ -172,13 +178,13 @@ class ProductFactory
     {
         $images = [];
         foreach ($product->getMediaGalleryImages() as $image) {
-            $images[] = new Image(
-                $image->getData('url'),
-                (int)$image->getData('position')
-            );
+            $imagePosition = (int)$image->getData('position');
+            $images[$imagePosition] = new Image($image->getData('url'), $imagePosition);
         }
 
-        return $images;
+        ksort($images);
+
+        return empty($images) ? [] : [reset($images)];
     }
 
     private function getProductQuantity(int $productId): int
@@ -203,7 +209,9 @@ class ProductFactory
 
     private function getProductVariantStatus(MagentoProduct $product): string
     {
-        return (int) $product->getStatus() === self::PRODUCT_STATUS_ACTIVE ? Product::STATUS_PUBLISH : Product::STATUS_DRAFT;
+        return (int) $product->getStatus() === self::PRODUCT_STATUS_ACTIVE
+            ? Product::STATUS_PUBLISH
+            : Product::STATUS_DRAFT;
     }
 
     private function getSalesPrice(MagentoProduct $product): ?ProductSalePrice
@@ -213,5 +221,24 @@ class ProductFactory
         $toDate = $product->getSpecialToDate();
 
         return null !== $price ? new ProductSalePrice((float)$price, $fromDate, $toDate) : null;
+    }
+
+    private function reduceDescription(string $description, int $maxLength): string
+    {
+        $cleanDescription = (string) preg_replace('#<style(.*?)>(.*?)</style>#is', '', $description);
+        $cleanDescription = (string) preg_replace('#<script(.*?)>(.*?)</script>#is', '', $cleanDescription);
+        // phpcs:ignore
+        $cleanDescription = html_entity_decode($cleanDescription, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        // phpcs:ignore
+        $cleanDescription = html_entity_decode($cleanDescription, ENT_COMPAT);
+        $cleanDescription = strip_tags($cleanDescription);
+        $cleanDescription = trim($cleanDescription);
+        $cleanDescription = (string) preg_replace('/\s+/', ' ', $cleanDescription);
+
+        if (mb_strlen($cleanDescription) <= $maxLength) {
+            return $cleanDescription;
+        }
+
+        return mb_substr($cleanDescription, 0, $maxLength - 3) . '...';
     }
 }

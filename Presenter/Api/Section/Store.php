@@ -8,7 +8,6 @@ use GetResponse\GetResponseIntegration\Domain\Magento\FacebookAdsPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookBusinessExtension;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization as LiveSynchronizationDTO;
-use GetResponse\GetResponseIntegration\Domain\Magento\Recommendation;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebForm as WebFormDTO;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
@@ -22,7 +21,6 @@ class Store
     private $webForm;
     private $webEventTracking;
     private $liveSynchronization;
-    private $recommendation;
 
     public function __construct(
         Scope $scope,
@@ -31,8 +29,7 @@ class Store
         FacebookBusinessExtension $facebookBusinessExtension,
         WebFormDTO $webForm,
         WebEventTracking $webEventTracking,
-        LiveSynchronizationDTO $liveSynchronization,
-        Recommendation $recommendation
+        LiveSynchronizationDTO $liveSynchronization
     ) {
         $this->scope = $scope;
         $this->facebookPixel = $facebookPixel;
@@ -41,7 +38,6 @@ class Store
         $this->webForm = $webForm;
         $this->webEventTracking = $webEventTracking;
         $this->liveSynchronization = $liveSynchronization;
-        $this->recommendation = $recommendation;
     }
 
     /**
@@ -98,13 +94,5 @@ class Store
     public function getLiveSynchronization(): LiveSynchronization
     {
         return new LiveSynchronization($this->liveSynchronization);
-    }
-
-    /**
-     * @return \GetResponse\GetResponseIntegration\Presenter\Api\Section\Snippet
-     */
-    public function getRecommendation(): Snippet
-    {
-        return new Snippet($this->recommendation);
     }
 }

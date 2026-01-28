@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
-use Magento\Sales\Model\Order\Item;
 use Magento\Sales\Model\Order as MagentoOrder;
+use Magento\Sales\Model\Order\Item;
 
 class OrderFactory
 {
@@ -57,7 +57,6 @@ class OrderFactory
 
         /** @var Item $item */
         foreach ($order->getAllVisibleItems() as $item) {
-
             $childrenItems = (array) $item->getChildrenItems();
 
             if (count($childrenItems) > 0) {
