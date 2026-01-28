@@ -1,21 +1,7 @@
-
-workflow:
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
-      when: never
-    - if: $CI_COMMIT_BRANCH
-    - if: $CI_COMMIT_TAG
-
 stages:
   - install_dependencies
+  - quality
   - test
-
-.exclude-branch-develop:
-  rules:
-    - if: $CI_COMMIT_BRANCH == "develop"
-      when: never
-    - when: on_success
 
 composer_install:php72:
   image: magento/magento-cloud-docker-php:7.2-cli-1.3.5
@@ -33,8 +19,33 @@ composer_install:php72:
     paths:
       - vendor/
     expire_in: 2 hrs
-  rules:
-    - !reference [.exclude-branch-develop, rules]
+
+code-style:
+  needs: ['composer_install:php72']
+  image: magento/magento-cloud-docker-php:7.2-cli-1.3.5
+  stage: quality
+  tags:
+    - hq1-small-amd64
+  script:
+    - echo "📊 Running PHPCS with Magento2 standard..."
+    - composer phpcs
+    - echo "🔍 Running PHP CS Fixer Check..."
+    - composer cs-check
+  allow_failure: true
+  dependencies:
+    - composer_install:php72
+
+php-stan:
+  needs: ['composer_install:php72']
+  image: magento/magento-cloud-docker-php:7.2-cli-1.3.5
+  stage: quality
+  tags:
+    - hq1-small-amd64
+  script:
+    - echo "🔍 Running PHPStan static analysis..."
+    - composer phpstan
+  dependencies:
+    - composer_install:php72
 
 test:phpunit:php72:
   needs: ['composer_install:php72']
@@ -44,41 +55,8 @@ test:phpunit:php72:
     - hq1-small-amd64
   script:
     - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit8.xml --colors=never
-  rules:
-    - !reference [.exclude-branch-develop, rules]
   dependencies:
     - composer_install:php72
-
-composer_install:php81:
-  image: magento/magento-cloud-docker-php:8.1-cli-1.4.6
-  stage: install_dependencies
-  tags:
-    - hq1-small-amd64
-  before_script:
-    - docker-php-ext-enable sodium
-  script:
-    - composer config -a -g http-basic.repo.magento.com $COMPOSER_REPO_MAGENTO_USERNAME $COMPOSER_REPO_MAGENTO_PASSWORD
-    - composer install --prefer-dist --verbose
-  artifacts:
-    paths:
-      - vendor/
-  rules:
-    - !reference [ .exclude-branch-develop, rules ]
-
-test:phpunit:php81:
-  needs: [ 'composer_install:php81' ]
-  image: magento/magento-cloud-docker-php:8.1-cli-1.4.6
-  stage: test
-  tags:
-    - hq1-small-amd64
-  before_script:
-    - docker-php-ext-enable sodium
-  script:
-    - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit9.xml --colors=never
-  rules:
-    - !reference [ .exclude-branch-develop, rules ]
-  dependencies:
-    - composer_install:php81
 
 composer_install:php83:
   image: magento/magento-cloud-docker-php:8.3-cli-1.3.7
@@ -93,8 +71,6 @@ composer_install:php83:
   artifacts:
     paths:
       - vendor/
-  rules:
-    - !reference [ .exclude-branch-develop, rules ]
 
 test:phpunit:php83:
   needs: [ 'composer_install:php83' ]
@@ -106,8 +82,6 @@ test:phpunit:php83:
     - docker-php-ext-enable sodium
   script:
     - ./vendor/bin/phpunit --testsuite unit --configuration ./Test/phpunit9.xml --colors=never
-  rules:
-    - !reference [ .exclude-branch-develop, rules ]
   dependencies:
     - composer_install:php83
 

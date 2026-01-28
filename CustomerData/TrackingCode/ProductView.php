@@ -4,22 +4,24 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\CustomerData\TrackingCode;
 
+use Exception;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\CspNonceProviderFactory;
 use GetResponse\GetResponseIntegration\Helper\JavaScriptTag;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Block\Product\View as Subject;
 use Magento\Catalog\Model\Product;
-use Magento\ConfigurableProduct\Model\Product\Type\Configurable as TypeConfigurable;
-use Exception;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 
 class ProductView extends TrackingCodeView
 {
-    const DISPLAY_BLOCK = 'product.info';
+    public const DISPLAY_BLOCK = 'product.info';
     private $categoryRepository;
 
-    public function __construct(Repository $repository, CategoryRepositoryInterface $categoryRepository, CspNonceProviderFactory $cspNonceProviderFactory)
-    {
+    public function __construct(
+        Repository $repository,
+        CategoryRepositoryInterface $categoryRepository,
+        CspNonceProviderFactory $cspNonceProviderFactory
+    ) {
         parent::__construct($repository, $cspNonceProviderFactory);
         $this->categoryRepository = $categoryRepository;
     }
@@ -33,7 +35,11 @@ class ProductView extends TrackingCodeView
         }
 
         $payload = $this->getProductPayload($product);
-        $html .= JavaScriptTag::generateForConst('GrViewProductItem', json_encode($payload), $this->cspNonceProvider->generateNonce());
+        $html .= JavaScriptTag::generateForConst(
+            'GrViewProductItem',
+            json_encode($payload),
+            $this->cspNonceProvider->generateNonce()
+        );
 
         return $html;
     }

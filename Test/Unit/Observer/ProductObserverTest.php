@@ -5,21 +5,17 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Test\Unit\Observer;
 
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GetResponse\GetResponseIntegration\Observer\ProductObserver;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Catalog\Model\Product as MagentoProduct;
 use Magento\Framework\Event\Observer as EventObserver;
 use PHPUnit\Framework\MockObject\MockObject;
-use Magento\Catalog\Model\Product as MagentoProduct;
 
 class ProductObserverTest extends BaseTestCase
 {
-    /** @var Repository|MockObject */
-    private $repositoryMock;
     /** @var ApiService|MockObject */
     private $apiServiceMock;
     /** @var ProductRepositoryInterface|MockObject */
@@ -31,13 +27,11 @@ class ProductObserverTest extends BaseTestCase
     {
         /** @var Logger|MockObject $loggerMock */
         $loggerMock = $this->getMockWithoutConstructing(Logger::class);
-        $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
         $this->apiServiceMock = $this->getMockWithoutConstructing(ApiService::class);
         $this->productRepositoryMock = $this->getMockWithoutConstructing(ProductRepositoryInterface::class);
 
         $this->sut = new ProductObserver(
             $loggerMock,
-            $this->repositoryMock,
             $this->apiServiceMock,
             $this->productRepositoryMock
         );
@@ -65,34 +59,10 @@ class ProductObserverTest extends BaseTestCase
         $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getProduct']);
         $observerMock->method('getProduct')->willReturn($productMock);
 
-        $this->repositoryMock
-            ->expects(self::once())
-            ->method('getPluginMode')
-            ->willReturn(PluginMode::MODE_NEW);
-
         $this->apiServiceMock
             ->expects(self::once())
             ->method('upsertProductCatalog')
-            ->with($productMock, new Scope($storeId));
-
-        $this->sut->execute($observerMock);
-    }
-
-    /**
-     * @test
-     */
-    public function shouldNotUpsertProductCatalogWhenOldPluginMode(): void
-    {
-        $observerMock = $this->getMockWithoutConstructing(EventObserver::class, [], ['getProduct']);
-
-        $this->repositoryMock
-            ->expects(self::once())
-            ->method('getPluginMode')
-            ->willReturn(PluginMode::MODE_OLD);
-
-        $this->apiServiceMock
-            ->expects(self::never())
-            ->method('upsertProductCatalog');
+            ->with($productMock, Scope::createFromStoreId($storeId));
 
         $this->sut->execute($observerMock);
     }

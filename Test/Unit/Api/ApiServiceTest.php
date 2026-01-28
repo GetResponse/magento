@@ -9,9 +9,9 @@ use GetResponse\GetResponseIntegration\Api\CartFactory;
 use GetResponse\GetResponseIntegration\Api\CustomerFactory;
 use GetResponse\GetResponseIntegration\Api\HttpClient;
 use GetResponse\GetResponseIntegration\Api\OrderFactory;
+use GetResponse\GetResponseIntegration\Api\Product as GrProduct;
 use GetResponse\GetResponseIntegration\Api\ProductFactory;
 use GetResponse\GetResponseIntegration\Api\SubscriberFactory;
-use GetResponse\GetResponseIntegration\Builder\ProductFactoryBuilder;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
@@ -26,13 +26,12 @@ use Magento\Newsletter\Model\Subscriber;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Model\Order;
 use PHPUnit\Framework\MockObject\MockObject;
-use GetResponse\GetResponseIntegration\Api\Product as GrProduct;
 
 class ApiServiceTest extends BaseTestCase
 {
     private const CALLBACK_URL = 'http://app.getresponse.com/callback/#d93jd9dj39';
 
-    /** @var MockObject|Repository */
+    /** @var Repository&MockObject */
     private $repositoryMock;
     /** @var MockObject|HttpClient */
     private $httpClientMock;
@@ -54,15 +53,14 @@ class ApiServiceTest extends BaseTestCase
 
     protected function setUp(): void
     {
-        $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
-        $this->httpClientMock = $this->getMockWithoutConstructing(HttpClient::class);
-        $this->cartFactoryMock = $this->getMockWithoutConstructing(CartFactory::class);
-        $this->orderFactoryMock = $this->getMockWithoutConstructing(OrderFactory::class);
-        $this->productFactoryMock = $this->getMockWithoutConstructing(ProductFactory::class);
-        $this->customerFactoryMock = $this->getMockWithoutConstructing(CustomerFactory::class);
-        $this->subscriberFactoryMock = $this->getMockWithoutConstructing(SubscriberFactory::class);
-        $this->webTrackingRepositoryMock = $this->getMockWithoutConstructing(WebTrackingRepository::class);
-
+        $this->repositoryMock = $this->createMock(Repository::class);
+        $this->httpClientMock = $this->createMock(HttpClient::class);
+        $this->cartFactoryMock = $this->createMock(CartFactory::class);
+        $this->orderFactoryMock = $this->createMock(OrderFactory::class);
+        $this->productFactoryMock = $this->createMock(ProductFactory::class);
+        $this->customerFactoryMock = $this->createMock(CustomerFactory::class);
+        $this->subscriberFactoryMock = $this->createMock(SubscriberFactory::class);
+        $this->webTrackingRepositoryMock = $this->createMock(WebTrackingRepository::class);
 
         $this->sut = new ApiService(
             $this->repositoryMock,
@@ -83,7 +81,7 @@ class ApiServiceTest extends BaseTestCase
     {
         /** @var AddressInterface|MockObject $addressMock */
         $addressMock = $this->getMockWithoutConstructing(AddressInterface::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_CONTACT);
 
@@ -104,7 +102,7 @@ class ApiServiceTest extends BaseTestCase
     {
         /** @var AddressInterface|MockObject $addressMock */
         $addressMock = $this->getMockWithoutConstructing(AddressInterface::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
 
@@ -124,9 +122,9 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldUpsertCustomer(): void
     {
-        /** @var CustomerInterface|MockObject $addressMock */
+        /** @var CustomerInterface|MockObject $customerMock */
         $customerMock = $this->getMockWithoutConstructing(CustomerInterface::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_CONTACT);
 
@@ -146,9 +144,9 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldNotUpsertCustomer(): void
     {
-        /** @var CustomerInterface|MockObject $addressMock */
+        /** @var CustomerInterface|MockObject $customerMock */
         $customerMock = $this->getMockWithoutConstructing(CustomerInterface::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
 
@@ -168,9 +166,9 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldUpsertCustomerSubscription(): void
     {
-        /** @var Subscriber|MockObject $addressMock */
+        /** @var Subscriber|MockObject $subscriberMock */
         $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_CONTACT);
 
@@ -190,9 +188,9 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldNotUpsertCustomerSubscription(): void
     {
-        /** @var Subscriber|MockObject $addressMock */
+        /** @var Subscriber|MockObject $subscriberMock */
         $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
 
@@ -215,7 +213,7 @@ class ApiServiceTest extends BaseTestCase
         /** @var Quote|MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(Quote::class);
 
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_ECOMMERCE);
         $webEventTracking = new WebEventTracking(true, true, '', null);
@@ -257,7 +255,7 @@ class ApiServiceTest extends BaseTestCase
     {
         /** @var Quote|MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(Quote::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_ECOMMERCE);
         $webEventTracking = new WebEventTracking(true, true, '', null);
@@ -300,7 +298,7 @@ class ApiServiceTest extends BaseTestCase
         /** @var Quote|MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(Quote::class);
 
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
 
@@ -324,7 +322,7 @@ class ApiServiceTest extends BaseTestCase
     {
         /** @var Order|MockObject $orderMock */
         $orderMock = $this->getMockWithoutConstructing(Order::class);
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_ECOMMERCE);
 
@@ -349,7 +347,7 @@ class ApiServiceTest extends BaseTestCase
         /** @var Quote|MockObject $quoteMock */
         $quoteMock = $this->getMockWithoutConstructing(Quote::class);
 
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
 
@@ -371,10 +369,10 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldUpsertProductCatalog(): void
     {
-        /** @var Product|MockObject $quoteMock */
+        /** @var Product|MockObject $productMock */
         $productMock = $this->getMockWithoutConstructing(Product::class);
         $productsToUpsert = [$this->getMockWithoutConstructing(GrProduct::class)];
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_ECOMMERCE);
 
@@ -398,10 +396,10 @@ class ApiServiceTest extends BaseTestCase
      */
     public function shouldNotUpsertProductCatalog(): void
     {
-        /** @var Product|MockObject $quoteMock */
+        /** @var Product|MockObject $productMock */
         $productMock = $this->getMockWithoutConstructing(Product::class);
 
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_CONTACT);
 
@@ -428,7 +426,7 @@ class ApiServiceTest extends BaseTestCase
         /** @var Subscriber|MockObject $subscriberMock */
         $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
 
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_CONTACT);
 
@@ -453,7 +451,7 @@ class ApiServiceTest extends BaseTestCase
         /** @var Subscriber|MockObject $subscriberMock */
         $subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
 
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $liveSynchronization = new LiveSynchronization(true, self::CALLBACK_URL, LiveSynchronization::TYPE_PRODUCT);
 

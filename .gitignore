@@ -1,4 +1,8 @@
 vendor
 composer.lock
 .idea
-/auth.json
+.php72-deps-installed.cache
+.php83-deps-installed.cache
+auth.json
+Test/.phpunit.result.cache
+tmp

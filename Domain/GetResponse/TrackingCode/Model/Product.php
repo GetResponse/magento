@@ -15,8 +15,15 @@ class Product
     /** @var array<Category> */
     private $categories;
 
-    public function __construct(int $id, string $name, float $price, string $sku, string $currency, int $quantity, array $categories)
-    {
+    public function __construct(
+        int $id,
+        string $name,
+        float $price,
+        string $sku,
+        string $currency,
+        int $quantity,
+        array $categories
+    ) {
         $this->id         = $id;
         $this->name       = $name;
         $this->price      = $price;
@@ -26,11 +33,13 @@ class Product
         $this->categories = $categories;
     }
 
-    public function getCategories(): array {
+    public function getCategories(): array
+    {
         return $this->categories;
     }
 
-    public function getQuantity(): int {
+    public function getQuantity(): int
+    {
         return $this->quantity;
     }
 

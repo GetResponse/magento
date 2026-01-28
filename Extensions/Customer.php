@@ -31,7 +31,6 @@ class Customer
         CustomerInterface $customer,
         ?CustomerExtensionInterface $extension = null
     ): ?CustomerExtensionInterface {
-
         if (null === $extension) {
             $extension = $this->extensionFactory->create();
         }

@@ -40,7 +40,6 @@ class CartFactory
         $lines = [];
 
         foreach ($quote->getAllVisibleItems() as $item) {
-
             $quantityOptions = $item->getQtyOptions();
 
             if (count($quantityOptions) > 0) {

@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Api\Controller;
 
 use Exception;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Framework\Phrase;
 use Magento\Framework\Webapi\Exception as WebapiException;
+use RuntimeException;
 
 abstract class ApiController
 {
@@ -29,11 +29,9 @@ abstract class ApiController
 
     /**
      * This method initializes properties used in controllers.
-     * @param string $scope
-     * @return void
      * @throws WebapiException
      */
-    public function verifyScope(string $scope): void
+    public function verifyScope(int $scope): void
     {
         if (empty($scope)) {
             throw new WebapiException(new Phrase('Missing scope.'));
@@ -43,20 +41,7 @@ abstract class ApiController
             throw new WebapiException(new Phrase('Incorrect scope.'));
         }
 
-        $this->scope = new Scope($scope);
-    }
-
-    /**
-     * @throws WebapiException
-     * @return void
-     */
-    public function verifyPluginMode(): void
-    {
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-
-        if (!$pluginMode->isNewVersion()) {
-            throw new WebapiException(new Phrase('Incorrect plugin mode'));
-        }
+        $this->scope = Scope::createFromStoreId($scope);
     }
 
     /**
@@ -65,6 +50,6 @@ abstract class ApiController
      */
     public function execute(): void
     {
-        throw new Exception('Method not implemented.');
+        throw new RuntimeException('Method not implemented.');
     }
 }

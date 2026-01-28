@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Test\Unit\Observer;
 
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GetResponse\GetResponseIntegration\Observer\CustomerAddressSaveAfterObject;
@@ -18,8 +16,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 class CustomerAddressSaveAfterObjectTest extends BaseTestCase
 {
-    /** @var Repository|MockObject */
-    private $repositoryMock;
     /** @var ApiService|MockObject */
     private $apiServiceMock;
     /** @var CustomerAddressSaveAfterObject */
@@ -29,10 +25,9 @@ class CustomerAddressSaveAfterObjectTest extends BaseTestCase
     {
         /** @var Logger|MockObject $logger */
         $logger = $this->getMockWithoutConstructing(Logger::class);
-        $this->repositoryMock = $this->getMockWithoutConstructing(Repository::class);
         $this->apiServiceMock = $this->getMockWithoutConstructing(ApiService::class);
 
-        $this->sut = new CustomerAddressSaveAfterObject($logger, $this->repositoryMock, $this->apiServiceMock);
+        $this->sut = new CustomerAddressSaveAfterObject($logger, $this->apiServiceMock);
     }
 
     /**
@@ -55,29 +50,10 @@ class CustomerAddressSaveAfterObjectTest extends BaseTestCase
 
         $observerMock->method('getCustomerAddress')->willReturn($addressMock);
 
-        $this->repositoryMock->expects(self::once())->method('getPluginMode')->willReturn(PluginMode::MODE_NEW);
-
         $this->apiServiceMock
             ->expects(self::once())
             ->method('upsertCustomerAddress')
-            ->with($addressModelMock, new Scope($storeId));
-
-        $this->sut->execute($observerMock);
-    }
-
-    /**
-     * @test
-     */
-    public function shouldNotUpdateCustomerAddressWhenOldPluginVersion(): void
-    {
-        /** @var Observer|MockObject $observerMock */
-        $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getCustomerAddress']);
-
-        $this->repositoryMock->expects(self::once())->method('getPluginMode')->willReturn(PluginMode::MODE_OLD);
-
-        $this->apiServiceMock
-            ->expects(self::never())
-            ->method('upsertCustomerAddress');
+            ->with($addressModelMock, Scope::createFromStoreId($storeId));
 
         $this->sut->execute($observerMock);
     }
@@ -102,8 +78,6 @@ class CustomerAddressSaveAfterObjectTest extends BaseTestCase
         $observerMock = $this->getMockWithoutConstructing(Observer::class, [], ['getCustomerAddress']);
 
         $observerMock->method('getCustomerAddress')->willReturn($addressMock);
-
-        $this->repositoryMock->expects(self::once())->method('getPluginMode')->willReturn(PluginMode::MODE_NEW);
 
         $this->apiServiceMock
             ->expects(self::never())

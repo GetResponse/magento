@@ -8,26 +8,17 @@
                 </item>
             </argument>
             <argument name="sectionSourceMap" xsi:type="array">
-                <item name="getresponse-recommendation" xsi:type="string">
+                <item name="getresponse-wishlist" xsi:type="string">
                     GetResponse\GetResponseIntegration\CustomerData\TrackingCode\WishListSectionSource
                 </item>
             </argument>
         </arguments>
     </type>
-    <type name="Magento\Cms\Block\Page">
-        <plugin name="getresponse-recommendation-homepage-view" type="GetResponse\GetResponseIntegration\CustomerData\Recommendation\HomePageView"/>
-        <plugin name="getresponse-recommendation-blog-view" type="GetResponse\GetResponseIntegration\CustomerData\Recommendation\BlogPageView"/>
-    </type>
     <type name="Magento\Catalog\Block\Product\View">
         <plugin name="getresponse-product-view" type="GetResponse\GetResponseIntegration\CustomerData\TrackingCode\ProductView"/>
-        <plugin name="getresponse-recommendation-product-view" type="GetResponse\GetResponseIntegration\CustomerData\Recommendation\ProductView"/>
     </type>
     <type name="Magento\Catalog\Block\Category\View">
         <plugin name="getresponse-category-view" type="GetResponse\GetResponseIntegration\CustomerData\TrackingCode\CategoryView"/>
-        <plugin name="getresponse-recommendation-category-view" type="GetResponse\GetResponseIntegration\CustomerData\Recommendation\CategoryView"/>
-    </type>
-    <type name="Magento\Checkout\Block\Cart">
-        <plugin name="getresponse-recommendation-cart-view" type="GetResponse\GetResponseIntegration\CustomerData\Recommendation\CartView"/>
     </type>
     <type name="Magento\Framework\App\RouterList">
         <arguments>

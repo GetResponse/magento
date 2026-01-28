@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\CustomerData\TrackingCode;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
+use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Helper\CspNonceProviderFactory;
 use GetResponse\GetResponseIntegration\Helper\NullCspNonceProvider;
-use Magento\Csp\Helper\CspNonceProvider;
 use Magento\Framework\DataObject\IdentityInterface as Subject;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
+use Magento\Framework\View\Element\AbstractBlock;
 
 abstract class TrackingCodeView
 {
@@ -27,13 +26,10 @@ abstract class TrackingCodeView
 
     protected function isAllowed(Subject $subject, int $scopeId): bool
     {
-        $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
         $webEventTracking = WebEventTracking::createFromRepository($this->repository->getWebEventTracking($scopeId));
 
-        return
-            $pluginMode->isNewVersion()
-            && $webEventTracking->isFeatureTrackingEnabled()
-            && $subject->getNameInLayout() === $this->getBlockName();
+        /** @var AbstractBlock $subject */
+        return $webEventTracking->isFeatureTrackingEnabled() && $subject->getNameInLayout() === $this->getBlockName();
     }
 
     protected function getGetresponseShopId(int $scopeId): ?string

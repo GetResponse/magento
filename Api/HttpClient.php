@@ -9,8 +9,6 @@ use JsonSerializable;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\Module\ModuleListInterface;
-use Magento\Framework\App\ProductMetadataInterface;
 
 class HttpClient
 {
@@ -20,24 +18,17 @@ class HttpClient
     private $curl;
     private $jsonHelper;
     private $storeManager;
-    private $moduleList;
-    private $productMetadata;
     private $platformVersionProvider;
 
     public function __construct(
         Curl $curl,
         SerializerInterface $jsonHelper,
         StoreManagerInterface $storeManager,
-        ModuleListInterface $moduleList,
-        ProductMetadataInterface $productMetadata,
         PlatformVersionProvider $platformVersionProvider
-    )
-    {
+    ) {
         $this->curl = $curl;
         $this->jsonHelper = $jsonHelper;
         $this->storeManager = $storeManager;
-        $this->moduleList = $moduleList;
-        $this->productMetadata = $productMetadata;
         $this->platformVersionProvider = $platformVersionProvider;
     }
 
@@ -56,7 +47,9 @@ class HttpClient
     {
         $this->curl->setHeaders($this->buildHeaders($object)->toArray());
 
-        $method === self::POST ? $this->curl->post($url, $this->jsonHelper->serialize($object)) : $this->curl->get($url);
+        $method === self::POST
+            ? $this->curl->post($url, $this->jsonHelper->serialize($object))
+            : $this->curl->get($url);
 
         if (299 < $this->curl->getStatus()) {
             throw HttpClientException::createForInvalidCurlResponse($this->curl->getBody(), $this->curl->getStatus());

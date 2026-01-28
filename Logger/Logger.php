@@ -17,7 +17,7 @@ class Logger extends MonologLogger
     {
         if (method_exists(MonologLogger::class, 'notice')) {
             parent::notice($message, $context);
-        } elseif(method_exists(MonologLogger::class, 'addNotice')) {
+        } elseif (method_exists(MonologLogger::class, 'addNotice')) {
             parent::addNotice($message, $context);
         }
     }
@@ -26,7 +26,7 @@ class Logger extends MonologLogger
     {
         if (method_exists(MonologLogger::class, 'error')) {
             parent::error($message, $context);
-        } elseif(method_exists(MonologLogger::class, 'addError')) {
+        } elseif (method_exists(MonologLogger::class, 'addError')) {
             parent::addError($message, $context);
         }
     }

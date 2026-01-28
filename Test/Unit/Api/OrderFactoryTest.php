@@ -14,9 +14,9 @@ use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use GetResponse\GetResponseIntegration\Test\Unit\ApiFaker;
 use Magento\Catalog\Model\Product;
 use Magento\Sales\Api\Data\OrderAddressInterface;
+use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Sales\Model\Order\Item;
 use PHPUnit\Framework\MockObject\MockObject;
-use Magento\Sales\Model\Order as MagentoOrder;
 
 class OrderFactoryTest extends BaseTestCase
 {

@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Presenter\Api\Section;
 
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
-
 class General
 {
     private $pluginVersion;
-    private $pluginMode;
+    private $magentoVersion;
+    private $phpVersion;
 
-    public function __construct(string $pluginVersion, PluginMode $pluginMode)
-    {
+    public function __construct(
+        string $pluginVersion,
+        string $magentoVersion,
+        string $phpVersion
+    ) {
         $this->pluginVersion = $pluginVersion;
-        $this->pluginMode = $pluginMode;
+        $this->magentoVersion = $magentoVersion;
+        $this->phpVersion = $phpVersion;
     }
 
     /**
@@ -30,6 +33,22 @@ class General
      */
     public function getMode(): string
     {
-        return $this->pluginMode->getMode();
+        return 'new';
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhpVersion(): string
+    {
+        return $this->phpVersion;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMagentoVersion(): string
+    {
+        return $this->magentoVersion;
     }
 }

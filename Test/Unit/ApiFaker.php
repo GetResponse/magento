@@ -7,7 +7,6 @@ namespace GetResponse\GetResponseIntegration\Test\Unit;
 use GetResponse\GetResponseIntegration\Api\Address;
 use GetResponse\GetResponseIntegration\Api\Cart;
 use GetResponse\GetResponseIntegration\Api\Customer;
-use GetResponse\GetResponseIntegration\Api\Product;
 use GetResponse\GetResponseIntegration\Domain\Magento\Visitor;
 
 class ApiFaker
@@ -87,21 +86,6 @@ class ApiFaker
             129.99,
             'EUR',
             'http://magento.com/cart/3d938d9ff',
-            '2020-03-22 06:04:22',
-            '2020-03-22 06:04:22'
-        );
-    }
-
-    public static function createProduct(): Product
-    {
-        return new Product(
-            659,
-            'Josef Seibel Men - Graphite',
-            'configurable',
-            'https://magento.com/product/3fu#3fuf9',
-            'product',
-            [],
-            [],
             '2020-03-22 06:04:22',
             '2020-03-22 06:04:22'
         );

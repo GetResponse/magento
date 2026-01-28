@@ -17,11 +17,11 @@ use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Test\BaseTestCase;
 use Magento\Catalog\Model\Category as MagentoCategory;
 use Magento\Catalog\Model\CategoryRepository;
+use Magento\Catalog\Model\Product as MagentoProduct;
 use Magento\Catalog\Model\Product\Url;
 use Magento\CatalogInventory\Model\Stock;
 use Magento\Framework\Api\ExtensionAttributesInterface;
 use PHPUnit\Framework\MockObject\MockObject;
-use Magento\Catalog\Model\Product as MagentoProduct;
 
 class ProductFactoryTest extends BaseTestCase
 {
@@ -53,7 +53,7 @@ class ProductFactoryTest extends BaseTestCase
      */
     public function shouldCreateActiveProduct(): void
     {
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $productId = 2002;
         $name = 'TestProduct';
@@ -86,12 +86,16 @@ class ProductFactoryTest extends BaseTestCase
 
         $mediaMock = $this->getMockWithoutConstructing(MagentoProduct\Image::class);
         $mediaMock->method('getData')
-            ->willReturnOnConsecutiveCalls($image->getSrc(), $image->getPosition());
+            ->willReturnOnConsecutiveCalls($image->getPosition(), $image->getSrc());
 
         $stockItemMock = $this->getMockWithoutConstructing(Stock::class, [], ['getQty']);
         $stockItemMock->method('getQty')->willReturn($variantQty);
 
-        $extensionAttributesMock = $this->getMockWithoutConstructing(ExtensionAttributesInterface::class, [], ['getStockItem']);
+        $extensionAttributesMock = $this->getMockWithoutConstructing(
+            ExtensionAttributesInterface::class,
+            [],
+            ['getStockItem']
+        );
         $extensionAttributesMock->method('getStockItem')->willReturn($stockItemMock);
 
         /** @var MagentoProduct|MockObject $magentoProductMock */
@@ -176,7 +180,7 @@ class ProductFactoryTest extends BaseTestCase
      */
     public function shouldCreateInactiveProduct(): void
     {
-        $scope = new Scope(1);
+        $scope = Scope::createFromStoreId(1);
 
         $productId = 2002;
         $name = 'TestProduct';
@@ -209,12 +213,16 @@ class ProductFactoryTest extends BaseTestCase
 
         $mediaMock = $this->getMockWithoutConstructing(MagentoProduct\Image::class);
         $mediaMock->method('getData')
-            ->willReturnOnConsecutiveCalls($image->getSrc(), $image->getPosition());
+            ->willReturnOnConsecutiveCalls($image->getPosition(), $image->getSrc());
 
         $stockItemMock = $this->getMockWithoutConstructing(Stock::class, [], ['getQty']);
         $stockItemMock->method('getQty')->willReturn($variantQty);
 
-        $extensionAttributesMock = $this->getMockWithoutConstructing(ExtensionAttributesInterface::class, [], ['getStockItem']);
+        $extensionAttributesMock = $this->getMockWithoutConstructing(
+            ExtensionAttributesInterface::class,
+            [],
+            ['getStockItem']
+        );
         $extensionAttributesMock->method('getStockItem')->willReturn($stockItemMock);
 
         /** @var MagentoProduct|MockObject $magentoProductMock */

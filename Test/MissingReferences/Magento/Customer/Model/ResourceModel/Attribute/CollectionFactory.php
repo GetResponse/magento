@@ -15,5 +15,4 @@ class CollectionFactory
     {
         return new Collection();
     }
-
 }

@@ -9,7 +9,7 @@ use Magento\Catalog\Block\Category\View as Subject;
 
 class CategoryView extends TrackingCodeView
 {
-    const DISPLAY_BLOCK = 'category.cms';
+    public const DISPLAY_BLOCK = 'category.cms';
 
     public function afterToHtml(Subject $subject, string $html): string
     {
@@ -25,7 +25,12 @@ class CategoryView extends TrackingCodeView
             'name' => $category->getName()
         ];
 
-        $html .= JavaScriptTag::generateForConst('GrViewCategoryItem', json_encode($payload), $this->cspNonceProvider->generateNonce());
+        $html .= JavaScriptTag::generateForConst(
+            'GrViewCategoryItem',
+            json_encode($payload),
+            $this->cspNonceProvider->generateNonce()
+        );
+
         return $html;
     }
 

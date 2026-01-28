@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Test\Unit\Api;
 
-use Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory;
 use GetResponse\GetResponseIntegration\Api\AddressFactory;
 use GetResponse\GetResponseIntegration\Api\Customer;
 use GetResponse\GetResponseIntegration\Api\CustomerFactory;
@@ -14,30 +13,31 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Newsletter\Model\ResourceModel\Subscriber\Collection;
+use Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory;
 use Magento\Newsletter\Model\Subscriber;
-use PHPUnit\Framework\MockObject\MockObject;
 use Magento\Sales\Model\Order as MagentoOrder;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class CustomerFactoryTest extends BaseTestCase
 {
-    /** @var CustomerRepositoryInterface|MockObject */
+    /** @var CustomerRepositoryInterface&MockObject */
     private $customerRepositoryMock;
-    /** @var Subscriber|MockObject */
+    /** @var Subscriber&MockObject */
     private $subscriberMock;
-    /** @var AddressFactory|MockObject */
+    /** @var AddressFactory&MockObject */
     private $addressFactoryMock;
+
     /** @var CustomerFactory */
     private $sut;
-    /** @var CollectionFactory|MockObject */
-    private $subscriberCollectionFactory;
 
     protected function setUp(): void
     {
-        $this->customerRepositoryMock = $this->getMockWithoutConstructing(CustomerRepositoryInterface::class);
-        $this->subscriberMock = $this->getMockWithoutConstructing(Subscriber::class);
-        $this->addressFactoryMock = $this->getMockWithoutConstructing(AddressFactory::class);
+        $this->customerRepositoryMock = $this->createMock(CustomerRepositoryInterface::class);
+        $this->subscriberMock = $this->createMock(Subscriber::class);
+        $this->addressFactoryMock = $this->createMock(AddressFactory::class);
 
-        $this->subscriberCollectionFactory = $this->getMockWithoutConstructing(CollectionFactory::class, ['create']);
+        /** @var CollectionFactory&MockObject $subscriberCollectionFactory */
+        $subscriberCollectionFactory = $this->getMockWithoutConstructing(CollectionFactory::class, ['create']);
         $collectionMock = $this->createPartialMock(Collection::class, ['addFieldToFilter', 'getFirstItem']);
         $collectionMock
             ->method('addFieldToFilter')
@@ -45,14 +45,14 @@ class CustomerFactoryTest extends BaseTestCase
         $collectionMock
             ->method('getFirstItem')
             ->willReturn($this->subscriberMock);
-        $this->subscriberCollectionFactory
+        $subscriberCollectionFactory
             ->method('create')
             ->willReturn($collectionMock);
 
         $this->sut = new CustomerFactory(
             $this->customerRepositoryMock,
             $this->addressFactoryMock,
-            $this->subscriberCollectionFactory
+            $subscriberCollectionFactory
         );
     }
 
@@ -390,7 +390,7 @@ class CustomerFactoryTest extends BaseTestCase
         $subscriberMock->method('isSubscribed')->willReturn(true);
         $subscriberMock->method('getCustomerId')->willReturn($customerId);
 
-        /** @var AddressInterface|MockObject $orderMock */
+        /** @var AddressInterface|MockObject $addressMock */
         $addressMock = $this->getMockWithoutConstructing(AddressInterface::class);
         $addressMock->method('getCustomerId')->willReturn($customerId);
 

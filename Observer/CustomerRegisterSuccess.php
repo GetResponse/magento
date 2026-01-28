@@ -6,7 +6,6 @@ namespace GetResponse\GetResponseIntegration\Observer;
 
 use Exception;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
@@ -35,21 +34,19 @@ class CustomerRegisterSuccess implements ObserverInterface
         $this->logger = $logger;
     }
 
-    public function execute(Observer $observer): CustomerRegisterSuccess
+    public function execute(Observer $observer): self
     {
         try {
-            $pluginMode = PluginMode::createFromRepository($this->repository->getPluginMode());
-            if (!$pluginMode->isNewVersion()) {
-                return $this;
-            }
-            if (null === $observer->getCustomer()) {
+            $customer = $observer->getCustomer();
+
+            if (null === $customer) {
                 $this->logger->addNotice('Customer in observer is empty', [
                     'observerName' => $observer->getName(),
                     'eventName' => $observer->getEventName(),
                 ]);
                 return $this;
             }
-            $scope = new Scope($observer->getCustomer()->getStoreId());
+            $scope = Scope::createFromStoreId($customer->getStoreId());
             $liveSynchronization = LiveSynchronization::createFromRepository(
                 $this->repository->getLiveSynchronization($scope->getScopeId())
             );
@@ -60,8 +57,7 @@ class CustomerRegisterSuccess implements ObserverInterface
 
             $subscriptionOption = $this->request->getParam('is_subscribed');
             if ((int)$subscriptionOption === Subscriber::STATUS_SUBSCRIBED) {
-                $customerId = (int)$observer->getCustomer()->getId();
-                $this->magentoSubscriber->subscribeCustomerById($customerId);
+                $this->magentoSubscriber->subscribeCustomerById($customer->getId());
             }
         } catch (Exception $e) {
             $this->logger->addError($e->getMessage(), ['exception' => $e]);

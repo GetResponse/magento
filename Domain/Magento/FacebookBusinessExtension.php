@@ -35,6 +35,7 @@ class FacebookBusinessExtension implements SnippetInterface
         ];
     }
 
+    // phpcs:ignore
     public static function createFromRepository(array $data): self
     {
         if (empty($data)) {
@@ -50,12 +51,16 @@ class FacebookBusinessExtension implements SnippetInterface
     /**
      * @throws RequestValidationException
      */
+    // phpcs:ignore
     public static function createFromRequest(array $data): self
     {
         if (!isset($data['facebook_business_extension'])) {
             throw RequestValidationException::create('Incorrect Facebook Business Extension params');
         }
 
-        return new self($data['facebook_business_extension']['is_active'], $data['facebook_business_extension']['snippet']);
+        return new self(
+            $data['facebook_business_extension']['is_active'],
+            $data['facebook_business_extension']['snippet']
+        );
     }
 }

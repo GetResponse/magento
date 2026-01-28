@@ -27,7 +27,6 @@ class Order
         $products = [];
 
         foreach ($this->products as $product) {
-
             $categories = [];
 
             foreach ($product->getCategories() as $category) {

@@ -21,9 +21,6 @@
         <observer name="add_cart_to_getresponse" instance="GetResponse\GetResponseIntegration\Observer\CartObserver"/>
     </event>
 
-    <event name="newsletter_subscriber_save_after">
-        <observer name="newsletter_subscriber_save_after" instance="GetResponse\GetResponseIntegration\Observer\SubscribeFromNewsletter"/>
-    </event>
     <event name="customer_register_success">
         <observer name="customer_register_success_getresponse" instance="GetResponse\GetResponseIntegration\Observer\CustomerRegisterSuccess" />
     </event>

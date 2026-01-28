@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Tests\Unit\Observer;
 
+use Exception;
 use GetResponse\GetResponseIntegration\Api\ApiService;
-use GetResponse\GetResponseIntegration\Domain\Magento\PluginMode;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Logger\Logger;
 use GetResponse\GetResponseIntegration\Observer\ProductDeletedObserver;
@@ -14,7 +13,6 @@ use Magento\Catalog\Model\Product;
 use Magento\Framework\Event\Observer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Exception;
 
 class ProductDeletedObserverTest extends TestCase
 {
@@ -24,9 +22,6 @@ class ProductDeletedObserverTest extends TestCase
     /** @var ApiService&MockObject */
     private $apiServiceMock;
 
-    /** @var Repository&MockObject */
-    private $repositoryMock;
-
     /** @var ProductDeletedObserver */
     private $observer;
 
@@ -34,28 +29,8 @@ class ProductDeletedObserverTest extends TestCase
     {
         $this->loggerMock = $this->createMock(Logger::class);
         $this->apiServiceMock = $this->createMock(ApiService::class);
-        $this->repositoryMock = $this->createMock(Repository::class);
 
-        $this->observer = new ProductDeletedObserver(
-            $this->loggerMock,
-            $this->apiServiceMock,
-            $this->repositoryMock
-        );
-    }
-
-    public function testExecuteWhenPluginModeIsNotNewVersion(): void
-    {
-        $observerMock = $this->createMock(Observer::class);
-
-        $this->repositoryMock->expects($this->once())
-            ->method('getPluginMode')
-            ->willReturn(PluginMode::MODE_OLD);
-
-        $this->apiServiceMock->expects($this->never())
-            ->method('deleteProduct');
-
-        $result = $this->observer->execute($observerMock);
-        $this->assertSame($this->observer, $result);
+        $this->observer = new ProductDeletedObserver($this->loggerMock, $this->apiServiceMock);
     }
 
     public function testExecuteWithMultipleStores(): void
@@ -74,16 +49,12 @@ class ProductDeletedObserverTest extends TestCase
             ->method('getWebsiteStoreIds')
             ->willReturn($storeIds);
 
-        $this->repositoryMock->expects($this->once())
-            ->method('getPluginMode')
-            ->willReturn(PluginMode::MODE_NEW);
-
         $this->apiServiceMock->expects($this->exactly(3))
             ->method('deleteProduct')
             ->withConsecutive(
-                [$productMock, new Scope(1)],
-                [$productMock, new Scope(2)],
-                [$productMock, new Scope(3)]
+                [$productMock, Scope::createFromStoreId(1)],
+                [$productMock, Scope::createFromStoreId(2)],
+                [$productMock, Scope::createFromStoreId(3)]
             );
 
         $result = $this->observer->execute($observerMock);
@@ -104,10 +75,6 @@ class ProductDeletedObserverTest extends TestCase
         $productMock->expects($this->once())
             ->method('getWebsiteStoreIds')
             ->willThrowException($exception);
-
-        $this->repositoryMock->expects($this->once())
-            ->method('getPluginMode')
-            ->willReturn(PluginMode::MODE_NEW);
 
         $this->loggerMock->expects($this->once())
             ->method('addError')
