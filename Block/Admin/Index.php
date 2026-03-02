@@ -12,6 +12,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebForm;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Framework\View\Element\Template;
+use Magento\Framework\View\Element\Template\Context;
 
 class Index extends Template
 {
@@ -19,7 +20,7 @@ class Index extends Template
     private Repository $repository;
 
     public function __construct(
-        Template\Context $context,
+        Context $context,
         MagentoStore $magentoStore,
         Repository $repository,
         array $data = []
