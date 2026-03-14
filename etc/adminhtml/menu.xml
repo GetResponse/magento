@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../Magento/Backend/etc/menu.xsd">
     <menu>
-        <add id="GetResponse_GetResponseIntegration" title="GetResponse" module="GetResponse_GetResponseIntegration" sortOrder="100" resource="GetResponse_GetResponseIntegration::index"/>
-        <add id="GetResponse_GetResponseIntegration::index" title="GetResponse Account" module="GetResponse_GetResponseIntegration" sortOrder="100" parent="GetResponse_GetResponseIntegration" action="getresponse/index" resource="GetResponse_GetResponseIntegration::index"/>
+        <add id="GetResponse_GetResponseIntegration::index" title="GetResponse" module="GetResponse_GetResponseIntegration" sortOrder="100" action="getresponse/index" resource="GetResponse_GetResponseIntegration::index"/>
     </menu>
 </config>

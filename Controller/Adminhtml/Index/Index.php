@@ -15,7 +15,7 @@ class Index extends Action
         $pageFactory = $this->_objectManager->get(PageFactory::class);
 
         $resultPage = $pageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend('GetResponse plugin has moved');
+        $resultPage->getConfig()->getTitle()->prepend('GetResponse');
 
         return $resultPage;
     }
