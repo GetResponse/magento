@@ -1,5 +1,9 @@
 # Changelog
 
+## [21.0.1] - 2026-03-04
+### Feat
+- Integration status page updated with more details
+
 ## [21.0.0] - 2025-12-31
 ### Feat
 - Removed old plugin version
