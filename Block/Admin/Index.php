@@ -16,8 +16,10 @@ use Magento\Framework\View\Element\Template\Context;
 
 class Index extends Template
 {
-    private MagentoStore $magentoStore;
-    private Repository $repository;
+    /** @var MagentoStore */
+    private $magentoStore;
+    /** @var Repository */
+    private $repository;
 
     public function __construct(
         Context $context,
