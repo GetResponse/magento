@@ -9,6 +9,7 @@ FILES_TO_DELETE=(
   ".gitattributes"
   ".gitignore"
   ".gitlab-ci.yml"
+  ".junie"
   ".php-cs-fixer.dist.php"
   "compose.yml"
   "deploy.sh"
