@@ -35,7 +35,7 @@ class Customer
             $extension = $this->extensionFactory->create();
         }
 
-        if (false === $customer->getEmail()) {
+        if (empty($customer->getEmail())) {
             return $extension;
         }
 
