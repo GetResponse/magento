@@ -1,4 +1,7 @@
 # Changelog
+## [21.0.2] - 2026-04-15
+### Fix
+- Fixed passing null to string parameter
 
 ## [21.0.1] - 2026-03-04
 ### Feat
