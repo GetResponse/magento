@@ -1,7 +1,7 @@
 # Changelog
 
 ## [21.1.0] - 2026-07-03
-### Feat
+### Feat 
 - Added API endpoint for unsubscribing subscriber by scope and email
 - Removed customer extension
 - Fixed infinite loop when reloading customer section data and added type guard to JSON parsing
