@@ -1,5 +1,9 @@
 # Changelog
 
+## [21.1.1] - 2026-07-10
+### Fix
+- Added fix for packagist tag inconsistency
+
 ## [21.1.0] - 2026-07-03
 ### Feat 
 - Added API endpoint for unsubscribing subscriber by scope and email
