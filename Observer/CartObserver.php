@@ -15,10 +15,18 @@ use Magento\Quote\Model\Quote;
 
 class CartObserver implements ObserverInterface
 {
+    /** @var Logger */
     private $logger;
+    /** @var ApiService */
     private $apiService;
+    /** @var TrackingCodeCartService */
     private $trackingCodeCartService;
 
+    /**
+     * @param Logger $logger
+     * @param ApiService $apiService
+     * @param TrackingCodeCartService $trackingCodeCartService
+     */
     public function __construct(
         Logger $logger,
         ApiService $apiService,
@@ -29,6 +37,11 @@ class CartObserver implements ObserverInterface
         $this->trackingCodeCartService = $trackingCodeCartService;
     }
 
+    /**
+     * Handle execute.
+     *
+     * @param EventObserver $observer
+     */
     public function execute(EventObserver $observer): self
     {
         try {

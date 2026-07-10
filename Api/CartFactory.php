@@ -10,15 +10,27 @@ use Magento\Quote\Model\Quote;
 
 class CartFactory
 {
+    /** @var CartHelper */
     private $cart;
+    /** @var CustomerFactory */
     private $customerFactory;
 
+    /**
+     * @param CartHelper $cart
+     * @param CustomerFactory $customerFactory
+     */
     public function __construct(CartHelper $cart, CustomerFactory $customerFactory)
     {
         $this->cart = $cart;
         $this->customerFactory = $customerFactory;
     }
 
+    /**
+     * Handle create.
+     *
+     * @param Quote $quote
+     * @param ?Visitor $visitor
+     */
     public function create(Quote $quote, ?Visitor $visitor = null): Cart
     {
         return new Cart(
@@ -35,6 +47,11 @@ class CartFactory
         );
     }
 
+    /**
+     * Create lines from quote.
+     *
+     * @param Quote $quote
+     */
     private function createLinesFromQuote(Quote $quote): array
     {
         $lines = [];

@@ -15,12 +15,20 @@ class ProductFactory
 {
     private const PRODUCT_STATUS_ACTIVE = 1;
     private const PRODUCT_INVISIBLE = 1;
-    private const MAX_DESC_LENGTH = 1000;
+    private const MAX_DESC_LENGTH = 10000;
 
+    /** @var CategoryRepository */
     private $categoryRepository;
+    /** @var ProductReadModel */
     private $productReadModel;
+    /** @var ProductType */
     protected $productType;
 
+    /**
+     * @param CategoryRepository $categoryRepository
+     * @param ProductReadModel $productReadModel
+     * @param ProductType $productType
+     */
     public function __construct(
         CategoryRepository $categoryRepository,
         ProductReadModel $productReadModel,
@@ -32,6 +40,10 @@ class ProductFactory
     }
 
     /**
+     * Handle create.
+     *
+     * @param MagentoProduct $product
+     * @param Scope $scope
      * @return Product[]
      */
     public function create(MagentoProduct $product, Scope $scope): array
@@ -47,6 +59,9 @@ class ProductFactory
     }
 
     /**
+     * Get parent products.
+     *
+     * @param MagentoProduct $product
      * @return MagentoProduct[]
      */
     private function getParentProducts(MagentoProduct $product): array
@@ -61,9 +76,10 @@ class ProductFactory
     }
 
     /**
+     * Create from magento product.
+     *
      * @param MagentoProduct $product
      * @param Scope $scope
-     *
      * @return Product
      * @throws NoSuchEntityException
      */
@@ -154,6 +170,13 @@ class ProductFactory
         );
     }
 
+    /**
+     * Get product configurable url.
+     *
+     * @param MagentoProduct $parentProduct
+     * @param MagentoProduct $simpleProduct
+     * @param int $storeId
+     */
     private function getProductConfigurableUrl(
         MagentoProduct $parentProduct,
         MagentoProduct $simpleProduct,
@@ -174,6 +197,11 @@ class ProductFactory
         return $mainUrl . ($options ? '#' . $options : '');
     }
 
+    /**
+     * Get images.
+     *
+     * @param MagentoProduct $product
+     */
     private function getImages(MagentoProduct $product): array
     {
         $images = [];
@@ -187,6 +215,11 @@ class ProductFactory
         return empty($images) ? [] : [reset($images)];
     }
 
+    /**
+     * Get product quantity.
+     *
+     * @param int $productId
+     */
     private function getProductQuantity(int $productId): int
     {
         $product = $this->productReadModel->getProduct(new GetProduct($productId));
@@ -199,6 +232,11 @@ class ProductFactory
         return (int) $extensionAttributes->getStockItem()->getQty();
     }
 
+    /**
+     * Get product status.
+     *
+     * @param MagentoProduct $product
+     */
     private function getProductStatus(MagentoProduct $product): string
     {
         $isStatusActive = (int) $product->getStatus() === self::PRODUCT_STATUS_ACTIVE;
@@ -207,6 +245,11 @@ class ProductFactory
         return $isStatusActive && $isVisible ? Product::STATUS_PUBLISH : Product::STATUS_DRAFT;
     }
 
+    /**
+     * Get product variant status.
+     *
+     * @param MagentoProduct $product
+     */
     private function getProductVariantStatus(MagentoProduct $product): string
     {
         return (int) $product->getStatus() === self::PRODUCT_STATUS_ACTIVE
@@ -214,6 +257,11 @@ class ProductFactory
             : Product::STATUS_DRAFT;
     }
 
+    /**
+     * Get sales price.
+     *
+     * @param MagentoProduct $product
+     */
     private function getSalesPrice(MagentoProduct $product): ?ProductSalePrice
     {
         $price = $product->getSpecialPrice();
@@ -223,13 +271,19 @@ class ProductFactory
         return null !== $price ? new ProductSalePrice((float)$price, $fromDate, $toDate) : null;
     }
 
+    /**
+     * Handle reduce description.
+     *
+     * @param string $description
+     * @param int $maxLength
+     */
     private function reduceDescription(string $description, int $maxLength): string
     {
         $cleanDescription = (string) preg_replace('#<style(.*?)>(.*?)</style>#is', '', $description);
         $cleanDescription = (string) preg_replace('#<script(.*?)>(.*?)</script>#is', '', $cleanDescription);
-        // phpcs:ignore
+        // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
         $cleanDescription = html_entity_decode($cleanDescription, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        // phpcs:ignore
+        // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
         $cleanDescription = html_entity_decode($cleanDescription, ENT_COMPAT);
         $cleanDescription = strip_tags($cleanDescription);
         $cleanDescription = trim($cleanDescription);

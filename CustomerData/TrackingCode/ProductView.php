@@ -15,8 +15,15 @@ use Magento\Catalog\Model\Product;
 class ProductView extends TrackingCodeView
 {
     public const DISPLAY_BLOCK = 'product.info';
+
+    /** @var CategoryRepositoryInterface */
     private $categoryRepository;
 
+    /**
+     * @param Repository $repository
+     * @param CategoryRepositoryInterface $categoryRepository
+     * @param CspNonceProviderFactory $cspNonceProviderFactory
+     */
     public function __construct(
         Repository $repository,
         CategoryRepositoryInterface $categoryRepository,
@@ -26,6 +33,12 @@ class ProductView extends TrackingCodeView
         $this->categoryRepository = $categoryRepository;
     }
 
+    /**
+     * Handle after to html.
+     *
+     * @param Subject $subject
+     * @param string $html
+     */
     public function afterToHtml(Subject $subject, string $html): string
     {
         $product = $subject->getProduct();
@@ -44,6 +57,11 @@ class ProductView extends TrackingCodeView
         return $html;
     }
 
+    /**
+     * Get product payload.
+     *
+     * @param Product $product
+     */
     private function getProductPayload(Product $product): array
     {
         try {
@@ -72,6 +90,9 @@ class ProductView extends TrackingCodeView
         }
     }
 
+    /**
+     * Get block name.
+     */
     protected function getBlockName(): string
     {
         return self::DISPLAY_BLOCK;

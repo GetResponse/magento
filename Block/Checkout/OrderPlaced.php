@@ -11,9 +11,16 @@ use Magento\Framework\View\Element\Template\Context;
 
 class OrderPlaced extends Template
 {
+    /** @var MagentoStore */
     private $magentoStore;
+    /** @var OrderService */
     private $orderService;
 
+    /**
+     * @param Context $context
+     * @param OrderService $orderService
+     * @param MagentoStore $magentoStore
+     */
     public function __construct(
         Context $context,
         OrderService $orderService,
@@ -24,6 +31,9 @@ class OrderPlaced extends Template
         $this->orderService = $orderService;
     }
 
+    /**
+     * Get buffered order.
+     */
     public function getBufferedOrder(): array
     {
         $scope = $this->magentoStore->getCurrentScope();

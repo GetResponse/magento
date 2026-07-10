@@ -9,6 +9,11 @@ use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class AddressFactory
 {
+    /**
+     * Create from customer.
+     *
+     * @param AddressInterface $address
+     */
     public function createFromCustomer(AddressInterface $address): Address
     {
         $street = $address->getStreet();
@@ -31,6 +36,11 @@ class AddressFactory
         );
     }
 
+    /**
+     * Create from order.
+     *
+     * @param OrderAddressInterface $address
+     */
     public function createFromOrder(OrderAddressInterface $address): Address
     {
         $street = $address->getStreet();

@@ -11,6 +11,12 @@ class CategoryView extends TrackingCodeView
 {
     public const DISPLAY_BLOCK = 'category.cms';
 
+    /**
+     * Handle after to html.
+     *
+     * @param Subject $subject
+     * @param string $html
+     */
     public function afterToHtml(Subject $subject, string $html): string
     {
         $category = $subject->getCurrentCategory();
@@ -34,6 +40,9 @@ class CategoryView extends TrackingCodeView
         return $html;
     }
 
+    /**
+     * Get block name.
+     */
     protected function getBlockName(): string
     {
         return self::DISPLAY_BLOCK;

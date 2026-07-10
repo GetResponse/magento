@@ -10,6 +10,9 @@ use Magento\Framework\View\Result\PageFactory;
 
 class Index extends Action
 {
+    /**
+     * Handle execute.
+     */
     public function execute(): Page
     {
         $pageFactory = $this->_objectManager->get(PageFactory::class);

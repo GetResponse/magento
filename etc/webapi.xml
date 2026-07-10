@@ -7,6 +7,12 @@
             <resource ref="Magento_Backend::admin"/>
         </resources>
     </route>
+    <route url="/V1/getresponse/subscribers/:scope/unsubscribe" method="POST">
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\SubscriberControllerInterface" method="unsubscribe"/>
+        <resources>
+            <resource ref="Magento_Backend::admin"/>
+        </resources>
+    </route>
     <route url="/V1/getresponse/configuration" method="GET">
         <service class="GetResponse\GetResponseIntegration\Controller\Api\ConfigurationControllerInterface" method="list"/>
         <resources>

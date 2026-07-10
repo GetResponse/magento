@@ -13,10 +13,18 @@ use Magento\Quote\Model\Quote;
 
 class CartService
 {
+    /** @var CartFactory */
     private $cartFactory;
+    /** @var TrackingCodeBufferService */
     private $service;
+    /** @var Repository */
     private $repository;
 
+    /**
+     * @param CartFactory $cartFactory
+     * @param TrackingCodeBufferService $service
+     * @param Repository $repository
+     */
     public function __construct(CartFactory $cartFactory, TrackingCodeBufferService $service, Repository $repository)
     {
         $this->cartFactory = $cartFactory;
@@ -24,6 +32,12 @@ class CartService
         $this->repository = $repository;
     }
 
+    /**
+     * Handle add to buffer.
+     *
+     * @param Quote $quote
+     * @param Scope $scope
+     */
     public function addToBuffer(Quote $quote, Scope $scope): void
     {
         $webConnect = WebEventTracking::createFromRepository(

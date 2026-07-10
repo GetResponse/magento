@@ -15,9 +15,16 @@ use Magento\Framework\View\Element\Template\Context;
 
 class Header extends Template
 {
+    /** @var Repository */
     private $repository;
+    /** @var MagentoStore */
     private $magentoStore;
 
+    /**
+     * @param Context $context
+     * @param Repository $repository
+     * @param MagentoStore $magentoStore
+     */
     public function __construct(
         Context $context,
         Repository $repository,
@@ -28,6 +35,9 @@ class Header extends Template
         $this->magentoStore = $magentoStore;
     }
 
+    /**
+     * Get tracking data.
+     */
     public function getTrackingData(): array
     {
         return [
@@ -38,6 +48,9 @@ class Header extends Template
         ];
     }
 
+    /**
+     * Handle find tracking code snippet.
+     */
     private function findTrackingCodeSnippet(): ?string
     {
         $webEventTracking = WebEventTracking::createFromRepository(
@@ -53,6 +66,9 @@ class Header extends Template
         return null;
     }
 
+    /**
+     * Handle find facebook pixel snippet.
+     */
     private function findFacebookPixelSnippet(): ?string
     {
         $facebookPixelSettings = FacebookPixel::createFromRepository(
@@ -68,6 +84,9 @@ class Header extends Template
         return null;
     }
 
+    /**
+     * Handle find facebook ads pixel snippet.
+     */
     private function findFacebookAdsPixelSnippet(): ?string
     {
         $facebookPixelSettings = FacebookAdsPixel::createFromRepository(
@@ -83,6 +102,9 @@ class Header extends Template
         return null;
     }
 
+    /**
+     * Handle find facebook business extension snippet.
+     */
     private function findFacebookBusinessExtensionSnippet(): ?string
     {
         $facebookBusinessExtension = FacebookBusinessExtension::createFromRepository(

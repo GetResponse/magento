@@ -4,7 +4,14 @@ namespace GetResponse\GetResponseIntegration\Helper;
 
 class JavaScriptTag
 {
-    // phpcs:ignore
+    /**
+     * Generate script tag for const.
+     *
+     * @param string $const
+     * @param string $payload
+     * @param ?string $nonceValue
+     */
+    // phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Magento2.Annotation.MethodArguments.NoCommentBlock
     public static function generateForConst(string $const, string $payload, ?string $nonceValue): string
     {
         if ($nonceValue === "" || $nonceValue === null) {

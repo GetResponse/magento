@@ -6,13 +6,27 @@ namespace GetResponse\GetResponseIntegration\Api;
 
 class RequestHeaders
 {
+    /** @var string */
     private $shopDomain;
+    /** @var string */
     private $hmac;
+    /** @var string */
     private $timestamp;
+    /** @var string */
     private $platformVersion;
+    /** @var string */
     private $phpVersion;
+    /** @var string */
     private $pluginVersion;
 
+    /**
+     * @param string $shopDomain
+     * @param string $hmac
+     * @param string $timestamp
+     * @param string $platformVersion
+     * @param string $phpVersion
+     * @param string $pluginVersion
+     */
     public function __construct(
         string $shopDomain,
         string $hmac,
@@ -29,6 +43,9 @@ class RequestHeaders
         $this->pluginVersion = $pluginVersion;
     }
 
+    /**
+     * Handle to array.
+     */
     public function toArray(): array
     {
         return [

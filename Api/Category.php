@@ -8,12 +8,24 @@ use JsonSerializable;
 
 class Category implements JsonSerializable
 {
+    /** @var int */
     private $id;
+    /** @var int */
     private $parentId;
+    /** @var string */
     private $name;
+    /** @var bool */
     private $isDefault;
+    /** @var ?string */
     private $url;
 
+    /**
+     * @param int $id
+     * @param int $parentId
+     * @param string $name
+     * @param bool $isDefault
+     * @param ?string $url
+     */
     public function __construct(
         int $id,
         int $parentId,
@@ -28,6 +40,9 @@ class Category implements JsonSerializable
         $this->url = $url;
     }
 
+    /**
+     * Serialize object to JSON data.
+     */
     public function jsonSerialize(): array
     {
         return [

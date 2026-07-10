@@ -10,13 +10,20 @@ class WebTrackingRepository
 {
     public const VISITOR_UUID_COOKIE_NAME = 'gaVisitorUuid';
 
+    /** @var CookieManagerInterface */
     private $cookieManager;
 
+    /**
+     * @param CookieManagerInterface $cookieManager
+     */
     public function __construct(CookieManagerInterface $cookieManager)
     {
         $this->cookieManager = $cookieManager;
     }
 
+    /**
+     * Handle find visitor.
+     */
     public function findVisitor(): ?Visitor
     {
         $uuid = $this->cookieManager->getCookie(self::VISITOR_UUID_COOKIE_NAME);

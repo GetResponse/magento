@@ -8,12 +8,24 @@ use JsonSerializable;
 
 class Line implements JsonSerializable
 {
+    /** @var int */
     private $variantId;
+    /** @var float */
     private $price;
+    /** @var float */
     private $priceTax;
+    /** @var int */
     private $quantity;
+    /** @var string */
     private $sku;
 
+    /**
+     * @param int $variantId
+     * @param float $price
+     * @param float $priceTax
+     * @param int $quantity
+     * @param string $sku
+     */
     public function __construct(
         int $variantId,
         float $price,
@@ -28,31 +40,49 @@ class Line implements JsonSerializable
         $this->sku = $sku;
     }
 
+    /**
+     * Get variant id.
+     */
     public function getVariantId(): int
     {
         return $this->variantId;
     }
 
+    /**
+     * Get price.
+     */
     public function getPrice(): float
     {
         return $this->price;
     }
 
+    /**
+     * Get price tax.
+     */
     public function getPriceTax(): float
     {
         return $this->priceTax;
     }
 
+    /**
+     * Get quantity.
+     */
     public function getQuantity(): int
     {
         return $this->quantity;
     }
 
+    /**
+     * Get sku.
+     */
     public function getSku(): string
     {
         return $this->sku;
     }
 
+    /**
+     * Serialize object to JSON data.
+     */
     public function jsonSerialize(): array
     {
         return [

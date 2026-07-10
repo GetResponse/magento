@@ -8,15 +8,19 @@ use JsonSerializable;
 
 class DeletedProduct implements JsonSerializable
 {
+    /** @var int */
     private $id;
 
+    /**
+     * @param int $id
+     */
     public function __construct(int $id)
     {
         $this->id = $id;
     }
 
     /**
-     * @inheritDoc
+     * Serialize object to JSON data.
      */
     public function jsonSerialize(): array
     {

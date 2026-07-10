@@ -11,17 +11,19 @@ use Magento\Framework\App\RouterInterface;
 class Router implements RouterInterface
 {
     public const ABANDON_CART_ROUTE = 'abandonCart';
-    /**
-     * @var ActionFactory $actionFactory
-     */
+
+    /** @var ActionFactory */
     private $actionFactory;
 
+    /** @param ActionFactory $actionFactory */
     public function __construct(ActionFactory $actionFactory)
     {
         $this->actionFactory = $actionFactory;
     }
 
     /**
+     * Handle match.
+     *
      * @param RequestInterface $request
      * @return ActionInterface|null
      */

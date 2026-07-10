@@ -18,15 +18,33 @@ use Magento\Sales\Model\Order as MagentoOrder;
 
 class ApiService
 {
+    /** @var Repository */
     private $repository;
+    /** @var HttpClient */
     private $httpClient;
+    /** @var CartFactory */
     private $cartFactory;
+    /** @var OrderFactory */
     private $orderFactory;
+    /** @var ProductFactory */
     private $productFactory;
+    /** @var CustomerFactory */
     private $customerFactory;
+    /** @var SubscriberFactory */
     private $subscriberFactory;
+    /** @var WebTrackingRepository */
     private $webTrackingRepository;
 
+    /**
+     * @param Repository $repository
+     * @param HttpClient $httpClient
+     * @param CartFactory $cartFactory
+     * @param OrderFactory $orderFactory
+     * @param ProductFactory $productFactory
+     * @param CustomerFactory $customerFactory
+     * @param SubscriberFactory $subscriberFactory
+     * @param WebTrackingRepository $webTrackingRepository
+     */
     public function __construct(
         Repository $repository,
         HttpClient $httpClient,
@@ -48,6 +66,10 @@ class ApiService
     }
 
     /**
+     * Handle upsert customer address.
+     *
+     * @param AddressInterface $address
+     * @param Scope $scope
      * @throws HttpClientException
      */
     public function upsertCustomerAddress(AddressInterface $address, Scope $scope): void
@@ -67,6 +89,10 @@ class ApiService
     }
 
     /**
+     * Handle upsert customer.
+     *
+     * @param CustomerInterface $customer
+     * @param Scope $scope
      * @throws HttpClientException
      */
     public function upsertCustomer(CustomerInterface $customer, Scope $scope): void
@@ -86,6 +112,10 @@ class ApiService
     }
 
     /**
+     * Handle upsert customer subscription.
+     *
+     * @param Subscriber $subscriber
+     * @param Scope $scope
      * @throws HttpClientException
      */
     public function upsertCustomerSubscription(Subscriber $subscriber, Scope $scope): void
@@ -105,6 +135,10 @@ class ApiService
     }
 
     /**
+     * Create cart.
+     *
+     * @param Quote $quote
+     * @param Scope $scope
      * @throws HttpClientException
      */
     public function createCart(Quote $quote, Scope $scope): void
@@ -135,6 +169,10 @@ class ApiService
     }
 
     /**
+     * Create order.
+     *
+     * @param MagentoOrder $order
+     * @param Scope $scope
      * @throws HttpClientException
      */
     public function createOrder(MagentoOrder $order, Scope $scope): void
@@ -154,6 +192,10 @@ class ApiService
     }
 
     /**
+     * Handle update order.
+     *
+     * @param MagentoOrder $order
+     * @param Scope $scope
      * @throws HttpClientException
      */
     public function updateOrder(MagentoOrder $order, Scope $scope): void
@@ -173,6 +215,10 @@ class ApiService
     }
 
     /**
+     * Handle upsert product catalog.
+     *
+     * @param MagentoProduct $product
+     * @param Scope $scope
      * @throws HttpClientException
      */
     public function upsertProductCatalog(MagentoProduct $product, Scope $scope): void
@@ -192,6 +238,12 @@ class ApiService
         }
     }
 
+    /**
+     * Handle delete product.
+     *
+     * @param MagentoProduct $product
+     * @param Scope $scope
+     */
     public function deleteProduct(MagentoProduct $product, Scope $scope): void
     {
         $liveSynchronization = LiveSynchronization::createFromRepository(
@@ -206,6 +258,12 @@ class ApiService
         $this->httpClient->post($callbackUrl, new DeletedProduct((int)$product->getId()));
     }
 
+    /**
+     * Handle upsert subscriber.
+     *
+     * @param Subscriber $subscriber
+     * @param Scope $scope
+     */
     public function upsertSubscriber(Subscriber $subscriber, Scope $scope): void
     {
         $liveSynchronization = LiveSynchronization::createFromRepository(

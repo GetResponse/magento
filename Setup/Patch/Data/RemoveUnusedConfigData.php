@@ -2,41 +2,50 @@
 
 declare(strict_types=1);
 
-namespace GetResponse\GetResponseIntegration\Setup;
+namespace GetResponse\GetResponseIntegration\Setup\Patch\Data;
 
 use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\App\Cache\Type\Config as FrameworkCacheType;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
-use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Magento\Framework\Setup\UpgradeDataInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\PageCache\Model\Cache\Type as PageCacheType;
 use Magento\Store\Model\Store;
 
-class UpgradeData implements UpgradeDataInterface
+class RemoveUnusedConfigData implements DataPatchInterface
 {
+    /** @var ModuleDataSetupInterface */
+    private $moduleDataSetup;
+
+    /** @var WriterInterface */
     private $configWriter;
+
+    /** @var Manager */
     private $cacheManager;
 
+    /**
+     * @param ModuleDataSetupInterface $moduleDataSetup
+     * @param WriterInterface $configWriter
+     * @param Manager $cacheManager
+     */
     public function __construct(
+        ModuleDataSetupInterface $moduleDataSetup,
         WriterInterface $configWriter,
         Manager $cacheManager
     ) {
+        $this->moduleDataSetup = $moduleDataSetup;
         $this->configWriter = $configWriter;
         $this->cacheManager = $cacheManager;
     }
 
-    public function upgrade(
-        ModuleDataSetupInterface $setup,
-        ModuleContextInterface $context
-    ): void {
-        $this->cleanupDatabase();
-    }
-
-    // phpcs:ignore
-    private function cleanupDatabase(): void
+    /**
+     * Remove unused integration config values.
+     */
+    public function apply(): self
     {
+        $this->moduleDataSetup->startSetup();
+
         $coreConfigDataToRemove = [
             'getresponse/shop/status',
             'getresponse/shop/id',
@@ -60,5 +69,25 @@ class UpgradeData implements UpgradeDataInterface
             FrameworkCacheType::TYPE_IDENTIFIER,
             PageCacheType::TYPE_IDENTIFIER
         ]);
+
+        $this->moduleDataSetup->endSetup();
+
+        return $this;
+    }
+
+    /**
+     * Return patch dependencies.
+     */
+    public static function getDependencies(): array
+    {
+        return [];
+    }
+
+    /**
+     * Return patch aliases.
+     */
+    public function getAliases(): array
+    {
+        return [];
     }
 }

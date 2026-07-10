@@ -1,4 +1,15 @@
 # Changelog
+
+## [21.1.0] - 2026-07-03
+### Feat
+- Added API endpoint for unsubscribing subscriber by scope and email
+- Removed customer extension
+- Fixed infinite loop when reloading customer section data and added type guard to JSON parsing
+- Fixed configuration save timeouts by clearing the cache once instead of on every saved property
+- CSS cleanup
+- Frontend events improvements
+- Cache configuration improvements
+
 ## [21.0.2] - 2026-04-15
 ### Fix
 - Fixed passing null to string parameter

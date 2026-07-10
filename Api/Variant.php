@@ -8,24 +8,57 @@ use JsonSerializable;
 
 class Variant implements JsonSerializable
 {
+    /** @var int */
     private $id;
+    /** @var string */
     private $name;
+    /** @var string */
     private $sku;
+    /** @var float */
     private $price;
+    /** @var float */
     private $priceTax;
+    /** @var ?float */
     private $previousPrice;
+    /** @var ?float */
     private $previousPriceTax;
+    /** @var int */
     private $quantity;
+    /** @var string */
     private $url;
+    /** @var ?int */
     private $position;
+    /** @var ?int */
     private $barcode;
+    /** @var string */
     private $description;
+    /** @var string */
     private $shortDescription;
     /** @var null|Image[] */
     private $images;
+    /** @var string */
     private $status;
+    /** @var ?ProductSalePrice */
     private $salePrice;
 
+    /**
+     * @param int $id
+     * @param string $name
+     * @param string $sku
+     * @param float $price
+     * @param float $priceTax
+     * @param ?float $previousPrice
+     * @param ?float $previousPriceTax
+     * @param int $quantity
+     * @param string $url
+     * @param ?int $position
+     * @param ?int $barcode
+     * @param string $description
+     * @param string $shortDescription
+     * @param ?array $images
+     * @param string $status
+     * @param ?ProductSalePrice $salePrice
+     */
     public function __construct(
         int $id,
         string $name,
@@ -62,6 +95,9 @@ class Variant implements JsonSerializable
         $this->salePrice = $salePrice;
     }
 
+    /**
+     * Serialize object to JSON data.
+     */
     public function jsonSerialize(): array
     {
         $images = [];

@@ -6,13 +6,20 @@ namespace GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\Qu
 
 class GetProduct
 {
+    /** @var mixed */
     private $id;
 
+    /**
+     * @param mixed $id
+     */
     public function __construct($id)
     {
         $this->id = $id;
     }
 
+    /**
+     * Get id.
+     */
     public function getId(): int
     {
         return (int) $this->id;

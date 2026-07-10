@@ -15,36 +15,33 @@ use Magento\Quote\Model\QuoteFactory;
 
 class AbandonedCart extends Action implements HttpGetActionInterface
 {
-    /**
-     * @var Cart
-     */
+    /** @var Cart */
     protected $cart;
 
-    /**
-     * @var ManagerInterface
-     */
+    /** @var ManagerInterface */
     protected $messageManager;
 
-    /**
-     * @var UrlInterface
-     */
+    /** @var UrlInterface */
     protected $url;
 
-    /**
-     * @var Session
-     */
+    /** @var Session */
     protected $checkoutSession;
 
-    /**
-     * @var QuoteFactory
-     */
+    /** @var QuoteFactory */
     protected $quoteFactory;
 
-    /**
-     * @var CartIdEncryptor
-     */
+    /** @var CartIdEncryptor */
     protected $cartIdEncryptor;
 
+    /**
+     * @param Context $context
+     * @param Cart $cart
+     * @param ManagerInterface $messageManager
+     * @param UrlInterface $url
+     * @param Session $checkoutSession
+     * @param QuoteFactory $quoteFactory
+     * @param CartIdEncryptor $cartIdEncryptor
+     */
     public function __construct(
         Context $context,
         Cart $cart,
@@ -63,6 +60,9 @@ class AbandonedCart extends Action implements HttpGetActionInterface
         $this->cartIdEncryptor = $cartIdEncryptor;
     }
 
+    /**
+     * Handle execute.
+     */
     public function execute()
     {
         $params = $this->getRequest()->getParams();
@@ -74,6 +74,11 @@ class AbandonedCart extends Action implements HttpGetActionInterface
         return $this->_redirect($this->url->getUrl('noroute'));
     }
 
+    /**
+     * Handle execute with cart id.
+     *
+     * @param string $cartId
+     */
     private function executeWithCartId(string $cartId): ResponseInterface
     {
         $cartId = $this->cartIdEncryptor->decrypt($cartId);

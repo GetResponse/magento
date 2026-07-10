@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="order.success.additional.info">
+            <block name="getresponse.order.placed"
+                   class="GetResponse\GetResponseIntegration\Block\Checkout\OrderPlaced"
+                   template="GetResponse_GetResponseIntegration::checkout/order_placed.phtml" cacheable="false"
+            />
+        </referenceContainer>
+    </body>
+</page>

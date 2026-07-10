@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api\Controller;
 
+use GetResponse\GetResponseIntegration\Application\Magento\Newsletter\NewsletterUnsubscribeService;
 use GetResponse\GetResponseIntegration\Controller\Api\SubscriberControllerInterface;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
@@ -15,17 +16,34 @@ use Magento\Newsletter\Model\Subscriber as SubscriberModel;
  */
 class SubscriberController extends ApiController implements SubscriberControllerInterface
 {
+    /** @var CollectionFactory */
     private $subscriberCollectionFactory;
+    /** @var NewsletterUnsubscribeService */
+    private $newsletterUnsubscribeService;
 
+    /**
+     * @param Repository $repository
+     * @param MagentoStore $magentoStore
+     * @param CollectionFactory $subscriberCollectionFactory
+     * @param NewsletterUnsubscribeService $newsletterUnsubscribeService
+     */
     public function __construct(
         Repository $repository,
         MagentoStore $magentoStore,
-        CollectionFactory $subscriberCollectionFactory
+        CollectionFactory $subscriberCollectionFactory,
+        NewsletterUnsubscribeService $newsletterUnsubscribeService
     ) {
         parent::__construct($repository, $magentoStore);
         $this->subscriberCollectionFactory = $subscriberCollectionFactory;
+        $this->newsletterUnsubscribeService = $newsletterUnsubscribeService;
     }
 
+    /**
+     * Handle list.
+     *
+     * @param int $pageSize
+     * @param int $currentPage
+     */
     public function list(int $pageSize, int $currentPage): array
     {
         $collection = [];
@@ -50,5 +68,19 @@ class SubscriberController extends ApiController implements SubscriberController
         }
 
         return $collection;
+    }
+
+    /**
+     * Handle unsubscribe.
+     *
+     * @param string $scope
+     * @param string $email
+     */
+    public function unsubscribe(string $scope, string $email): void
+    {
+        $scope = (int) $scope;
+        $this->verifyScope($scope);
+
+        $this->newsletterUnsubscribeService->unsubscribe($email, $scope);
     }
 }

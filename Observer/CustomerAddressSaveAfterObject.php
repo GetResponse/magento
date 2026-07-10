@@ -14,15 +14,26 @@ use Magento\Framework\Event\ObserverInterface;
 
 class CustomerAddressSaveAfterObject implements ObserverInterface
 {
+    /** @var Logger */
     private $logger;
+    /** @var ApiService */
     private $apiService;
 
+    /**
+     * @param Logger $logger
+     * @param ApiService $apiService
+     */
     public function __construct(Logger $logger, ApiService $apiService)
     {
         $this->logger = $logger;
         $this->apiService = $apiService;
     }
 
+    /**
+     * Handle execute.
+     *
+     * @param Observer $observer
+     */
     public function execute(Observer $observer): CustomerAddressSaveAfterObject
     {
         try {

@@ -8,11 +8,21 @@ use RuntimeException;
 
 class WebEventTracking implements SnippetInterface
 {
+    /** @var bool */
     private $isEnabled;
+    /** @var bool */
     private $isFeatureTrackingEnabled;
+    /** @var string */
     private $codeSnippet;
+    /** @var ?string */
     private $getresponseShopId;
 
+    /**
+     * @param bool $isEnabled
+     * @param bool $isFeatureTrackingEnabled
+     * @param string $codeSnippet
+     * @param ?string $getresponseShopId
+     */
     public function __construct(
         bool $isEnabled,
         bool $isFeatureTrackingEnabled,
@@ -25,26 +35,41 @@ class WebEventTracking implements SnippetInterface
         $this->getresponseShopId = $getresponseShopId;
     }
 
+    /**
+     * Check active.
+     */
     public function isActive(): bool
     {
         return $this->isEnabled;
     }
 
+    /**
+     * Get code snippet.
+     */
     public function getCodeSnippet(): string
     {
         return $this->codeSnippet;
     }
 
+    /**
+     * Get getresponse shop id.
+     */
     public function getGetresponseShopId(): ?string
     {
         return $this->getresponseShopId;
     }
 
+    /**
+     * Check feature tracking enabled.
+     */
     public function isFeatureTrackingEnabled(): bool
     {
         return $this->isFeatureTrackingEnabled;
     }
 
+    /**
+     * Handle to array.
+     */
     public function toArray(): array
     {
         return [
@@ -55,7 +80,12 @@ class WebEventTracking implements SnippetInterface
         ];
     }
 
-    // phpcs:ignore
+    /**
+     * Create from repository.
+     *
+     * @param array $data
+     */
+    // phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Magento2.Annotation.MethodArguments.NoCommentBlock
     public static function createFromRepository(array $data): self
     {
         if (empty($data)) {
@@ -75,7 +105,12 @@ class WebEventTracking implements SnippetInterface
         );
     }
 
-    // phpcs:ignore
+    /**
+     * Create from request.
+     *
+     * @param array $data
+     */
+    // phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Magento2.Annotation.MethodArguments.NoCommentBlock
     public static function createFromRequest(array $data): self
     {
         if (!isset($data['web_event_tracking'])) {

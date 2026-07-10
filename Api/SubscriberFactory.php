@@ -8,6 +8,11 @@ use Magento\Newsletter\Model\Subscriber as MagentoSubscriber;
 
 class SubscriberFactory
 {
+    /**
+     * Handle create.
+     *
+     * @param MagentoSubscriber $magentoSubscriber
+     */
     public function create(MagentoSubscriber $magentoSubscriber): Subscriber
     {
         return new Subscriber(

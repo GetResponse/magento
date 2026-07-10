@@ -6,13 +6,24 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\Mod
 
 class Cart
 {
+    /** @var int */
     private $id;
+    /** @var float */
     private $price;
+    /** @var string */
     private $currency;
+    /** @var string */
     private $url;
     /** @var array<Product> */
     private $products;
 
+    /**
+     * @param int $id
+     * @param float $price
+     * @param string $currency
+     * @param string $url
+     * @param array $products
+     */
     public function __construct(int $id, float $price, string $currency, string $url, array $products)
     {
         $this->id = $id;
@@ -22,6 +33,9 @@ class Cart
         $this->products = $products;
     }
 
+    /**
+     * Handle to array.
+     */
     public function toArray(): array
     {
         $products = [];

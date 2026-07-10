@@ -8,6 +8,7 @@ use GetResponse\GetResponseIntegration\Helper\Config;
 use JsonSerializable;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Framework\Url\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 class HttpClient
@@ -15,11 +16,21 @@ class HttpClient
     public const POST = 'POST';
     public const GET = 'GET';
 
+    /** @var Curl */
     private $curl;
+    /** @var SerializerInterface */
     private $jsonHelper;
+    /** @var StoreManagerInterface */
     private $storeManager;
+    /** @var PlatformVersionProvider */
     private $platformVersionProvider;
 
+    /**
+     * @param Curl $curl
+     * @param SerializerInterface $jsonHelper
+     * @param StoreManagerInterface $storeManager
+     * @param PlatformVersionProvider $platformVersionProvider
+     */
     public function __construct(
         Curl $curl,
         SerializerInterface $jsonHelper,
@@ -33,6 +44,10 @@ class HttpClient
     }
 
     /**
+     * Handle post.
+     *
+     * @param string $url
+     * @param JsonSerializable $object
      * @throws HttpClientException
      */
     public function post(string $url, JsonSerializable $object): string
@@ -41,6 +56,11 @@ class HttpClient
     }
 
     /**
+     * Handle send request.
+     *
+     * @param string $url
+     * @param string $method
+     * @param JsonSerializable $object
      * @throws HttpClientException
      */
     private function sendRequest(string $url, string $method, JsonSerializable $object): string
@@ -58,6 +78,11 @@ class HttpClient
         return $this->curl->getBody();
     }
 
+    /**
+     * Create hmac.
+     *
+     * @param JsonSerializable $object
+     */
     private function createHmac(JsonSerializable $object): string
     {
         return base64_encode(
@@ -70,10 +95,17 @@ class HttpClient
         );
     }
 
+    /**
+     * Build headers.
+     *
+     * @param JsonSerializable $object
+     */
     private function buildHeaders(JsonSerializable $object): RequestHeaders
     {
+        /** @var ScopeInterface $store */
+        $store = $this->storeManager->getStore();
         return new RequestHeaders(
-            $this->storeManager->getStore()->getBaseUrl(),
+            $store->getBaseUrl(),
             $this->createHmac($object),
             date('Y-m-d H:i:s.') . gettimeofday()['usec'],
             $this->platformVersionProvider->getMagentoVersion(),

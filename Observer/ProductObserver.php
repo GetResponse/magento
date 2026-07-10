@@ -15,10 +15,18 @@ use Magento\Framework\Event\ObserverInterface;
 
 class ProductObserver implements ObserverInterface
 {
+    /** @var Logger */
     private $logger;
+    /** @var ApiService */
     private $apiService;
+    /** @var ProductRepositoryInterface */
     private $productRepository;
 
+    /**
+     * @param Logger $logger
+     * @param ApiService $apiService
+     * @param ProductRepositoryInterface $productRepository
+     */
     public function __construct(
         Logger $logger,
         ApiService $apiService,
@@ -29,6 +37,11 @@ class ProductObserver implements ObserverInterface
         $this->productRepository = $productRepository;
     }
 
+    /**
+     * Handle execute.
+     *
+     * @param EventObserver $observer
+     */
     public function execute(EventObserver $observer): self
     {
         try {

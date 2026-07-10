@@ -13,19 +13,25 @@ use Magento\Framework\Webapi\Exception as WebapiException;
 interface ConfigurationControllerInterface
 {
     /**
+     * Handle list.
+     *
      * @return \GetResponse\GetResponseIntegration\Presenter\Api\ConfigurationPresenter;
      */
     public function list(): ConfigurationPresenter;
 
     /**
+     * Handle delete.
+     *
      * @return void
      */
     public function delete(): void;
 
     /**
-     * @throws WebapiException
-     * @return void
+     * Handle update.
+     *
      * @param string $scope
+     * @return void
+     * @throws WebapiException
      */
     public function update(string $scope): void;
 }

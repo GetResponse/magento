@@ -12,9 +12,16 @@ use Magento\Framework\View\Element\Template\Context;
 
 class Webform extends Template
 {
+    /** @var MagentoStore */
     private $magentoStore;
+    /** @var Repository */
     private $repository;
 
+    /**
+     * @param Context $context
+     * @param MagentoStore $magentoStore
+     * @param Repository $repository
+     */
     public function __construct(
         Context $context,
         MagentoStore $magentoStore,
@@ -25,6 +32,11 @@ class Webform extends Template
         $this->repository = $repository;
     }
 
+    /**
+     * Get web form url to display.
+     *
+     * @param string $placement
+     */
     public function getWebFormUrlToDisplay(string $placement): ?string
     {
         $scope = $this->magentoStore->getCurrentScope();

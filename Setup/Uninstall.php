@@ -17,9 +17,15 @@ use Magento\Store\Model\Store;
 
 class Uninstall implements UninstallInterface
 {
+    /** @var WriterInterface */
     private $configWriter;
+    /** @var Manager */
     private $cacheManager;
 
+    /**
+     * @param WriterInterface $configWriter
+     * @param Manager $cacheManager
+     */
     public function __construct(
         WriterInterface $configWriter,
         Manager $cacheManager
@@ -29,7 +35,7 @@ class Uninstall implements UninstallInterface
     }
 
     /**
-     * Invoked when remove-data flag is set during module uninstall.
+     * Handle uninstall.
      *
      * @param SchemaSetupInterface $setup
      * @param ModuleContextInterface $context

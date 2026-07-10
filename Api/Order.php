@@ -8,25 +8,60 @@ use JsonSerializable;
 
 class Order implements JsonSerializable
 {
+    /** @var int */
     private $id;
+    /** @var string */
     private $orderNumber;
+    /** @var int */
     private $cartId;
+    /** @var string */
     private $contactEmail;
+    /** @var Customer */
     private $customer;
     /** @var Line[] */
     private $lines;
+    /** @var ?string */
     private $url;
+    /** @var float */
     private $totalPrice;
+    /** @var float */
     private $totalPriceTax;
+    /** @var float */
     private $shippingPrice;
+    /** @var string */
     private $currency;
+    /** @var string */
     private $status;
+    /** @var ?string */
     private $billingStatus;
+    /** @var ?Address */
     private $shippingAddress;
+    /** @var ?Address */
     private $billingAddress;
+    /** @var string */
     private $createdAt;
+    /** @var ?string */
     private $updatedAt;
 
+    /**
+     * @param int $id
+     * @param string $orderNumber
+     * @param int $cartId
+     * @param string $contactEmail
+     * @param Customer $customer
+     * @param array $lines
+     * @param ?string $url
+     * @param float $totalPrice
+     * @param float $totalPriceTax
+     * @param float $shippingPrice
+     * @param string $currency
+     * @param string $status
+     * @param ?string $billingStatus
+     * @param ?Address $shippingAddress
+     * @param ?Address $billingAddress
+     * @param string $createdAt
+     * @param ?string $updatedAt
+     */
     public function __construct(
         int $id,
         string $orderNumber,
@@ -65,6 +100,9 @@ class Order implements JsonSerializable
         $this->updatedAt = $updatedAt;
     }
 
+    /**
+     * Serialize object to JSON data.
+     */
     public function jsonSerialize(): array
     {
         $lines = [];

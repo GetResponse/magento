@@ -11,15 +11,26 @@ use Magento\Quote\Model\Quote\Item;
 
 class CartFactory
 {
+    /** @var MagentoCart */
     private $cart;
+    /** @var CategoryRepository */
     private $categoryRepository;
 
+    /**
+     * @param MagentoCart $cart
+     * @param CategoryRepository $categoryRepository
+     */
     public function __construct(MagentoCart $cart, CategoryRepository $categoryRepository)
     {
         $this->cart = $cart;
         $this->categoryRepository = $categoryRepository;
     }
 
+    /**
+     * Handle create.
+     *
+     * @param Quote $quote
+     */
     public function create(Quote $quote): Cart
     {
         return new Cart(
@@ -31,6 +42,11 @@ class CartFactory
         );
     }
 
+    /**
+     * Create products.
+     *
+     * @param Quote $quote
+     */
     private function createProducts(Quote $quote): array
     {
         $products = [];
@@ -50,6 +66,11 @@ class CartFactory
         return $products;
     }
 
+    /**
+     * Get categories.
+     *
+     * @param Item $item
+     */
     private function getCategories(Item $item): array
     {
         $categories = [];

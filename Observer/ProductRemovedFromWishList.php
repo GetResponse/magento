@@ -14,10 +14,18 @@ use Magento\Wishlist\Model\Item;
 
 class ProductRemovedFromWishList implements ObserverInterface
 {
+    /** @var TrackingCodeBufferService */
     private $trackingCodeBufferService;
+    /** @var Logger */
     private $logger;
+    /** @var ObjectManagerInterface */
     private $objectManager;
 
+    /**
+     * @param TrackingCodeBufferService $trackingCodeBufferService
+     * @param Logger $logger
+     * @param ObjectManagerInterface $objectManager
+     */
     public function __construct(
         TrackingCodeBufferService $trackingCodeBufferService,
         Logger $logger,
@@ -28,6 +36,11 @@ class ProductRemovedFromWishList implements ObserverInterface
         $this->objectManager = $objectManager;
     }
 
+    /**
+     * Handle execute.
+     *
+     * @param Observer $observer
+     */
     public function execute(Observer $observer): self
     {
         try {

@@ -13,9 +13,15 @@ use Magento\Framework\Event\ObserverInterface;
 
 class ProductDeletedObserver implements ObserverInterface
 {
+    /** @var Logger */
     private $logger;
+    /** @var ApiService */
     private $apiService;
 
+    /**
+     * @param Logger $logger
+     * @param ApiService $apiService
+     */
     public function __construct(
         Logger $logger,
         ApiService $apiService
@@ -24,6 +30,11 @@ class ProductDeletedObserver implements ObserverInterface
         $this->apiService = $apiService;
     }
 
+    /**
+     * Handle execute.
+     *
+     * @param Observer $observer
+     */
     public function execute(Observer $observer): self
     {
         try {

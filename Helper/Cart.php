@@ -11,11 +11,15 @@ use Magento\Framework\App\Helper\Context;
 
 class Cart extends MagentoCart
 {
-    /**
-     * @var CartIdEncryptor $cartIdEncryptor
-     */
+    /** @var CartIdEncryptor */
     private $cartIdEncryptor;
 
+    /**
+     * @param Context $context
+     * @param CartModel $checkoutCart
+     * @param Session $checkoutSession
+     * @param CartIdEncryptor $cartIdEncryptor
+     */
     public function __construct(
         Context         $context,
         CartModel       $checkoutCart,
@@ -26,6 +30,9 @@ class Cart extends MagentoCart
         $this->cartIdEncryptor = $cartIdEncryptor;
     }
 
+    /**
+     * Get cart url.
+     */
     public function getCartUrl(): string
     {
         $cartId = (string)$this->getQuote()->getId();

@@ -14,14 +14,30 @@ use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 
 class Store
 {
+    /** @var Scope */
     private $scope;
+    /** @var FacebookPixel */
     private $facebookPixel;
+    /** @var FacebookAdsPixel */
     private $facebookAdsPixel;
+    /** @var FacebookBusinessExtension */
     private $facebookBusinessExtension;
+    /** @var WebFormDTO */
     private $webForm;
+    /** @var WebEventTracking */
     private $webEventTracking;
+    /** @var LiveSynchronizationDTO */
     private $liveSynchronization;
 
+    /**
+     * @param Scope $scope
+     * @param FacebookPixel $facebookPixel
+     * @param FacebookAdsPixel $facebookAdsPixel
+     * @param FacebookBusinessExtension $facebookBusinessExtension
+     * @param WebFormDTO $webForm
+     * @param WebEventTracking $webEventTracking
+     * @param LiveSynchronizationDTO $liveSynchronization
+     */
     public function __construct(
         Scope $scope,
         FacebookPixel $facebookPixel,
@@ -41,6 +57,8 @@ class Store
     }
 
     /**
+     * Get store id.
+     *
      * @return int
      */
     public function getStoreId(): int
@@ -49,6 +67,8 @@ class Store
     }
 
     /**
+     * Get facebook pixel.
+     *
      * @return \GetResponse\GetResponseIntegration\Presenter\Api\Section\Snippet
      */
     public function getFacebookPixel(): Snippet
@@ -57,6 +77,8 @@ class Store
     }
 
     /**
+     * Get facebook ads pixel.
+     *
      * @return \GetResponse\GetResponseIntegration\Presenter\Api\Section\Snippet
      */
     public function getFacebookAdsPixel(): Snippet
@@ -65,6 +87,8 @@ class Store
     }
 
     /**
+     * Get facebook business extension.
+     *
      * @return \GetResponse\GetResponseIntegration\Presenter\Api\Section\Snippet
      */
     public function getFacebookBusinessExtension(): Snippet
@@ -73,6 +97,8 @@ class Store
     }
 
     /**
+     * Get web form.
+     *
      * @return \GetResponse\GetResponseIntegration\Presenter\Api\Section\WebForm
      */
     public function getWebForm(): WebForm
@@ -81,6 +107,8 @@ class Store
     }
 
     /**
+     * Get web event tracking.
+     *
      * @return \GetResponse\GetResponseIntegration\Presenter\Api\Section\Snippet
      */
     public function getWebEventTracking(): Snippet
@@ -89,6 +117,8 @@ class Store
     }
 
     /**
+     * Get live synchronization.
+     *
      * @return \GetResponse\GetResponseIntegration\Presenter\Api\Section\LiveSynchronization
      */
     public function getLiveSynchronization(): LiveSynchronization

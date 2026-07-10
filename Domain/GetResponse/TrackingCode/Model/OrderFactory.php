@@ -10,13 +10,22 @@ use Magento\Sales\Model\Order\Item;
 
 class OrderFactory
 {
+    /** @var CategoryRepository */
     private $categoryRepository;
 
+    /**
+     * @param CategoryRepository $categoryRepository
+     */
     public function __construct(CategoryRepository $categoryRepository)
     {
         $this->categoryRepository = $categoryRepository;
     }
 
+    /**
+     * Handle create.
+     *
+     * @param MagentoOrder $magentoOrder
+     */
     public function create(MagentoOrder $magentoOrder): Order
     {
         return new Order(
@@ -28,6 +37,11 @@ class OrderFactory
         );
     }
 
+    /**
+     * Create products.
+     *
+     * @param MagentoOrder $magentoOrder
+     */
     private function createProducts(MagentoOrder $magentoOrder): array
     {
         $products = [];
@@ -47,6 +61,11 @@ class OrderFactory
         return $products;
     }
 
+    /**
+     * Get categories.
+     *
+     * @param Item $item
+     */
     private function getCategories(Item $item): array
     {
         $categories = [];

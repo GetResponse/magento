@@ -17,11 +17,21 @@ use Magento\Newsletter\Model\Subscriber as MagentoSubscriber;
 
 class CustomerRegisterSuccess implements ObserverInterface
 {
+    /** @var RequestInterface */
     private $request;
+    /** @var MagentoSubscriber */
     private $magentoSubscriber;
+    /** @var Logger */
     private $logger;
+    /** @var Repository */
     private $repository;
 
+    /**
+     * @param RequestInterface $request
+     * @param MagentoSubscriber $magentoSubscriber
+     * @param Repository $repository
+     * @param Logger $logger
+     */
     public function __construct(
         RequestInterface $request,
         MagentoSubscriber $magentoSubscriber,
@@ -34,6 +44,11 @@ class CustomerRegisterSuccess implements ObserverInterface
         $this->logger = $logger;
     }
 
+    /**
+     * Handle execute.
+     *
+     * @param Observer $observer
+     */
     public function execute(Observer $observer): self
     {
         try {

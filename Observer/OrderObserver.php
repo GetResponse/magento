@@ -15,10 +15,18 @@ use Magento\Sales\Model\Order;
 
 class OrderObserver implements ObserverInterface
 {
+    /** @var Logger */
     private $logger;
+    /** @var ApiService */
     private $apiService;
+    /** @var OrderService */
     private $orderService;
 
+    /**
+     * @param Logger $logger
+     * @param ApiService $apiService
+     * @param OrderService $orderService
+     */
     public function __construct(
         Logger $logger,
         ApiService $apiService,
@@ -29,6 +37,11 @@ class OrderObserver implements ObserverInterface
         $this->orderService = $orderService;
     }
 
+    /**
+     * Handle execute.
+     *
+     * @param EventObserver $observer
+     */
     public function execute(EventObserver $observer): OrderObserver
     {
         try {

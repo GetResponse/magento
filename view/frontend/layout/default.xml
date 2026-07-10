@@ -39,13 +39,6 @@
             />
         </referenceContainer>
 
-        <referenceContainer name="order.success.additional.info">
-            <block name="getresponse.order.placed"
-                   class="GetResponse\GetResponseIntegration\Block\Checkout\OrderPlaced"
-                   template="GetResponse_GetResponseIntegration::checkout/order_placed.phtml" cacheable="false"
-            />
-        </referenceContainer>
-
         <referenceBlock name="head.additional">
             <block name="getresponse.tracking.code.snippet"
                    class="GetResponse\GetResponseIntegration\Block\Header"

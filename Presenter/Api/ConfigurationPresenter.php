@@ -8,9 +8,15 @@ use GetResponse\GetResponseIntegration\Presenter\Api\Section\General;
 
 class ConfigurationPresenter
 {
+    /** @var General */
     private $general;
+    /** @var array */
     private $storesCollection;
 
+    /**
+     * @param General $general
+     * @param array $storesCollection
+     */
     public function __construct(
         General $general,
         array $storesCollection
@@ -20,6 +26,8 @@ class ConfigurationPresenter
     }
 
     /**
+     * Get general.
+     *
      * @return \GetResponse\GetResponseIntegration\Presenter\Api\Section\General
      */
     public function getGeneral(): General
@@ -28,6 +36,8 @@ class ConfigurationPresenter
     }
 
     /**
+     * Get stores.
+     *
      * @return \GetResponse\GetResponseIntegration\Presenter\Api\Section\Store[]
      */
     public function getStores(): array

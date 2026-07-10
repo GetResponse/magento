@@ -13,10 +13,18 @@ use Magento\Sales\Model\Order;
 
 class OrderService
 {
+    /** @var OrderFactory */
     private $orderFactory;
+    /** @var TrackingCodeBufferService */
     private $service;
+    /** @var Repository */
     private $repository;
 
+    /**
+     * @param OrderFactory $orderFactory
+     * @param TrackingCodeBufferService $service
+     * @param Repository $repository
+     */
     public function __construct(OrderFactory $orderFactory, TrackingCodeBufferService $service, Repository $repository)
     {
         $this->orderFactory = $orderFactory;
@@ -24,6 +32,12 @@ class OrderService
         $this->repository = $repository;
     }
 
+    /**
+     * Handle add to buffer.
+     *
+     * @param Order $magentoOrder
+     * @param Scope $scope
+     */
     public function addToBuffer(Order $magentoOrder, Scope $scope): void
     {
         $webConnect = WebEventTracking::createFromRepository(
@@ -38,6 +52,11 @@ class OrderService
         $this->service->addOrderToBuffer($order);
     }
 
+    /**
+     * Get order from buffer.
+     *
+     * @param Scope $scope
+     */
     public function getOrderFromBuffer(Scope $scope): array
     {
         $webConnect = WebEventTracking::createFromRepository(

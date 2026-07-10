@@ -14,9 +14,15 @@ use Magento\Newsletter\Model\Subscriber;
 
 class NewsletterSubscriberSaveCommitAfterObject implements ObserverInterface
 {
+    /** @var Logger */
     private $logger;
+    /** @var ApiService */
     private $apiService;
 
+    /**
+     * @param Logger $logger
+     * @param ApiService $apiService
+     */
     public function __construct(
         Logger $logger,
         ApiService $apiService
@@ -25,6 +31,11 @@ class NewsletterSubscriberSaveCommitAfterObject implements ObserverInterface
         $this->apiService = $apiService;
     }
 
+    /**
+     * Handle execute.
+     *
+     * @param Observer $observer
+     */
     public function execute(Observer $observer): NewsletterSubscriberSaveCommitAfterObject
     {
         try {

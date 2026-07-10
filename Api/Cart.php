@@ -9,17 +9,39 @@ use JsonSerializable;
 
 class Cart implements JsonSerializable
 {
+    /** @var int */
     private $id;
+    /** @var ?Customer */
     private $customer;
+    /** @var ?Visitor */
     private $visitor;
+    /** @var array */
     private $lines;
+    /** @var float */
     private $totalPrice;
+    /** @var float */
     private $totalTaxPrice;
+    /** @var string */
     private $currency;
+    /** @var string */
     private $url;
+    /** @var ?string */
     private $createdAt;
+    /** @var ?string */
     private $updatedAt;
 
+    /**
+     * @param int $id
+     * @param ?Customer $customer
+     * @param ?Visitor $visitor
+     * @param array $lines
+     * @param float $totalPrice
+     * @param float $totalTaxPrice
+     * @param string $currency
+     * @param string $url
+     * @param ?string $createdAt
+     * @param ?string $updatedAt
+     */
     public function __construct(
         int $id,
         ?Customer $customer,
@@ -44,51 +66,81 @@ class Cart implements JsonSerializable
         $this->updatedAt = $updatedAt;
     }
 
+    /**
+     * Get id.
+     */
     public function getId(): int
     {
         return $this->id;
     }
 
+    /**
+     * Get customer.
+     */
     public function getCustomer(): ?Customer
     {
         return $this->customer;
     }
 
+    /**
+     * Get lines.
+     */
     public function getLines(): array
     {
         return $this->lines;
     }
 
+    /**
+     * Get total price.
+     */
     public function getTotalPrice(): float
     {
         return $this->totalPrice;
     }
 
+    /**
+     * Get total tax price.
+     */
     public function getTotalTaxPrice(): float
     {
         return $this->totalTaxPrice;
     }
 
+    /**
+     * Get currency.
+     */
     public function getCurrency(): string
     {
         return $this->currency;
     }
 
+    /**
+     * Get url.
+     */
     public function getUrl(): string
     {
         return $this->url;
     }
 
+    /**
+     * Get created at.
+     */
     public function getCreatedAt(): ?string
     {
         return $this->createdAt;
     }
 
+    /**
+     * Get updated at.
+     */
     public function getUpdatedAt(): ?string
     {
         return $this->updatedAt;
     }
 
+    /**
+     * Serialize object to JSON data.
+     */
     public function jsonSerialize(): array
     {
         $lines = [];
@@ -112,6 +164,9 @@ class Cart implements JsonSerializable
         ];
     }
 
+    /**
+     * Check valuable.
+     */
     public function isValuable(): bool
     {
         return $this->id !== 0 && ($this->customer !== null || $this->visitor !== null);

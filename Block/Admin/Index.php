@@ -21,6 +21,12 @@ class Index extends Template
     /** @var Repository */
     private $repository;
 
+    /**
+     * @param Context $context
+     * @param MagentoStore $magentoStore
+     * @param Repository $repository
+     * @param array $data
+     */
     public function __construct(
         Context $context,
         MagentoStore $magentoStore,
@@ -32,6 +38,9 @@ class Index extends Template
         $this->repository = $repository;
     }
 
+    /**
+     * Get store statuses.
+     */
     public function getStoreStatuses(): array
     {
         $stores = $this->magentoStore->getMagentoStores();
@@ -51,6 +60,11 @@ class Index extends Template
         return $statuses;
     }
 
+    /**
+     * Check live sync enabled.
+     *
+     * @param int $storeId
+     */
     private function isLiveSyncEnabled(int $storeId): bool
     {
         $liveSyncData = $this->repository->getLiveSynchronization($storeId);
@@ -59,6 +73,11 @@ class Index extends Template
         return $liveSync->isActive();
     }
 
+    /**
+     * Check web tracking enabled.
+     *
+     * @param int $storeId
+     */
     private function isWebTrackingEnabled(int $storeId): bool
     {
         $webTrackingData = $this->repository->getWebEventTracking($storeId);
@@ -67,6 +86,11 @@ class Index extends Template
         return $webTracking->isActive();
     }
 
+    /**
+     * Check facebook pixel enabled.
+     *
+     * @param int $storeId
+     */
     private function isFacebookPixelEnabled(int $storeId): bool
     {
         $facebookPixelData = $this->repository->getFacebookPixelSnippet($storeId);
@@ -75,6 +99,11 @@ class Index extends Template
         return $facebookPixel->isActive();
     }
 
+    /**
+     * Check facebook ads pixel enabled.
+     *
+     * @param int $storeId
+     */
     private function isFacebookAdsPixelEnabled(int $storeId): bool
     {
         $facebookAdsPixelData = $this->repository->getFacebookAdsPixelSnippet($storeId);
@@ -83,6 +112,11 @@ class Index extends Template
         return $facebookAdsPixel->isActive();
     }
 
+    /**
+     * Check web forms enabled.
+     *
+     * @param int $storeId
+     */
     private function isWebFormsEnabled(int $storeId): bool
     {
         $webFormData = $this->repository->getWebformSettings($storeId);

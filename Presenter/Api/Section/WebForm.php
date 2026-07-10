@@ -8,14 +8,18 @@ use GetResponse\GetResponseIntegration\Domain\Magento\WebForm as WebFormDTO;
 
 class WebForm
 {
+    /** @var WebFormDTO */
     private $webForm;
 
+    /** @param WebFormDTO $webForm */
     public function __construct(WebFormDTO $webForm)
     {
         $this->webForm = $webForm;
     }
 
     /**
+     * Get is active.
+     *
      * @return bool
      */
     public function getIsActive(): bool
@@ -24,6 +28,8 @@ class WebForm
     }
 
     /**
+     * Get form id.
+     *
      * @return string
      */
     public function getFormId(): string
@@ -32,6 +38,8 @@ class WebForm
     }
 
     /**
+     * Get url.
+     *
      * @return string
      */
     public function getUrl(): string
@@ -40,6 +48,8 @@ class WebForm
     }
 
     /**
+     * Get block.
+     *
      * @return string
      */
     public function getBlock(): string

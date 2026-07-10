@@ -8,14 +8,20 @@ use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization as Liv
 
 class LiveSynchronization
 {
+    /** @var LiveSynchronizationDTO */
     private $liveSynchronization;
 
+    /**
+     * @param LiveSynchronizationDTO $liveSynchronization
+     */
     public function __construct(LiveSynchronizationDTO $liveSynchronization)
     {
         $this->liveSynchronization = $liveSynchronization;
     }
 
     /**
+     * Get is active.
+     *
      * @return bool
      */
     public function getIsActive(): bool
@@ -24,6 +30,8 @@ class LiveSynchronization
     }
 
     /**
+     * Get url.
+     *
      * @return string
      */
     public function getUrl(): string
@@ -32,6 +40,8 @@ class LiveSynchronization
     }
 
     /**
+     * Get type.
+     *
      * @return string
      */
     public function getType(): string

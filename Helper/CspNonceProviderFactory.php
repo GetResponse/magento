@@ -8,13 +8,20 @@ use Magento\Framework\App\ProductMetadataInterface;
 
 class CspNonceProviderFactory
 {
+    /** @var ProductMetadataInterface */
     protected $productMetadata;
 
+    /**
+     * @param ProductMetadataInterface $productMetadata
+     */
     public function __construct(ProductMetadataInterface $productMetadata)
     {
         $this->productMetadata = $productMetadata;
     }
 
+    /**
+     * Handle create.
+     */
     public function create(): ?CspNonceProvider
     {
         $version = $this->productMetadata->getVersion();

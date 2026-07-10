@@ -6,10 +6,18 @@ namespace GetResponse\GetResponseIntegration\Presenter\Api\Section;
 
 class General
 {
+    /** @var string */
     private $pluginVersion;
+    /** @var string */
     private $magentoVersion;
+    /** @var string */
     private $phpVersion;
 
+    /**
+     * @param string $pluginVersion
+     * @param string $magentoVersion
+     * @param string $phpVersion
+     */
     public function __construct(
         string $pluginVersion,
         string $magentoVersion,
@@ -21,6 +29,8 @@ class General
     }
 
     /**
+     * Get plugin version.
+     *
      * @return string
      */
     public function getPluginVersion(): string
@@ -29,6 +39,8 @@ class General
     }
 
     /**
+     * Get mode.
+     *
      * @return string
      */
     public function getMode(): string
@@ -37,6 +49,8 @@ class General
     }
 
     /**
+     * Get php version.
+     *
      * @return string
      */
     public function getPhpVersion(): string
@@ -45,6 +59,8 @@ class General
     }
 
     /**
+     * Get magento version.
+     *
      * @return string
      */
     public function getMagentoVersion(): string

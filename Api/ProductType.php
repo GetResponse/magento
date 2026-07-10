@@ -8,6 +8,11 @@ use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 
 class ProductType
 {
+    /**
+     * Check product configurable.
+     *
+     * @param string $productType
+     */
     public function isProductConfigurable(string $productType): bool
     {
         return Configurable::TYPE_CODE === $productType;

@@ -9,15 +9,26 @@ use Magento\Sales\Model\Order\Item;
 
 class OrderFactory
 {
+    /** @var CustomerFactory */
     private $customerFactory;
+    /** @var AddressFactory */
     private $addressFactory;
 
+    /**
+     * @param CustomerFactory $customerFactory
+     * @param AddressFactory $addressFactory
+     */
     public function __construct(CustomerFactory $customerFactory, AddressFactory $addressFactory)
     {
         $this->customerFactory = $customerFactory;
         $this->addressFactory = $addressFactory;
     }
 
+    /**
+     * Handle create.
+     *
+     * @param MagentoOrder $order
+     */
     public function create(MagentoOrder $order): Order
     {
         $shippingAddress = null;
@@ -51,6 +62,11 @@ class OrderFactory
         );
     }
 
+    /**
+     * Create lines from order.
+     *
+     * @param MagentoOrder $order
+     */
     private function createLinesFromOrder(MagentoOrder $order): array
     {
         $lines = [];

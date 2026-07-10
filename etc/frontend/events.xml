@@ -30,9 +30,6 @@
     <event name="customer_address_save_after">
         <observer name="customer_address_save_after_getresponse" instance="GetResponse\GetResponseIntegration\Observer\CustomerAddressSaveAfterObject" />
     </event>
-    <event name="newsletter_subscriber_save_commit_after">
-        <observer name="newsletter_subscriber_save_commit_after_getresponse" instance="GetResponse\GetResponseIntegration\Observer\NewsletterSubscriberSaveCommitAfterObject" />
-    </event>
     <event name="wishlist_add_product">
         <observer name="product_added_to_wish_list" instance="GetResponse\GetResponseIntegration\Observer\ProductAddedToWishList" />
     </event>

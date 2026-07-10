@@ -8,19 +8,45 @@ use JsonSerializable;
 
 class Address implements JsonSerializable
 {
+    /** @var string */
     private $name;
+    /** @var string */
     private $countryCode;
+    /** @var string */
     private $firstName;
+    /** @var string */
     private $lastName;
+    /** @var string */
     private $address1;
+    /** @var string */
     private $address2;
+    /** @var string */
     private $city;
+    /** @var string */
     private $zip;
+    /** @var string */
     private $province;
+    /** @var string */
     private $provinceCode;
+    /** @var string */
     private $phone;
+    /** @var string */
     private $company;
 
+    /**
+     * @param string $name
+     * @param string $countryCode
+     * @param string $firstName
+     * @param string $lastName
+     * @param string $address1
+     * @param string $address2
+     * @param string $city
+     * @param string $zip
+     * @param string $province
+     * @param string $provinceCode
+     * @param string $phone
+     * @param string $company
+     */
     public function __construct(
         string $name,
         string $countryCode,
@@ -49,6 +75,9 @@ class Address implements JsonSerializable
         $this->company = $company;
     }
 
+    /**
+     * Serialize object to JSON data.
+     */
     public function jsonSerialize(): array
     {
         return [
@@ -67,6 +96,11 @@ class Address implements JsonSerializable
         ];
     }
 
+    /**
+     * Handle to custom fields array.
+     *
+     * @param string $prefix
+     */
     public function toCustomFieldsArray(string $prefix): array
     {
         return [

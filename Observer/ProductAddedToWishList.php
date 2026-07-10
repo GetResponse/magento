@@ -12,9 +12,15 @@ use Magento\Framework\Event\ObserverInterface;
 
 class ProductAddedToWishList implements ObserverInterface
 {
+    /** @var TrackingCodeBufferService */
     private $trackingCodeBufferService;
+    /** @var Logger */
     private $logger;
 
+    /**
+     * @param TrackingCodeBufferService $trackingCodeBufferService
+     * @param Logger $logger
+     */
     public function __construct(
         TrackingCodeBufferService $trackingCodeBufferService,
         Logger $logger
@@ -23,6 +29,11 @@ class ProductAddedToWishList implements ObserverInterface
         $this->logger = $logger;
     }
 
+    /**
+     * Handle execute.
+     *
+     * @param Observer $observer
+     */
     public function execute(Observer $observer): self
     {
         try {

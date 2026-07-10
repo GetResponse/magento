@@ -21,6 +21,10 @@ abstract class ApiController
     /** @var Repository */
     protected $repository;
 
+    /**
+     * @param Repository $repository
+     * @param MagentoStore $magentoStore
+     */
     public function __construct(Repository $repository, MagentoStore $magentoStore)
     {
         $this->repository = $repository;
@@ -29,6 +33,8 @@ abstract class ApiController
 
     /**
      * This method initializes properties used in controllers.
+     *
+     * @param int $scope
      * @throws WebapiException
      */
     public function verifyScope(int $scope): void
@@ -45,8 +51,10 @@ abstract class ApiController
     }
 
     /**
-     * @throws Exception
+     * Handle execute.
+     *
      * @return void
+     * @throws Exception
      */
     public function execute(): void
     {

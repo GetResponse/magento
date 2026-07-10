@@ -29,11 +29,20 @@ use Magento\Framework\Webapi\Rest\Request;
  */
 class ConfigurationController extends ApiController implements ConfigurationControllerInterface
 {
+    /** @var Request */
     private $request;
+    /** @var Manager */
     private $cacheManager;
     /** @var PlatformVersionProvider */
     private $platformVersionProvider;
 
+    /**
+     * @param Repository $repository
+     * @param MagentoStore $magentoStore
+     * @param Request $request
+     * @param Manager $cacheManager
+     * @param PlatformVersionProvider $platformVersionProvider
+     */
     public function __construct(
         Repository $repository,
         MagentoStore $magentoStore,
@@ -48,6 +57,8 @@ class ConfigurationController extends ApiController implements ConfigurationCont
     }
 
     /**
+     * Handle list.
+     *
      * @return ConfigurationPresenter
      */
     public function list(): ConfigurationPresenter
@@ -70,6 +81,8 @@ class ConfigurationController extends ApiController implements ConfigurationCont
     }
 
     /**
+     * Handle delete.
+     *
      * @return void
      */
     public function delete(): void
@@ -82,9 +95,11 @@ class ConfigurationController extends ApiController implements ConfigurationCont
     }
 
     /**
-     * @throws WebapiException
-     * @return void
+     * Handle update.
+     *
      * @param string $scope
+     * @return void
+     * @throws WebapiException
      */
     public function update(string $scope): void
     {
@@ -109,12 +124,16 @@ class ConfigurationController extends ApiController implements ConfigurationCont
             $this->repository->saveLiveSynchronization($liveSynchronization, $scope);
 
             $this->clearCache();
-            $this->cacheManager->clean(['config']);
         } catch (RequestValidationException $e) {
             throw new WebapiException(new Phrase($e->getMessage()));
         }
     }
 
+    /**
+     * Create store.
+     *
+     * @param Scope $scope
+     */
     private function createStore(Scope $scope): Store
     {
         return new Store(
@@ -140,6 +159,9 @@ class ConfigurationController extends ApiController implements ConfigurationCont
         );
     }
 
+    /**
+     * Handle clear cache.
+     */
     private function clearCache(): void
     {
         $this->cacheManager->clean(['full_page', 'config']);

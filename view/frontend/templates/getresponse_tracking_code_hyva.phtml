@@ -1,39 +1,109 @@
 <script>
 
     const isWebConnectEnabled = () => typeof GrTracking === 'function';
+    let isHandlingPrivateContent = false;
+    let ignoreNextPrivateContentKey = null;
+
+    function parseCartData(rawCartData) {
+        if (typeof rawCartData === 'string') {
+            const normalizedCartData = rawCartData.trim();
+            if (!normalizedCartData) {
+                return {};
+            }
+
+            try {
+                const parsedCartData = JSON.parse(normalizedCartData);
+                return parsedCartData && typeof parsedCartData === 'object' ? parsedCartData : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        return rawCartData && typeof rawCartData === 'object' ? rawCartData : {};
+    }
+
+    function buildPrivateContentActionKey(cartData, shopId, productIdAddedToWishList, productIdRemovedFromWishList) {
+        try {
+            return JSON.stringify({
+                cart: cartData,
+                shopId: shopId ?? null,
+                productIdAddedToWishList: productIdAddedToWishList ?? null,
+                productIdRemovedFromWishList: productIdRemovedFromWishList ?? null
+            });
+        } catch (e) {
+            return null;
+        }
+    }
 
     function fireCustomerSectionDataRelatedWebConnectEvents(customerSectionData) {
-        if (!isWebConnectEnabled()) return;
+        if (!isWebConnectEnabled() || isHandlingPrivateContent) return;
 
         const customerEmail = customerSectionData?.['getresponse-tracking-code']?.customerEmail ?? null;
         const gaIsValuable = typeof hyva?.getCookie === 'function' ? hyva.getCookie('gaIsValuable') : undefined;
-        if (customerEmail && gaIsValuable !== '1') {
-            GrTracking('setUserId', customerEmail);
-        }
-
-        const cartData = JSON.parse(customerSectionData?.['getresponse-tracking-code']?.cart || {});
-        if (cartData && Object.keys(cartData).length > 0) {
-            GrTracking('importScript', 'ec');
-            GrTracking('cartUpdate', cartData);
-            dispatchEvent(new Event('reload-customer-section-data'));
-        }
+        const rawCartData = customerSectionData?.['getresponse-tracking-code']?.cart;
+        const cartData = parseCartData(rawCartData);
+        const hasCartUpdate = Object.keys(cartData).length > 0;
 
         const grShopId = customerSectionData?.['getresponse-wishlist']?.getResponseShopId ?? null;
         const productIdAddedToWishList = customerSectionData?.['getresponse-wishlist']?.productIdAddedToWishList ?? null;
         const productIdRemovedFromWishList = customerSectionData?.['getresponse-wishlist']?.productIdRemovedFromWishList ?? null;
+        const hasLikeItem = productIdAddedToWishList !== null && productIdRemovedFromWishList === null;
+        const hasUnlikeItem = productIdRemovedFromWishList !== null && productIdAddedToWishList === null;
 
-        if (productIdAddedToWishList !== null && productIdRemovedFromWishList === null) {
-            const likeItemObject = {shop: {id: grShopId}, product: {id: productIdAddedToWishList}};
-            GrTracking('importScript', 'ec');
-            GrTracking('likeItem', likeItemObject);
-            dispatchEvent(new Event('reload-customer-section-data'));
+        const hasActionableData = hasCartUpdate || hasLikeItem || hasUnlikeItem;
+        const currentActionKey = hasActionableData
+            ? buildPrivateContentActionKey(
+                hasCartUpdate ? cartData : {},
+                grShopId,
+                hasLikeItem ? productIdAddedToWishList : null,
+                hasUnlikeItem ? productIdRemovedFromWishList : null
+            )
+            : null;
+
+        if (ignoreNextPrivateContentKey !== null) {
+            if (!hasActionableData || currentActionKey === ignoreNextPrivateContentKey) {
+                ignoreNextPrivateContentKey = null;
+                return;
+            }
+
+            ignoreNextPrivateContentKey = null;
         }
 
-        if (productIdRemovedFromWishList !== null && productIdAddedToWishList === null) {
-            const unlikeItemObject = {shop: {id: grShopId}, product: {id: productIdRemovedFromWishList}};
-            GrTracking('importScript', 'ec');
-            GrTracking('unlikeItem', unlikeItemObject);
-            dispatchEvent(new Event('reload-customer-section-data'));
+        isHandlingPrivateContent = true;
+
+        try {
+            if (customerEmail && gaIsValuable !== '1') {
+                GrTracking('setUserId', customerEmail);
+            }
+
+            let needsReload = false;
+
+            if (hasCartUpdate) {
+                GrTracking('importScript', 'ec');
+                GrTracking('cartUpdate', cartData);
+                needsReload = true;
+            }
+
+            if (hasLikeItem) {
+                const likeItemObject = {shop: {id: grShopId}, product: {id: productIdAddedToWishList}};
+                GrTracking('importScript', 'ec');
+                GrTracking('likeItem', likeItemObject);
+                needsReload = true;
+            }
+
+            if (hasUnlikeItem) {
+                const unlikeItemObject = {shop: {id: grShopId}, product: {id: productIdRemovedFromWishList}};
+                GrTracking('importScript', 'ec');
+                GrTracking('unlikeItem', unlikeItemObject);
+                needsReload = true;
+            }
+
+            if (needsReload) {
+                ignoreNextPrivateContentKey = currentActionKey;
+                window.dispatchEvent(new Event('reload-customer-section-data'));
+            }
+        } finally {
+            isHandlingPrivateContent = false;
         }
     }
 
@@ -62,6 +132,3 @@
 
     window.addEventListener('load', async () => fireWebConnectEvents());
 </script>
-
-
-

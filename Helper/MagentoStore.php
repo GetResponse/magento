@@ -11,8 +11,13 @@ use Magento\Store\Model\StoreManagerInterface;
 
 class MagentoStore extends AbstractHelper
 {
+    /** @var StoreManagerInterface */
     private $storeManager;
 
+    /**
+     * @param Context $context
+     * @param StoreManagerInterface $storeManager
+     */
     public function __construct(
         Context $context,
         StoreManagerInterface $storeManager
@@ -21,6 +26,9 @@ class MagentoStore extends AbstractHelper
         $this->storeManager = $storeManager;
     }
 
+    /**
+     * Get magento stores.
+     */
     public function getMagentoStores(): array
     {
         $allStores = [];
@@ -33,6 +41,11 @@ class MagentoStore extends AbstractHelper
         return $allStores;
     }
 
+    /**
+     * Handle store exists.
+     *
+     * @param int $storeId
+     */
     public function storeExists(int $storeId): bool
     {
         $stores = $this->getMagentoStores();
@@ -46,6 +59,9 @@ class MagentoStore extends AbstractHelper
         return false;
     }
 
+    /**
+     * Get current scope.
+     */
     public function getCurrentScope(): Scope
     {
         return Scope::createFromStoreId($this->storeManager->getStore()->getId());

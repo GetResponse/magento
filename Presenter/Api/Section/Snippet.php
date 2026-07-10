@@ -8,14 +8,20 @@ use GetResponse\GetResponseIntegration\Domain\Magento\SnippetInterface;
 
 class Snippet
 {
+    /** @var SnippetInterface */
     private $snippet;
 
+    /**
+     * @param SnippetInterface $snippet
+     */
     public function __construct(SnippetInterface $snippet)
     {
         $this->snippet = $snippet;
     }
 
     /**
+     * Get is active.
+     *
      * @return bool
      */
     public function getIsActive(): bool
@@ -24,6 +30,8 @@ class Snippet
     }
 
     /**
+     * Get snippet.
+     *
      * @return string
      */
     public function getSnippet(): string

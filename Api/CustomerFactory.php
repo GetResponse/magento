@@ -15,10 +15,18 @@ use RuntimeException;
 
 class CustomerFactory
 {
+    /** @var CustomerRepositoryInterface */
     private $customerRepository;
+    /** @var AddressFactory */
     private $addressFactory;
+    /** @var CollectionFactory */
     private $subscriberCollectionFactory;
 
+    /**
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param AddressFactory $addressFactory
+     * @param CollectionFactory $subscriberCollectionFactory
+     */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
         AddressFactory $addressFactory,
@@ -29,6 +37,11 @@ class CustomerFactory
         $this->subscriberCollectionFactory = $subscriberCollectionFactory;
     }
 
+    /**
+     * Handle create.
+     *
+     * @param CustomerInterface $customer
+     */
     public function create(CustomerInterface $customer): Customer
     {
         $billingAddress = $shippingAddress = null;
@@ -71,6 +84,11 @@ class CustomerFactory
         );
     }
 
+    /**
+     * Create from order.
+     *
+     * @param MagentoOrder $order
+     */
     public function createFromOrder(MagentoOrder $order): Customer
     {
         return $order->getCustomerIsGuest()
@@ -78,6 +96,11 @@ class CustomerFactory
             : $this->createForLoggedInOrder($order);
     }
 
+    /**
+     * Create from quote.
+     *
+     * @param MagentoQuote $quote
+     */
     public function createFromQuote(MagentoQuote $quote): Customer
     {
         $billingAddress = $shippingAddress = null;
@@ -120,6 +143,11 @@ class CustomerFactory
         );
     }
 
+    /**
+     * Create from customer address.
+     *
+     * @param AddressInterface $address
+     */
     public function createFromCustomerAddress(AddressInterface $address): Customer
     {
         if (null === $address->getCustomerId()) {
@@ -166,6 +194,11 @@ class CustomerFactory
         );
     }
 
+    /**
+     * Create from newsletter subscription.
+     *
+     * @param Subscriber $subscriber
+     */
     public function createFromNewsletterSubscription(Subscriber $subscriber): Customer
     {
         if (null === $subscriber->getCustomerId()) {
@@ -214,6 +247,11 @@ class CustomerFactory
         );
     }
 
+    /**
+     * Check customer subscribed.
+     *
+     * @param CustomerInterface $customer
+     */
     private function isCustomerSubscribed(CustomerInterface $customer): bool
     {
         /** @var Subscriber $subscriber */
@@ -225,6 +263,11 @@ class CustomerFactory
         return $subscriber && $subscriber->isSubscribed();
     }
 
+    /**
+     * Create for guest order.
+     *
+     * @param MagentoOrder $order
+     */
     private function createForGuestOrder(MagentoOrder $order): Customer
     {
         $billingAddress = $shippingAddress = null;
@@ -263,6 +306,11 @@ class CustomerFactory
         );
     }
 
+    /**
+     * Create for logged in order.
+     *
+     * @param MagentoOrder $order
+     */
     private function createForLoggedInOrder(MagentoOrder $order): Customer
     {
         $billingAddress = $shippingAddress = null;

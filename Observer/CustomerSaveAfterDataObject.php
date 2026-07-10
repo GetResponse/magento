@@ -14,9 +14,15 @@ use Magento\Framework\Event\ObserverInterface;
 
 class CustomerSaveAfterDataObject implements ObserverInterface
 {
+    /** @var Logger */
     private $logger;
+    /** @var ApiService */
     private $apiService;
 
+    /**
+     * @param ApiService $apiService
+     * @param Logger $logger
+     */
     public function __construct(
         ApiService $apiService,
         Logger $logger
@@ -25,6 +31,11 @@ class CustomerSaveAfterDataObject implements ObserverInterface
         $this->logger = $logger;
     }
 
+    /**
+     * Handle execute.
+     *
+     * @param Observer $observer
+     */
     public function execute(Observer $observer): self
     {
         try {

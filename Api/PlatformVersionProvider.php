@@ -15,6 +15,10 @@ class PlatformVersionProvider
     /** @var ProductMetadataInterface */
     private $productMetadata;
 
+    /**
+     * @param ModuleListInterface $moduleList
+     * @param ProductMetadataInterface $productMetadata
+     */
     public function __construct(
         ModuleListInterface $moduleList,
         ProductMetadataInterface $productMetadata
@@ -23,6 +27,9 @@ class PlatformVersionProvider
         $this->productMetadata = $productMetadata;
     }
 
+    /**
+     * Get magento version.
+     */
     public function getMagentoVersion(): string
     {
         try {
@@ -32,11 +39,17 @@ class PlatformVersionProvider
         }
     }
 
+    /**
+     * Get php version.
+     */
     public function getPhpVersion(): string
     {
         return PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
     }
 
+    /**
+     * Get plugin version.
+     */
     public function getPluginVersion(): string
     {
         try {

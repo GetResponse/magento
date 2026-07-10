@@ -8,7 +8,7 @@ use Exception;
 
 class MagentoException extends Exception
 {
-    const MISSING_SCOPE_ERROR_CODE = 101;
-    const INCORRECT_SCOPE_ERROR_CODE = 102;
-    const INVALID_PLUGIN_MODE_ERROR_CODE = 103;
+    public const MISSING_SCOPE_ERROR_CODE = 101;
+    public const INCORRECT_SCOPE_ERROR_CODE = 102;
+    public const INVALID_PLUGIN_MODE_ERROR_CODE = 103;
 }

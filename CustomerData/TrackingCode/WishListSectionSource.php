@@ -12,10 +12,18 @@ use Magento\Customer\CustomerData\SectionSourceInterface;
 
 class WishListSectionSource implements SectionSourceInterface
 {
+    /** @var TrackingCodeBufferService */
     private $session;
+    /** @var Repository */
     private $repository;
+    /** @var MagentoStore */
     private $magentoStore;
 
+    /**
+     * @param TrackingCodeBufferService $session
+     * @param Repository $repository
+     * @param MagentoStore $magentoStore
+     */
     public function __construct(TrackingCodeBufferService $session, Repository $repository, MagentoStore $magentoStore)
     {
         $this->session = $session;
@@ -23,6 +31,9 @@ class WishListSectionSource implements SectionSourceInterface
         $this->magentoStore = $magentoStore;
     }
 
+    /**
+     * Get section data.
+     */
     public function getSectionData(): array
     {
         return [
@@ -32,6 +43,9 @@ class WishListSectionSource implements SectionSourceInterface
         ];
     }
 
+    /**
+     * Get getresponse shop id.
+     */
     private function getGetresponseShopId(): ?string
     {
         $scopeId = $this->magentoStore->getCurrentScope()->getScopeId();

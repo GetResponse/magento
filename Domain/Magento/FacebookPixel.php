@@ -6,9 +6,23 @@ namespace GetResponse\GetResponseIntegration\Domain\Magento;
 
 class FacebookPixel implements SnippetInterface
 {
+    /**
+     * Stored value for is active.
+     *
+     * @var bool
+     */
     private $isActive;
+    /**
+     * Stored value for code snippet.
+     *
+     * @var string
+     */
     private $codeSnippet;
 
+    /**
+     * @param bool $isActive
+     * @param string $codeSnippet
+     */
     public function __construct(
         bool $isActive = false,
         string $codeSnippet = ''
@@ -17,16 +31,25 @@ class FacebookPixel implements SnippetInterface
         $this->codeSnippet = $codeSnippet;
     }
 
+    /**
+     * Check active.
+     */
     public function isActive(): bool
     {
         return $this->isActive;
     }
 
+    /**
+     * Get code snippet.
+     */
     public function getCodeSnippet(): string
     {
         return $this->codeSnippet;
     }
 
+    /**
+     * Handle to array.
+     */
     public function toArray(): array
     {
         return [
@@ -36,10 +59,12 @@ class FacebookPixel implements SnippetInterface
     }
 
     /**
+     * Create from repository.
+     *
      * @param array $data
      * @return self
      */
-    //phpcs:ignore
+    // phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Magento2.Annotation.MethodArguments.NoCommentBlock
     public static function createFromRepository(array $data): self
     {
         if (empty($data)) {
@@ -53,11 +78,13 @@ class FacebookPixel implements SnippetInterface
     }
 
     /**
+     * Create from request.
+     *
+     * @param array $data
      * @throws RequestValidationException
      * @return FacebookPixel
-     * @param array $data
      */
-    //phpcs:ignore
+    // phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Magento2.Annotation.MethodArguments.NoCommentBlock
     public static function createFromRequest(array $data): self
     {
         if (!isset($data['facebook_pixel'])) {

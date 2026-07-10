@@ -6,13 +6,13 @@ namespace GetResponse\GetResponseIntegration\Helper;
 
 class BlockPosition
 {
-    const CONTENT = 'content';
-    const SIDEBAR_ADDITIONAL = 'div.sidebar.additional';
-    const SIDEBAR_MAIN = 'sidebar.main';
-    const FOOTER = 'footer-container';
-    const BOTTOM = 'page.bottom';
+    public const CONTENT = 'content';
+    public const SIDEBAR_ADDITIONAL = 'div.sidebar.additional';
+    public const SIDEBAR_MAIN = 'sidebar.main';
+    public const FOOTER = 'footer-container';
+    public const BOTTOM = 'page.bottom';
 
-    const POSITIONS = [
+    public const POSITIONS = [
         self::CONTENT => 'Content Top',
         self::BOTTOM => 'Content Bottom',
         self::FOOTER => 'Footer',
