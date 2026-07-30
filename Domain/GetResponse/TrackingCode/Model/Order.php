@@ -6,6 +6,8 @@ namespace GetResponse\GetResponseIntegration\Domain\GetResponse\TrackingCode\Mod
 
 class Order
 {
+    /** @var string|null */
+    private $shopId;
     /** @var int */
     private $id;
     /** @var int */
@@ -18,14 +20,16 @@ class Order
     private $products;
 
     /**
+     * @param string|null $shopId
      * @param int $id
      * @param int $cartId
      * @param float $price
      * @param string $currency
      * @param array $products
      */
-    public function __construct(int $id, int $cartId, float $price, string $currency, array $products)
+    public function __construct(?string $shopId, int $id, int $cartId, float $price, string $currency, array $products)
     {
+        $this->shopId = $shopId;
         $this->id = $id;
         $this->cartId = $cartId;
         $this->price = $price;
@@ -55,6 +59,7 @@ class Order
         }
 
         return [
+            'shop' => ['id' => $this->shopId],
             'price' => $this->price,
             'cartId' => (string)$this->cartId,
             'orderId' => (string)$this->id,

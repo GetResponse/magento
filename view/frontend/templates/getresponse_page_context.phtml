@@ -1,0 +1,15 @@
+<?php
+
+/** @var \GetResponse\GetResponseIntegration\ViewModel\PageContext $pageContextModel */
+$pageContextModel = $block->getViewModel();
+$pageContext = $pageContextModel->getContext();
+
+if (null === $pageContext) {
+    return;
+}
+
+?>
+
+<script>
+    window.GR_PAGE_CONTEXT = <?=json_encode($pageContext, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)?>;
+</script>

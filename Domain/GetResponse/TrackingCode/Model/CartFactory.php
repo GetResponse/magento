@@ -30,10 +30,12 @@ class CartFactory
      * Handle create.
      *
      * @param Quote $quote
+     * @param string|null $shopId
      */
-    public function create(Quote $quote): Cart
+    public function create(Quote $quote, ?string $shopId): Cart
     {
         return new Cart(
+            $shopId,
             (int) $quote->getId(),
             (float) $quote->getGrandTotal(),
             $quote->getQuoteCurrencyCode(),

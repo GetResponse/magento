@@ -48,7 +48,7 @@ class CartService
             return;
         }
 
-        $cart = $this->cartFactory->create($quote);
+        $cart = $this->cartFactory->create($quote, $webConnect->getGetresponseShopId());
         $this->service->addCartToBuffer($cart);
     }
 }

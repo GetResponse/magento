@@ -25,10 +25,12 @@ class OrderFactory
      * Handle create.
      *
      * @param MagentoOrder $magentoOrder
+     * @param string|null $shopId
      */
-    public function create(MagentoOrder $magentoOrder): Order
+    public function create(MagentoOrder $magentoOrder, ?string $shopId): Order
     {
         return new Order(
+            $shopId,
             (int) $magentoOrder->getId(),
             (int) $magentoOrder->getQuoteId(),
             (float) $magentoOrder->getGrandTotal(),

@@ -53,5 +53,15 @@
             />
         </referenceContainer>
 
+        <referenceContainer name="head.additional">
+            <block name="getresponse.page_context"
+                   class="Magento\Framework\View\Element\Template"
+                   template="GetResponse_GetResponseIntegration::getresponse_page_context.phtml">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">GetResponse\GetResponseIntegration\ViewModel\PageContext</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+
     </body>
 </page>

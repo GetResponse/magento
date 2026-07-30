@@ -1,5 +1,9 @@
 # Changelog
 
+## [21.2.0] - 2026-07-30
+### Feat
+- Add page context in HTML to improve tracking
+
 ## [21.1.1] - 2026-07-10
 ### Fix
 - Added fix for packagist tag inconsistency

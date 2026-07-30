@@ -48,7 +48,7 @@ class OrderService
             return;
         }
 
-        $order = $this->orderFactory->create($magentoOrder);
+        $order = $this->orderFactory->create($magentoOrder, $webConnect->getGetresponseShopId());
         $this->service->addOrderToBuffer($order);
     }
 
