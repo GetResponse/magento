@@ -33,18 +33,41 @@ class CartFactory
      */
     public function create(Quote $quote, ?Visitor $visitor = null): Cart
     {
+        $totalPriceInclTaxAfterDiscount = $this->calculateTotalPriceInclTaxAfterDiscount($quote);
+
         return new Cart(
             (int)$quote->getId(),
             (bool) $quote->getCustomerIsGuest() ? null : $this->customerFactory->create($quote->getCustomer()),
             $visitor,
             $this->createLinesFromQuote($quote),
-            (float)$quote->getSubtotal(),
-            (float)$quote->getGrandTotal(),
+            $totalPriceInclTaxAfterDiscount,
+            $totalPriceInclTaxAfterDiscount,
             $quote->getQuoteCurrencyCode(),
             $this->cart->getCartUrl(),
             $quote->getCreatedAt(),
             $quote->getUpdatedAt()
         );
+    }
+
+    /**
+     * Calculate total price.
+     *
+     * @param Quote $quote
+     * @return float
+     */
+    private function calculateTotalPriceInclTaxAfterDiscount(Quote $quote): float
+    {
+        $address = $quote->isVirtual() ? $quote->getBillingAddress() : $quote->getShippingAddress();
+
+        if ($address === null) {
+            $address = $quote->getBillingAddress();
+        }
+
+        if ($address === null) {
+            return (float) $quote->getGrandTotal();
+        }
+
+        return (float) $address->getSubtotalInclTax() + (float) $address->getDiscountAmount();
     }
 
     /**
@@ -66,10 +89,16 @@ class CartFactory
                 $variantId = $item->getProduct()->getId();
             }
 
+            $quantity = (float)$item->getTotalQty();
+            $itemPriceInclTaxAfterDiscount = (float)$item->getPriceInclTax();
+            if ($quantity > 0) {
+                $itemPriceInclTaxAfterDiscount -= (float)$item->getDiscountAmount() / $quantity;
+            }
+
             $lines[] = new Line(
                 (int)$variantId,
-                (float)$item->getConvertedPrice(),
-                (float)$item->getPriceInclTax(),
+                $itemPriceInclTaxAfterDiscount,
+                $itemPriceInclTaxAfterDiscount,
                 (int)$item->getTotalQty(),
                 (string)$item->getSku()
             );

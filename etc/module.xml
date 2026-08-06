@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../../../../../lib/internal/Magento/Framework/Module/etc/module.xsd">
-    <module name="GetResponse_GetResponseIntegration" setup_version="21.2.0">
+    <module name="GetResponse_GetResponseIntegration" setup_version="21.3.0">
         <sequence>
             <module name="Magento_Quote" />
+            <module name="Magento_CatalogRule" />
         </sequence>
     </module>
 </config>

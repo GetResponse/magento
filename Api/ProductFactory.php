@@ -7,9 +7,14 @@ namespace GetResponse\GetResponseIntegration\Api;
 use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\ProductReadModel;
 use GetResponse\GetResponseIntegration\Domain\Magento\Product\ReadModel\Query\GetProduct;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
+use GetResponse\GetResponseIntegration\Logger\Logger;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\Product as MagentoProduct;
+use Magento\CatalogRule\Model\ResourceModel\Rule as CatalogRuleResource;
+use Magento\Customer\Model\Group as CustomerGroup;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 class ProductFactory
 {
@@ -23,20 +28,40 @@ class ProductFactory
     private $productReadModel;
     /** @var ProductType */
     protected $productType;
+    /** @var CatalogRuleResource */
+    private $catalogRuleResource;
+    /** @var StoreManagerInterface */
+    private $storeManager;
+    /** @var TimezoneInterface */
+    private $timezone;
+    /** @var Logger */
+    private $logger;
 
     /**
      * @param CategoryRepository $categoryRepository
      * @param ProductReadModel $productReadModel
      * @param ProductType $productType
+     * @param CatalogRuleResource $catalogRuleResource
+     * @param StoreManagerInterface $storeManager
+     * @param TimezoneInterface $timezone
+     * @param Logger $logger
      */
     public function __construct(
         CategoryRepository $categoryRepository,
         ProductReadModel $productReadModel,
-        ProductType $productType
+        ProductType $productType,
+        CatalogRuleResource $catalogRuleResource,
+        StoreManagerInterface $storeManager,
+        TimezoneInterface $timezone,
+        Logger $logger
     ) {
         $this->categoryRepository = $categoryRepository;
         $this->productReadModel = $productReadModel;
         $this->productType = $productType;
+        $this->catalogRuleResource = $catalogRuleResource;
+        $this->storeManager = $storeManager;
+        $this->timezone = $timezone;
+        $this->logger = $logger;
     }
 
     /**
@@ -118,7 +143,7 @@ class ProductFactory
                     ),
                     $images,
                     $this->getProductVariantStatus($childProduct),
-                    $this->getSalesPrice($childProduct)
+                    $this->getSalesPrice($childProduct, (int)$scope->getScopeId())
                 );
             }
         } else {
@@ -140,7 +165,7 @@ class ProductFactory
                 $this->reduceDescription((string)$product->getData('short_description'), self::MAX_DESC_LENGTH),
                 $images,
                 $this->getProductStatus($product),
-                $this->getSalesPrice($product)
+                $this->getSalesPrice($product, (int)$scope->getScopeId())
             );
         }
 
@@ -260,15 +285,152 @@ class ProductFactory
     /**
      * Get sales price.
      *
+     * Computes the store-accurate effective price, including catalog price rules
+     * and special price. The catalog price rule is looked up directly via the
+     * catalog rule resource model
+     *
      * @param MagentoProduct $product
+     * @param int $storeId
      */
-    private function getSalesPrice(MagentoProduct $product): ?ProductSalePrice
+    private function getSalesPrice(MagentoProduct $product, int $storeId): ?ProductSalePrice
     {
-        $price = $product->getSpecialPrice();
-        $fromDate = $product->getSpecialFromDate();
-        $toDate = $product->getSpecialToDate();
+        $basePrice = (float) $product->getPrice();
 
-        return null !== $price ? new ProductSalePrice((float)$price, $fromDate, $toDate) : null;
+        $candidates = [
+            new SalePriceCandidate($basePrice, null, null),
+        ];
+
+        $specialPrice = $product->getSpecialPrice();
+        $specialFromDate = $product->getSpecialFromDate();
+        $specialToDate = $product->getSpecialToDate();
+        if (null !== $specialPrice
+            && $this->timezone->isScopeDateInInterval($storeId, $specialFromDate, $specialToDate)
+        ) {
+            $candidates[] = new SalePriceCandidate((float) $specialPrice, $specialFromDate, $specialToDate);
+        }
+
+        try {
+            $websiteId = (int) $this->storeManager->getStore($storeId)->getWebsiteId();
+            $rulePrice = $this->catalogRuleResource->getRulePrice(
+                $this->timezone->scopeDate($storeId),
+                $websiteId,
+                CustomerGroup::NOT_LOGGED_IN_ID,
+                (int) $product->getId()
+            );
+
+            if (false !== $rulePrice) {
+                [$ruleFrom, $ruleTo] = $this->getCatalogRuleDates($product, $storeId, $websiteId);
+                $candidates[] = new SalePriceCandidate((float) $rulePrice, $ruleFrom, $ruleTo);
+            }
+        } catch (\Throwable $e) {
+            $this->logger->addError($e->getMessage(), ['exception' => $e]);
+        }
+
+        $winner = $this->pickLowestPriceCandidate($candidates);
+
+        if ($winner->getPrice() + 0.00001 >= $basePrice) {
+            return null;
+        }
+
+        return new ProductSalePrice($winner->getPrice(), $winner->getFrom(), $winner->getTo());
+    }
+
+    /**
+     * Pick the candidate with the lowest price.
+     *
+     * @param SalePriceCandidate[] $candidates
+     */
+    private function pickLowestPriceCandidate(array $candidates): SalePriceCandidate
+    {
+        $winner = $candidates[0];
+
+        foreach ($candidates as $candidate) {
+            if ($candidate->getPrice() + 0.00001 < $winner->getPrice()) {
+                $winner = $candidate;
+                continue;
+            }
+
+            $isTie = abs($candidate->getPrice() - $winner->getPrice()) <= 0.00001;
+            if ($isTie && $this->periodLength($candidate) < $this->periodLength($winner)) {
+                $winner = $candidate;
+            }
+        }
+
+        return $winner;
+    }
+
+    /**
+     * Length of the candidate promotion period in seconds
+     *
+     * @param SalePriceCandidate $candidate
+     */
+    private function periodLength(SalePriceCandidate $candidate): int
+    {
+        if (null === $candidate->getTo()) {
+            return PHP_INT_MAX;
+        }
+
+        $to = strtotime($candidate->getTo());
+        if (false === $to) {
+            return PHP_INT_MAX;
+        }
+
+        $from = null !== $candidate->getFrom() ? strtotime($candidate->getFrom()) : false;
+        if (false === $from) {
+            $from = 0;
+        }
+
+        return $to - $from;
+    }
+
+    /**
+     * Get the active catalog price rule period for the product
+     *
+     * @param MagentoProduct $product
+     * @param int $storeId
+     * @param int $websiteId
+     * @return array
+     */
+    private function getCatalogRuleDates(MagentoProduct $product, int $storeId, int $websiteId): array
+    {
+        try {
+            $rules = $this->catalogRuleResource->getRulesFromProduct(
+                $this->timezone->scopeDate($storeId),
+                $websiteId,
+                CustomerGroup::NOT_LOGGED_IN_ID,
+                (int) $product->getId()
+            );
+        } catch (\Throwable $e) {
+            $this->logger->addError($e->getMessage(), ['exception' => $e]);
+            $now = $this->timezone->scopeDate($storeId);
+            $to = date('Y-m-d H:i:s', strtotime($now) + 86400);
+
+            return [$now, $to];
+        }
+
+        if (empty($rules)) {
+            return [null, null];
+        }
+
+        $fromTime = null;
+        $toTime = null;
+        foreach ($rules as $rule) {
+            $ruleFrom = isset($rule['from_time']) ? (int) $rule['from_time'] : 0;
+            $ruleTo = isset($rule['to_time']) ? (int) $rule['to_time'] : 0;
+
+            if ($ruleFrom > 0 && (null === $fromTime || $ruleFrom > $fromTime)) {
+                $fromTime = $ruleFrom;
+            }
+
+            if ($ruleTo > 0 && (null === $toTime || $ruleTo < $toTime)) {
+                $toTime = $ruleTo;
+            }
+        }
+
+        return [
+            null !== $fromTime ? date('Y-m-d H:i:s', $fromTime) : null,
+            null !== $toTime ? date('Y-m-d H:i:s', $toTime) : null,
+        ];
     }
 
     /**

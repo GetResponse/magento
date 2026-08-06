@@ -1,19 +1,18 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="../../../../../lib/internal/Magento/Framework/ObjectManager/etc/config.xsd">
-    <type name="GetResponse\GetResponseIntegration\Logger\Handler">
-        <arguments>
-            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
-        </arguments>
-    </type>
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="GetResponse\GetResponseIntegration\Controller\Api\ConfigurationControllerInterface"
+                type="GetResponse\GetResponseIntegration\Api\Controller\ConfigurationController"/>
+    <preference for="GetResponse\GetResponseIntegration\Controller\Api\SubscriberControllerInterface"
+                type="GetResponse\GetResponseIntegration\Api\Controller\SubscriberController"/>
+    <preference for="GetResponse\GetResponseIntegration\Api\ProductPriceRepositoryInterface"
+                type="GetResponse\GetResponseIntegration\Repository\ProductPriceRepository"/>
+    <preference for="GetResponse\GetResponseIntegration\Api\CatalogRuleRepositoryInterface"
+                type="GetResponse\GetResponseIntegration\Repository\CatalogRuleRepository"/>
+
     <type name="GetResponse\GetResponseIntegration\Logger\Logger">
         <arguments>
-            <argument name="name" xsi:type="string">getResponse</argument>
-            <argument name="handlers"  xsi:type="array">
-                <item name="system" xsi:type="object">GetResponse\GetResponseIntegration\Logger\Handler</item>
-            </argument>
+            <argument name="name" xsi:type="string">GetResponseIntegration</argument>
         </arguments>
     </type>
-    <preference for="GetResponse\GetResponseIntegration\Controller\Api\SubscriberControllerInterface" type="GetResponse\GetResponseIntegration\Api\Controller\SubscriberController"/>
-    <preference for="GetResponse\GetResponseIntegration\Controller\Api\ConfigurationControllerInterface" type="GetResponse\GetResponseIntegration\Api\Controller\ConfigurationController"/>
 </config>

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
-
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
     <route url="/V1/getresponse/subscribers" method="GET">
         <service class="GetResponse\GetResponseIntegration\Controller\Api\SubscriberControllerInterface" method="list"/>
         <resources>
@@ -27,6 +27,18 @@
     </route>
     <route url="/V1/getresponse/configuration" method="DELETE">
         <service class="GetResponse\GetResponseIntegration\Controller\Api\ConfigurationControllerInterface" method="delete"/>
+        <resources>
+            <resource ref="Magento_Backend::admin"/>
+        </resources>
+    </route>
+    <route url="/V1/getresponse/catalog-rules" method="GET">
+        <service class="GetResponse\GetResponseIntegration\Api\CatalogRuleRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="GetResponse_GetResponseIntegration::catalog_rules"/>
+        </resources>
+    </route>
+    <route url="/V1/getresponse/product-price" method="GET">
+        <service class="GetResponse\GetResponseIntegration\Api\ProductPriceRepositoryInterface" method="getList"/>
         <resources>
             <resource ref="Magento_Backend::admin"/>
         </resources>

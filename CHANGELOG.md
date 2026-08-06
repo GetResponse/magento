@@ -1,6 +1,13 @@
 # Changelog
 
-## [21.2.0] - 2026-07-30
+## [21.3.0] - 2026-08-04
+### Feat
+- Added API endpoints for retrieving catalog rule product prices
+- Added product price API
+### Fix
+- Fix cart/order webhooks gross price when discount used
+
+## [21.2.0] - 2026-07-22
 ### Feat
 - Add page context in HTML to improve tracking
 

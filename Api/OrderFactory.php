@@ -41,6 +41,8 @@ class OrderFactory
             $billingAddress = $this->addressFactory->createFromOrder($order->getBillingAddress());
         }
 
+        $totalPriceInclTaxAfterDiscount = (float)$order->getSubtotalInclTax() + (float)$order->getDiscountAmount();
+
         return new Order(
             (int)$order->getId(),
             (string)$order->getIncrementId(),
@@ -49,9 +51,9 @@ class OrderFactory
             $this->customerFactory->createFromOrder($order),
             $this->createLinesFromOrder($order),
             null,
-            (float)$order->getSubtotal(),
-            (float)$order->getGrandTotal(),
-            (float)$order->getShippingAmount(),
+            $totalPriceInclTaxAfterDiscount,
+            $totalPriceInclTaxAfterDiscount,
+            (float)$order->getShippingInclTax(),
             $order->getOrderCurrencyCode(),
             $order->getStatus(),
             $order->getStatus(),
@@ -82,10 +84,16 @@ class OrderFactory
                 $variantId = $item->getProduct()->getId();
             }
 
+            $quantity = (float) $item->getQtyOrdered();
+            $itemPriceInclTaxAfterDiscount = (float) $item->getPriceInclTax();
+            if ($quantity > 0) {
+                $itemPriceInclTaxAfterDiscount -= (float) $item->getDiscountAmount() / $quantity;
+            }
+
             $lines[] = new Line(
                 (int)$variantId,
-                (float)$item->getPrice(),
-                (float)$item->getPriceInclTax(),
+                $itemPriceInclTaxAfterDiscount,
+                $itemPriceInclTaxAfterDiscount,
                 (int)$item->getQtyOrdered(),
                 (string)$item->getSku()
             );
