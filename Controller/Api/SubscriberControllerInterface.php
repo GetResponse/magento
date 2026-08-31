@@ -4,19 +4,25 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Controller\Api;
 
+use GetResponse\GetResponseIntegration\Api\Data\NewsletterSubscriberSearchResultsInterface;
+use Magento\Framework\Api\SearchCriteriaInterface;
+
 /**
  * @api
  */
 interface SubscriberControllerInterface
 {
     /**
-     * Handle list.
+     * Get active subscribers without associated customers from the website associated with a given store scope.
      *
-     * @param int $pageSize
-     * @param int $currentPage
-     * @return mixed[]
+     * @param string $scope
+     * @param SearchCriteriaInterface $searchCriteria
+     * @return NewsletterSubscriberSearchResultsInterface
      */
-    public function list(int $pageSize, int $currentPage): array;
+    public function getSubscribersWithoutCustomers(
+        string $scope,
+        SearchCriteriaInterface $searchCriteria
+    ): NewsletterSubscriberSearchResultsInterface;
 
     /**
      * Handle unsubscribe.

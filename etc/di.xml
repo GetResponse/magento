@@ -5,10 +5,31 @@
                 type="GetResponse\GetResponseIntegration\Api\Controller\ConfigurationController"/>
     <preference for="GetResponse\GetResponseIntegration\Controller\Api\SubscriberControllerInterface"
                 type="GetResponse\GetResponseIntegration\Api\Controller\SubscriberController"/>
+    <preference for="GetResponse\GetResponseIntegration\Api\Data\NewsletterSubscriberInterface"
+                type="GetResponse\GetResponseIntegration\Model\Data\NewsletterSubscriber"/>
+    <preference for="GetResponse\GetResponseIntegration\Api\Data\NewsletterSubscriberSearchResultsInterface"
+                type="GetResponse\GetResponseIntegration\Model\NewsletterSubscriberSearchResults"/>
+    <preference for="GetResponse\GetResponseIntegration\Api\SubscriberRepositoryInterface"
+                type="GetResponse\GetResponseIntegration\Repository\SubscriberRepository"/>
     <preference for="GetResponse\GetResponseIntegration\Api\ProductPriceRepositoryInterface"
                 type="GetResponse\GetResponseIntegration\Repository\ProductPriceRepository"/>
     <preference for="GetResponse\GetResponseIntegration\Api\CatalogRuleRepositoryInterface"
                 type="GetResponse\GetResponseIntegration\Repository\CatalogRuleRepository"/>
+
+    <virtualType name="GetResponse\GetResponseIntegration\Model\Api\SearchCriteria\SubscriberCollectionProcessor"
+                 type="Magento\Framework\Api\SearchCriteria\CollectionProcessor">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="filter" xsi:type="object">Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor</item>
+                <item name="pagination" xsi:type="object">Magento\Framework\Api\SearchCriteria\CollectionProcessor\PaginationProcessor</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="GetResponse\GetResponseIntegration\Repository\SubscriberRepository">
+        <arguments>
+            <argument name="collectionProcessor" xsi:type="object">GetResponse\GetResponseIntegration\Model\Api\SearchCriteria\SubscriberCollectionProcessor</argument>
+        </arguments>
+    </type>
 
     <type name="GetResponse\GetResponseIntegration\Logger\Logger">
         <arguments>

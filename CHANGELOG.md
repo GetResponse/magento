@@ -1,5 +1,12 @@
 # Changelog
 
+## [21.4.0] - 2026-08-27
+### Feat
+- Added an API endpoint for retrieving active newsletter subscribers without associated customers from the website
+  associated with a given store scope
+### Fix
+- Fixed handling of deleted products in order factory
+
 ## [21.3.0] - 2026-08-04
 ### Feat
 - Added API endpoints for retrieving catalog rule product prices

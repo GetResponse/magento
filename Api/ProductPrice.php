@@ -66,6 +66,8 @@ class ProductPrice implements JsonSerializable
     }
 
     /**
+     * Normalize object data for JSON serialization.
+     *
      * @return array
      */
     public function jsonSerialize(): array

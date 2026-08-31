@@ -81,7 +81,7 @@ class OrderFactory
                 $childItem = reset($childrenItems);
                 $variantId = $childItem->getProductId();
             } else {
-                $variantId = $item->getProduct()->getId();
+                $variantId = $item->getProductId();
             }
 
             $quantity = (float) $item->getQtyOrdered();
