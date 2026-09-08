@@ -15,6 +15,8 @@ class HttpClient
 {
     public const POST = 'POST';
     public const GET = 'GET';
+    public const HTTP_TIMEOUT = 3;
+    public const HTTP_CONNECTION_TIMEOUT = 2;
 
     /** @var Curl */
     private $curl;
@@ -66,6 +68,10 @@ class HttpClient
     private function sendRequest(string $url, string $method, JsonSerializable $object): string
     {
         $this->curl->setHeaders($this->buildHeaders($object)->toArray());
+        $this->curl->setOptions([
+            CURLOPT_TIMEOUT => self::HTTP_TIMEOUT,
+            CURLOPT_CONNECTTIMEOUT => self::HTTP_CONNECTION_TIMEOUT,
+        ]);
 
         $method === self::POST
             ? $this->curl->post($url, $this->jsonHelper->serialize($object))

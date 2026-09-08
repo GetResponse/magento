@@ -1,5 +1,10 @@
 # Changelog
 
+## [21.4.1] - 2026-09-04
+### Feat
+- Added a 3-second timeout for HTTP requests to prevent long-running API calls.
+- Added a 2-second connection timeout for HTTP requests to fail faster when the remote service is unreachable.
+
 ## [21.4.0] - 2026-08-27
 ### Feat
 - Added an API endpoint for retrieving active newsletter subscribers without associated customers from the website
