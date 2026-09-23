@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\Visitor;
 use JsonSerializable;
 
 class Order implements JsonSerializable
@@ -42,6 +43,8 @@ class Order implements JsonSerializable
     private $createdAt;
     /** @var ?string */
     private $updatedAt;
+    /** @var ?Visitor */
+    private $visitor;
 
     /**
      * @param int $id
@@ -61,6 +64,7 @@ class Order implements JsonSerializable
      * @param ?Address $billingAddress
      * @param string $createdAt
      * @param ?string $updatedAt
+     * @param ?Visitor $visitor
      */
     public function __construct(
         int $id,
@@ -79,7 +83,8 @@ class Order implements JsonSerializable
         ?Address $shippingAddress,
         ?Address $billingAddress,
         string $createdAt,
-        ?string $updatedAt
+        ?string $updatedAt,
+        ?Visitor $visitor = null
     ) {
         $this->id = $id;
         $this->orderNumber = $orderNumber;
@@ -98,6 +103,7 @@ class Order implements JsonSerializable
         $this->billingAddress = $billingAddress;
         $this->createdAt = $createdAt;
         $this->updatedAt = $updatedAt;
+        $this->visitor = $visitor;
     }
 
     /**
@@ -117,6 +123,7 @@ class Order implements JsonSerializable
             'cart_id' => $this->cartId,
             'contact_email' => $this->contactEmail,
             'customer' => $this->customer->jsonSerialize(),
+            'visitor_uuid' => $this->visitor !== null ? $this->visitor->getVisitorUuid() : null,
             'lines' => $lines,
             'url' => $this->url,
             'total_price' => $this->totalPrice,

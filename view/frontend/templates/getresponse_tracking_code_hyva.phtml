@@ -39,6 +39,7 @@
         if (!isWebConnectEnabled() || isHandlingPrivateContent) return;
 
         const customerEmail = customerSectionData?.['getresponse-tracking-code']?.customerEmail ?? null;
+        const customerId = customerSectionData?.['getresponse-tracking-code']?.customerId ?? null;
         const gaIsValuable = typeof hyva?.getCookie === 'function' ? hyva.getCookie('gaIsValuable') : undefined;
         const rawCartData = customerSectionData?.['getresponse-tracking-code']?.cart;
         const cartData = parseCartData(rawCartData);
@@ -73,7 +74,7 @@
 
         try {
             if (customerEmail && gaIsValuable !== '1') {
-                GrTracking('setUserId', customerEmail);
+                GrTracking('setUserId', customerEmail, {externalId: customerId ? String(customerId) : ''});
             }
 
             let needsReload = false;

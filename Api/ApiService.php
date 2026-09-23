@@ -177,6 +177,8 @@ class ApiService
      */
     public function createOrder(MagentoOrder $order, Scope $scope): void
     {
+        $visitor = null;
+
         $liveSynchronization = LiveSynchronization::createFromRepository(
             $this->repository->getLiveSynchronization($scope->getScopeId())
         );
@@ -185,9 +187,17 @@ class ApiService
             return;
         }
 
+        $webConnect = WebEventTracking::createFromRepository(
+            $this->repository->getWebEventTracking($scope->getScopeId())
+        );
+
+        if ($webConnect->isActive()) {
+            $visitor = $this->webTrackingRepository->findVisitor();
+        }
+
         $this->httpClient->post(
             $liveSynchronization->getCallbackUrl(),
-            $this->orderFactory->create($order)
+            $this->orderFactory->create($order, $visitor)
         );
     }
 
@@ -200,6 +210,8 @@ class ApiService
      */
     public function updateOrder(MagentoOrder $order, Scope $scope): void
     {
+        $visitor = null;
+
         $liveSynchronization = LiveSynchronization::createFromRepository(
             $this->repository->getLiveSynchronization($scope->getScopeId())
         );
@@ -208,9 +220,17 @@ class ApiService
             return;
         }
 
+        $webConnect = WebEventTracking::createFromRepository(
+            $this->repository->getWebEventTracking($scope->getScopeId())
+        );
+
+        if ($webConnect->isActive()) {
+            $visitor = $this->webTrackingRepository->findVisitor();
+        }
+
         $this->httpClient->post(
             $liveSynchronization->getCallbackUrl(),
-            $this->orderFactory->create($order)
+            $this->orderFactory->create($order, $visitor)
         );
     }
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## [21.4.3] - 2026-09-21
+### Feat
+- Added store ID to the newsletter subscriber API response
+
+## [21.4.2] - 2026-09-16
+### Feat
+- Added customer ID (`externalId`) to webconnect tracking code (`setUserId`)
+- Added `visitor_uuid` to order webhooks
+
 ## [21.4.1] - 2026-09-04
 ### Feat
 - Added a 3-second timeout for HTTP requests to prevent long-running API calls.

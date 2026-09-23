@@ -40,4 +40,20 @@ class NewsletterSubscriber extends AbstractSimpleObject implements NewsletterSub
     {
         return $this->setData(self::EMAIL, $email);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStoreId(): int
+    {
+        return (int) $this->_get(self::STORE_ID);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setStoreId(int $storeId): NewsletterSubscriberInterface
+    {
+        return $this->setData(self::STORE_ID, $storeId);
+    }
 }

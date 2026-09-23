@@ -38,11 +38,13 @@ class CustomerSectionSource implements SectionSourceInterface
      */
     public function getSectionData(): array
     {
-        $email = $this->currentCustomer->getCustomerId() ? $this->currentCustomer->getCustomer()->getEmail() : null;
+        $customerId = $this->currentCustomer->getCustomerId();
+        $email = $customerId ? $this->currentCustomer->getCustomer()->getEmail() : null;
         $serializedCart = $this->serializer->serialize($this->service->getCartFromBuffer());
 
         return [
             'customerEmail' => $email,
+            'customerId' => $customerId ? (string)$customerId : null,
             'cart' => $serializedCart
         ];
     }

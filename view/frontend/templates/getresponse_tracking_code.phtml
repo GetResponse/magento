@@ -1,5 +1,5 @@
 <div class="getresponse-tracking-code-section" data-bind="scope: 'getresponse_tracking_code_section'">
-    <div id="customer-email-address" data-bind="attr: { 'customer-email': getResponseTrackingCode().customerEmail }"></div>
+    <div id="customer-email-address" data-bind="attr: { 'customer-email': getResponseTrackingCode().customerEmail, 'customer-id': getResponseTrackingCode().customerId }"></div>
     <div id="tracking-code-cart" data-bind="attr: { 'cart': getResponseTrackingCode().cart }"></div>
 </div>
 
@@ -35,12 +35,13 @@
 
         let customerEmailObserver = new MutationObserver(function(mutations) {
             let customerEmail = customerEmailNode.getAttribute('customer-email');
+            let customerId = customerEmailNode.getAttribute('customer-id');
             let gaIsValuable = $.cookie('gaIsValuable');
             let trackingCodeEnabled = typeof gaSetUserId !== 'undefined' && typeof gaSetUserId === 'function';
 
             if (customerEmail !== null && trackingCodeEnabled && gaIsValuable !== '1') {
                 gaSetUserId(customerEmail);
-                GrTracking('setUserId', customerEmail);
+                GrTracking('setUserId', customerEmail, {externalId: customerId ? String(customerId) : ''});
             }
         });
 

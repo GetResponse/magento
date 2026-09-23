@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GetResponse\GetResponseIntegration\Api;
 
+use GetResponse\GetResponseIntegration\Domain\Magento\Visitor;
 use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Sales\Model\Order\Item;
 
@@ -28,8 +29,9 @@ class OrderFactory
      * Handle create.
      *
      * @param MagentoOrder $order
+     * @param ?Visitor $visitor
      */
-    public function create(MagentoOrder $order): Order
+    public function create(MagentoOrder $order, ?Visitor $visitor = null): Order
     {
         $shippingAddress = null;
         if ($order->getShippingAddress()) {
@@ -60,7 +62,8 @@ class OrderFactory
             $shippingAddress,
             $billingAddress,
             $order->getCreatedAt(),
-            $order->getUpdatedAt()
+            $order->getUpdatedAt(),
+            $visitor
         );
     }
 

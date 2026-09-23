@@ -13,6 +13,7 @@ interface NewsletterSubscriberInterface
 {
     public const ID = 'id';
     public const EMAIL = 'email';
+    public const STORE_ID = 'store_id';
 
     /**
      * Get subscriber ID.
@@ -43,4 +44,19 @@ interface NewsletterSubscriberInterface
      * @return $this
      */
     public function setEmail(string $email): NewsletterSubscriberInterface;
+
+    /**
+     * Get store ID.
+     *
+     * @return int
+     */
+    public function getStoreId(): int;
+
+    /**
+     * Set store ID.
+     *
+     * @param int $storeId
+     * @return $this
+     */
+    public function setStoreId(int $storeId): NewsletterSubscriberInterface;
 }

@@ -70,6 +70,7 @@ class SubscriberRepository implements SubscriberRepositoryInterface
         $subscribers->addFieldToSelect([
             'subscriber_id',
             'subscriber_email',
+            'store_id',
         ]);
 
         $this->collectionProcessor->process($searchCriteria, $subscribers);
@@ -85,6 +86,7 @@ class SubscriberRepository implements SubscriberRepositoryInterface
             $item = new NewsletterSubscriber();
             $item->setId((int) $subscriber->getId());
             $item->setEmail((string) $subscriber->getEmail());
+            $item->setStoreId((int) $subscriber->getStoreId());
             $items[] = $item;
         }
 
