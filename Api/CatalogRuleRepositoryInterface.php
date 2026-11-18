@@ -12,7 +12,7 @@ interface CatalogRuleRepositoryInterface
      * Get list of catalog rules.
      *
      * @param SearchCriteriaInterface $searchCriteria
-     * @return CatalogRule[]
+     * @return \GetResponse\GetResponseIntegration\Api\CatalogRule[]
      */
     public function getList(SearchCriteriaInterface $searchCriteria): array;
 }

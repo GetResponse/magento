@@ -5,6 +5,8 @@
                 type="GetResponse\GetResponseIntegration\Api\Controller\ConfigurationController"/>
     <preference for="GetResponse\GetResponseIntegration\Controller\Api\SubscriberControllerInterface"
                 type="GetResponse\GetResponseIntegration\Api\Controller\SubscriberController"/>
+    <preference for="GetResponse\GetResponseIntegration\Controller\Api\ProductAvailabilityControllerInterface"
+                type="GetResponse\GetResponseIntegration\Api\Controller\ProductAvailabilityController"/>
     <preference for="GetResponse\GetResponseIntegration\Api\Data\NewsletterSubscriberInterface"
                 type="GetResponse\GetResponseIntegration\Model\Data\NewsletterSubscriber"/>
     <preference for="GetResponse\GetResponseIntegration\Api\Data\NewsletterSubscriberSearchResultsInterface"
@@ -13,6 +15,8 @@
                 type="GetResponse\GetResponseIntegration\Repository\SubscriberRepository"/>
     <preference for="GetResponse\GetResponseIntegration\Api\ProductPriceRepositoryInterface"
                 type="GetResponse\GetResponseIntegration\Repository\ProductPriceRepository"/>
+    <preference for="GetResponse\GetResponseIntegration\Api\ProductAvailabilityRepositoryInterface"
+                type="GetResponse\GetResponseIntegration\Repository\ProductAvailabilityRepository"/>
     <preference for="GetResponse\GetResponseIntegration\Api\CatalogRuleRepositoryInterface"
                 type="GetResponse\GetResponseIntegration\Repository\CatalogRuleRepository"/>
 

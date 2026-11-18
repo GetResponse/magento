@@ -12,7 +12,7 @@ interface ProductPriceRepositoryInterface
      * Get product prices.
      *
      * @param SearchCriteriaInterface $searchCriteria
-     * @return ProductPrice[]
+     * @return \GetResponse\GetResponseIntegration\Api\ProductPrice[]
      */
     public function getList(SearchCriteriaInterface $searchCriteria): array;
 }

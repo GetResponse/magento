@@ -43,6 +43,7 @@
             <block name="getresponse.tracking.code.snippet"
                    class="GetResponse\GetResponseIntegration\Block\Header"
                    template="header.phtml"
+                   before="-"
             />
         </referenceBlock>
 

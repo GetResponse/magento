@@ -1,5 +1,14 @@
 # Changelog
 
+## [21.5.0] - 2026-11-04
+### Feat
+- Added an API endpoint for retrieving product salability for a given store
+  (resolved through Magento Inventory when enabled, legacy CatalogInventory otherwise).
+
+## [21.4.4] - 2026-11-17
+### Fix
+- Moved the WebConnect tracking code snippet to the beginning of `head.additional` (REC-974)
+
 ## [21.4.3] - 2026-09-21
 ### Feat
 - Added store ID to the newsletter subscriber API response

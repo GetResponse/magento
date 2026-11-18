@@ -7,9 +7,6 @@ namespace GetResponse\GetResponseIntegration\Controller\Api;
 use GetResponse\GetResponseIntegration\Api\Data\NewsletterSubscriberSearchResultsInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
 
-/**
- * @api
- */
 interface SubscriberControllerInterface
 {
     /**
@@ -17,7 +14,7 @@ interface SubscriberControllerInterface
      *
      * @param string $scope
      * @param SearchCriteriaInterface $searchCriteria
-     * @return NewsletterSubscriberSearchResultsInterface
+     * @return \GetResponse\GetResponseIntegration\Api\Data\NewsletterSubscriberSearchResultsInterface
      */
     public function getSubscribersWithoutCustomers(
         string $scope,

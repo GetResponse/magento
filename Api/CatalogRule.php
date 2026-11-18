@@ -213,7 +213,7 @@ class CatalogRule implements JsonSerializable
     /**
      * Get website ids.
      *
-     * @return array
+     * @return int[]
      */
     public function getWebsiteIds(): array
     {
@@ -223,7 +223,7 @@ class CatalogRule implements JsonSerializable
     /**
      * Get customer group ids.
      *
-     * @return array
+     * @return int[]
      */
     public function getCustomerGroupIds(): array
     {
@@ -233,7 +233,7 @@ class CatalogRule implements JsonSerializable
     /**
      * Get product ids.
      *
-     * @return array
+     * @return int[]
      */
     public function getProductIds(): array
     {

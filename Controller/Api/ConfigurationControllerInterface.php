@@ -6,15 +6,12 @@ namespace GetResponse\GetResponseIntegration\Controller\Api;
 
 use GetResponse\GetResponseIntegration\Presenter\Api\ConfigurationPresenter;
 
-/**
- * @api
- */
 interface ConfigurationControllerInterface
 {
     /**
      * Handle list.
      *
-     * @return ConfigurationPresenter
+     * @return \GetResponse\GetResponseIntegration\Presenter\Api\ConfigurationPresenter
      */
     public function list(): ConfigurationPresenter;
 

@@ -43,4 +43,10 @@
             <resource ref="Magento_Backend::admin"/>
         </resources>
     </route>
+    <route url="/V1/getresponse/product-availability/:scope" method="GET">
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\ProductAvailabilityControllerInterface" method="getList"/>
+        <resources>
+            <resource ref="Magento_Backend::admin"/>
+        </resources>
+    </route>
 </routes>

@@ -8,9 +8,6 @@ use GetResponse\GetResponseIntegration\Api\Data\NewsletterSubscriberSearchResult
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Exception\InputException;
 
-/**
- * @api
- */
 interface SubscriberRepositoryInterface
 {
     /**

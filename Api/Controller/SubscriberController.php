@@ -8,13 +8,9 @@ use GetResponse\GetResponseIntegration\Api\Data\NewsletterSubscriberSearchResult
 use GetResponse\GetResponseIntegration\Api\SubscriberRepositoryInterface;
 use GetResponse\GetResponseIntegration\Application\Magento\Newsletter\NewsletterUnsubscribeService;
 use GetResponse\GetResponseIntegration\Controller\Api\SubscriberControllerInterface;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Framework\Api\SearchCriteriaInterface;
 
-/**
- * @api
- */
 class SubscriberController extends ApiController implements SubscriberControllerInterface
 {
     /** @var SubscriberRepositoryInterface */
@@ -23,18 +19,16 @@ class SubscriberController extends ApiController implements SubscriberController
     private $newsletterUnsubscribeService;
 
     /**
-     * @param Repository $repository
      * @param MagentoStore $magentoStore
      * @param SubscriberRepositoryInterface $subscriberRepository
      * @param NewsletterUnsubscribeService $newsletterUnsubscribeService
      */
     public function __construct(
-        Repository $repository,
         MagentoStore $magentoStore,
         SubscriberRepositoryInterface $subscriberRepository,
         NewsletterUnsubscribeService $newsletterUnsubscribeService
     ) {
-        parent::__construct($repository, $magentoStore);
+        parent::__construct($magentoStore);
         $this->subscriberRepository = $subscriberRepository;
         $this->newsletterUnsubscribeService = $newsletterUnsubscribeService;
     }

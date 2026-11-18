@@ -24,11 +24,10 @@ use Magento\Framework\Phrase;
 use Magento\Framework\Webapi\Exception as WebapiException;
 use Magento\Framework\Webapi\Rest\Request;
 
-/**
- * @api
- */
 class ConfigurationController extends ApiController implements ConfigurationControllerInterface
 {
+    /** @var Repository */
+    protected $repository;
     /** @var Request */
     private $request;
     /** @var Manager */
@@ -50,7 +49,8 @@ class ConfigurationController extends ApiController implements ConfigurationCont
         Manager $cacheManager,
         PlatformVersionProvider $platformVersionProvider
     ) {
-        parent::__construct($repository, $magentoStore);
+        parent::__construct($magentoStore);
+        $this->repository = $repository;
         $this->request = $request;
         $this->cacheManager = $cacheManager;
         $this->platformVersionProvider = $platformVersionProvider;

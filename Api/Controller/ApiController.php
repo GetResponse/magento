@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GetResponse\GetResponseIntegration\Api\Controller;
 
 use Exception;
-use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
 use GetResponse\GetResponseIntegration\Helper\MagentoStore;
 use Magento\Framework\Phrase;
@@ -18,16 +17,12 @@ abstract class ApiController
     protected $scope;
     /** @var MagentoStore */
     protected $magentoStore;
-    /** @var Repository */
-    protected $repository;
 
     /**
-     * @param Repository $repository
      * @param MagentoStore $magentoStore
      */
-    public function __construct(Repository $repository, MagentoStore $magentoStore)
+    public function __construct(MagentoStore $magentoStore)
     {
-        $this->repository = $repository;
         $this->magentoStore = $magentoStore;
     }
 

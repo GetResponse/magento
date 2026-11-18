@@ -8,8 +8,6 @@ use Magento\Framework\Api\SearchResultsInterface;
 
 /**
  * Search results for newsletter subscribers.
- *
- * @api
  */
 interface NewsletterSubscriberSearchResultsInterface extends SearchResultsInterface
 {

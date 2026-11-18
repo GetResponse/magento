@@ -6,8 +6,6 @@ namespace GetResponse\GetResponseIntegration\Api\Data;
 
 /**
  * Newsletter subscriber.
- *
- * @api
  */
 interface NewsletterSubscriberInterface
 {
