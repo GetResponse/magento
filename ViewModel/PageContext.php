@@ -87,6 +87,7 @@ class PageContext implements ArgumentInterface
      */
     public function getContext(): ?array
     {
+        $shopId = null;
         try {
             $webEventTracking = WebEventTracking::createFromRepository(
                 $this->repository->getWebEventTracking($this->storeManager->getStore()->getId())
@@ -112,6 +113,10 @@ class PageContext implements ArgumentInterface
                     return $this->createResponse($shopId, 'other');
             }
         } catch (\Throwable $e) {
+            if (null === $shopId) {
+                return null;
+            }
+
             return $this->createResponse($shopId, 'other');
         }
     }
