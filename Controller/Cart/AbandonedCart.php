@@ -12,6 +12,7 @@ use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Quote\Model\QuoteFactory;
+use Magento\Quote\Model\ResourceModel\Quote as QuoteResource;
 
 class AbandonedCart extends Action implements HttpGetActionInterface
 {
@@ -33,6 +34,9 @@ class AbandonedCart extends Action implements HttpGetActionInterface
     /** @var CartIdEncryptor */
     protected $cartIdEncryptor;
 
+    /** @var QuoteResource */
+    private $quoteResource;
+
     /**
      * @param Context $context
      * @param Cart $cart
@@ -41,6 +45,7 @@ class AbandonedCart extends Action implements HttpGetActionInterface
      * @param Session $checkoutSession
      * @param QuoteFactory $quoteFactory
      * @param CartIdEncryptor $cartIdEncryptor
+     * @param QuoteResource $quoteResource
      */
     public function __construct(
         Context $context,
@@ -49,7 +54,8 @@ class AbandonedCart extends Action implements HttpGetActionInterface
         UrlInterface $url,
         Session $checkoutSession,
         QuoteFactory $quoteFactory,
-        CartIdEncryptor $cartIdEncryptor
+        CartIdEncryptor $cartIdEncryptor,
+        QuoteResource $quoteResource
     ) {
         parent::__construct($context);
         $this->cart = $cart;
@@ -58,6 +64,7 @@ class AbandonedCart extends Action implements HttpGetActionInterface
         $this->checkoutSession = $checkoutSession;
         $this->quoteFactory = $quoteFactory;
         $this->cartIdEncryptor = $cartIdEncryptor;
+        $this->quoteResource = $quoteResource;
     }
 
     /**
@@ -92,7 +99,7 @@ class AbandonedCart extends Action implements HttpGetActionInterface
         $quote->setReservedOrderId(null);
         $quote->setIsActive(true);
         $quote->removePayment();
-        $quote->save();
+        $this->quoteResource->save($quote);
 
         $this->checkoutSession->clearStorage();
         $this->checkoutSession->replaceQuote($quote);
