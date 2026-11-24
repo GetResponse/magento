@@ -255,6 +255,42 @@ class Repository
     }
 
     /**
+     * Read availability settings for a store, disabled by default.
+     *
+     * @param int $scopeId
+     * @return ProductAvailabilitySettings
+     */
+    public function getProductAvailability(int $scopeId): ProductAvailabilitySettings
+    {
+        $data = $this->scopeConfig->getValue(
+            Config::CONFIG_PRODUCT_AVAILABILITY,
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+
+        return ProductAvailabilitySettings::createFromRepository(
+            empty($data) ? [] : $this->serializer->unserialize($data)
+        );
+    }
+
+    /**
+     * Save availability settings for a store.
+     *
+     * @param ProductAvailabilitySettings $settings
+     * @param int $scopeId
+     * @return void
+     */
+    public function saveProductAvailability(ProductAvailabilitySettings $settings, int $scopeId): void
+    {
+        $this->configWriter->save(
+            Config::CONFIG_PRODUCT_AVAILABILITY,
+            $this->serializer->serialize($settings->toArray()),
+            $this->getScope($scopeId),
+            $this->getScopeId($scopeId)
+        );
+    }
+
+    /**
      * Handle clear configuration.
      *
      * @param mixed $scopeId
@@ -267,7 +303,8 @@ class Repository
             Config::CONFIG_DATA_FACEBOOK_BUSINESS_EXTENSION_SNIPPET,
             Config::CONFIG_DATA_WEBFORMS_SETTINGS,
             Config::CONFIG_DATA_WEB_EVENT_TRACKING,
-            Config::CONFIG_LIVE_SYNCHRONIZATION
+            Config::CONFIG_LIVE_SYNCHRONIZATION,
+            Config::CONFIG_PRODUCT_AVAILABILITY
         ];
 
         foreach ($keys as $key) {

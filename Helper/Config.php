@@ -8,6 +8,7 @@ class Config
 {
     public const CONFIG_DATA_WEB_EVENT_TRACKING = 'getresponse/web-event-tracking';
     public const CONFIG_LIVE_SYNCHRONIZATION = 'getresponse/live-synchronization';
+    public const CONFIG_PRODUCT_AVAILABILITY = 'getresponse/product-availability';
     public const CONFIG_DATA_FACEBOOK_PIXEL_SNIPPET = 'getresponse/facebook-pixel-snippet';
     public const CONFIG_DATA_FACEBOOK_ADS_PIXEL_SNIPPET = 'getresponse/facebook-ads-pixel-snippet';
     public const CONFIG_DATA_FACEBOOK_BUSINESS_EXTENSION_SNIPPET = 'getresponse/facebook-business-extension-snippet';

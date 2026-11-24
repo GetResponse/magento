@@ -1,5 +1,9 @@
 # Changelog
 
+## [21.6.0]
+### Feat
+- Added store-scoped product availability settings (disabled by default)
+
 ## [21.5.0] - 2026-11-04
 ### Feat
 - Added an API endpoint for retrieving product salability for a given store

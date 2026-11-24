@@ -10,6 +10,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\FacebookAdsPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookBusinessExtension;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization;
+use GetResponse\GetResponseIntegration\Domain\Magento\ProductAvailabilitySettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\Repository;
 use GetResponse\GetResponseIntegration\Domain\Magento\RequestValidationException;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
@@ -115,6 +116,7 @@ class ConfigurationController extends ApiController implements ConfigurationCont
             $webForm = WebForm::createFromRequest($requestBody);
             $webEventTracking = WebEventTracking::createFromRequest($requestBody);
             $liveSynchronization = LiveSynchronization::createFromRequest($requestBody);
+            $productAvailability = ProductAvailabilitySettings::createFromRequest($requestBody);
 
             $this->repository->saveFacebookPixelSnippet($facebookPixel, $scope);
             $this->repository->saveFacebookAdsPixelSnippet($facebookAdsPixel, $scope);
@@ -122,8 +124,30 @@ class ConfigurationController extends ApiController implements ConfigurationCont
             $this->repository->saveWebformSettings($webForm, $scope);
             $this->repository->saveWebEventTracking($webEventTracking, $scope);
             $this->repository->saveLiveSynchronization($liveSynchronization, $scope);
+            $this->repository->saveProductAvailability($productAvailability, $scope);
 
             $this->clearCache();
+        } catch (RequestValidationException $e) {
+            throw new WebapiException(new Phrase($e->getMessage()));
+        }
+    }
+
+    /**
+     * Update only availability settings without overwriting other configuration.
+     *
+     * @param int $scope
+     * @return void
+     * @throws WebapiException
+     */
+    public function updateProductAvailability(int $scope): void
+    {
+        $this->verifyScope($scope);
+
+        try {
+            $settings = ProductAvailabilitySettings::createFromRequest($this->request->getBodyParams());
+            $this->repository->saveProductAvailability($settings, $scope);
+
+            $this->cacheManager->clean(['config']);
         } catch (RequestValidationException $e) {
             throw new WebapiException(new Phrase($e->getMessage()));
         }
@@ -155,7 +179,8 @@ class ConfigurationController extends ApiController implements ConfigurationCont
             ),
             LiveSynchronization::createFromRepository(
                 $this->repository->getLiveSynchronization($scope->getScopeId())
-            )
+            ),
+            $this->repository->getProductAvailability($scope->getScopeId())
         );
     }
 

@@ -8,6 +8,7 @@ use GetResponse\GetResponseIntegration\Domain\Magento\FacebookAdsPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookBusinessExtension;
 use GetResponse\GetResponseIntegration\Domain\Magento\FacebookPixel;
 use GetResponse\GetResponseIntegration\Domain\Magento\LiveSynchronization as LiveSynchronizationDTO;
+use GetResponse\GetResponseIntegration\Domain\Magento\ProductAvailabilitySettings;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebEventTracking;
 use GetResponse\GetResponseIntegration\Domain\Magento\WebForm as WebFormDTO;
 use GetResponse\GetResponseIntegration\Domain\SharedKernel\Scope;
@@ -28,6 +29,8 @@ class Store
     private $webEventTracking;
     /** @var LiveSynchronizationDTO */
     private $liveSynchronization;
+    /** @var ProductAvailabilitySettings */
+    private $productAvailability;
 
     /**
      * @param Scope $scope
@@ -37,6 +40,7 @@ class Store
      * @param WebFormDTO $webForm
      * @param WebEventTracking $webEventTracking
      * @param LiveSynchronizationDTO $liveSynchronization
+     * @param ProductAvailabilitySettings $productAvailability
      */
     public function __construct(
         Scope $scope,
@@ -45,7 +49,8 @@ class Store
         FacebookBusinessExtension $facebookBusinessExtension,
         WebFormDTO $webForm,
         WebEventTracking $webEventTracking,
-        LiveSynchronizationDTO $liveSynchronization
+        LiveSynchronizationDTO $liveSynchronization,
+        ProductAvailabilitySettings $productAvailability
     ) {
         $this->scope = $scope;
         $this->facebookPixel = $facebookPixel;
@@ -54,6 +59,7 @@ class Store
         $this->webForm = $webForm;
         $this->webEventTracking = $webEventTracking;
         $this->liveSynchronization = $liveSynchronization;
+        $this->productAvailability = $productAvailability;
     }
 
     /**
@@ -124,5 +130,15 @@ class Store
     public function getLiveSynchronization(): LiveSynchronization
     {
         return new LiveSynchronization($this->liveSynchronization);
+    }
+
+    /**
+     * Get product availability.
+     *
+     * @return \GetResponse\GetResponseIntegration\Presenter\Api\Section\ProductAvailability
+     */
+    public function getProductAvailability(): ProductAvailability
+    {
+        return new ProductAvailability($this->productAvailability);
     }
 }

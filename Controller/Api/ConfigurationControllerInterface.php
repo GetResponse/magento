@@ -29,4 +29,12 @@ interface ConfigurationControllerInterface
      * @return void
      */
     public function update(string $scope): void;
+
+    /**
+     * Update only product availability settings for a store.
+     *
+     * @param int $scope
+     * @return void
+     */
+    public function updateProductAvailability(int $scope): void;
 }

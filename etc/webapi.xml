@@ -31,6 +31,12 @@
             <resource ref="Magento_Backend::admin"/>
         </resources>
     </route>
+    <route url="/V1/getresponse/configuration/:scope/product-availability" method="PUT">
+        <service class="GetResponse\GetResponseIntegration\Controller\Api\ConfigurationControllerInterface" method="updateProductAvailability"/>
+        <resources>
+            <resource ref="Magento_Backend::admin"/>
+        </resources>
+    </route>
     <route url="/V1/getresponse/catalog-rules" method="GET">
         <service class="GetResponse\GetResponseIntegration\Api\CatalogRuleRepositoryInterface" method="getList"/>
         <resources>
