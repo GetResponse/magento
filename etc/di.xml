@@ -35,9 +35,14 @@
         </arguments>
     </type>
 
-    <type name="GetResponse\GetResponseIntegration\Logger\Logger">
+    <virtualType name="GetResponseIntegrationMonolog" type="Monolog\Logger">
         <arguments>
             <argument name="name" xsi:type="string">GetResponseIntegration</argument>
+        </arguments>
+    </virtualType>
+    <type name="GetResponse\GetResponseIntegration\Logger\Logger">
+        <arguments>
+            <argument name="logger" xsi:type="object">GetResponseIntegrationMonolog</argument>
         </arguments>
     </type>
 </config>

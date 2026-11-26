@@ -6,8 +6,19 @@ namespace GetResponse\GetResponseIntegration\Logger;
 
 use Monolog\Logger as MonologLogger;
 
-class Logger extends MonologLogger
+class Logger
 {
+    /** @var MonologLogger */
+    private $logger;
+
+    /**
+     * @param MonologLogger $logger
+     */
+    public function __construct(MonologLogger $logger)
+    {
+        $this->logger = $logger;
+    }
+
     /**
      * Handle add notice.
      *
@@ -16,11 +27,7 @@ class Logger extends MonologLogger
      */
     public function addNotice($message, array $context = [])
     {
-        if (method_exists(MonologLogger::class, 'notice')) {
-            parent::notice($message, $context);
-        } elseif (method_exists(MonologLogger::class, 'addNotice')) {
-            parent::addNotice($message, $context);
-        }
+        $this->logger->notice($message, $context);
     }
 
     /**
@@ -31,10 +38,6 @@ class Logger extends MonologLogger
      */
     public function addError($message, array $context = [])
     {
-        if (method_exists(MonologLogger::class, 'error')) {
-            parent::error($message, $context);
-        } elseif (method_exists(MonologLogger::class, 'addError')) {
-            parent::addError($message, $context);
-        }
+        $this->logger->error($message, $context);
     }
 }
